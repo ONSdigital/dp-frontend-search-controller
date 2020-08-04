@@ -39,4 +39,27 @@ func TestUnitHandlers(t *testing.T) {
 		})
 	})
 
+	Convey("test getSearchPage", t, func() {
+
+		Convey("test status code handles 404 response from client", func() {
+			req := httptest.NewRequest("GET", "http://localhost:", nil)
+			w := httptest.NewRecorder()
+			err := &testCliError{}
+
+			setStatusCode(req, w, err)
+
+			So(w.Code, ShouldEqual, http.StatusNotFound)
+		})
+
+		Convey("test status code handles internal server error", func() {
+			req := httptest.NewRequest("GET", "http://localhost:", nil)
+			w := httptest.NewRecorder()
+			err := errors.New("internal server error")
+
+			setStatusCode(req, w, err)
+
+			So(w.Code, ShouldEqual, http.StatusInternalServerError)
+		})
+	})
+
 }
