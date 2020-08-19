@@ -18,17 +18,20 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	// SEARCH STRUCT MAPPING
 	page.Data.Query = query.Get("q")
 
-	contentStr := query.Get("content_type")
-	contentStr = strings.TrimLeft(contentStr, "[")
-	contentStr = strings.TrimRight(contentStr, "]")
-	page.Data.Filter = strings.Split(contentStr, ",")
+	filter := query.Get("filter")
+	if filter != "" {
+		filter = strings.TrimLeft(filter, "[")
+		filter = strings.TrimRight(filter, "]")
+		page.Data.Filter = strings.Split(filter, ",")
+	}
 
-	page.Data.Sort = query.Get("sort_order")
+	page.Data.Sort = query.Get("sortBy")
 
 	if query.Get("limit") != "" {
 		page.Data.Limit, err = strconv.Atoi(query.Get("limit"))
 		if err != nil {
 			log.Event(ctx, "unable to convert search limit to int", log.Error(err), log.ERROR)
+			page.Data.Limit = 10
 		}
 	}
 
@@ -36,96 +39,141 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 		page.Data.Offset, err = strconv.Atoi(query.Get("offset"))
 		if err != nil {
 			log.Event(ctx, "unable to convert search offset to int", log.Error(err), log.ERROR)
+			page.Data.Offset = 0
 		}
 	}
 
 	//RESPONSE STRUCT MAPPING
 	page.Data.Response.Count = respC.Count
 
-	pageContentType := page.Data.Response.ContentTypes
-	for i, contentTypeC := range respC.ContentTypes {
-		pageContentType[i].Type = contentTypeC.Type
-		pageContentType[i].Count = contentTypeC.Count
+	pageContentType := []model.ContentType{}
+	for _, contentTypeC := range respC.ContentTypes {
+		pageContentType = append(pageContentType, model.ContentType{
+			Type:  contentTypeC.Type,
+			Count: contentTypeC.Count,
+		})
 	}
+	page.Data.Response.ContentTypes = pageContentType
 
 	//RESPONSE-ITEMS STRUCT MAPPING
+	itemPage := []model.ContentItem{}
 	for i, itemC := range respC.Items {
-		itemPage := page.Data.Response.Items[i]
-
-		descriptionPage := itemPage.Description
 		descriptionC := itemC.Description
+		itemPage = append(itemPage, model.ContentItem{
+			Description: model.Description{
+				DatasetID:         descriptionC.DatasetID,
+				Edition:           descriptionC.Edition,
+				Headline1:         descriptionC.Headline1,
+				Headline2:         descriptionC.Headline2,
+				Headline3:         descriptionC.Headline3,
+				Keywords:          descriptionC.Keywords,
+				LatestRelease:     descriptionC.LatestRelease,
+				Language:          descriptionC.Language,
+				MetaDescription:   descriptionC.MetaDescription,
+				NationalStatistic: descriptionC.NationalStatistic,
+				NextRelease:       descriptionC.NextRelease,
+				PreUnit:           descriptionC.PreUnit,
+				ReleaseDate:       descriptionC.ReleaseDate,
+				Source:            descriptionC.Source,
+				Summary:           descriptionC.Summary,
+				Title:             descriptionC.Title,
+				Unit:              descriptionC.Unit,
+			},
 
-		descriptionPage.Contact.Name = descriptionC.Contact.Name
-		descriptionPage.Contact.Telephone = descriptionC.Contact.Telephone
-		descriptionPage.Contact.Email = descriptionC.Contact.Email
-		descriptionPage.DatasetID = descriptionC.DatasetID
-		descriptionPage.Edition = descriptionC.Edition
-		descriptionPage.Headline1 = descriptionC.Headline1
-		descriptionPage.Headline2 = descriptionC.Headline2
-		descriptionPage.Headline3 = descriptionC.Headline3
-		descriptionPage.Keywords = descriptionC.Keywords
-		descriptionPage.LatestRelease = descriptionC.LatestRelease
-		descriptionPage.Language = descriptionC.Language
-		descriptionPage.MetaDescription = descriptionC.MetaDescription
-		descriptionPage.NationalStatistic = descriptionC.NationalStatistic
-		descriptionPage.NextRelease = descriptionC.NextRelease
-		descriptionPage.PreUnit = descriptionC.PreUnit
-		descriptionPage.ReleaseDate = descriptionC.ReleaseDate
-		descriptionPage.Source = descriptionC.Source
-		descriptionPage.Summary = descriptionC.Summary
-		descriptionPage.Title = descriptionC.Title
-		descriptionPage.Unit = descriptionC.Unit
+			Type: itemC.Type,
+			URI:  itemC.URI,
+		})
 
-		itemPage.Type = itemC.Type
-		itemPage.URI = itemC.URI
-
-		matchesDescPage := itemPage.Matches.Description
-		matchesDescC := itemC.Matches.Description
-
-		matchesSummaryPage := *matchesDescPage.Summary
-		for j, summaryC := range *matchesDescC.Summary {
-			matchesSummaryPage[j].Value = summaryC.Value
-			matchesSummaryPage[j].Start = summaryC.Start
-			matchesSummaryPage[j].End = summaryC.End
+		if descriptionC.Contact != nil {
+			itemPage[i].Description.Contact = &model.Contact{
+				Name:      descriptionC.Contact.Name,
+				Telephone: descriptionC.Contact.Telephone,
+				Email:     descriptionC.Contact.Email,
+			}
 		}
 
-		matchesTitlePage := *matchesDescPage.Title
-		for j, titleC := range *matchesDescC.Title {
-			matchesTitlePage[j].Value = titleC.Value
-			matchesTitlePage[j].Start = titleC.Start
-			matchesTitlePage[j].End = titleC.End
+		if itemC.Matches != nil {
+			matchesDescC := itemC.Matches.Description
+			itemPage[i].Matches = &model.Matches{
+				Description: model.MatchDescription{},
+			}
+
+			if matchesDescC.Summary != nil {
+				matchesSummaryPage := []model.MatchDetails{}
+				for _, summaryC := range *matchesDescC.Summary {
+					matchesSummaryPage = append(matchesSummaryPage, model.MatchDetails{
+						Value: summaryC.Value,
+						Start: summaryC.Start,
+						End:   summaryC.End,
+					})
+				}
+				itemPage[i].Matches.Description.Summary = &matchesSummaryPage
+			}
+
+			if matchesDescC.Title != nil {
+				matchesTitlePage := []model.MatchDetails{}
+				for _, titleC := range *matchesDescC.Title {
+					matchesTitlePage = append(matchesTitlePage, model.MatchDetails{
+						Value: titleC.Value,
+						Start: titleC.Start,
+						End:   titleC.End,
+					})
+				}
+				itemPage[i].Matches.Description.Title = &matchesTitlePage
+			}
+
+			if matchesDescC.Edition != nil {
+				matchesEditionPage := []model.MatchDetails{}
+				for _, editionC := range *matchesDescC.Edition {
+					matchesEditionPage = append(matchesEditionPage, model.MatchDetails{
+						Value: editionC.Value,
+						Start: editionC.Start,
+						End:   editionC.End,
+					})
+				}
+				itemPage[i].Matches.Description.Edition = &matchesEditionPage
+			}
+
+			if matchesDescC.MetaDescription != nil {
+				matchesMetaDescPage := []model.MatchDetails{}
+				for _, metaDescC := range *matchesDescC.MetaDescription {
+					matchesMetaDescPage = append(matchesMetaDescPage, model.MatchDetails{
+						Value: metaDescC.Value,
+						Start: metaDescC.Start,
+						End:   metaDescC.End,
+					})
+				}
+				itemPage[i].Matches.Description.MetaDescription = &matchesMetaDescPage
+			}
+
+			if matchesDescC.Keywords != nil {
+				matchesKeywordsPage := []model.MatchDetails{}
+				for _, keywordC := range *matchesDescC.Keywords {
+					matchesKeywordsPage = append(matchesKeywordsPage, model.MatchDetails{
+						Value: keywordC.Value,
+						Start: keywordC.Start,
+						End:   keywordC.End,
+					})
+				}
+				itemPage[i].Matches.Description.Keywords = &matchesKeywordsPage
+			}
+
+			if matchesDescC.DatasetID != nil {
+				matchesDatasetIDPage := []model.MatchDetails{}
+				for _, datasetIDClient := range *matchesDescC.DatasetID {
+					matchesDatasetIDPage = append(matchesDatasetIDPage, model.MatchDetails{
+						Value: datasetIDClient.Value,
+						Start: datasetIDClient.Start,
+						End:   datasetIDClient.End,
+					})
+				}
+				itemPage[i].Matches.Description.DatasetID = &matchesDatasetIDPage
+			}
 		}
 
-		matchesEditionPage := *matchesDescPage.Edition
-		for j, editionC := range *matchesDescC.Edition {
-			matchesEditionPage[j].Value = editionC.Value
-			matchesEditionPage[j].Start = editionC.Start
-			matchesEditionPage[j].End = editionC.End
-		}
-
-		matchesMetaDescPage := *matchesDescPage.MetaDescription
-		for j, metaDescC := range *matchesDescC.MetaDescription {
-			matchesMetaDescPage[j].Value = metaDescC.Value
-			matchesMetaDescPage[j].Start = metaDescC.Start
-			matchesMetaDescPage[j].End = metaDescC.End
-		}
-
-		matchesKeywordsPage := *matchesDescPage.Keywords
-		for j, keywordC := range *matchesDescC.Keywords {
-			matchesKeywordsPage[j].Value = keywordC.Value
-			matchesKeywordsPage[j].Start = keywordC.Start
-			matchesKeywordsPage[j].End = keywordC.End
-		}
-
-		matchesDatasetIDPage := *matchesDescPage.DatasetID
-		for j, datasetIDClient := range *matchesDescC.DatasetID {
-			matchesDatasetIDPage[j].Value = datasetIDClient.Value
-			matchesDatasetIDPage[j].Start = datasetIDClient.Start
-			matchesDatasetIDPage[j].End = datasetIDClient.End
-		}
+		page.Data.Response.Suggestions = respC.Suggestions
 	}
-
-	page.Data.Response.Suggestions = respC.Suggestions
+	page.Data.Response.Items = itemPage
 
 	return page
 }
