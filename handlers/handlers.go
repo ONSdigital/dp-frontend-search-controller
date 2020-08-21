@@ -3,9 +3,11 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
+	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 
 	search "github.com/ONSdigital/dp-api-clients-go/site-search"
 	"github.com/ONSdigital/log.go/log"
@@ -38,26 +40,35 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 	w.WriteHeader(status)
 }
 
+var marshal = func(v interface{}) ([]byte, error) {
+	return json.Marshal(v)
+}
+
+var writeResponse = func(w http.ResponseWriter, templateHTML []byte) (int, error) {
+	return w.Write(templateHTML)
+}
+
 // getSearchPage talks to the renderer to get the search page
 func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient, query url.Values, resp search.Response) error {
 	ctx := req.Context()
 	m := mapper.CreateSearchPage(ctx, query, resp)
-	b, err := json.Marshal(m)
+	b, err := marshal(m)
 	if err != nil {
 		log.Event(ctx, "unable to marshal search response", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return err
 	}
-
 	templateHTML, err := rendC.Do("search", b)
 	if err != nil {
 		log.Event(ctx, "getting template from renderer search failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return err
 	}
-	if _, err := w.Write(templateHTML); err != nil {
+	fmt.Println(templateHTML)
+	if _, err := writeResponse(w, templateHTML); err != nil {
 		log.Event(ctx, "error on write of search template", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
+		return err
 	}
 	return err
 }
@@ -74,6 +85,7 @@ func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC 
 	query := req.URL.Query()
 	resp, err := searchC.GetSearch(ctx, query)
 	if err != nil {
+		log.Event(ctx, "getting search response from client failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return
 	}
