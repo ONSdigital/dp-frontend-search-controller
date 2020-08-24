@@ -13,9 +13,10 @@ import (
 
 // CreateSearchPage maps type cookies.Policy to model.Page
 func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Response) (page model.Page) {
-	var err error
-
 	// SEARCH STRUCT MAPPING
+	var err error
+	page.Metadata.Title = "Search"
+	page.SearchDisabled = true
 	page.Data.Query = query.Get("q")
 
 	filter := query.Get("filter")
