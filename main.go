@@ -6,6 +6,8 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/ONSdigital/dp-api-clients-go/renderer"
+	search "github.com/ONSdigital/dp-api-clients-go/site-search"
 	health "github.com/ONSdigital/dp-healthcheck/healthcheck"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
@@ -33,9 +35,9 @@ func main() {
 		os.Exit(1)
 	}
 
-    log.Event(ctx, "got service configuration", log.Data{"config": cfg})
+	log.Event(ctx, "got service configuration", log.Data{"config": cfg})
 
-    versionInfo, err := health.NewVersionInfo(
+	versionInfo, err := health.NewVersionInfo(
 		BuildTime,
 		GitCommit,
 		Version,
@@ -43,13 +45,18 @@ func main() {
 
 	r := mux.NewRouter()
 
-    healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
-	if err = registerCheckers(ctx, &healthcheck); err != nil {
-    	os.Exit(1)
-    }
-	routes.Setup(ctx, r, cfg, healthcheck)
+	clients := routes.Clients{
+		Renderer: renderer.New(cfg.RendererURL),
+		Search:   search.NewClient(cfg.SearchQueryURL),
+	}
 
-    healthcheck.Start(ctx)
+	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
+	if err = registerCheckers(ctx, &healthcheck, clients); err != nil {
+		os.Exit(1)
+	}
+	routes.Setup(ctx, r, cfg, healthcheck, clients)
+
+	healthcheck.Start(ctx)
 
 	s := server.New(cfg.BindAddr, r)
 	s.HandleOSSignals = false
@@ -76,7 +83,13 @@ func main() {
 	}
 }
 
-func registerCheckers(ctx context.Context, h *health.HealthCheck) (err error) {
-	// TODO ADD HEALTH CHECKS HERE
+func registerCheckers(ctx context.Context, h *health.HealthCheck, c routes.Clients) (err error) {
+	if err = h.AddCheck("frontend renderer", c.Renderer.Checker); err != nil {
+		log.Event(ctx, "failed to add frontend renderer checker", log.Error(err))
+	}
+
+	if err = h.AddCheck("Search Query", c.Search.Checker); err != nil {
+		log.Event(ctx, "failed to add search query checker", log.Error(err))
+	}
 	return
 }
