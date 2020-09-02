@@ -17,7 +17,7 @@ func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
 
 	Convey("When search requested with valid query", t, func() {
-		req := httptest.NewRequest("GET", "/search?q=housing&limit=1&offset=10&filter=article,filter2&sortBy=relevance", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing&limit=1&offset=10&filter=article,filter2&sort=relevance", nil)
 		query := req.URL.Query()
 
 		Convey("convert mock response to client model", func() {

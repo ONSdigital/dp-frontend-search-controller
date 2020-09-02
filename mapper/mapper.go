@@ -26,7 +26,7 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 		page.Data.Filter = strings.Split(filter, ",")
 	}
 
-	page.Data.Sort = query.Get("sortBy")
+	page.Data.Sort = query.Get("sort")
 
 	if query.Get("limit") != "" {
 		page.Data.Limit, err = strconv.Atoi(query.Get("limit"))
