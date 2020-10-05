@@ -9,10 +9,11 @@ import (
 // Config represents service configuration for dp-frontend-search-controller
 type Config struct {
 	BindAddr                   string        `envconfig:"BIND_ADDR"`
+	RendererURL                string        `envconfig:"RENDERER_URL"`
+	SearchQueryURL             string        `envconfig:"SEARCH_QUERY_URL"`
 	GracefulShutdownTimeout    time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckInterval        time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
-	HelloWorldEmphasise        bool          `envconfig:"HELLO_WORLD_EMPHASISE"`
 }
 
 var cfg *Config
@@ -26,10 +27,11 @@ func Get() (*Config, error) {
 
 	cfg := &Config{
 		BindAddr:                   ":25000",
+		RendererURL:                "http://localhost:20010",
+		SearchQueryURL:				"http://localhost:23900",
 		GracefulShutdownTimeout:    5 * time.Second,
 		HealthCheckInterval:        30 * time.Second,
 		HealthCheckCriticalTimeout: 90 * time.Second,
-		HelloWorldEmphasise:        true,
 	}
 
 	return cfg, envconfig.Process("", cfg)
