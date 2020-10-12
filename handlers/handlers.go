@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"net/url"
 
@@ -64,7 +63,6 @@ func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient,
 		setStatusCode(req, w, err)
 		return err
 	}
-	fmt.Println(templateHTML)
 	if _, err := writeResponse(w, templateHTML); err != nil {
 		log.Event(ctx, "error on write of search template", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
