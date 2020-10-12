@@ -126,14 +126,14 @@ func TestUnitHandlers(t *testing.T) {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article", nil)
 			query := req.URL.Query()
 			apiQuery := mapFilterTypes(query)
-			So(apiQuery["filter"], ShouldResemble, []string{"article", "article_download", "static_article"})
+			So(apiQuery["filter"], ShouldResemble, []string{"article,article_download,static_article"})
 		})
 
 		Convey("successfully map two or more filters given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=compendia", nil)
 			query := req.URL.Query()
 			apiQuery := mapFilterTypes(query)
-			So(apiQuery["filter"], ShouldResemble, []string{"article", "article_download", "static_article", "compendium_landing_page", "compendium_chapter"})
+			So(apiQuery["filter"], ShouldResemble, []string{"article,article_download,static_article,compendium_landing_page,compendium_chapter"})
 		})
 
 		Convey("successfully map no filters given", func() {

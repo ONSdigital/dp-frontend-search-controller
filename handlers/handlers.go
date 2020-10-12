@@ -98,24 +98,27 @@ func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC 
 func mapFilterTypes(query url.Values) url.Values {
 	//Filter Mapping
 	//If filters are added or removed in the map, make sure to do the same in the defaultContentTypes variable in dp-setup-query
-	filterTypes := map[string][]string{
-		"bulletin":              {"bulletin"},
-		"article":               {"article", "article_download", "static_article"},
-		"compendia":             {"compendium_landing_page", "compendium_chapter"},
-		"time_series":           {"timeseries"},
-		"datasets":              {"dataset", "dataset_landing_page", "compendium_data", "reference_tables", "timeseries_dataset"},
-		"user_requested_data":   {"static_adhoc"},
-		"methodology":           {"static_methodology", "static_methodology_download", "static_qmi"},
-		"corporate_information": {"static_foi", "static_page", "static_landing_page", "static_article"},
+	filterTypes := map[string]string{
+		"bulletin":              "bulletin",
+		"article":               "article,article_download,static_article",
+		"compendia":             "compendium_landing_page,compendium_chapter",
+		"time_series":           "timeseries",
+		"datasets":              "dataset,dataset_landing_page,compendium_data,reference_tables,timeseries_dataset",
+		"user_requested_data":   "static_adhoc",
+		"methodology":           "static_methodology,static_methodology_download,static_qmi",
+		"corporate_information": "static_foi,static_page,static_landing_page,static_article",
 	}
 
 	filters := query["filter"]
 	if len(filters) > 0 {
-		var newFilters []string
-		for _, fType := range filters {
-			newFilters = append(newFilters, filterTypes[fType]...)
+		var newFilters string
+		for i, fType := range filters {
+			if (i > 0) && (i <= len(filters)) {
+				newFilters = newFilters + ","
+			}
+			newFilters = newFilters + filterTypes[fType]
 		}
-		query["filter"] = newFilters
+		query.Set("filter", newFilters)
 	}
 
 	return query
