@@ -118,8 +118,8 @@ func mapFilterTypes(query url.Values) url.Values {
 			}
 			newFilters = newFilters + filterTypes[fType]
 		}
-		query.Set("filter", newFilters)
+		query.Del("filter")
+		query.Set("content_type", newFilters)
 	}
-
 	return query
 }
