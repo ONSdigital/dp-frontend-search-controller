@@ -147,13 +147,14 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
-		// Convey("successfully map bad filters given", func() {
-		// 	req := httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
-		// 	query := req.URL.Query()
-		// 	apiQuery, err := mapFilterTypes(query)
-		// 	So(apiQuery["content_type"], ShouldBeNil)
-		// 	So(err, ShouldBeNil)
-		// })
+		Convey("successfully map bad filters given", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
+			query := req.URL.Query()
+			apiQuery, err := mapFilterTypes(ctx, query)
+			So(apiQuery["content_type"], ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldResemble, errors.New("invalid filter type given"))
+		})
 	})
 
 	Convey("When read is called", t, func() {
