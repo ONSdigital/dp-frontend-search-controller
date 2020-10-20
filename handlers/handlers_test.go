@@ -121,27 +121,39 @@ func TestUnitHandlers(t *testing.T) {
 	})
 
 	Convey("When mapFilterTypes is called", t, func() {
+		ctx := context.Background()
 
 		Convey("successfully map one filter given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article", nil)
 			query := req.URL.Query()
-			apiQuery := mapFilterTypes(query)
+			apiQuery, err := mapFilterTypes(ctx, query)
 			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download,static_article"})
+			So(err, ShouldBeNil)
 		})
 
 		Convey("successfully map two or more filters given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=compendia", nil)
 			query := req.URL.Query()
-			apiQuery := mapFilterTypes(query)
+			apiQuery, err := mapFilterTypes(ctx, query)
 			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download,static_article,compendium_landing_page,compendium_chapter"})
+			So(err, ShouldBeNil)
 		})
 
 		Convey("successfully map no filters given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing", nil)
 			query := req.URL.Query()
-			apiQuery := mapFilterTypes(query)
+			apiQuery, err := mapFilterTypes(ctx, query)
 			So(apiQuery["content_type"], ShouldBeNil)
+			So(err, ShouldBeNil)
 		})
+
+		// Convey("successfully map bad filters given", func() {
+		// 	req := httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
+		// 	query := req.URL.Query()
+		// 	apiQuery, err := mapFilterTypes(query)
+		// 	So(apiQuery["content_type"], ShouldBeNil)
+		// 	So(err, ShouldBeNil)
+		// })
 	})
 
 	Convey("When read is called", t, func() {
