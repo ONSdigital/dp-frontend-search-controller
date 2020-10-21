@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/url"
 	"strconv"
-	"strings"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
 	model "github.com/ONSdigital/dp-frontend-models/model/search"
@@ -19,12 +18,7 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	page.SearchDisabled = true
 	page.Data.Query = query.Get("q")
 
-	filter := query.Get("filter")
-	if filter != "" {
-		filter = strings.TrimLeft(filter, "[")
-		filter = strings.TrimRight(filter, "]")
-		page.Data.Filter = strings.Split(filter, ",")
-	}
+	page.Data.Filter = query["filter"]
 
 	page.Data.Sort = query.Get("sort")
 

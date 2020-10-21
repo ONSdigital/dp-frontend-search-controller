@@ -3,15 +3,31 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"fmt"
+	"errors"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 
 	search "github.com/ONSdigital/dp-api-clients-go/site-search"
 	"github.com/ONSdigital/log.go/log"
 )
+
+//Filter Mapping
+//If filters are added or removed in the map, make sure to do the same in the defaultContentTypes variable in dp-setup-query
+var filterTypes = map[string]string{
+	"bulletin":              "bulletin",
+	"article":               "article,article_download,static_article",
+	"compendia":             "compendium_landing_page,compendium_chapter",
+	"time_series":           "timeseries",
+	"datasets":              "dataset,dataset_landing_page,compendium_data,reference_tables,timeseries_dataset",
+	"user_requested_data":   "static_adhoc",
+	"methodology":           "static_methodology,static_methodology_download,static_qmi",
+	"corporate_information": "static_foi,static_page,static_landing_page,static_article",
+}
+
+var errFilterType = errors.New("invalid filter type given")
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored
 type ClientError interface {
@@ -35,6 +51,9 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 		if err.Code() == http.StatusNotFound {
 			status = err.Code()
 		}
+	}
+	if errors.Is(err, errFilterType) {
+		status = http.StatusBadRequest
 	}
 	log.Event(req.Context(), "setting-response-status", log.Error(err), log.ERROR)
 	w.WriteHeader(status)
@@ -64,7 +83,6 @@ func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient,
 		setStatusCode(req, w, err)
 		return err
 	}
-	fmt.Println(templateHTML)
 	if _, err := writeResponse(w, templateHTML); err != nil {
 		log.Event(ctx, "error on write of search template", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
@@ -83,7 +101,13 @@ func Read(rendC RenderClient, searchC SearchClient) http.HandlerFunc {
 func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC SearchClient) {
 	ctx := req.Context()
 	query := req.URL.Query()
-	resp, err := searchC.GetSearch(ctx, query)
+	apiQuery, err := mapFilterTypes(ctx, query)
+	if err != nil {
+		log.Event(ctx, "mapping filter types failed", log.Error(err), log.ERROR)
+		setStatusCode(req, w, err)
+		return
+	}
+	resp, err := searchC.GetSearch(ctx, apiQuery)
 	if err != nil {
 		log.Event(ctx, "getting search response from client failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
@@ -94,4 +118,25 @@ func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC 
 		log.Event(ctx, "getting search page failed", log.Error(err), log.ERROR)
 	}
 	return
+}
+
+func mapFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values, err error) {
+	apiQuery, err = url.ParseQuery(query.Encode())
+	if err != nil {
+		log.Event(ctx, "failed to parse copy of query for mapping filter types", log.Error(err), log.ERROR)
+		return nil, err
+	}
+	filters := apiQuery["filter"]
+	if len(filters) > 0 {
+		var newFilters []string
+		for _, fType := range filters {
+			if _, ok := filterTypes[fType]; !ok {
+				return nil, errFilterType
+			}
+			newFilters = append(newFilters, filterTypes[fType])
+		}
+		apiQuery.Del("filter")
+		apiQuery.Set("content_type", strings.Join(newFilters, ","))
+	}
+	return apiQuery, nil
 }
