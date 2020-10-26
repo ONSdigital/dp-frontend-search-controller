@@ -18,7 +18,7 @@ import (
 //If filters are added or removed in the map, make sure to do the same in the defaultContentTypes variable in dp-setup-query
 var filterTypes = map[string]string{
 	"bulletin":              "bulletin",
-	"article":               "article,article_download,static_article",
+	"article":               "article,article_download",
 	"compendia":             "compendium_landing_page,compendium_chapter",
 	"time_series":           "timeseries",
 	"datasets":              "dataset,dataset_landing_page,compendium_data,reference_tables,timeseries_dataset",
@@ -52,7 +52,7 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 			status = err.Code()
 		}
 	}
-	if errors.Is(err, errFilterType) {
+	if err.Error() == "invalid filter type given" {
 		status = http.StatusBadRequest
 	}
 	log.Event(req.Context(), "setting-response-status", log.Error(err), log.ERROR)
@@ -113,6 +113,12 @@ func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC 
 		setStatusCode(req, w, err)
 		return
 	}
+	resp.ContentTypes, err = mapCountFilterTypes(ctx, apiQuery, searchC)
+	if err != nil {
+		log.Event(ctx, "mapping count filter types failed", log.Error(err), log.ERROR)
+		setStatusCode(req, w, err)
+		return
+	}
 	err = getSearchPage(w, req, rendC, query, resp)
 	if err != nil {
 		log.Event(ctx, "getting search page failed", log.Error(err), log.ERROR)
@@ -139,4 +145,38 @@ func mapFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values,
 		apiQuery.Set("content_type", strings.Join(newFilters, ","))
 	}
 	return apiQuery, nil
+}
+
+func mapCountFilterTypes(ctx context.Context, apiQuery url.Values, searchC SearchClient) (mappedContentType []search.ContentType, err error) {
+	//Remove filter to get count of all types for the query from the client
+	apiQuery.Del("content_type")
+	countResp, err := searchC.GetSearch(ctx, apiQuery)
+	if err != nil {
+		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR)
+		return nil, err
+	}
+	countFilter := make(map[string]int)
+	for _, contentType := range countResp.ContentTypes {
+		foundFilter := false
+		for k, v := range filterTypes {
+			mapfilters := strings.Split(v, ",")
+			for _, filter := range mapfilters {
+				if filter == contentType.Type {
+					countFilter[k] += contentType.Count
+					foundFilter = true
+				}
+			}
+		}
+		if !foundFilter {
+			return nil, errors.New("filter type from client not available in filterTypes map")
+		}
+	}
+	for k, v := range countFilter {
+		mappedContentType = append(mappedContentType, search.ContentType{
+			Type:  k,
+			Count: v,
+		})
+	}
+
+	return mappedContentType, nil
 }
