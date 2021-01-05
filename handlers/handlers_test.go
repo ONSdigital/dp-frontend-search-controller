@@ -58,6 +58,16 @@ func TestUnitHandlers(t *testing.T) {
 
 			So(w.Code, ShouldEqual, http.StatusInternalServerError)
 		})
+
+		Convey("handles bad request error", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
+			w := httptest.NewRecorder()
+			err := errors.New("invalid filter type given")
+
+			setStatusCode(req, w, err)
+
+			So(w.Code, ShouldEqual, http.StatusBadRequest)
+		})
 	})
 
 	Convey("When getSearchPage called", t, func() {
@@ -127,7 +137,7 @@ func TestUnitHandlers(t *testing.T) {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article", nil)
 			query := req.URL.Query()
 			apiQuery, err := mapFilterTypes(ctx, query)
-			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download,static_article"})
+			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download"})
 			So(err, ShouldBeNil)
 		})
 
@@ -135,7 +145,7 @@ func TestUnitHandlers(t *testing.T) {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=compendia", nil)
 			query := req.URL.Query()
 			apiQuery, err := mapFilterTypes(ctx, query)
-			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download,static_article,compendium_landing_page,compendium_chapter"})
+			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download,compendium_landing_page,compendium_chapter"})
 			So(err, ShouldBeNil)
 		})
 
@@ -147,7 +157,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 		})
 
-		Convey("successfully map bad filters given", func() {
+		Convey("return error when mapping bad filters", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
 			query := req.URL.Query()
 			apiQuery, err := mapFilterTypes(ctx, query)
@@ -155,6 +165,112 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldNotBeNil)
 			So(err, ShouldResemble, errors.New("invalid filter type given"))
 		})
+	})
+
+	Convey("When mapCountFilterTypes is called", t, func() {
+		ctx := context.Background()
+		mockedAPIQuery := url.Values{
+			"content_type": []string{"bulletin,article,article_download"},
+			"q":            []string{"housing"},
+		}
+		countResp := searchC.Response{
+			ContentTypes: []searchC.ContentType{
+				{
+					Count: 3,
+					Type:  "bulletin",
+				},
+				{
+					Count: 4,
+					Type:  "article",
+				},
+				{
+					Count: 1,
+					Type:  "article_download",
+				},
+			},
+		}
+		mockedSearchClient := &SearchClientMock{
+			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+				return countResp, nil
+			},
+		}
+
+		Convey("return error as unable to retrieve count response from search client", func() {
+			mockedSearchClient = &SearchClientMock{
+				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+					return searchC.Response{}, errors.New("internal server error")
+				},
+			}
+			mappedContentType, err := mapCountFilterTypes(ctx, mockedAPIQuery, mockedSearchClient)
+			So(mappedContentType, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("return error when filter given by client not available in map", func() {
+			invalidFilterResponse := searchC.Response{
+				ContentTypes: []searchC.ContentType{
+					{
+						Count: 3,
+						Type:  "invalid",
+					},
+				},
+			}
+			mockedSearchClient = &SearchClientMock{
+				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+					return invalidFilterResponse, nil
+				},
+			}
+			mappedContentType, err := mapCountFilterTypes(ctx, mockedAPIQuery, mockedSearchClient)
+			So(mappedContentType, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldResemble, errors.New("filter type from client not available in filterTypes map"))
+		})
+
+		Convey("successfully retrieve the count of filter mapping to single filter type", func() {
+			mockedAPIQuery = url.Values{
+				"content_type": []string{"bulletin"},
+				"q":            []string{"housing"},
+			}
+			singleFilterResponse := searchC.Response{
+				ContentTypes: []searchC.ContentType{
+					{
+						Count: 3,
+						Type:  "bulletin",
+					},
+				},
+			}
+			mockedSearchClient = &SearchClientMock{
+				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+					return singleFilterResponse, nil
+				},
+			}
+			mappedContentType, err := mapCountFilterTypes(ctx, mockedAPIQuery, mockedSearchClient)
+			So(mappedContentType, ShouldNotBeNil)
+			So(mappedContentType, ShouldResemble, singleFilterResponse.ContentTypes)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("successfully retrieve the count of filter types mapping to multiple filter types", func() {
+			mockedAPIQuery = url.Values{
+				"content_type": []string{"bulletin,article,article_download,static_article"},
+				"q":            []string{"housing"},
+			}
+			mappedContentType, err := mapCountFilterTypes(ctx, mockedAPIQuery, mockedSearchClient)
+			multipleFilterContentType := []searchC.ContentType{
+				{
+					Count: 3,
+					Type:  "bulletin",
+				},
+				{
+					Count: 5,
+					Type:  "article",
+				},
+			}
+			So(mappedContentType, ShouldNotBeNil)
+			So(mappedContentType, ShouldResemble, multipleFilterContentType)
+			So(err, ShouldBeNil)
+		})
+
 	})
 
 	Convey("When read is called", t, func() {
@@ -178,12 +294,20 @@ func TestUnitHandlers(t *testing.T) {
 				},
 			}
 
+			Convey("return error as mapping filter types failed", func() {
+				req = httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
+				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
+				So(w.Code, ShouldEqual, http.StatusBadRequest)
+				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 0)
+			})
+
 			Convey("successfully talks to the renderer to get the search page", func() {
 				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
 				So(w.Code, ShouldEqual, http.StatusOK)
 				So(w.Body.String(), ShouldEqual, "<html><body><h1>Some HTML from renderer!</h1></body></html>")
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 			})
 
 			Convey("return error as getting search response from client failed", func() {
@@ -207,7 +331,7 @@ func TestUnitHandlers(t *testing.T) {
 				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 			})
 		})
 	})
