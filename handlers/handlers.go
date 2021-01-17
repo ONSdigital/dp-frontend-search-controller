@@ -8,24 +8,12 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 
 	search "github.com/ONSdigital/dp-api-clients-go/site-search"
 	"github.com/ONSdigital/log.go/log"
 )
-
-//Filter Mapping
-//If filters are added or removed in the map, make sure to do the same in the defaultContentTypes variable in dp-setup-query
-var filterTypes = map[string]string{
-	"bulletin":              "bulletin",
-	"article":               "article,article_download",
-	"compendia":             "compendium_landing_page,compendium_chapter",
-	"time_series":           "timeseries",
-	"datasets":              "dataset,dataset_landing_page,compendium_data,reference_tables,timeseries_dataset",
-	"user_requested_data":   "static_adhoc",
-	"methodology":           "static_methodology,static_methodology_download,static_qmi",
-	"corporate_information": "static_foi,static_page,static_landing_page,static_article",
-}
 
 var errFilterType = errors.New("invalid filter type given")
 
@@ -136,10 +124,22 @@ func mapFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values,
 	if len(filters) > 0 {
 		var newFilters []string
 		for _, fType := range filters {
-			if _, ok := filterTypes[fType]; !ok {
+			found := false
+			for _, category := range data.Category {
+				for _, searchType := range category {
+					if fType == searchType.QueryType {
+						found = true
+						newFilters = append(newFilters, searchType.SubTypes)
+						break
+					}
+				}
+				if found {
+					break
+				}
+			}
+			if !found {
 				return nil, errFilterType
 			}
-			newFilters = append(newFilters, filterTypes[fType])
 		}
 		apiQuery.Del("filter")
 		apiQuery.Set("content_type", strings.Join(newFilters, ","))
@@ -158,12 +158,14 @@ func mapCountFilterTypes(ctx context.Context, apiQuery url.Values, searchC Searc
 	countFilter := make(map[string]int)
 	for _, contentType := range countResp.ContentTypes {
 		foundFilter := false
-		for k, v := range filterTypes {
-			mapfilters := strings.Split(v, ",")
-			for _, filter := range mapfilters {
-				if filter == contentType.Type {
-					countFilter[k] += contentType.Count
-					foundFilter = true
+		for _, category := range data.Category {
+			for _, searchType := range category {
+				mapfilters := strings.Split(searchType.SubTypes, ",")
+				for _, filter := range mapfilters {
+					if filter == contentType.Type {
+						countFilter[searchType.QueryType] += contentType.Count
+						foundFilter = true
+					}
 				}
 			}
 		}
