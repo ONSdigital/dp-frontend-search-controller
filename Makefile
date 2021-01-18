@@ -11,7 +11,7 @@ all: audit test build
 
 .PHONY: audit
 audit:
-    go list -m all | nancy sleuth
+	go list -m all | nancy sleuth
 
 .PHONY: build
 build:
