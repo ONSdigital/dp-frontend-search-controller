@@ -6,6 +6,13 @@ VERSION ?= $(shell git tag --points-at HEAD | grep ^v | head -n 1)
 
 LDFLAGS = -ldflags "-X main.BuildTime=$(BUILD_TIME) -X main.GitCommit=$(GIT_COMMIT) -X main.Version=$(VERSION)"
 
+.PHONY: all
+all: audit test build
+
+.PHONY: audit
+audit:
+    go list -m all | nancy sleuth
+
 .PHONY: build
 build:
 	go build -tags 'production' $(LDFLAGS) -o $(BINPATH)/dp-frontend-search-controller
@@ -22,4 +29,3 @@ test:
 .PHONY: convey
 convey:
 	goconvey ./...
-
