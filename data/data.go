@@ -17,7 +17,7 @@ var Category = map[string][]FilterType{
 
 // Bulletin - Search information specific for statistical bulletins
 var Bulletin = FilterType{
-	Name:      "Statistical bulletins",
+	Name:      "Statistical bulletin",
 	QueryType: "bulletin",
 	SubTypes:  "bulletin",
 }

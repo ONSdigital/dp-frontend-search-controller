@@ -33,7 +33,9 @@ func TestUnitMapper(t *testing.T) {
 				So(sp.Data.Filter, ShouldHaveLength, 2)
 				So(sp.Data.Filter[0], ShouldEqual, "article")
 				So(sp.Data.Filter[1], ShouldEqual, "filter2")
+				So(sp.Data.FilterContent, ShouldResemble, []string{"Publication", "Data", "Other"})
 				So(sp.Data.Sort, ShouldEqual, "relevance")
+				So(sp.Data.SortText, ShouldEqual, "articles")
 				So(sp.Data.Limit, ShouldEqual, 1)
 				So(sp.Data.Offset, ShouldEqual, 10)
 

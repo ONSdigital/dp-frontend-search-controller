@@ -178,24 +178,30 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 }
 
 func getFilterSortText(query url.Values) string {
-	filterName := ""
+	var filterName string
+	var filterNameList []string
 	queryFilters := query["filter"]
-	for i, filter := range queryFilters {
+	for _, filter := range queryFilters {
 		for category, typeList := range data.Category {
 			for _, searchType := range typeList {
 				if filter == searchType.QueryType {
-					filterName += strings.ToLower(searchType.Name)
+					filterName = strings.ToLower(searchType.Name)
 					if category == "Publication" {
 						filterName += "s"
 					}
-					if i < len(queryFilters)-1 {
-						if i == len(queryFilters)-2 {
-							filterName += " and "
-						} else {
-							filterName += ", "
-						}
-					}
+					filterNameList = append(filterNameList, filterName)
 				}
+			}
+		}
+	}
+	filterName = ""
+	for i, sortFilterText := range filterNameList {
+		filterName += sortFilterText
+		if i < len(filterNameList)-1 {
+			if i == len(filterNameList)-2 {
+				filterName += " and "
+			} else {
+				filterName += ", "
 			}
 		}
 	}
