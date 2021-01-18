@@ -33,7 +33,7 @@ var Article = FilterType{
 var Compendium = FilterType{
 	Name:      "Compendium",
 	QueryType: "compendia",
-	SubTypes:  "compendium_landing_page,compendium_chapter",
+	SubTypes:  "compendium_landing_page",
 }
 
 // TimeSeries - Search information specific for time series
@@ -47,7 +47,7 @@ var TimeSeries = FilterType{
 var Datasets = FilterType{
 	Name:      "Datasets",
 	QueryType: "datasets",
-	SubTypes:  "dataset,dataset_landing_page,compendium_data,reference_tables,timeseries_dataset",
+	SubTypes:  "dataset_landing_page,reference_tables",
 }
 
 // UserRequestedData - Search information specific for user requested data
