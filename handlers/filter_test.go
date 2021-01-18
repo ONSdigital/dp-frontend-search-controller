@@ -30,7 +30,7 @@ func TestUnitFilterMaps(t *testing.T) {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=compendia", nil)
 			query := req.URL.Query()
 			apiQuery, err := mapFilterTypes(ctx, query)
-			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download,compendium_landing_page,compendium_chapter"})
+			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download,compendium_landing_page"})
 			So(err, ShouldBeNil)
 		})
 
