@@ -109,4 +109,35 @@ func TestUnitMapper(t *testing.T) {
 			So(sp.Data.Offset, ShouldEqual, 0)
 		})
 	})
+
+	Convey("When getFilterSortText is called", t, func() {
+		Convey("successfully add one filter given", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&filter=article", nil)
+			query := req.URL.Query()
+			filterSortText := getFilterSortText(query)
+			So(filterSortText, ShouldResemble, "articles")
+		})
+
+		Convey("successfully add two filters given", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=compendia", nil)
+			query := req.URL.Query()
+			filterSortText := getFilterSortText(query)
+			So(filterSortText, ShouldResemble, "articles and compendiums")
+		})
+
+		Convey("successfully add three or more filters given", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=compendia&filter=methodology", nil)
+			query := req.URL.Query()
+			filterSortText := getFilterSortText(query)
+			So(filterSortText, ShouldResemble, "articles, compendiums and methodology")
+		})
+
+		Convey("successfully add no filters given", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing", nil)
+			query := req.URL.Query()
+			filterSortText := getFilterSortText(query)
+			So(filterSortText, ShouldResemble, "")
+		})
+
+	})
 }

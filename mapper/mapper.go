@@ -4,9 +4,11 @@ import (
 	"context"
 	"net/url"
 	"strconv"
+	"strings"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
 	model "github.com/ONSdigital/dp-frontend-models/model/search"
+	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -19,8 +21,10 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	page.Data.Query = query.Get("q")
 
 	page.Data.Filter = query["filter"]
+	page.Data.FilterContent = []string{"Publication", "Data", "Other"}
 
 	page.Data.Sort = query.Get("sort")
+	page.Data.SortText = getFilterSortText(query)
 
 	if query.Get("limit") != "" {
 		page.Data.Limit, err = strconv.Atoi(query.Get("limit"))
@@ -171,4 +175,29 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	page.Data.Response.Items = itemPage
 
 	return page
+}
+
+func getFilterSortText(query url.Values) string {
+	filterName := ""
+	queryFilters := query["filter"]
+	for i, filter := range queryFilters {
+		for category, typeList := range data.Category {
+			for _, searchType := range typeList {
+				if filter == searchType.QueryType {
+					filterName += strings.ToLower(searchType.Name)
+					if category == "Publication" {
+						filterName += "s"
+					}
+					if i < len(queryFilters)-1 {
+						if i == len(queryFilters)-2 {
+							filterName += " and "
+						} else {
+							filterName += ", "
+						}
+					}
+				}
+			}
+		}
+	}
+	return filterName
 }
