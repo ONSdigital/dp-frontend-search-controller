@@ -22,16 +22,14 @@ func mapFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values,
 		var newFilters []string
 		for _, fType := range filters {
 			found := false
+		categoryLoop:
 			for _, category := range data.Category {
 				for _, searchType := range category {
 					if fType == searchType.QueryType {
 						found = true
-						newFilters = append(newFilters, searchType.SubTypes)
-						break
+						newFilters = append(newFilters, searchType.SubTypes...)
+						break categoryLoop
 					}
-				}
-				if found {
-					break
 				}
 			}
 			if !found {
@@ -57,8 +55,7 @@ func mapCountFilterTypes(ctx context.Context, apiQuery url.Values, searchC Searc
 		foundFilter := false
 		for _, category := range data.Category {
 			for _, searchType := range category {
-				mapfilters := strings.Split(searchType.SubTypes, ",")
-				for _, filter := range mapfilters {
+				for _, filter := range searchType.SubTypes {
 					if filter == contentType.Type {
 						countFilter[searchType.QueryType] += contentType.Count
 						foundFilter = true

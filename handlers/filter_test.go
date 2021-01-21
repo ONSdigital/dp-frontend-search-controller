@@ -141,20 +141,18 @@ func TestUnitFilterMaps(t *testing.T) {
 				"q":            []string{"housing"},
 			}
 			mappedContentType, err := mapCountFilterTypes(ctx, mockedAPIQuery, mockedSearchClient)
-			multipleFilterContentType := []searchC.ContentType{
-				{
-					Count: 3,
-					Type:  "bulletin",
-				},
-				{
-					Count: 5,
-					Type:  "article",
-				},
+			bulletinCount := searchC.ContentType{
+				Count: 3,
+				Type:  "bulletin",
+			}
+			articleCount := searchC.ContentType{
+				Count: 5,
+				Type:  "article",
 			}
 			So(mappedContentType, ShouldNotBeNil)
-			So(mappedContentType, ShouldResemble, multipleFilterContentType)
+			So(mappedContentType, ShouldContain, bulletinCount)
+			So(mappedContentType, ShouldContain, articleCount)
 			So(err, ShouldBeNil)
 		})
-
 	})
 }
