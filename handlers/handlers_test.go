@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -79,6 +80,7 @@ func TestUnitHandlers(t *testing.T) {
 				return []byte{}, nil
 			},
 		}
+		categories := data.Categories
 
 		Convey("convert mock response to client model", func() {
 			sampleResponse, err := ioutil.ReadFile("../mapper/test_data/mock_response.json")
@@ -88,7 +90,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			Convey("successfully gets the search page", func() {
-				err := getSearchPage(w, req, mockedRenderClient, query, respC)
+				err := getSearchPage(w, req, mockedRenderClient, query, respC, categories)
 				So(err, ShouldBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 			})
@@ -98,7 +100,7 @@ func TestUnitHandlers(t *testing.T) {
 				marshal = func(v interface{}) ([]byte, error) {
 					return []byte{}, errors.New("internal server error")
 				}
-				err = getSearchPage(w, req, mockedRenderClient, query, respC)
+				err = getSearchPage(w, req, mockedRenderClient, query, respC, categories)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
 				marshal = defaultM
@@ -111,7 +113,7 @@ func TestUnitHandlers(t *testing.T) {
 					},
 				}
 
-				err = getSearchPage(w, req, mockedRenderClient, query, respC)
+				err = getSearchPage(w, req, mockedRenderClient, query, respC, categories)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 			})
@@ -121,7 +123,7 @@ func TestUnitHandlers(t *testing.T) {
 				writeResponse = func(w http.ResponseWriter, templateHTML []byte) (int, error) {
 					return 0, errors.New("internal server error")
 				}
-				err = getSearchPage(w, req, mockedRenderClient, query, respC)
+				err = getSearchPage(w, req, mockedRenderClient, query, respC, categories)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 				writeResponse = defaultW

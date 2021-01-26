@@ -6,12 +6,11 @@ import (
 	"net/url"
 	"strings"
 
-	search "github.com/ONSdigital/dp-api-clients-go/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/log.go/log"
 )
 
-func mapFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values, err error) {
+func mapSubFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values, err error) {
 	apiQuery, err = url.ParseQuery(query.Encode())
 	if err != nil {
 		log.Event(ctx, "failed to parse copy of query for mapping filter types", log.Error(err), log.ERROR)
@@ -23,11 +22,11 @@ func mapFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values,
 		for _, fType := range filters {
 			found := false
 		categoryLoop:
-			for _, category := range data.Category {
-				for _, searchType := range category {
-					if fType == searchType.QueryType {
+			for _, category := range data.Categories {
+				for _, contentType := range category.ContentTypes {
+					if fType == contentType.Type {
 						found = true
-						newFilters = append(newFilters, searchType.SubTypes...)
+						newFilters = append(newFilters, contentType.SubTypes...)
 						break categoryLoop
 					}
 				}
@@ -42,7 +41,7 @@ func mapFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values,
 	return apiQuery, nil
 }
 
-func mapCountFilterTypes(ctx context.Context, apiQuery url.Values, searchC SearchClient) (mappedContentType []search.ContentType, err error) {
+func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC SearchClient) (categories []data.Category, err error) {
 	//Remove filter to get count of all types for the query from the client
 	apiQuery.Del("content_type")
 	countResp, err := searchC.GetSearch(ctx, apiQuery)
@@ -50,29 +49,27 @@ func mapCountFilterTypes(ctx context.Context, apiQuery url.Values, searchC Searc
 		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR)
 		return nil, err
 	}
-	countFilter := make(map[string]int)
-	for _, contentType := range countResp.ContentTypes {
+	categories = []data.Category{data.Publication, data.Data, data.Other}
+	for _, responseType := range countResp.ContentTypes {
 		foundFilter := false
-		for _, category := range data.Category {
-			for _, searchType := range category {
-				for _, filter := range searchType.SubTypes {
-					if filter == contentType.Type {
-						countFilter[searchType.QueryType] += contentType.Count
+	categoryLoop:
+		for _, category := range categories {
+			catCount := 0
+			for _, contentType := range category.ContentTypes {
+				for _, subType := range contentType.SubTypes {
+					if responseType.Type == subType {
+						catCount += responseType.Count
+						contentType.Count += responseType.Count
 						foundFilter = true
+						break categoryLoop
 					}
 				}
 			}
+			category.Count = catCount
 		}
 		if !foundFilter {
-			return nil, errors.New("filter type from client not available in filterTypes map")
+			return nil, errors.New("filter type from client not available in data.go")
 		}
 	}
-	for k, v := range countFilter {
-		mappedContentType = append(mappedContentType, search.ContentType{
-			Type:  k,
-			Count: v,
-		})
-	}
-
-	return mappedContentType, nil
+	return categories, nil
 }

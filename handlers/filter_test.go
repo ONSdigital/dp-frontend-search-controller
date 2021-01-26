@@ -3,25 +3,31 @@ package handlers
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http/httptest"
 	"net/url"
 
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	. "github.com/smartystreets/goconvey/convey"
 )
+
+func createMockCategories() []data.Category {
+	return []data.Category{data.Publication, data.Data, data.Other}
+}
 
 func TestUnitFilterMaps(t *testing.T) {
 	t.Parallel()
 
-	Convey("When mapFilterTypes is called", t, func() {
+	Convey("When mapSubFilterTypes is called", t, func() {
 		ctx := context.Background()
 
 		Convey("successfully map one filter given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article", nil)
 			query := req.URL.Query()
-			apiQuery, err := mapFilterTypes(ctx, query)
+			apiQuery, err := mapSubFilterTypes(ctx, query)
 			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download"})
 			So(err, ShouldBeNil)
 		})
@@ -29,7 +35,7 @@ func TestUnitFilterMaps(t *testing.T) {
 		Convey("successfully map two or more filters given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=compendia", nil)
 			query := req.URL.Query()
-			apiQuery, err := mapFilterTypes(ctx, query)
+			apiQuery, err := mapSubFilterTypes(ctx, query)
 			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download,compendium_landing_page"})
 			So(err, ShouldBeNil)
 		})
@@ -37,7 +43,7 @@ func TestUnitFilterMaps(t *testing.T) {
 		Convey("successfully map no filters given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing", nil)
 			query := req.URL.Query()
-			apiQuery, err := mapFilterTypes(ctx, query)
+			apiQuery, err := mapSubFilterTypes(ctx, query)
 			So(apiQuery["content_type"], ShouldBeNil)
 			So(err, ShouldBeNil)
 		})
@@ -45,14 +51,14 @@ func TestUnitFilterMaps(t *testing.T) {
 		Convey("return error when mapping bad filters", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
 			query := req.URL.Query()
-			apiQuery, err := mapFilterTypes(ctx, query)
+			apiQuery, err := mapSubFilterTypes(ctx, query)
 			So(apiQuery["content_type"], ShouldBeNil)
 			So(err, ShouldNotBeNil)
 			So(err, ShouldResemble, errors.New("invalid filter type given"))
 		})
 	})
 
-	Convey("When mapCountFilterTypes is called", t, func() {
+	Convey("When getCategoriesTypesCount is called", t, func() {
 		ctx := context.Background()
 		mockedAPIQuery := url.Values{
 			"content_type": []string{"bulletin,article,article_download"},
@@ -86,8 +92,8 @@ func TestUnitFilterMaps(t *testing.T) {
 					return searchC.Response{}, errors.New("internal server error")
 				},
 			}
-			mappedContentType, err := mapCountFilterTypes(ctx, mockedAPIQuery, mockedSearchClient)
-			So(mappedContentType, ShouldBeNil)
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			So(categories, ShouldBeNil)
 			So(err, ShouldNotBeNil)
 		})
 
@@ -105,10 +111,10 @@ func TestUnitFilterMaps(t *testing.T) {
 					return invalidFilterResponse, nil
 				},
 			}
-			mappedContentType, err := mapCountFilterTypes(ctx, mockedAPIQuery, mockedSearchClient)
-			So(mappedContentType, ShouldBeNil)
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			So(categories, ShouldBeNil)
 			So(err, ShouldNotBeNil)
-			So(err, ShouldResemble, errors.New("filter type from client not available in filterTypes map"))
+			So(err, ShouldResemble, errors.New("filter type from client not available in data.go"))
 		})
 
 		Convey("successfully retrieve the count of filter mapping to single filter type", func() {
@@ -129,9 +135,13 @@ func TestUnitFilterMaps(t *testing.T) {
 					return singleFilterResponse, nil
 				},
 			}
-			mappedContentType, err := mapCountFilterTypes(ctx, mockedAPIQuery, mockedSearchClient)
-			So(mappedContentType, ShouldNotBeNil)
-			So(mappedContentType, ShouldResemble, singleFilterResponse.ContentTypes)
+			mockCategories := createMockCategories()
+			mockCategories[0].Count = 3
+			mockCategories[0].ContentTypes[0].Count = 3
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			fmt.Println("Publication0-3")
+			So(categories, ShouldNotBeNil)
+			So(categories, ShouldResemble, mockCategories)
 			So(err, ShouldBeNil)
 		})
 
@@ -140,18 +150,14 @@ func TestUnitFilterMaps(t *testing.T) {
 				"content_type": []string{"bulletin,article,article_download,static_article"},
 				"q":            []string{"housing"},
 			}
-			mappedContentType, err := mapCountFilterTypes(ctx, mockedAPIQuery, mockedSearchClient)
-			bulletinCount := searchC.ContentType{
-				Count: 3,
-				Type:  "bulletin",
-			}
-			articleCount := searchC.ContentType{
-				Count: 5,
-				Type:  "article",
-			}
-			So(mappedContentType, ShouldNotBeNil)
-			So(mappedContentType, ShouldContain, bulletinCount)
-			So(mappedContentType, ShouldContain, articleCount)
+			mockCategories := createMockCategories()
+			mockCategories[0].Count = 8
+			mockCategories[0].ContentTypes[0].Count = 3
+			mockCategories[0].ContentTypes[1].Count = 5
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			fmt.Println("Publication0-8")
+			So(categories, ShouldNotBeNil)
+			So(categories, ShouldResemble, mockCategories)
 			So(err, ShouldBeNil)
 		})
 	})

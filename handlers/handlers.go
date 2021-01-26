@@ -8,6 +8,7 @@ import (
 	"net/url"
 
 	search "github.com/ONSdigital/dp-api-clients-go/site-search"
+	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/log.go/log"
 )
@@ -53,9 +54,9 @@ var writeResponse = func(w http.ResponseWriter, templateHTML []byte) (int, error
 }
 
 // getSearchPage talks to the renderer to get the search page
-func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient, query url.Values, resp search.Response) error {
+func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient, query url.Values, resp search.Response, categories []data.Category) error {
 	ctx := req.Context()
-	m := mapper.CreateSearchPage(ctx, query, resp)
+	m := mapper.CreateSearchPage(ctx, query, resp, categories)
 	b, err := marshal(m)
 	if err != nil {
 		log.Event(ctx, "unable to marshal search response", log.Error(err), log.ERROR)
@@ -86,9 +87,9 @@ func Read(rendC RenderClient, searchC SearchClient) http.HandlerFunc {
 func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC SearchClient) {
 	ctx := req.Context()
 	query := req.URL.Query()
-	apiQuery, err := mapFilterTypes(ctx, query)
+	apiQuery, err := mapSubFilterTypes(ctx, query)
 	if err != nil {
-		log.Event(ctx, "mapping filter types failed", log.Error(err), log.ERROR)
+		log.Event(ctx, "mapping sub filter types to query failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return
 	}
@@ -98,13 +99,13 @@ func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC 
 		setStatusCode(req, w, err)
 		return
 	}
-	resp.ContentTypes, err = mapCountFilterTypes(ctx, apiQuery, searchC)
+	categories, err := getCategoriesTypesCount(ctx, apiQuery, searchC)
 	if err != nil {
 		log.Event(ctx, "mapping count filter types failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return
 	}
-	err = getSearchPage(w, req, rendC, query, resp)
+	err = getSearchPage(w, req, rendC, query, resp, categories)
 	if err != nil {
 		log.Event(ctx, "getting search page failed", log.Error(err), log.ERROR)
 	}

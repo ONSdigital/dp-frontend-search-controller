@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -19,6 +20,7 @@ func TestUnitMapper(t *testing.T) {
 	Convey("When search requested with valid query", t, func() {
 		req := httptest.NewRequest("GET", "/search?q=housing&limit=1&offset=10&filter=article&filter=filter2&sort=relevance", nil)
 		query := req.URL.Query()
+		categories := data.Categories
 
 		Convey("convert mock response to client model", func() {
 			sampleResponse, err := ioutil.ReadFile("test_data/mock_response.json")
@@ -28,22 +30,35 @@ func TestUnitMapper(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			Convey("successfully map search response from search-query client to page model", func() {
-				sp := CreateSearchPage(ctx, query, respC)
+				sp := CreateSearchPage(ctx, query, respC, categories)
 				So(sp.Data.Query, ShouldEqual, "housing")
-				So(sp.Data.Filter, ShouldHaveLength, 2)
-				So(sp.Data.Filter[0], ShouldEqual, "article")
-				So(sp.Data.Filter[1], ShouldEqual, "filter2")
-				So(sp.Data.FilterContent, ShouldResemble, []string{"Publication", "Data", "Other"})
-				So(sp.Data.Sort, ShouldEqual, "relevance")
-				So(sp.Data.SortText, ShouldEqual, "articles")
+				So(sp.Data.Filter.Query, ShouldHaveLength, 2)
+				So(sp.Data.Filter.Query[0], ShouldEqual, "article")
+				So(sp.Data.Filter.Query[1], ShouldEqual, "filter2")
+				So(sp.Data.Filter.Options, ShouldResemble, []string{"Publication", "Data", "Other"})
+				So(sp.Data.Sort.Query, ShouldEqual, "relevance")
+				So(sp.Data.Sort.LocaliseFilterKeys, ShouldResemble, []string{"Article"})
+				So(sp.Data.Sort.FilterText, ShouldEqual, "relevance")
 				So(sp.Data.Limit, ShouldEqual, 1)
 				So(sp.Data.Offset, ShouldEqual, 10)
 
 				So(sp.Data.Response.Count, ShouldEqual, 1)
 
-				So(sp.Data.Response.ContentTypes, ShouldHaveLength, 1)
-				So(sp.Data.Response.ContentTypes[0].Type, ShouldEqual, "article")
-				So(sp.Data.Response.ContentTypes[0].Count, ShouldEqual, 1)
+				So(sp.Data.Response.Categories, ShouldHaveLength, 3)
+				publicationCategory := sp.Data.Response.Categories[0]
+				So(publicationCategory.Count, ShouldEqual, 1)
+				So(publicationCategory.LocaliseKeyName, ShouldEqual, "Publication")
+				So(publicationCategory.ContentTypes, ShouldHaveLength, 3)
+
+				bulletinType := sp.Data.Response.Categories[0].ContentTypes[0]
+				So(bulletinType.Type, ShouldEqual, "bulletin")
+				So(bulletinType.Count, ShouldEqual, 0)
+				So(bulletinType.LocaliseKeyName, ShouldEqual, "StatisticalBulletin")
+
+				articleType := sp.Data.Response.Categories[0].ContentTypes[1]
+				So(articleType.Type, ShouldEqual, "article")
+				So(articleType.Count, ShouldEqual, 1)
+				So(articleType.LocaliseKeyName, ShouldEqual, "Article")
 
 				So(sp.Data.Response.Items, ShouldHaveLength, 1)
 
@@ -104,9 +119,10 @@ func TestUnitMapper(t *testing.T) {
 	Convey("When search requested with invalid query", t, func() {
 		req := httptest.NewRequest("GET", "/search?q=housing&limit=invalid&offset=invalid", nil)
 		query := req.URL.Query()
+		categories := data.Categories
 
 		Convey("mapping search response fails from search-query client to page model", func() {
-			sp := CreateSearchPage(ctx, query, respC)
+			sp := CreateSearchPage(ctx, query, respC, categories)
 			So(sp.Data.Limit, ShouldEqual, 10)
 			So(sp.Data.Offset, ShouldEqual, 0)
 		})
@@ -116,30 +132,33 @@ func TestUnitMapper(t *testing.T) {
 		Convey("successfully add one filter given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article", nil)
 			query := req.URL.Query()
-			filterSortText := getFilterSortText(query)
-			So(filterSortText, ShouldResemble, "articles")
+			categories := data.Categories
+			filterSortText := getFilterSortKeyList(query, categories)
+			So(filterSortText, ShouldResemble, []string{"Article"})
 		})
 
 		Convey("successfully add two filters given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=compendia", nil)
 			query := req.URL.Query()
-			filterSortText := getFilterSortText(query)
-			So(filterSortText, ShouldResemble, "articles and compendiums")
+			categories := data.Categories
+			filterSortText := getFilterSortKeyList(query, categories)
+			So(filterSortText, ShouldResemble, []string{"Article", "Compendium"})
 		})
 
 		Convey("successfully add three or more filters given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=compendia&filter=methodology", nil)
 			query := req.URL.Query()
-			filterSortText := getFilterSortText(query)
-			So(filterSortText, ShouldResemble, "articles, compendiums and methodology")
+			categories := data.Categories
+			filterSortText := getFilterSortKeyList(query, categories)
+			So(filterSortText, ShouldResemble, []string{"Article", "Compendium", "Methodology"})
 		})
 
 		Convey("successfully add no filters given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing", nil)
 			query := req.URL.Query()
-			filterSortText := getFilterSortText(query)
-			So(filterSortText, ShouldResemble, "")
+			categories := data.Categories
+			filterSortText := getFilterSortKeyList(query, categories)
+			So(filterSortText, ShouldResemble, []string{})
 		})
-
 	})
 }
