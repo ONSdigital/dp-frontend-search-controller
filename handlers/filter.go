@@ -53,19 +53,17 @@ func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC S
 	for _, responseType := range countResp.ContentTypes {
 		foundFilter := false
 	categoryLoop:
-		for _, category := range categories {
-			catCount := 0
-			for _, contentType := range category.ContentTypes {
+		for i, category := range categories {
+			for j, contentType := range category.ContentTypes {
 				for _, subType := range contentType.SubTypes {
 					if responseType.Type == subType {
-						catCount += responseType.Count
-						contentType.Count += responseType.Count
+						categories[i].Count += responseType.Count
+						categories[i].ContentTypes[j].Count += responseType.Count
 						foundFilter = true
 						break categoryLoop
 					}
 				}
 			}
-			category.Count = catCount
 		}
 		if !foundFilter {
 			return nil, errors.New("filter type from client not available in data.go")

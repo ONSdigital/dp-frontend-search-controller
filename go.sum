@@ -1,8 +1,8 @@
 github.com/ONSdigital/dp-api-clients-go v1.1.0 h1:j2zmSFcWWRbHs58m0+LltmijHBqbnOJivqBHWPaVgoI=
 github.com/ONSdigital/dp-api-clients-go v1.1.0/go.mod h1:9lqor0I7caCnRWr04gU/r7x5dqxgoODob8L48q+cE4E=
 github.com/ONSdigital/dp-api-clients-go v1.28.0/go.mod h1:iyJy6uRL4B6OYOJA0XMr5UHt6+Q8XmN9uwmURO+9Oj4=
-github.com/ONSdigital/dp-api-clients-go v1.32.9 h1:McTrkxchri56n632QlQVE7DzW5U8MC/d+5JY1+iM8HQ=
-github.com/ONSdigital/dp-api-clients-go v1.32.9/go.mod h1:0pUK3MN1v7DTjq0JSAD+DqbsZ8AVTodrXSXgJecg9Pw=
+github.com/ONSdigital/dp-api-clients-go v1.32.10 h1:oH3+9PHPn4EFr/m4tEdLi/yW1W6vu5t+gNE8qPzr0lM=
+github.com/ONSdigital/dp-api-clients-go v1.32.10/go.mod h1:0pUK3MN1v7DTjq0JSAD+DqbsZ8AVTodrXSXgJecg9Pw=
 github.com/ONSdigital/dp-frontend-models v1.1.0/go.mod h1:TT96P7Mi69N3Tc/jFNdbjiwG4GAaMjP26HLotFQ6BPw=
 github.com/ONSdigital/dp-frontend-models v1.9.5 h1:K4gMSjBtDSERA13BqGIDcjEn9gCFICd5GwvitZcWuSc=
 github.com/ONSdigital/dp-frontend-models v1.9.5/go.mod h1:K4n0EwATkzbuWzSajBHja+uc9zvqnKiq6WtUwLav4Kg=
@@ -32,8 +32,6 @@ github.com/ONSdigital/log.go v1.0.1-0.20200805084515-ee61165ea36a/go.mod h1:dDnQ
 github.com/ONSdigital/log.go v1.0.1-0.20200805145532-1f25087a0744/go.mod h1:y4E9MYC+cV9VfjRD0UBGj8PA7H3wABqQi87/ejrDhYc=
 github.com/ONSdigital/log.go v1.0.1 h1:SZ5wRZAwlt2jQUZ9AUzBB/PL+iG15KapfQpJUdA18/4=
 github.com/ONSdigital/log.go v1.0.1/go.mod h1:dIwSXuvFB5EsZG5x44JhsXZKMd80zlb0DZxmiAtpL4M=
-github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
-github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/eknkc/amber v0.0.0-20171010120322-cdade1c07385/go.mod h1:0vRUJqYpeSZifjYj7uP3BG/gKcuzL9xWVV/Y+cK33KM=
 github.com/facebookgo/freeport v0.0.0-20150612182905-d4adf43b75b9 h1:wWke/RUCl7VRjQhwPlR/v0glZXNYzBHdNUzf/Am2Nmg=
 github.com/facebookgo/freeport v0.0.0-20150612182905-d4adf43b75b9/go.mod h1:uPmAp6Sws4L7+Q/OokbWDAK1ibXYhB3PXFP1kol5hPg=

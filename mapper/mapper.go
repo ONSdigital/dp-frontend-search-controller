@@ -30,7 +30,7 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	if query.Get("limit") != "" {
 		page.Data.Limit, err = strconv.Atoi(query.Get("limit"))
 		if err != nil {
-			log.Event(ctx, "unable to convert search limit to int", log.Error(err), log.ERROR)
+			log.Event(ctx, "unable to convert search limit to int - default to limit 10", log.INFO)
 			page.Data.Limit = 10
 		}
 	}
@@ -38,7 +38,7 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	if query.Get("offset") != "" {
 		page.Data.Offset, err = strconv.Atoi(query.Get("offset"))
 		if err != nil {
-			log.Event(ctx, "unable to convert search offset to int", log.Error(err), log.ERROR)
+			log.Event(ctx, "unable to convert search offset to int - default to offset 0", log.INFO)
 			page.Data.Offset = 0
 		}
 	}
