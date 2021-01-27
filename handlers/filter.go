@@ -18,7 +18,7 @@ func mapSubFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Valu
 	}
 	filters := apiQuery["filter"]
 	if len(filters) > 0 {
-		var newFilters []string
+		var newFilters = make([]string, 0)
 		for _, fType := range filters {
 			found := false
 		categoryLoop:
