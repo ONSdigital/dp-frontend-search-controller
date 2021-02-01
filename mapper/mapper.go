@@ -4,28 +4,33 @@ import (
 	"context"
 	"net/url"
 	"strconv"
+	"strings"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
 	model "github.com/ONSdigital/dp-frontend-models/model/search"
+	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/log.go/log"
 )
 
 // CreateSearchPage maps type cookies.Policy to model.Page
-func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Response) (page model.Page) {
+func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Response, categories []data.Category) (page model.Page) {
 	// SEARCH STRUCT MAPPING
 	var err error
 	page.Metadata.Title = "Search"
 	page.SearchDisabled = true
 	page.Data.Query = query.Get("q")
 
-	page.Data.Filter = query["filter"]
+	page.Data.Filter.Query = query["filter"]
+	page.Data.Filter.Options = []string{"Publication", "Data", "Other"}
 
-	page.Data.Sort = query.Get("sort")
+	page.Data.Sort.Query = query.Get("sort")
+	page.Data.Sort.LocaliseFilterKeys = getFilterSortKeyList(query, categories)
+	page.Data.Sort.FilterText = strings.Replace(strings.ToLower(page.Data.Sort.Query), "-", " ", 1)
 
 	if query.Get("limit") != "" {
 		page.Data.Limit, err = strconv.Atoi(query.Get("limit"))
 		if err != nil {
-			log.Event(ctx, "unable to convert search limit to int", log.Error(err), log.ERROR)
+			log.Event(ctx, "unable to convert search limit to int - default to limit 10", log.INFO)
 			page.Data.Limit = 10
 		}
 	}
@@ -33,7 +38,7 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	if query.Get("offset") != "" {
 		page.Data.Offset, err = strconv.Atoi(query.Get("offset"))
 		if err != nil {
-			log.Event(ctx, "unable to convert search offset to int", log.Error(err), log.ERROR)
+			log.Event(ctx, "unable to convert search offset to int - default to offset 0", log.INFO)
 			page.Data.Offset = 0
 		}
 	}
@@ -41,14 +46,23 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	//RESPONSE STRUCT MAPPING
 	page.Data.Response.Count = respC.Count
 
-	pageContentType := []model.ContentType{}
-	for _, contentTypeC := range respC.ContentTypes {
-		pageContentType = append(pageContentType, model.ContentType{
-			Type:  contentTypeC.Type,
-			Count: contentTypeC.Count,
+	pageCategories := []model.Category{}
+	for _, category := range categories {
+		pageContentType := []model.ContentType{}
+		for _, contentType := range category.ContentTypes {
+			pageContentType = append(pageContentType, model.ContentType{
+				Type:            contentType.Type,
+				Count:           contentType.Count,
+				LocaliseKeyName: contentType.LocaliseKeyName,
+			})
+		}
+		pageCategories = append(pageCategories, model.Category{
+			Count:           category.Count,
+			LocaliseKeyName: category.LocaliseKeyName,
+			ContentTypes:    pageContentType,
 		})
 	}
-	page.Data.Response.ContentTypes = pageContentType
+	page.Data.Response.Categories = pageCategories
 
 	//RESPONSE-ITEMS STRUCT MAPPING
 	itemPage := []model.ContentItem{}
@@ -171,4 +185,19 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	page.Data.Response.Items = itemPage
 
 	return page
+}
+
+func getFilterSortKeyList(query url.Values, categories []data.Category) []string {
+	filterLocaliseKeyList := []string{}
+	queryFilters := query["filter"]
+	for _, filter := range queryFilters {
+		for _, category := range categories {
+			for _, contentType := range category.ContentTypes {
+				if filter == contentType.Type {
+					filterLocaliseKeyList = append(filterLocaliseKeyList, contentType.LocaliseKeyName)
+				}
+			}
+		}
+	}
+	return filterLocaliseKeyList
 }
