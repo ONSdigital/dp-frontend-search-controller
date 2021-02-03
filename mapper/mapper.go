@@ -22,6 +22,9 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	page.Data.Filter.Query = query["filter"]
 	page.Data.Filter.Options = []string{"Publication", "Data", "Other"}
 
+	if query.Get("sort") == "" {
+		query.Set("sort", "relevance")
+	}
 	page.Data.Sort.Query = query.Get("sort")
 	page.Data.Sort.LocaliseFilterKeys = getFilterSortKeyList(query, categories)
 	page.Data.Sort.LocaliseSortKey = getSortLocaliseKey(query)

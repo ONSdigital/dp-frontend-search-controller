@@ -19,7 +19,7 @@ func TestUnitMapper(t *testing.T) {
 	categories := []data.Category{data.Publication, data.Data, data.Other}
 
 	Convey("When search requested with valid query", t, func() {
-		req := httptest.NewRequest("GET", "/search?q=housing&limit=3&offset=20&filter=article&filter=filter2&sort=relevance", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing&limit=3&offset=20&filter=article&filter=filter2", nil)
 		query := req.URL.Query()
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
