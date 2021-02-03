@@ -1,11 +1,5 @@
 package data
 
-const (
-	relevance   = "relevance"
-	releaseDate = "release_date"
-	title       = "title"
-)
-
 // Sort represents information of a particular sort option
 type Sort struct {
 	Query           string `json:"query,omitempty"`
