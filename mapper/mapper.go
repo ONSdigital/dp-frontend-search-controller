@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/url"
 	"strconv"
-	"strings"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
 	model "github.com/ONSdigital/dp-frontend-models/model/search"
@@ -25,7 +24,16 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 
 	page.Data.Sort.Query = query.Get("sort")
 	page.Data.Sort.LocaliseFilterKeys = getFilterSortKeyList(query, categories)
-	page.Data.Sort.FilterText = strings.Replace(strings.ToLower(page.Data.Sort.Query), "-", " ", 1)
+	page.Data.Sort.LocaliseSortKey = getSortLocaliseKey(query)
+
+	pageSortOptions := []model.SortOptions{}
+	for _, sort := range data.SortOptions {
+		pageSortOptions = append(pageSortOptions, model.SortOptions{
+			Query:           sort.Query,
+			LocaliseKeyName: sort.LocaliseKeyName,
+		})
+	}
+	page.Data.Sort.Options = pageSortOptions
 
 	if query.Get("limit") != "" {
 		page.Data.Limit, err = strconv.Atoi(query.Get("limit"))
@@ -200,4 +208,14 @@ func getFilterSortKeyList(query url.Values, categories []data.Category) []string
 		}
 	}
 	return filterLocaliseKeyList
+}
+
+func getSortLocaliseKey(query url.Values) (sortKey string) {
+	querySort := query.Get("sort")
+	for _, sort := range data.SortOptions {
+		if querySort == sort.Query {
+			sortKey = sort.LocaliseKeyName
+		}
+	}
+	return sortKey
 }

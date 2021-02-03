@@ -40,7 +40,9 @@ func TestUnitMapper(t *testing.T) {
 				So(sp.Data.Filter.Options, ShouldResemble, []string{"Publication", "Data", "Other"})
 				So(sp.Data.Sort.Query, ShouldEqual, "relevance")
 				So(sp.Data.Sort.LocaliseFilterKeys, ShouldResemble, []string{"Article"})
-				So(sp.Data.Sort.FilterText, ShouldEqual, "relevance")
+				So(sp.Data.Sort.LocaliseSortKey, ShouldEqual, "Relevance")
+				So(sp.Data.Sort.Options[0].Query, ShouldEqual, "relevance")
+				So(sp.Data.Sort.Options[0].LocaliseKeyName, ShouldEqual, "Relevance")
 				So(sp.Data.Limit, ShouldEqual, 3)
 				So(sp.Data.Offset, ShouldEqual, 20)
 
@@ -153,6 +155,29 @@ func TestUnitMapper(t *testing.T) {
 			query := req.URL.Query()
 			filterSortText := getFilterSortKeyList(query, categories)
 			So(filterSortText, ShouldResemble, []string{})
+		})
+	})
+
+	Convey("When getSortLocaliseKey is called", t, func() {
+		Convey("successfully get localisation key for sort query", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&sort=relevance", nil)
+			query := req.URL.Query()
+			sortNameKey := getSortLocaliseKey(query)
+			So(sortNameKey, ShouldEqual, "Relevance")
+		})
+
+		Convey("successfully get no localisation key for invalid sort query", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&sort=invalid", nil)
+			query := req.URL.Query()
+			sortNameKey := getSortLocaliseKey(query)
+			So(sortNameKey, ShouldEqual, "")
+		})
+
+		Convey("successfully get no localisation key when no sort query given", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing", nil)
+			query := req.URL.Query()
+			sortNameKey := getSortLocaliseKey(query)
+			So(sortNameKey, ShouldEqual, "")
 		})
 	})
 }
