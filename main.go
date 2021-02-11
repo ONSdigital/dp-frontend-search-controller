@@ -47,7 +47,7 @@ func main() {
 
 	clients := routes.Clients{
 		Renderer: renderer.New(cfg.RendererURL),
-		Search:   search.NewClient(cfg.SearchQueryURL),
+		Search:   search.NewClient(cfg.SearchAPIURL),
 	}
 
 	healthcheck := health.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
