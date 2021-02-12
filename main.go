@@ -88,8 +88,8 @@ func registerCheckers(ctx context.Context, h *health.HealthCheck, c routes.Clien
 		log.Event(ctx, "failed to add frontend renderer checker", log.Error(err))
 	}
 
-	if err = h.AddCheck("Search Query", c.Search.Checker); err != nil {
-		log.Event(ctx, "failed to add search query checker", log.Error(err))
+	if err = h.AddCheck("Search API", c.Search.Checker); err != nil {
+		log.Event(ctx, "failed to add search API checker", log.Error(err))
 	}
 	return
 }

@@ -1,6 +1,6 @@
 dp-frontend-search-controller
 ================
-An HTTP service for the controlling of search query
+An HTTP service for the controlling of search API
 
 ### Getting started
 

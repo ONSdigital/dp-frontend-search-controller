@@ -46,7 +46,7 @@ func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC S
 	apiQuery.Del("content_type")
 	countResp, err := searchC.GetSearch(ctx, apiQuery)
 	if err != nil {
-		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR)
+		log.Event(ctx, "getting search API count from client failed", log.Error(err), log.ERROR)
 		return nil, err
 	}
 	categories = []data.Category{data.Publication, data.Data, data.Other}
