@@ -47,7 +47,7 @@ func TestUnitMapper(t *testing.T) {
 
 				So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)
 				So(sp.Data.Pagination.TotalPages, ShouldEqual, 1)
-				So(sp.Data.Pagination.PagesToDisplay, ShouldHaveLength, 5)
+				So(sp.Data.Pagination.PagesToDisplay, ShouldHaveLength, 1)
 				So(sp.Data.Pagination.PagesToDisplay[0].PageNumber, ShouldEqual, 1)
 				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/search?q=housing&filter=article&filter=filter2&page=1")
 				So(sp.Data.Pagination.Limit, ShouldEqual, 10)
