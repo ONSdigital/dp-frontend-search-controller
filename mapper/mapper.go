@@ -4,59 +4,64 @@ import (
 	"context"
 	"net/url"
 	"strconv"
-	"strings"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
-	model "github.com/ONSdigital/dp-frontend-models/model/search"
+	"github.com/ONSdigital/dp-frontend-models/model"
+	"github.com/ONSdigital/dp-frontend-models/model/search"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/log.go/log"
 )
 
-// CreateSearchPage maps type cookies.Policy to model.Page
-func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Response, categories []data.Category) (page model.Page) {
+// CreateSearchPage maps type search.Response to model.Page
+func CreateSearchPage(ctx context.Context, url *url.URL, respC searchC.Response, categories []data.Category) (page search.Page) {
 	// SEARCH STRUCT MAPPING
 	var err error
+	query := url.Query()
 	page.Metadata.Title = "Search"
 	page.SearchDisabled = true
 	page.Data.Query = query.Get("q")
-
-	page.Data.Filter.Query = query["filter"]
-	page.Data.Filter.Options = []string{"Publication", "Data", "Other"}
-
+	page.Data.Filter = query["filter"]
 	page.Data.Sort.Query = query.Get("sort")
 	page.Data.Sort.LocaliseFilterKeys = getFilterSortKeyList(query, categories)
-	page.Data.Sort.FilterText = strings.Replace(strings.ToLower(page.Data.Sort.Query), "-", " ", 1)
+	page.Data.Sort.LocaliseSortKey = getSortLocaliseKey(query)
 
-	if query.Get("limit") != "" {
-		page.Data.Limit, err = strconv.Atoi(query.Get("limit"))
-		if err != nil {
-			log.Event(ctx, "unable to convert search limit to int - default to limit 10", log.INFO)
-			page.Data.Limit = 10
-		}
+	pageSortOptions := []search.SortOptions{}
+	for _, sort := range data.SortOptions {
+		pageSortOptions = append(pageSortOptions, search.SortOptions{
+			Query:           sort.Query,
+			LocaliseKeyName: sort.LocaliseKeyName,
+		})
 	}
+	page.Data.Sort.Options = pageSortOptions
 
-	if query.Get("offset") != "" {
-		page.Data.Offset, err = strconv.Atoi(query.Get("offset"))
-		if err != nil {
-			log.Event(ctx, "unable to convert search offset to int - default to offset 0", log.INFO)
-			page.Data.Offset = 0
-		}
+	page.Data.Pagination.LimitOptions = data.GetLimitOptions()
+	page.Data.Pagination.Limit, err = strconv.Atoi(query.Get("limit"))
+	if err != nil {
+		log.Event(ctx, "unable to convert search limit to int - default to limit 10", log.INFO)
+		page.Data.Pagination.Limit = data.DefaultLimit
 	}
+	page.Data.Pagination.TotalPages = (respC.Count + page.Data.Pagination.Limit - 1) / page.Data.Pagination.Limit
+	page.Data.Pagination.CurrentPage, err = strconv.Atoi(query.Get("page"))
+	if err != nil {
+		log.Event(ctx, "unable to convert search page to int - default to page 1", log.INFO)
+		page.Data.Pagination.CurrentPage = data.DefaultPage
+	}
+	page.Data.Pagination.PagesToDisplay = getPagesToDisplay(page.Data.Pagination.CurrentPage, page.Data.Pagination.TotalPages, url)
 
 	//RESPONSE STRUCT MAPPING
 	page.Data.Response.Count = respC.Count
 
-	pageCategories := []model.Category{}
+	pageCategories := []search.Category{}
 	for _, category := range categories {
-		pageContentType := []model.ContentType{}
+		pageContentType := []search.ContentType{}
 		for _, contentType := range category.ContentTypes {
-			pageContentType = append(pageContentType, model.ContentType{
+			pageContentType = append(pageContentType, search.ContentType{
 				Type:            contentType.Type,
 				Count:           contentType.Count,
 				LocaliseKeyName: contentType.LocaliseKeyName,
 			})
 		}
-		pageCategories = append(pageCategories, model.Category{
+		pageCategories = append(pageCategories, search.Category{
 			Count:           category.Count,
 			LocaliseKeyName: category.LocaliseKeyName,
 			ContentTypes:    pageContentType,
@@ -65,11 +70,11 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 	page.Data.Response.Categories = pageCategories
 
 	//RESPONSE-ITEMS STRUCT MAPPING
-	itemPage := []model.ContentItem{}
+	itemPage := []search.ContentItem{}
 	for i, itemC := range respC.Items {
 		descriptionC := itemC.Description
-		itemPage = append(itemPage, model.ContentItem{
-			Description: model.Description{
+		itemPage = append(itemPage, search.ContentItem{
+			Description: search.Description{
 				DatasetID:         descriptionC.DatasetID,
 				Edition:           descriptionC.Edition,
 				Headline1:         descriptionC.Headline1,
@@ -94,7 +99,7 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 		})
 
 		if descriptionC.Contact != nil {
-			itemPage[i].Description.Contact = &model.Contact{
+			itemPage[i].Description.Contact = &search.Contact{
 				Name:      descriptionC.Contact.Name,
 				Telephone: descriptionC.Contact.Telephone,
 				Email:     descriptionC.Contact.Email,
@@ -103,14 +108,14 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 
 		if itemC.Matches != nil {
 			matchesDescC := itemC.Matches.Description
-			itemPage[i].Matches = &model.Matches{
-				Description: model.MatchDescription{},
+			itemPage[i].Matches = &search.Matches{
+				Description: search.MatchDescription{},
 			}
 
 			if matchesDescC.Summary != nil {
-				matchesSummaryPage := []model.MatchDetails{}
+				matchesSummaryPage := []search.MatchDetails{}
 				for _, summaryC := range *matchesDescC.Summary {
-					matchesSummaryPage = append(matchesSummaryPage, model.MatchDetails{
+					matchesSummaryPage = append(matchesSummaryPage, search.MatchDetails{
 						Value: summaryC.Value,
 						Start: summaryC.Start,
 						End:   summaryC.End,
@@ -120,9 +125,9 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 			}
 
 			if matchesDescC.Title != nil {
-				matchesTitlePage := []model.MatchDetails{}
+				matchesTitlePage := []search.MatchDetails{}
 				for _, titleC := range *matchesDescC.Title {
-					matchesTitlePage = append(matchesTitlePage, model.MatchDetails{
+					matchesTitlePage = append(matchesTitlePage, search.MatchDetails{
 						Value: titleC.Value,
 						Start: titleC.Start,
 						End:   titleC.End,
@@ -132,9 +137,9 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 			}
 
 			if matchesDescC.Edition != nil {
-				matchesEditionPage := []model.MatchDetails{}
+				matchesEditionPage := []search.MatchDetails{}
 				for _, editionC := range *matchesDescC.Edition {
-					matchesEditionPage = append(matchesEditionPage, model.MatchDetails{
+					matchesEditionPage = append(matchesEditionPage, search.MatchDetails{
 						Value: editionC.Value,
 						Start: editionC.Start,
 						End:   editionC.End,
@@ -144,9 +149,9 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 			}
 
 			if matchesDescC.MetaDescription != nil {
-				matchesMetaDescPage := []model.MatchDetails{}
+				matchesMetaDescPage := []search.MatchDetails{}
 				for _, metaDescC := range *matchesDescC.MetaDescription {
-					matchesMetaDescPage = append(matchesMetaDescPage, model.MatchDetails{
+					matchesMetaDescPage = append(matchesMetaDescPage, search.MatchDetails{
 						Value: metaDescC.Value,
 						Start: metaDescC.Start,
 						End:   metaDescC.End,
@@ -156,9 +161,9 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 			}
 
 			if matchesDescC.Keywords != nil {
-				matchesKeywordsPage := []model.MatchDetails{}
+				matchesKeywordsPage := []search.MatchDetails{}
 				for _, keywordC := range *matchesDescC.Keywords {
-					matchesKeywordsPage = append(matchesKeywordsPage, model.MatchDetails{
+					matchesKeywordsPage = append(matchesKeywordsPage, search.MatchDetails{
 						Value: keywordC.Value,
 						Start: keywordC.Start,
 						End:   keywordC.End,
@@ -168,9 +173,9 @@ func CreateSearchPage(ctx context.Context, query url.Values, respC searchC.Respo
 			}
 
 			if matchesDescC.DatasetID != nil {
-				matchesDatasetIDPage := []model.MatchDetails{}
+				matchesDatasetIDPage := []search.MatchDetails{}
 				for _, datasetIDClient := range *matchesDescC.DatasetID {
-					matchesDatasetIDPage = append(matchesDatasetIDPage, model.MatchDetails{
+					matchesDatasetIDPage = append(matchesDatasetIDPage, search.MatchDetails{
 						Value: datasetIDClient.Value,
 						Start: datasetIDClient.Start,
 						End:   datasetIDClient.End,
@@ -200,4 +205,45 @@ func getFilterSortKeyList(query url.Values, categories []data.Category) []string
 		}
 	}
 	return filterLocaliseKeyList
+}
+
+func getSortLocaliseKey(query url.Values) (sortKey string) {
+	querySort := query.Get("sort")
+	for _, sort := range data.SortOptions {
+		if querySort == sort.Query {
+			sortKey = sort.LocaliseKeyName
+		}
+	}
+	return sortKey
+}
+
+func getPagesToDisplay(currentPage int, totalPages int, url *url.URL) []model.PageToDisplay {
+	var pagesToDisplay = make([]model.PageToDisplay, 0)
+	startPage := currentPage - 2
+	if currentPage <= 2 {
+		startPage = 1
+	} else {
+		if (currentPage == totalPages-1) || (currentPage == totalPages) {
+			startPage = totalPages - 4
+		}
+	}
+	q := url.Query()
+	query := q.Get("q")
+	q.Del("q")
+	q.Del("page")
+	url.RawQuery = q.Encode()
+	if url.RawQuery != "" {
+		url.RawQuery = "&" + url.RawQuery
+	}
+	endPage := startPage + 4
+	if totalPages < 5 {
+		endPage = totalPages
+	}
+	for i := startPage; i <= endPage; i++ {
+		pagesToDisplay = append(pagesToDisplay, model.PageToDisplay{
+			PageNumber: i,
+			URL:        "/search?q=" + query + url.RawQuery + "&page=" + strconv.Itoa(i),
+		})
+	}
+	return pagesToDisplay
 }

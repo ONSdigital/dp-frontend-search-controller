@@ -24,6 +24,10 @@ type testCliError struct{}
 func (e *testCliError) Error() string { return "client error" }
 func (e *testCliError) Code() int     { return http.StatusNotFound }
 
+func createMockCategories() []data.Category {
+	return []data.Category{data.Publication, data.Data, data.Other}
+}
+
 // doTestRequest helper function that creates a router and mocks requests
 func doTestRequest(target string, req *http.Request, handlerFunc http.HandlerFunc, w *httptest.ResponseRecorder) *httptest.ResponseRecorder {
 	if w == nil {
@@ -73,7 +77,7 @@ func TestUnitHandlers(t *testing.T) {
 
 	Convey("When getSearchPage called", t, func() {
 		req := httptest.NewRequest("GET", "/search?q=housing&limit=1&offset=10&filter=article,filter2&sortBy=relevance", nil)
-		query := req.URL.Query()
+		url := req.URL
 		w := httptest.NewRecorder()
 		mockedRenderClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
@@ -90,7 +94,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			Convey("successfully gets the search page", func() {
-				err := getSearchPage(w, req, mockedRenderClient, query, respC, categories)
+				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories)
 				So(err, ShouldBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 			})
@@ -100,7 +104,7 @@ func TestUnitHandlers(t *testing.T) {
 				marshal = func(v interface{}) ([]byte, error) {
 					return []byte{}, errors.New("internal server error")
 				}
-				err = getSearchPage(w, req, mockedRenderClient, query, respC, categories)
+				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
 				marshal = defaultM
@@ -112,8 +116,7 @@ func TestUnitHandlers(t *testing.T) {
 						return []byte{}, errors.New("internal server error")
 					},
 				}
-
-				err = getSearchPage(w, req, mockedRenderClient, query, respC, categories)
+				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 			})
@@ -123,12 +126,114 @@ func TestUnitHandlers(t *testing.T) {
 				writeResponse = func(w http.ResponseWriter, templateHTML []byte) (int, error) {
 					return 0, errors.New("internal server error")
 				}
-				err = getSearchPage(w, req, mockedRenderClient, query, respC, categories)
+				err = getSearchPage(w, req, mockedRenderClient, url, respC, categories)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 				writeResponse = defaultW
 			})
 
+		})
+	})
+
+	Convey("When getCategoriesTypesCount is called", t, func() {
+		ctx := context.Background()
+		mockedAPIQuery := url.Values{
+			"content_type": []string{"bulletin,article,article_download"},
+			"q":            []string{"housing"},
+		}
+		countResp := searchC.Response{
+			ContentTypes: []searchC.ContentType{
+				{
+					Count: 3,
+					Type:  "bulletin",
+				},
+				{
+					Count: 4,
+					Type:  "article",
+				},
+				{
+					Count: 1,
+					Type:  "article_download",
+				},
+			},
+		}
+		mockedSearchClient := &SearchClientMock{
+			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+				return countResp, nil
+			},
+		}
+
+		Convey("return error as unable to retrieve count response from search client", func() {
+			mockedSearchClient = &SearchClientMock{
+				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+					return searchC.Response{}, errors.New("internal server error")
+				},
+			}
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			So(categories, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("return error when filter given by client not available in map", func() {
+			invalidFilterResponse := searchC.Response{
+				ContentTypes: []searchC.ContentType{
+					{
+						Count: 3,
+						Type:  "invalid",
+					},
+				},
+			}
+			mockedSearchClient = &SearchClientMock{
+				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+					return invalidFilterResponse, nil
+				},
+			}
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			So(categories, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldResemble, errors.New("filter type from client not available in data.go"))
+		})
+
+		Convey("successfully retrieve the count of filter mapping to single filter type", func() {
+			mockedAPIQuery = url.Values{
+				"content_type": []string{"bulletin"},
+				"q":            []string{"housing"},
+			}
+			singleFilterResponse := searchC.Response{
+				ContentTypes: []searchC.ContentType{
+					{
+						Count: 3,
+						Type:  "bulletin",
+					},
+				},
+			}
+			mockedSearchClient = &SearchClientMock{
+				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+					return singleFilterResponse, nil
+				},
+			}
+			mockCategories := createMockCategories()
+			mockCategories[0].Count = 3
+			mockCategories[0].ContentTypes[0].Count = 3
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			So(categories, ShouldNotBeNil)
+			So(categories, ShouldResemble, mockCategories)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("successfully retrieve the count of filter types mapping to multiple filter types", func() {
+			mockedAPIQuery = url.Values{
+				"content_type": []string{"bulletin,article,article_download,static_article"},
+				"q":            []string{"housing"},
+			}
+			mockCategories := createMockCategories()
+			mockCategories[0].Count = 8
+			mockCategories[0].ContentTypes[0].Count = 3
+			mockCategories[0].ContentTypes[1].Count = 5
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			So(categories, ShouldNotBeNil)
+			So(categories, ShouldResemble, mockCategories)
+			So(err, ShouldBeNil)
 		})
 	})
 
