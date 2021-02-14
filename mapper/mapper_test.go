@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -19,8 +20,8 @@ func TestUnitMapper(t *testing.T) {
 	categories := []data.Category{data.Publication, data.Data, data.Other}
 
 	Convey("When search requested with valid query", t, func() {
-		req := httptest.NewRequest("GET", "/search?q=housing&limit=3&offset=20&filter=article&filter=filter2", nil)
-		query := req.URL.Query()
+		req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=filter2&page=2", nil)
+		url := req.URL
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
 
@@ -32,19 +33,25 @@ func TestUnitMapper(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			Convey("successfully map search response from search-query client to page model", func() {
-				sp := CreateSearchPage(ctx, query, respC, categories)
+				sp := CreateSearchPage(ctx, url, respC, categories)
 				So(sp.Data.Query, ShouldEqual, "housing")
-				So(sp.Data.Filter.Query, ShouldHaveLength, 2)
-				So(sp.Data.Filter.Query[0], ShouldEqual, "article")
-				So(sp.Data.Filter.Query[1], ShouldEqual, "filter2")
-				So(sp.Data.Filter.Options, ShouldResemble, []string{"Publication", "Data", "Other"})
+				So(sp.Data.Filter, ShouldHaveLength, 2)
+				So(sp.Data.Filter[0], ShouldEqual, "article")
+				So(sp.Data.Filter[1], ShouldEqual, "filter2")
+
 				So(sp.Data.Sort.Query, ShouldEqual, "relevance")
 				So(sp.Data.Sort.LocaliseFilterKeys, ShouldResemble, []string{"Article"})
 				So(sp.Data.Sort.LocaliseSortKey, ShouldEqual, "Relevance")
 				So(sp.Data.Sort.Options[0].Query, ShouldEqual, "relevance")
 				So(sp.Data.Sort.Options[0].LocaliseKeyName, ShouldEqual, "Relevance")
-				So(sp.Data.Limit, ShouldEqual, 3)
-				So(sp.Data.Offset, ShouldEqual, 20)
+
+				So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)
+				So(sp.Data.Pagination.TotalPages, ShouldEqual, 1)
+				So(sp.Data.Pagination.PagesToDisplay, ShouldHaveLength, 5)
+				So(sp.Data.Pagination.PagesToDisplay[0].PageNumber, ShouldEqual, 1)
+				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/search?q=housing&filter=article&filter=filter2&page=1")
+				So(sp.Data.Pagination.Limit, ShouldEqual, 10)
+				So(sp.Data.Pagination.LimitOptions, ShouldResemble, []int{10, 25, 50})
 
 				So(sp.Data.Response.Count, ShouldEqual, 1)
 
@@ -119,12 +126,12 @@ func TestUnitMapper(t *testing.T) {
 
 	Convey("When search requested with invalid query", t, func() {
 		req := httptest.NewRequest("GET", "/search?q=housing&limit=invalid&offset=invalid", nil)
-		query := req.URL.Query()
+		url := req.URL
 
 		Convey("mapping search response fails from search-query client to page model", func() {
-			sp := CreateSearchPage(ctx, query, respC, categories)
-			So(sp.Data.Limit, ShouldEqual, 10)
-			So(sp.Data.Offset, ShouldEqual, 0)
+			sp := CreateSearchPage(ctx, url, respC, categories)
+			So(sp.Data.Pagination.Limit, ShouldEqual, 10)
+			So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)
 		})
 	})
 
@@ -178,6 +185,96 @@ func TestUnitMapper(t *testing.T) {
 			query := req.URL.Query()
 			sortNameKey := getSortLocaliseKey(query)
 			So(sortNameKey, ShouldEqual, "")
+		})
+	})
+
+	Convey("When getLimitOptions is called", t, func() {
+		Convey("successfully get limit options", func() {
+			limitOptions := getLimitOptions()
+			So(limitOptions, ShouldResemble, []int{10, 25, 50})
+		})
+	})
+
+	Convey("When getPagesToDisplay is called", t, func() {
+		Convey("successfully get pages to display when current page is less than or equal to 2", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&sort=relevance", nil)
+			pagesToDisplay := getPagesToDisplay(1, 200, req.URL)
+			So(pagesToDisplay, ShouldResemble, []model.PageToDisplay{
+				{
+					PageNumber: 1,
+					URL:        "/search?q=housing&sort=relevance&page=1",
+				},
+				{
+					PageNumber: 2,
+					URL:        "/search?q=housing&sort=relevance&page=2",
+				},
+				{
+					PageNumber: 3,
+					URL:        "/search?q=housing&sort=relevance&page=3",
+				},
+				{
+					PageNumber: 4,
+					URL:        "/search?q=housing&sort=relevance&page=4",
+				},
+				{
+					PageNumber: 5,
+					URL:        "/search?q=housing&sort=relevance&page=5",
+				},
+			})
+		})
+
+		Convey("successfully get pages to display when current page is more than or equal to totalPages-1", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&sort=relevance", nil)
+			pagesToDisplay := getPagesToDisplay(199, 200, req.URL)
+			So(pagesToDisplay, ShouldResemble, []model.PageToDisplay{
+				{
+					PageNumber: 196,
+					URL:        "/search?q=housing&sort=relevance&page=196",
+				},
+				{
+					PageNumber: 197,
+					URL:        "/search?q=housing&sort=relevance&page=197",
+				},
+				{
+					PageNumber: 198,
+					URL:        "/search?q=housing&sort=relevance&page=198",
+				},
+				{
+					PageNumber: 199,
+					URL:        "/search?q=housing&sort=relevance&page=199",
+				},
+				{
+					PageNumber: 200,
+					URL:        "/search?q=housing&sort=relevance&page=200",
+				},
+			})
+		})
+
+		Convey("successfully get pages to display when current page is between 3 and totalPages-2 ", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&sort=relevance", nil)
+			pagesToDisplay := getPagesToDisplay(150, 200, req.URL)
+			So(pagesToDisplay, ShouldResemble, []model.PageToDisplay{
+				{
+					PageNumber: 148,
+					URL:        "/search?q=housing&sort=relevance&page=148",
+				},
+				{
+					PageNumber: 149,
+					URL:        "/search?q=housing&sort=relevance&page=149",
+				},
+				{
+					PageNumber: 150,
+					URL:        "/search?q=housing&sort=relevance&page=150",
+				},
+				{
+					PageNumber: 151,
+					URL:        "/search?q=housing&sort=relevance&page=151",
+				},
+				{
+					PageNumber: 152,
+					URL:        "/search?q=housing&sort=relevance&page=152",
+				},
+			})
 		})
 	})
 }

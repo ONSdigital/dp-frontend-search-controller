@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http/httptest"
 	"net/url"
 
@@ -139,7 +138,6 @@ func TestUnitFilterMaps(t *testing.T) {
 			mockCategories[0].Count = 3
 			mockCategories[0].ContentTypes[0].Count = 3
 			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
-			fmt.Println("Publication0-3")
 			So(categories, ShouldNotBeNil)
 			So(categories, ShouldResemble, mockCategories)
 			So(err, ShouldBeNil)
@@ -155,7 +153,6 @@ func TestUnitFilterMaps(t *testing.T) {
 			mockCategories[0].ContentTypes[0].Count = 3
 			mockCategories[0].ContentTypes[1].Count = 5
 			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
-			fmt.Println("Publication0-8")
 			So(categories, ShouldNotBeNil)
 			So(categories, ShouldResemble, mockCategories)
 			So(err, ShouldBeNil)

@@ -91,3 +91,18 @@ var CorporateInformation = ContentType{
 	Type:            "corporate_information",
 	SubTypes:        []string{"static_foi", "static_page", "static_landing_page", "static_article"},
 }
+
+func setCountZero(categories []Category) []Category {
+	for i, category := range categories {
+		categories[i].Count = 0
+		for j := range category.ContentTypes {
+			categories[i].ContentTypes[j].Count = 0
+		}
+	}
+	return categories
+}
+
+// GetAllCategories returns all the categories and its content types where all the count is set to zero
+func GetAllCategories() []Category {
+	return setCountZero(Categories)
+}

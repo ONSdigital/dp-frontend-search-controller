@@ -11,7 +11,8 @@ import (
 )
 
 func mapSubFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values, err error) {
-	apiQuery, err = url.ParseQuery(query.Encode())
+	apiQuery = updateQueryWithOffset(ctx, query)
+	apiQuery, err = url.ParseQuery(apiQuery.Encode())
 	if err != nil {
 		log.Event(ctx, "failed to parse copy of query for mapping filter types", log.Error(err), log.ERROR)
 		return nil, err
@@ -49,7 +50,7 @@ func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC S
 		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR)
 		return nil, err
 	}
-	categories = []data.Category{data.Publication, data.Data, data.Other}
+	categories = data.GetAllCategories()
 	for _, responseType := range countResp.ContentTypes {
 		foundFilter := false
 	categoryLoop:

@@ -71,9 +71,34 @@ func TestUnitHandlers(t *testing.T) {
 		})
 	})
 
+	Convey("When updateQueryWithOffset called", t, func() {
+		ctx := context.Background()
+		Convey("successfully update query with offset", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=1", nil)
+			query := req.URL.Query()
+			updatedQuery := updateQueryWithOffset(ctx, query).Encode()
+			So(updatedQuery, ShouldContainSubstring, "offset=0")
+			So(updatedQuery, ShouldNotContainSubstring, "page=")
+		})
+		Convey("successfully update query with offset with invalid limit", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&limit=invalid&page=2", nil)
+			query := req.URL.Query()
+			updatedQuery := updateQueryWithOffset(ctx, query).Encode()
+			So(updatedQuery, ShouldContainSubstring, "offset=10")
+			So(updatedQuery, ShouldNotContainSubstring, "page=")
+		})
+		Convey("successfully update query with offset with invalid page", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=invalid", nil)
+			query := req.URL.Query()
+			updatedQuery := updateQueryWithOffset(ctx, query).Encode()
+			So(updatedQuery, ShouldContainSubstring, "offset=0")
+			So(updatedQuery, ShouldNotContainSubstring, "page=")
+		})
+	})
+
 	Convey("When getSearchPage called", t, func() {
 		req := httptest.NewRequest("GET", "/search?q=housing&limit=1&offset=10&filter=article,filter2&sortBy=relevance", nil)
-		query := req.URL.Query()
+		url := req.URL
 		w := httptest.NewRecorder()
 		mockedRenderClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
@@ -90,7 +115,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			Convey("successfully gets the search page", func() {
-				err := getSearchPage(w, req, mockedRenderClient, query, respC, categories)
+				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories)
 				So(err, ShouldBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 			})
@@ -100,7 +125,7 @@ func TestUnitHandlers(t *testing.T) {
 				marshal = func(v interface{}) ([]byte, error) {
 					return []byte{}, errors.New("internal server error")
 				}
-				err = getSearchPage(w, req, mockedRenderClient, query, respC, categories)
+				err = getSearchPage(w, req, mockedRenderClient, url, respC, categories)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
 				marshal = defaultM
@@ -113,7 +138,7 @@ func TestUnitHandlers(t *testing.T) {
 					},
 				}
 
-				err = getSearchPage(w, req, mockedRenderClient, query, respC, categories)
+				err = getSearchPage(w, req, mockedRenderClient, url, respC, categories)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 			})
@@ -123,7 +148,7 @@ func TestUnitHandlers(t *testing.T) {
 				writeResponse = func(w http.ResponseWriter, templateHTML []byte) (int, error) {
 					return 0, errors.New("internal server error")
 				}
-				err = getSearchPage(w, req, mockedRenderClient, query, respC, categories)
+				err = getSearchPage(w, req, mockedRenderClient, url, respC, categories)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 				writeResponse = defaultW
