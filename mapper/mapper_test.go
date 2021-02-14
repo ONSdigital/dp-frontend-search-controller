@@ -20,7 +20,7 @@ func TestUnitMapper(t *testing.T) {
 	categories := []data.Category{data.Publication, data.Data, data.Other}
 
 	Convey("When search requested with valid query", t, func() {
-		req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=filter2&page=2", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=filter2&sort=relevance&page=1", nil)
 		url := req.URL
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
@@ -49,7 +49,7 @@ func TestUnitMapper(t *testing.T) {
 				So(sp.Data.Pagination.TotalPages, ShouldEqual, 1)
 				So(sp.Data.Pagination.PagesToDisplay, ShouldHaveLength, 1)
 				So(sp.Data.Pagination.PagesToDisplay[0].PageNumber, ShouldEqual, 1)
-				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/search?q=housing&filter=article&filter=filter2&page=1")
+				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/search?q=housing&filter=article&filter=filter2&sort=relevance&page=1")
 				So(sp.Data.Pagination.Limit, ShouldEqual, 10)
 				So(sp.Data.Pagination.LimitOptions, ShouldResemble, []int{10, 25, 50})
 
@@ -185,13 +185,6 @@ func TestUnitMapper(t *testing.T) {
 			query := req.URL.Query()
 			sortNameKey := getSortLocaliseKey(query)
 			So(sortNameKey, ShouldEqual, "")
-		})
-	})
-
-	Convey("When getLimitOptions is called", t, func() {
-		Convey("successfully get limit options", func() {
-			limitOptions := getLimitOptions()
-			So(limitOptions, ShouldResemble, []int{10, 25, 50})
 		})
 	})
 

@@ -1,5 +1,14 @@
 package data
 
+import (
+	"context"
+	"errors"
+	"net/url"
+	"strings"
+
+	"github.com/ONSdigital/log.go/log"
+)
+
 // Category represents all the search categories in search page
 type Category struct {
 	LocaliseKeyName string        `json:"localise_key"`
@@ -92,6 +101,8 @@ var CorporateInformation = ContentType{
 	SubTypes:        []string{"static_foi", "static_page", "static_landing_page", "static_article"},
 }
 
+var errFilterType = errors.New("invalid filter type given")
+
 func setCountZero(categories []Category) []Category {
 	for i, category := range categories {
 		categories[i].Count = 0
@@ -105,4 +116,37 @@ func setCountZero(categories []Category) []Category {
 // GetAllCategories returns all the categories and its content types where all the count is set to zero
 func GetAllCategories() []Category {
 	return setCountZero(Categories)
+}
+
+// MapSubFilterTypes - adds sub filter types to filter query to be then passed to logic to retrieve search results
+func MapSubFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values, err error) {
+	apiQuery = updateQueryWithOffset(ctx, query)
+	apiQuery, err = url.ParseQuery(apiQuery.Encode())
+	if err != nil {
+		log.Event(ctx, "failed to parse copy of query for mapping filter types", log.Error(err), log.ERROR)
+		return nil, err
+	}
+	filters := apiQuery["filter"]
+	if len(filters) > 0 {
+		var newFilters = make([]string, 0)
+		for _, fType := range filters {
+			found := false
+		categoryLoop:
+			for _, category := range Categories {
+				for _, contentType := range category.ContentTypes {
+					if fType == contentType.Type {
+						found = true
+						newFilters = append(newFilters, contentType.SubTypes...)
+						break categoryLoop
+					}
+				}
+			}
+			if !found {
+				return nil, errFilterType
+			}
+		}
+		apiQuery.Del("filter")
+		apiQuery.Set("content_type", strings.Join(newFilters, ","))
+	}
+	return apiQuery, nil
 }

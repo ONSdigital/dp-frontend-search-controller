@@ -21,6 +21,10 @@ var respC searchC.Response
 
 type testCliError struct{}
 
+func createMockCategories() []data.Category {
+	return []data.Category{data.Publication, data.Data, data.Other}
+}
+
 func (e *testCliError) Error() string { return "client error" }
 func (e *testCliError) Code() int     { return http.StatusNotFound }
 
@@ -68,31 +72,6 @@ func TestUnitHandlers(t *testing.T) {
 			setStatusCode(req, w, err)
 
 			So(w.Code, ShouldEqual, http.StatusBadRequest)
-		})
-	})
-
-	Convey("When updateQueryWithOffset called", t, func() {
-		ctx := context.Background()
-		Convey("successfully update query with offset", func() {
-			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=1", nil)
-			query := req.URL.Query()
-			updatedQuery := updateQueryWithOffset(ctx, query).Encode()
-			So(updatedQuery, ShouldContainSubstring, "offset=0")
-			So(updatedQuery, ShouldNotContainSubstring, "page=")
-		})
-		Convey("successfully update query with offset with invalid limit", func() {
-			req := httptest.NewRequest("GET", "/search?q=housing&limit=invalid&page=2", nil)
-			query := req.URL.Query()
-			updatedQuery := updateQueryWithOffset(ctx, query).Encode()
-			So(updatedQuery, ShouldContainSubstring, "offset=10")
-			So(updatedQuery, ShouldNotContainSubstring, "page=")
-		})
-		Convey("successfully update query with offset with invalid page", func() {
-			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=invalid", nil)
-			query := req.URL.Query()
-			updatedQuery := updateQueryWithOffset(ctx, query).Encode()
-			So(updatedQuery, ShouldContainSubstring, "offset=0")
-			So(updatedQuery, ShouldNotContainSubstring, "page=")
 		})
 	})
 
@@ -154,6 +133,108 @@ func TestUnitHandlers(t *testing.T) {
 				writeResponse = defaultW
 			})
 
+		})
+	})
+
+	Convey("When getCategoriesTypesCount is called", t, func() {
+		ctx := context.Background()
+		mockedAPIQuery := url.Values{
+			"content_type": []string{"bulletin,article,article_download"},
+			"q":            []string{"housing"},
+		}
+		countResp := searchC.Response{
+			ContentTypes: []searchC.ContentType{
+				{
+					Count: 3,
+					Type:  "bulletin",
+				},
+				{
+					Count: 4,
+					Type:  "article",
+				},
+				{
+					Count: 1,
+					Type:  "article_download",
+				},
+			},
+		}
+		mockedSearchClient := &SearchClientMock{
+			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+				return countResp, nil
+			},
+		}
+
+		Convey("return error as unable to retrieve count response from search client", func() {
+			mockedSearchClient = &SearchClientMock{
+				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+					return searchC.Response{}, errors.New("internal server error")
+				},
+			}
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			So(categories, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+		})
+
+		Convey("return error when filter given by client not available in map", func() {
+			invalidFilterResponse := searchC.Response{
+				ContentTypes: []searchC.ContentType{
+					{
+						Count: 3,
+						Type:  "invalid",
+					},
+				},
+			}
+			mockedSearchClient = &SearchClientMock{
+				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+					return invalidFilterResponse, nil
+				},
+			}
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			So(categories, ShouldBeNil)
+			So(err, ShouldNotBeNil)
+			So(err, ShouldResemble, errors.New("filter type from client not available in data.go"))
+		})
+
+		Convey("successfully retrieve the count of filter mapping to single filter type", func() {
+			mockedAPIQuery = url.Values{
+				"content_type": []string{"bulletin"},
+				"q":            []string{"housing"},
+			}
+			singleFilterResponse := searchC.Response{
+				ContentTypes: []searchC.ContentType{
+					{
+						Count: 3,
+						Type:  "bulletin",
+					},
+				},
+			}
+			mockedSearchClient = &SearchClientMock{
+				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+					return singleFilterResponse, nil
+				},
+			}
+			mockCategories := createMockCategories()
+			mockCategories[0].Count = 3
+			mockCategories[0].ContentTypes[0].Count = 3
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			So(categories, ShouldNotBeNil)
+			So(categories, ShouldResemble, mockCategories)
+			So(err, ShouldBeNil)
+		})
+
+		Convey("successfully retrieve the count of filter types mapping to multiple filter types", func() {
+			mockedAPIQuery = url.Values{
+				"content_type": []string{"bulletin,article,article_download,static_article"},
+				"q":            []string{"housing"},
+			}
+			mockCategories := createMockCategories()
+			mockCategories[0].Count = 8
+			mockCategories[0].ContentTypes[0].Count = 3
+			mockCategories[0].ContentTypes[1].Count = 5
+			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
+			So(categories, ShouldNotBeNil)
+			So(categories, ShouldResemble, mockCategories)
+			So(err, ShouldBeNil)
 		})
 	})
 

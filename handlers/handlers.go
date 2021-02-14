@@ -6,15 +6,12 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
-	"strconv"
 
 	search "github.com/ONSdigital/dp-api-clients-go/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/log.go/log"
 )
-
-var errFilterType = errors.New("invalid filter type given")
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored
 type ClientError interface {
@@ -54,25 +51,6 @@ var writeResponse = func(w http.ResponseWriter, templateHTML []byte) (int, error
 	return w.Write(templateHTML)
 }
 
-// updateQueryWithOffset - removes page key and adds offset key to query to be then passed to dp-search-query
-func updateQueryWithOffset(ctx context.Context, query url.Values) url.Values {
-	page, err := strconv.Atoi(query.Get("page"))
-	if err != nil {
-		log.Event(ctx, "unable to convert search page to int - set to default 1", log.INFO)
-		page = 1
-	}
-	limit, err := strconv.Atoi(query.Get("limit"))
-	if err != nil {
-		log.Event(ctx, "unable to convert search limit to int - set to default 10", log.INFO)
-		limit = 10
-	}
-	offset := strconv.Itoa(((page - 1) * limit))
-	updateQuery := query
-	updateQuery.Set("offset", offset)
-	updateQuery.Del("page")
-	return updateQuery
-}
-
 // getSearchPage talks to the renderer to get the search page
 func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient, url *url.URL, resp search.Response, categories []data.Category) error {
 	ctx := req.Context()
@@ -97,6 +75,37 @@ func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient,
 	return err
 }
 
+func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC SearchClient) (categories []data.Category, err error) {
+	//Remove filter to get count of all types for the query from the client
+	apiQuery.Del("content_type")
+	countResp, err := searchC.GetSearch(ctx, apiQuery)
+	if err != nil {
+		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR)
+		return nil, err
+	}
+	categories = data.GetAllCategories()
+	for _, responseType := range countResp.ContentTypes {
+		foundFilter := false
+	categoryLoop:
+		for i, category := range categories {
+			for j, contentType := range category.ContentTypes {
+				for _, subType := range contentType.SubTypes {
+					if responseType.Type == subType {
+						categories[i].Count += responseType.Count
+						categories[i].ContentTypes[j].Count += responseType.Count
+						foundFilter = true
+						break categoryLoop
+					}
+				}
+			}
+		}
+		if !foundFilter {
+			return nil, errors.New("filter type from client not available in data.go")
+		}
+	}
+	return categories, nil
+}
+
 // Read Handler
 func Read(rendC RenderClient, searchC SearchClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
@@ -106,8 +115,8 @@ func Read(rendC RenderClient, searchC SearchClient) http.HandlerFunc {
 
 func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC SearchClient) {
 	ctx := req.Context()
-	url := req.URL
-	apiQuery, err := mapSubFilterTypes(ctx, url.Query())
+	url := data.SetDefaultQueries(ctx, req.URL)
+	apiQuery, err := data.MapSubFilterTypes(ctx, url.Query())
 	if err != nil {
 		log.Event(ctx, "mapping sub filter types to query failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)

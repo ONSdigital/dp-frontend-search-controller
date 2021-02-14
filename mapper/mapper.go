@@ -21,10 +21,6 @@ func CreateSearchPage(ctx context.Context, url *url.URL, respC searchC.Response,
 	page.SearchDisabled = true
 	page.Data.Query = query.Get("q")
 	page.Data.Filter = query["filter"]
-
-	if query.Get("sort") == "" {
-		query.Set("sort", "relevance")
-	}
 	page.Data.Sort.Query = query.Get("sort")
 	page.Data.Sort.LocaliseFilterKeys = getFilterSortKeyList(query, categories)
 	page.Data.Sort.LocaliseSortKey = getSortLocaliseKey(query)
@@ -38,21 +34,17 @@ func CreateSearchPage(ctx context.Context, url *url.URL, respC searchC.Response,
 	}
 	page.Data.Sort.Options = pageSortOptions
 
-	page.Data.Pagination.LimitOptions = getLimitOptions()
+	page.Data.Pagination.LimitOptions = data.GetLimitOptions()
 	page.Data.Pagination.Limit, err = strconv.Atoi(query.Get("limit"))
 	if err != nil {
 		log.Event(ctx, "unable to convert search limit to int - default to limit 10", log.INFO)
-		page.Data.Pagination.Limit = 10
+		page.Data.Pagination.Limit = data.DefaultLimit
 	}
 	page.Data.Pagination.TotalPages = (respC.Count + page.Data.Pagination.Limit - 1) / page.Data.Pagination.Limit
 	page.Data.Pagination.CurrentPage, err = strconv.Atoi(query.Get("page"))
 	if err != nil {
 		log.Event(ctx, "unable to convert search page to int - default to page 1", log.INFO)
-		page.Data.Pagination.CurrentPage = 1
-	}
-	if (page.Data.Pagination.CurrentPage < 1) || (page.Data.Pagination.CurrentPage > page.Data.Pagination.TotalPages) {
-		log.Event(ctx, "current page out of bounds - default to page 1", log.INFO)
-		page.Data.Pagination.CurrentPage = 1
+		page.Data.Pagination.CurrentPage = data.DefaultPage
 	}
 	page.Data.Pagination.PagesToDisplay = getPagesToDisplay(page.Data.Pagination.CurrentPage, page.Data.Pagination.TotalPages, url)
 
@@ -225,17 +217,13 @@ func getSortLocaliseKey(query url.Values) (sortKey string) {
 	return sortKey
 }
 
-func getLimitOptions() []int {
-	return []int{10, 25, 50}
-}
-
 func getPagesToDisplay(currentPage int, totalPages int, url *url.URL) []model.PageToDisplay {
 	var pagesToDisplay = make([]model.PageToDisplay, 0)
 	startPage := currentPage - 2
 	if currentPage <= 2 {
 		startPage = 1
 	} else {
-		if currentPage >= (totalPages - 1) {
+		if (currentPage == totalPages-1) || (currentPage == totalPages) {
 			startPage = totalPages - 4
 		}
 	}
