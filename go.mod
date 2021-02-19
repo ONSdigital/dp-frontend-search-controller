@@ -3,8 +3,8 @@ module github.com/ONSdigital/dp-frontend-search-controller
 go 1.15
 
 require (
-	github.com/ONSdigital/dp-api-clients-go v1.33.4
-	github.com/ONSdigital/dp-frontend-models v1.10.1
+	github.com/ONSdigital/dp-api-clients-go v1.33.6
+	github.com/ONSdigital/dp-frontend-models v1.10.2
 	github.com/ONSdigital/dp-healthcheck v1.0.5
 	github.com/ONSdigital/dp-net v1.0.11 // indirect
 	github.com/ONSdigital/go-ns v0.0.0-20200902154605-290c8b5ba5eb
@@ -15,5 +15,5 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/smartystreets/goconvey v1.6.4
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
-	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
+	golang.org/x/sys v0.0.0-20210218155724-8ebf48af031b // indirect
 )
