@@ -1,6 +1,6 @@
 dp-frontend-search-controller
 ================
-An HTTP service for the controlling of search query
+An HTTP service for the controlling of search API
 
 ### Getting started
 
@@ -26,7 +26,7 @@ See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ### License
 
-Copyright © 2020, Office for National Statistics (https://www.ons.gov.uk)
+Copyright © 2020 - 2021, Office for National Statistics (https://www.ons.gov.uk)
 
 Released under MIT license, see [LICENSE](LICENSE.md) for details.
 
