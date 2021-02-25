@@ -39,7 +39,7 @@ func updateQueryWithOffset(ctx context.Context, query url.Values) url.Values {
 		log.Event(ctx, "unable to convert search limit to int - set to default "+DefaultLimitStr, log.INFO)
 		limit = DefaultLimit
 	}
-	offset := strconv.Itoa(((page - 1) * limit))
+	offset := strconv.Itoa((page - 1) * limit)
 	updateQuery := query
 	updateQuery.Set("offset", offset)
 	updateQuery.Del("page")
