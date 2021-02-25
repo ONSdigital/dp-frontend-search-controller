@@ -30,7 +30,6 @@ func TestUnitFilter(t *testing.T) {
 			allCategories := GetAllCategories()
 			So(allCategories, ShouldResemble, updatedCategories)
 		})
-
 	})
 
 	Convey("When MapSubFilterTypes is called", t, func() {

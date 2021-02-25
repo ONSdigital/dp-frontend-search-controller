@@ -91,6 +91,15 @@ func TestUnitQuery(t *testing.T) {
 			So(paginationQuery.CurrentPage, ShouldEqual, 1)
 			So(paginationQuery.Limit, ShouldEqual, DefaultLimit)
 		})
+		Convey("successfully set default limit to query if limit does not exist in limit options", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&page=1&sort=relevance&limit=2", nil)
+			updatedURL, paginationQuery := SetDefaultQueries(ctx, req.URL)
+			So(updatedURL.Query().Get("limit"), ShouldEqual, DefaultLimitStr)
+			So(updatedURL.Query().Get("page"), ShouldEqual, "1")
+			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
+			So(paginationQuery.CurrentPage, ShouldEqual, 1)
+			So(paginationQuery.Limit, ShouldEqual, DefaultLimit)
+		})
 		Convey("successfully set default sort to query if sort not given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=1", nil)
 			updatedURL, paginationQuery := SetDefaultQueries(ctx, req.URL)
