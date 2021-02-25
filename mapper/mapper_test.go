@@ -18,6 +18,10 @@ var respC searchC.Response
 func TestUnitMapper(t *testing.T) {
 	ctx := context.Background()
 	categories := []data.Category{data.Publication, data.Data, data.Other}
+	paginationQuery := &data.PaginationQuery{
+		Limit:       10,
+		CurrentPage: 1,
+	}
 
 	Convey("When search requested with valid query", t, func() {
 		req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=filter2&sort=relevance&page=1", nil)
@@ -33,7 +37,7 @@ func TestUnitMapper(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			Convey("successfully map search response from search-query client to page model", func() {
-				sp := CreateSearchPage(ctx, url, respC, categories)
+				sp := CreateSearchPage(ctx, url, respC, categories, paginationQuery)
 				So(sp.Data.Query, ShouldEqual, "housing")
 				So(sp.Data.Filter, ShouldHaveLength, 2)
 				So(sp.Data.Filter[0], ShouldEqual, "article")
@@ -121,17 +125,6 @@ func TestUnitMapper(t *testing.T) {
 				So(testMatchesDescDatasetID[0].Start, ShouldEqual, 26)
 				So(testMatchesDescDatasetID[0].End, ShouldEqual, 30)
 			})
-		})
-	})
-
-	Convey("When search requested with invalid query", t, func() {
-		req := httptest.NewRequest("GET", "/search?q=housing&limit=invalid&offset=invalid", nil)
-		url := req.URL
-
-		Convey("mapping search response fails from search-query client to page model", func() {
-			sp := CreateSearchPage(ctx, url, respC, categories)
-			So(sp.Data.Pagination.Limit, ShouldEqual, 10)
-			So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)
 		})
 	})
 

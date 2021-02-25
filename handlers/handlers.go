@@ -39,6 +39,9 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 	if err.Error() == "invalid filter type given" {
 		status = http.StatusBadRequest
 	}
+	if err.Error() == "current page exceeds total pages" {
+		status = http.StatusBadRequest
+	}
 	log.Event(req.Context(), "setting-response-status", log.Error(err), log.ERROR)
 	w.WriteHeader(status)
 }
@@ -52,9 +55,9 @@ var writeResponse = func(w http.ResponseWriter, templateHTML []byte) (int, error
 }
 
 // getSearchPage talks to the renderer to get the search page
-func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient, url *url.URL, resp search.Response, categories []data.Category) error {
+func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient, url *url.URL, resp search.Response, categories []data.Category, paginationQuery *data.PaginationQuery) error {
 	ctx := req.Context()
-	m := mapper.CreateSearchPage(ctx, url, resp, categories)
+	m := mapper.CreateSearchPage(ctx, url, resp, categories, paginationQuery)
 	b, err := marshal(m)
 	if err != nil {
 		log.Event(ctx, "unable to marshal search response", log.Error(err), log.ERROR)
@@ -73,6 +76,14 @@ func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient,
 		return err
 	}
 	return err
+}
+
+func isCurrentPageLessThanTotalPages(ctx context.Context, paginationQuery *data.PaginationQuery, resp search.Response) (bool, error) {
+	totalPages := (resp.Count + paginationQuery.Limit - 1) / paginationQuery.Limit
+	if paginationQuery.CurrentPage > totalPages {
+		return false, errors.New("current page exceeds total pages")
+	}
+	return true, nil
 }
 
 func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC SearchClient) (categories []data.Category, err error) {
@@ -115,7 +126,7 @@ func Read(rendC RenderClient, searchC SearchClient) http.HandlerFunc {
 
 func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC SearchClient) {
 	ctx := req.Context()
-	url := data.SetDefaultQueries(ctx, req.URL)
+	url, paginationQuery := data.SetDefaultQueries(ctx, req.URL)
 	apiQuery, err := data.MapSubFilterTypes(ctx, url.Query())
 	if err != nil {
 		log.Event(ctx, "mapping sub filter types to query failed", log.Error(err), log.ERROR)
@@ -128,13 +139,19 @@ func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC 
 		setStatusCode(req, w, err)
 		return
 	}
+	validCurrentPage, err := isCurrentPageLessThanTotalPages(ctx, paginationQuery, resp)
+	if !validCurrentPage {
+		log.Event(ctx, "given page is not valid", log.Error(err), log.ERROR)
+		setStatusCode(req, w, err)
+		return
+	}
 	categories, err := getCategoriesTypesCount(ctx, apiQuery, searchC)
 	if err != nil {
 		log.Event(ctx, "mapping count filter types failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return
 	}
-	err = getSearchPage(w, req, rendC, url, resp, categories)
+	err = getSearchPage(w, req, rendC, url, resp, categories, paginationQuery)
 	if err != nil {
 		log.Event(ctx, "getting search page failed", log.Error(err), log.ERROR)
 	}

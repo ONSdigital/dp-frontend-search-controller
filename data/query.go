@@ -21,6 +21,12 @@ const (
 	DefaultPageStr = "1"
 )
 
+// PaginationQuery is a struct which contains validated pagination information
+type PaginationQuery struct {
+	Limit       int
+	CurrentPage int
+}
+
 // GetLimitOptions returns all available limit options for search
 func GetLimitOptions() []int {
 	return []int{10, 25, 50}
@@ -47,40 +53,46 @@ func updateQueryWithOffset(ctx context.Context, query url.Values) url.Values {
 }
 
 // SetDefaultQueries ensures that all empty query fields are set to default
-func SetDefaultQueries(ctx context.Context, url *url.URL) *url.URL {
+func SetDefaultQueries(ctx context.Context, url *url.URL) (*url.URL, *PaginationQuery) {
 	var found bool
 	query := url.Query()
-	pageQuery := query.Get("page")
-	if pageQuery == "" {
+
+	// Validating current page
+	currentPage, err := strconv.Atoi(query.Get("page"))
+	if err != nil {
+		log.Event(ctx, "unable to convert search page to int - set to default "+DefaultPageStr, log.INFO)
 		query.Set("page", DefaultPageStr)
+		currentPage = DefaultPage
 	} else {
-		page, err := strconv.Atoi(pageQuery)
-		if err != nil {
-			log.Event(ctx, "unable to convert search page to int - set to default "+DefaultPageStr, log.INFO)
+		if currentPage < 1 {
+			log.Event(ctx, "page number is less than default - default to page "+DefaultPageStr, log.INFO)
 			query.Set("page", DefaultPageStr)
-		} else {
-			if page < 1 {
-				log.Event(ctx, "page number is less than default - default to page "+DefaultPageStr, log.INFO)
-				query.Set("page", DefaultPageStr)
-			}
+			currentPage = DefaultPage
 		}
 	}
-	limitQuery := query.Get("limit")
-	if limitQuery == "" {
+
+	// Validating search limit
+	limit, err := strconv.Atoi(query.Get("limit"))
+	if err != nil {
+		log.Event(ctx, "unable to convert search limit to int - set to default "+DefaultLimitStr, log.INFO)
 		query.Set("limit", DefaultLimitStr)
+		limit = DefaultLimit
 	} else {
 		found = false
 		limitOptions := GetLimitOptions()
-		for _, limit := range limitOptions {
-			if limitQuery == strconv.Itoa(limit) {
+		for _, limitOption := range limitOptions {
+			if limitOption == limit {
 				found = true
 			}
 		}
 		if !found {
-			query.Set("limit", DefaultLimitStr)
 			log.Event(ctx, "limit chosen not available in limit options - default to limit "+DefaultLimitStr, log.INFO)
+			query.Set("limit", DefaultLimitStr)
+			limit = DefaultLimit
 		}
 	}
+
+	// Validating sort query
 	sortQuery := query.Get("sort")
 	if sortQuery == "" {
 		query.Set("sort", DefaultSort)
@@ -96,6 +108,12 @@ func SetDefaultQueries(ctx context.Context, url *url.URL) *url.URL {
 			log.Event(ctx, "sort chosen not available in sort options - default to sort "+DefaultSort, log.INFO)
 		}
 	}
+
 	url.RawQuery = query.Encode()
-	return url
+
+	paginationQuery := &PaginationQuery{
+		Limit:       limit,
+		CurrentPage: currentPage,
+	}
+	return url, paginationQuery
 }

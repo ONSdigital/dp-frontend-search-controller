@@ -9,13 +9,11 @@ import (
 	"github.com/ONSdigital/dp-frontend-models/model"
 	"github.com/ONSdigital/dp-frontend-models/model/search"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
-	"github.com/ONSdigital/log.go/log"
 )
 
 // CreateSearchPage maps type search.Response to model.Page
-func CreateSearchPage(ctx context.Context, url *url.URL, respC searchC.Response, categories []data.Category) (page search.Page) {
+func CreateSearchPage(ctx context.Context, url *url.URL, respC searchC.Response, categories []data.Category, paginationQuery *data.PaginationQuery) (page search.Page) {
 	// SEARCH STRUCT MAPPING
-	var err error
 	query := url.Query()
 	page.Metadata.Title = "Search"
 	page.SearchDisabled = true
@@ -35,17 +33,9 @@ func CreateSearchPage(ctx context.Context, url *url.URL, respC searchC.Response,
 	page.Data.Sort.Options = pageSortOptions
 
 	page.Data.Pagination.LimitOptions = data.GetLimitOptions()
-	page.Data.Pagination.Limit, err = strconv.Atoi(query.Get("limit"))
-	if err != nil {
-		log.Event(ctx, "unable to convert search limit to int - default to limit "+data.DefaultLimitStr, log.INFO)
-		page.Data.Pagination.Limit = data.DefaultLimit
-	}
+	page.Data.Pagination.Limit = paginationQuery.Limit
 	page.Data.Pagination.TotalPages = (respC.Count + page.Data.Pagination.Limit - 1) / page.Data.Pagination.Limit
-	page.Data.Pagination.CurrentPage, err = strconv.Atoi(query.Get("page"))
-	if err != nil {
-		log.Event(ctx, "unable to convert search page to int - default to page "+data.DefaultPageStr, log.INFO)
-		page.Data.Pagination.CurrentPage = data.DefaultPage
-	}
+	page.Data.Pagination.CurrentPage = paginationQuery.CurrentPage
 	page.Data.Pagination.PagesToDisplay = getPagesToDisplay(page.Data.Pagination.CurrentPage, page.Data.Pagination.TotalPages, url)
 
 	//RESPONSE STRUCT MAPPING

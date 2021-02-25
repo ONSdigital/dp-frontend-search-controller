@@ -75,6 +75,35 @@ func TestUnitHandlers(t *testing.T) {
 		})
 	})
 
+	Convey("When isCurrentPageLessThanTotalPages called", t, func() {
+		ctx := context.Background()
+		paginationQuery := &data.PaginationQuery{
+			Limit:       10,
+			CurrentPage: 1,
+		}
+		Convey("convert mock response to client model", func() {
+			sampleResponse, err := ioutil.ReadFile("../mapper/test_data/mock_response.json")
+			So(err, ShouldBeNil)
+
+			err = json.Unmarshal(sampleResponse, &respC)
+			So(err, ShouldBeNil)
+
+			Convey("returns true with no error when valid page number given", func() {
+				validCurrentPage, err := isCurrentPageLessThanTotalPages(ctx, paginationQuery, respC)
+				So(validCurrentPage, ShouldBeTrue)
+				So(err, ShouldBeNil)
+			})
+
+			Convey("returns false with error when valid page number given", func() {
+				paginationQuery.CurrentPage = 2
+				validCurrentPage, err := isCurrentPageLessThanTotalPages(ctx, paginationQuery, respC)
+				So(validCurrentPage, ShouldBeFalse)
+				So(err, ShouldNotBeNil)
+				So(err, ShouldResemble, errors.New("current page exceeds total pages"))
+			})
+		})
+	})
+
 	Convey("When getSearchPage called", t, func() {
 		req := httptest.NewRequest("GET", "/search?q=housing&limit=1&offset=10&filter=article,filter2&sortBy=relevance", nil)
 		url := req.URL
@@ -85,6 +114,10 @@ func TestUnitHandlers(t *testing.T) {
 			},
 		}
 		categories := data.Categories
+		paginationQuery := &data.PaginationQuery{
+			Limit:       10,
+			CurrentPage: 1,
+		}
 
 		Convey("convert mock response to client model", func() {
 			sampleResponse, err := ioutil.ReadFile("../mapper/test_data/mock_response.json")
@@ -94,7 +127,7 @@ func TestUnitHandlers(t *testing.T) {
 			So(err, ShouldBeNil)
 
 			Convey("successfully gets the search page", func() {
-				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories)
+				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories, paginationQuery)
 				So(err, ShouldBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 			})
@@ -104,7 +137,7 @@ func TestUnitHandlers(t *testing.T) {
 				marshal = func(v interface{}) ([]byte, error) {
 					return []byte{}, errors.New("internal server error")
 				}
-				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories)
+				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories, paginationQuery)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
 				marshal = defaultM
@@ -116,7 +149,7 @@ func TestUnitHandlers(t *testing.T) {
 						return []byte{}, errors.New("internal server error")
 					},
 				}
-				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories)
+				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories, paginationQuery)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 			})
@@ -126,7 +159,7 @@ func TestUnitHandlers(t *testing.T) {
 				writeResponse = func(w http.ResponseWriter, templateHTML []byte) (int, error) {
 					return 0, errors.New("internal server error")
 				}
-				err = getSearchPage(w, req, mockedRenderClient, url, respC, categories)
+				err = getSearchPage(w, req, mockedRenderClient, url, respC, categories, paginationQuery)
 				So(err, ShouldNotBeNil)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 				writeResponse = defaultW
@@ -284,6 +317,24 @@ func TestUnitHandlers(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+			})
+
+			Convey("return error as invalid current page given as it exceeds total pages", func() {
+				req = httptest.NewRequest("GET", "/search?q=housing&page=2", nil)
+				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
+				So(w.Code, ShouldEqual, http.StatusBadRequest)
+				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+			})
+
+			Convey("return error as unable to map filters from client", func() {
+				data.Categories = []data.Category{data.Data, data.Other}
+				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
+				So(w.Code, ShouldEqual, http.StatusInternalServerError)
+				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
+				data.Categories = []data.Category{data.Publication, data.Data, data.Other}
+
 			})
 
 			Convey("return error as getting search page failed", func() {
