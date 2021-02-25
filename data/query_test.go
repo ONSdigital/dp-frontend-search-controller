@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"net/http/httptest"
-	"strconv"
 
 	"testing"
 
@@ -51,34 +50,34 @@ func TestUnitQuery(t *testing.T) {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&sort=relevance", nil)
 			updatedURL := SetDefaultQueries(ctx, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, "10")
-			So(updatedURL.Query().Get("page"), ShouldEqual, strconv.Itoa(DefaultPage))
+			So(updatedURL.Query().Get("page"), ShouldEqual, DefaultPageStr)
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
 		})
 		Convey("successfully set default page to query if invalid page given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&sort=relevance&page=invalid", nil)
 			updatedURL := SetDefaultQueries(ctx, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, "10")
-			So(updatedURL.Query().Get("page"), ShouldEqual, strconv.Itoa(DefaultPage))
+			So(updatedURL.Query().Get("page"), ShouldEqual, DefaultPageStr)
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
 		})
 		Convey("successfully set default page to query if page less than 1", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&sort=relevance&page=0", nil)
 			updatedURL := SetDefaultQueries(ctx, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, "10")
-			So(updatedURL.Query().Get("page"), ShouldEqual, strconv.Itoa(DefaultPage))
+			So(updatedURL.Query().Get("page"), ShouldEqual, DefaultPageStr)
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
 		})
 		Convey("successfully set default limit to query if limit not given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&page=1&sort=relevance", nil)
 			updatedURL := SetDefaultQueries(ctx, req.URL)
-			So(updatedURL.Query().Get("limit"), ShouldEqual, strconv.Itoa(DefaultLimit))
+			So(updatedURL.Query().Get("limit"), ShouldEqual, DefaultLimitStr)
 			So(updatedURL.Query().Get("page"), ShouldEqual, "1")
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
 		})
 		Convey("successfully set default limit to query if invalid limit given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&page=1&sort=relevance&limit=invalid", nil)
 			updatedURL := SetDefaultQueries(ctx, req.URL)
-			So(updatedURL.Query().Get("limit"), ShouldEqual, strconv.Itoa(DefaultLimit))
+			So(updatedURL.Query().Get("limit"), ShouldEqual, DefaultLimitStr)
 			So(updatedURL.Query().Get("page"), ShouldEqual, "1")
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
 		})

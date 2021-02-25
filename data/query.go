@@ -67,7 +67,7 @@ func SetDefaultQueries(ctx context.Context, url *url.URL) *url.URL {
 	}
 	limitQuery := query.Get("limit")
 	if limitQuery == "" {
-		query.Set("limit", strconv.Itoa(DefaultLimit))
+		query.Set("limit", DefaultLimitStr)
 	} else {
 		found = false
 		limitOptions := GetLimitOptions()
@@ -77,7 +77,7 @@ func SetDefaultQueries(ctx context.Context, url *url.URL) *url.URL {
 			}
 		}
 		if !found {
-			query.Set("limit", strconv.Itoa(DefaultLimit))
+			query.Set("limit", DefaultLimitStr)
 			log.Event(ctx, "limit chosen not available in limit options - default to limit "+DefaultLimitStr, log.INFO)
 		}
 	}
