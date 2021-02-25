@@ -37,13 +37,13 @@ func CreateSearchPage(ctx context.Context, url *url.URL, respC searchC.Response,
 	page.Data.Pagination.LimitOptions = data.GetLimitOptions()
 	page.Data.Pagination.Limit, err = strconv.Atoi(query.Get("limit"))
 	if err != nil {
-		log.Event(ctx, "unable to convert search limit to int - default to limit 10", log.INFO)
+		log.Event(ctx, "unable to convert search limit to int - default to limit "+data.DefaultLimitStr, log.INFO)
 		page.Data.Pagination.Limit = data.DefaultLimit
 	}
 	page.Data.Pagination.TotalPages = (respC.Count + page.Data.Pagination.Limit - 1) / page.Data.Pagination.Limit
 	page.Data.Pagination.CurrentPage, err = strconv.Atoi(query.Get("page"))
 	if err != nil {
-		log.Event(ctx, "unable to convert search page to int - default to page 1", log.INFO)
+		log.Event(ctx, "unable to convert search page to int - default to page "+data.DefaultPageStr, log.INFO)
 		page.Data.Pagination.CurrentPage = data.DefaultPage
 	}
 	page.Data.Pagination.PagesToDisplay = getPagesToDisplay(page.Data.Pagination.CurrentPage, page.Data.Pagination.TotalPages, url)

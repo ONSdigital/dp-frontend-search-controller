@@ -11,10 +11,14 @@ import (
 const (
 	// DefaultLimit - default values for limit query
 	DefaultLimit = 10
+	// DefaultLimitStr - default values for limit query in string format
+	DefaultLimitStr = "10"
 	// DefaultSort - default values for sort query
 	DefaultSort = "relevance"
 	// DefaultPage - default values for page query
 	DefaultPage = 1
+	// DefaultPageStr - default values for page query in string format
+	DefaultPageStr = "1"
 )
 
 // GetLimitOptions returns all available limit options for search
@@ -27,12 +31,12 @@ func updateQueryWithOffset(ctx context.Context, query url.Values) url.Values {
 
 	page, err := strconv.Atoi(query.Get("page"))
 	if err != nil {
-		log.Event(ctx, "unable to convert search page to int - set to default "+strconv.Itoa(DefaultPage), log.INFO)
+		log.Event(ctx, "unable to convert search page to int - set to default "+DefaultPageStr, log.INFO)
 		page = DefaultPage
 	}
 	limit, err := strconv.Atoi(query.Get("limit"))
 	if err != nil {
-		log.Event(ctx, "unable to convert search limit to int - set to default "+strconv.Itoa(DefaultLimit), log.INFO)
+		log.Event(ctx, "unable to convert search limit to int - set to default "+DefaultLimitStr, log.INFO)
 		limit = DefaultLimit
 	}
 	offset := strconv.Itoa(((page - 1) * limit))
@@ -48,16 +52,16 @@ func SetDefaultQueries(ctx context.Context, url *url.URL) *url.URL {
 	query := url.Query()
 	pageQuery := query.Get("page")
 	if pageQuery == "" {
-		query.Set("page", strconv.Itoa(DefaultPage))
+		query.Set("page", DefaultPageStr)
 	} else {
 		page, err := strconv.Atoi(pageQuery)
 		if err != nil {
-			log.Event(ctx, "unable to convert search page to int - default to page "+strconv.Itoa(DefaultPage), log.INFO)
-			query.Set("page", strconv.Itoa(DefaultPage))
+			log.Event(ctx, "unable to convert search page to int - set to default "+DefaultPageStr, log.INFO)
+			query.Set("page", DefaultPageStr)
 		} else {
 			if page < 1 {
-				log.Event(ctx, "page number is less than 1 - default to page "+strconv.Itoa(DefaultPage), log.INFO)
-				query.Set("page", strconv.Itoa(DefaultPage))
+				log.Event(ctx, "page number is less than default - default to page "+DefaultPageStr, log.INFO)
+				query.Set("page", DefaultPageStr)
 			}
 		}
 	}
@@ -74,7 +78,7 @@ func SetDefaultQueries(ctx context.Context, url *url.URL) *url.URL {
 		}
 		if !found {
 			query.Set("limit", strconv.Itoa(DefaultLimit))
-			log.Event(ctx, "limit chosen not available in limit options - default to limit "+strconv.Itoa(DefaultLimit), log.INFO)
+			log.Event(ctx, "limit chosen not available in limit options - default to limit "+DefaultLimitStr, log.INFO)
 		}
 	}
 	sortQuery := query.Get("sort")
