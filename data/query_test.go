@@ -6,6 +6,7 @@ import (
 
 	"testing"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -46,9 +47,12 @@ func TestUnitQuery(t *testing.T) {
 
 	Convey("When SetDefaultQueries called", t, func() {
 		ctx := context.Background()
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
 		Convey("successfully set default page to query if page not given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&sort=relevance", nil)
-			updatedURL, paginationQuery := SetDefaultQueries(ctx, req.URL)
+			updatedURL, paginationQuery := ReviewQuery(ctx, cfg, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, "10")
 			So(updatedURL.Query().Get("page"), ShouldEqual, DefaultPageStr)
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
@@ -57,7 +61,7 @@ func TestUnitQuery(t *testing.T) {
 		})
 		Convey("successfully set default page to query if invalid page given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&sort=relevance&page=invalid", nil)
-			updatedURL, paginationQuery := SetDefaultQueries(ctx, req.URL)
+			updatedURL, paginationQuery := ReviewQuery(ctx, cfg, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, "10")
 			So(updatedURL.Query().Get("page"), ShouldEqual, DefaultPageStr)
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
@@ -66,7 +70,7 @@ func TestUnitQuery(t *testing.T) {
 		})
 		Convey("successfully set default page to query if page less than 1", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&sort=relevance&page=0", nil)
-			updatedURL, paginationQuery := SetDefaultQueries(ctx, req.URL)
+			updatedURL, paginationQuery := ReviewQuery(ctx, cfg, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, "10")
 			So(updatedURL.Query().Get("page"), ShouldEqual, DefaultPageStr)
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
@@ -75,7 +79,7 @@ func TestUnitQuery(t *testing.T) {
 		})
 		Convey("successfully set default limit to query if limit not given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&page=1&sort=relevance", nil)
-			updatedURL, paginationQuery := SetDefaultQueries(ctx, req.URL)
+			updatedURL, paginationQuery := ReviewQuery(ctx, cfg, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, DefaultLimitStr)
 			So(updatedURL.Query().Get("page"), ShouldEqual, "1")
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
@@ -84,7 +88,7 @@ func TestUnitQuery(t *testing.T) {
 		})
 		Convey("successfully set default limit to query if invalid limit given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&page=1&sort=relevance&limit=invalid", nil)
-			updatedURL, paginationQuery := SetDefaultQueries(ctx, req.URL)
+			updatedURL, paginationQuery := ReviewQuery(ctx, cfg, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, DefaultLimitStr)
 			So(updatedURL.Query().Get("page"), ShouldEqual, "1")
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
@@ -93,7 +97,7 @@ func TestUnitQuery(t *testing.T) {
 		})
 		Convey("successfully set default limit to query if limit does not exist in limit options", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&page=1&sort=relevance&limit=2", nil)
-			updatedURL, paginationQuery := SetDefaultQueries(ctx, req.URL)
+			updatedURL, paginationQuery := ReviewQuery(ctx, cfg, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, DefaultLimitStr)
 			So(updatedURL.Query().Get("page"), ShouldEqual, "1")
 			So(updatedURL.Query().Get("sort"), ShouldEqual, "relevance")
@@ -102,7 +106,7 @@ func TestUnitQuery(t *testing.T) {
 		})
 		Convey("successfully set default sort to query if sort not given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=1", nil)
-			updatedURL, paginationQuery := SetDefaultQueries(ctx, req.URL)
+			updatedURL, paginationQuery := ReviewQuery(ctx, cfg, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, "10")
 			So(updatedURL.Query().Get("page"), ShouldEqual, "1")
 			So(updatedURL.Query().Get("sort"), ShouldEqual, DefaultSort)
@@ -111,7 +115,7 @@ func TestUnitQuery(t *testing.T) {
 		})
 		Convey("successfully set default sort to query if invalid sort given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=1&sort=invalid", nil)
-			updatedURL, paginationQuery := SetDefaultQueries(ctx, req.URL)
+			updatedURL, paginationQuery := ReviewQuery(ctx, cfg, req.URL)
 			So(updatedURL.Query().Get("limit"), ShouldEqual, "10")
 			So(updatedURL.Query().Get("page"), ShouldEqual, "1")
 			So(updatedURL.Query().Get("sort"), ShouldEqual, DefaultSort)

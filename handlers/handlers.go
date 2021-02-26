@@ -8,6 +8,7 @@ import (
 	"net/url"
 
 	search "github.com/ONSdigital/dp-api-clients-go/site-search"
+	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/log.go/log"
@@ -118,15 +119,15 @@ func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC S
 }
 
 // Read Handler
-func Read(rendC RenderClient, searchC SearchClient) http.HandlerFunc {
+func Read(cfg *config.Config, rendC RenderClient, searchC SearchClient) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
-		read(w, req, rendC, searchC)
+		read(w, req, cfg, rendC, searchC)
 	}
 }
 
-func read(w http.ResponseWriter, req *http.Request, rendC RenderClient, searchC SearchClient) {
+func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, searchC SearchClient) {
 	ctx := req.Context()
-	url, paginationQuery := data.SetDefaultQueries(ctx, req.URL)
+	url, paginationQuery := data.ReviewQuery(ctx, cfg, req.URL)
 	apiQuery, err := data.MapSubFilterTypes(ctx, url.Query())
 	if err != nil {
 		log.Event(ctx, "mapping sub filter types to query failed", log.Error(err), log.ERROR)

@@ -12,6 +12,7 @@ import (
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
@@ -277,6 +278,8 @@ func TestUnitHandlers(t *testing.T) {
 				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
 			},
 		}
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
 
 		Convey("convert mock response to client model", func() {
 			sampleResponse, err := ioutil.ReadFile("../mapper/test_data/mock_response.json")
@@ -293,14 +296,14 @@ func TestUnitHandlers(t *testing.T) {
 
 			Convey("return error as mapping filter types failed", func() {
 				req = httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
-				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
+				w := doTestRequest("/search", req, Read(cfg, mockedRenderClient, mockedSearchClient), nil)
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 0)
 			})
 
 			Convey("successfully talks to the renderer to get the search page", func() {
-				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
+				w := doTestRequest("/search", req, Read(cfg, mockedRenderClient, mockedSearchClient), nil)
 				So(w.Code, ShouldEqual, http.StatusOK)
 				So(w.Body.String(), ShouldEqual, "<html><body><h1>Some HTML from renderer!</h1></body></html>")
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
@@ -313,7 +316,7 @@ func TestUnitHandlers(t *testing.T) {
 						return searchC.Response{}, errors.New("internal server error")
 					},
 				}
-				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
+				w := doTestRequest("/search", req, Read(cfg, mockedRenderClient, mockedSearchClient), nil)
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
@@ -321,7 +324,7 @@ func TestUnitHandlers(t *testing.T) {
 
 			Convey("return error as invalid current page given as it exceeds total pages", func() {
 				req = httptest.NewRequest("GET", "/search?q=housing&page=2", nil)
-				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
+				w := doTestRequest("/search", req, Read(cfg, mockedRenderClient, mockedSearchClient), nil)
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
@@ -329,7 +332,7 @@ func TestUnitHandlers(t *testing.T) {
 
 			Convey("return error as unable to map filters from client", func() {
 				data.Categories = []data.Category{data.Data, data.Other}
-				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
+				w := doTestRequest("/search", req, Read(cfg, mockedRenderClient, mockedSearchClient), nil)
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
@@ -343,7 +346,7 @@ func TestUnitHandlers(t *testing.T) {
 						return []byte{}, errors.New("internal server error")
 					},
 				}
-				w := doTestRequest("/search", req, Read(mockedRenderClient, mockedSearchClient), nil)
+				w := doTestRequest("/search", req, Read(cfg, mockedRenderClient, mockedSearchClient), nil)
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
 				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)

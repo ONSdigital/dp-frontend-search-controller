@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -52,8 +53,8 @@ func updateQueryWithOffset(ctx context.Context, query url.Values) url.Values {
 	return updateQuery
 }
 
-// SetDefaultQueries ensures that all empty query fields are set to default
-func SetDefaultQueries(ctx context.Context, url *url.URL) (*url.URL, *PaginationQuery) {
+// ReviewQuery ensures that all empty query fields are set to default
+func ReviewQuery(ctx context.Context, cfg *config.Config, url *url.URL) (*url.URL, *PaginationQuery) {
 	var found bool
 	query := url.Query()
 
@@ -78,6 +79,12 @@ func SetDefaultQueries(ctx context.Context, url *url.URL) (*url.URL, *Pagination
 		query.Set("limit", DefaultLimitStr)
 		limit = DefaultLimit
 	} else {
+		// TO MAKE NEAT
+		if limit > cfg.DefaultMaximumLimit {
+			limit = cfg.DefaultMaximumLimit
+		}
+		if ((limit*currentPage - 1) + 1) > cfg.DefaultMaximumSearchResults {
+		}
 		found = false
 		limitOptions := GetLimitOptions()
 		for _, limitOption := range limitOptions {
