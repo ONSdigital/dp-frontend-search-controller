@@ -9,6 +9,12 @@ type Sort struct {
 // SortOptions represent the list of all search sort options
 var SortOptions = []Sort{Relevance, ReleaseDate, Title}
 
+var sortOptions = map[string]bool{
+	Relevance.Query:   true,
+	ReleaseDate.Query: true,
+	Title.Query:       true,
+}
+
 // Relevance - informing on sorting based on relevance
 var Relevance = Sort{
 	Query:           "relevance",

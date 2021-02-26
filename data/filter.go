@@ -119,8 +119,8 @@ func GetAllCategories() []Category {
 }
 
 // MapSubFilterTypes - adds sub filter types to filter query to be then passed to logic to retrieve search results
-func MapSubFilterTypes(ctx context.Context, query url.Values) (apiQuery url.Values, err error) {
-	apiQuery = updateQueryWithOffset(ctx, query)
+func MapSubFilterTypes(ctx context.Context, page *PaginationQuery, query url.Values) (apiQuery url.Values, err error) {
+	apiQuery = updateQueryWithOffset(ctx, page, query)
 	apiQuery, err = url.ParseQuery(apiQuery.Encode())
 	if err != nil {
 		log.Event(ctx, "failed to parse copy of query for mapping filter types", log.Error(err), log.ERROR)

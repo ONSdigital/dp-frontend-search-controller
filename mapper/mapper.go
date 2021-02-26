@@ -32,7 +32,7 @@ func CreateSearchPage(ctx context.Context, url *url.URL, respC searchC.Response,
 	}
 	page.Data.Sort.Options = pageSortOptions
 
-	page.Data.Pagination.LimitOptions = data.GetLimitOptions()
+	page.Data.Pagination.LimitOptions = data.LimitOptions
 	page.Data.Pagination.Limit = paginationQuery.Limit
 	page.Data.Pagination.TotalPages = (respC.Count + page.Data.Pagination.Limit - 1) / page.Data.Pagination.Limit
 	page.Data.Pagination.CurrentPage = paginationQuery.CurrentPage

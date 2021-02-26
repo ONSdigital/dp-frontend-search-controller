@@ -40,7 +40,7 @@ func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 	if err.Error() == "invalid filter type given" {
 		status = http.StatusBadRequest
 	}
-	if err.Error() == "current page exceeds total pages" {
+	if err.Error() == "invalid page value, exceeding the default maximum search results" {
 		status = http.StatusBadRequest
 	}
 	log.Event(req.Context(), "setting-response-status", log.Error(err), log.ERROR)
@@ -127,8 +127,13 @@ func Read(cfg *config.Config, rendC RenderClient, searchC SearchClient) http.Han
 
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, searchC SearchClient) {
 	ctx := req.Context()
-	url, paginationQuery := data.ReviewQuery(ctx, cfg, req.URL)
-	apiQuery, err := data.MapSubFilterTypes(ctx, url.Query())
+	url, paginationQuery, err := data.ReviewQuery(ctx, cfg, req.URL)
+	if err != nil {
+		log.Event(ctx, "mapping sub filter types to query failed", log.Error(err), log.ERROR)
+		setStatusCode(req, w, err)
+		return
+	}
+	apiQuery, err := data.MapSubFilterTypes(ctx, paginationQuery, url.Query())
 	if err != nil {
 		log.Event(ctx, "mapping sub filter types to query failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)

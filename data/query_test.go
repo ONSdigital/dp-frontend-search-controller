@@ -13,13 +13,6 @@ import (
 func TestUnitQuery(t *testing.T) {
 	t.Parallel()
 
-	Convey("When GetLimitOptions is called", t, func() {
-		Convey("successfully get limit options", func() {
-			limitOptions := GetLimitOptions()
-			So(limitOptions, ShouldResemble, []int{10, 25, 50})
-		})
-	})
-
 	Convey("When updateQueryWithOffset called", t, func() {
 		ctx := context.Background()
 		Convey("successfully update query with offset", func() {
