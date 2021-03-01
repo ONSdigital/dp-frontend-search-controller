@@ -24,6 +24,8 @@ func TestConfig(t *testing.T) {
 				So(cfg.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)
 				So(cfg.HealthCheckInterval, ShouldEqual, 30*time.Second)
 				So(cfg.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
+				So(cfg.DefaultSort, ShouldEqual, "relevance")
+				So(cfg.DefaultPage, ShouldEqual, 1)
 				So(cfg.DefaultLimit, ShouldEqual, 10)
 				So(cfg.DefaultMaximumLimit, ShouldEqual, 50)
 				So(cfg.DefaultMaximumSearchResults, ShouldEqual, 500)

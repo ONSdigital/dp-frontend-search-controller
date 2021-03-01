@@ -2,25 +2,12 @@ package data
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"strconv"
 
+	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/log"
-)
-
-const (
-	// DefaultLimit - default values for limit query
-	DefaultLimit = 10
-	// DefaultLimitStr - default values for limit query in string format
-	DefaultLimitStr = "10"
-	// DefaultSort - default values for sort query
-	DefaultSort = "relevance"
-	// DefaultPage - default values for page query
-	DefaultPage = 1
-	// DefaultPageStr - default values for page query in string format
-	DefaultPageStr = "1"
 )
 
 // PaginationQuery is a struct which contains validated pagination information
@@ -61,20 +48,20 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, url *url.URL) (*url.UR
 		return url, nil, err
 	}
 
-	url.RawQuery = query.Encode()
-
 	reviewSort(ctx, cfg, query)
+
+	url.RawQuery = query.Encode()
 
 	return url, paginationQuery, nil
 }
 
 func reviewPagination(ctx context.Context, cfg *config.Config, query url.Values) (*PaginationQuery, error) {
-	page := getPage(ctx, query)
+	page := getPage(ctx, cfg, query)
 
 	limit := getLimit(ctx, cfg, query)
 
 	if ((limit*page - 1) + 1) > cfg.DefaultMaximumSearchResults {
-		return nil, errors.New("invalid page value, exceeding the default maximum search results")
+		return nil, errs.ErrInvalidPage
 	}
 
 	paginationQuery := &PaginationQuery{
@@ -85,38 +72,42 @@ func reviewPagination(ctx context.Context, cfg *config.Config, query url.Values)
 	return paginationQuery, nil
 }
 
-func getPage(ctx context.Context, query url.Values) int {
+func getPage(ctx context.Context, cfg *config.Config, query url.Values) int {
+	defaultPageStr := strconv.Itoa(cfg.DefaultPage)
 
 	page, err := strconv.Atoi(query.Get("page"))
 	if err != nil {
-		log.Event(ctx, "unable to convert search page to int - set to default "+DefaultPageStr, log.INFO)
-		query.Set("page", DefaultPageStr)
-		page = DefaultPage
+		log.Event(ctx, "unable to convert search page to int - set to default "+defaultPageStr, log.INFO)
+		query.Set("page", defaultPageStr)
+		page = cfg.DefaultPage
 	}
 
 	if page < 1 {
-		log.Event(ctx, "page number is less than default - default to page "+DefaultPageStr, log.INFO)
-		query.Set("page", DefaultPageStr)
-		page = DefaultPage
+		log.Event(ctx, "page number is less than default - default to page "+defaultPageStr, log.INFO)
+		query.Set("page", defaultPageStr)
+		page = cfg.DefaultPage
 	}
 
 	return page
 }
 
 func getLimit(ctx context.Context, cfg *config.Config, query url.Values) int {
+	defaultLimitStr := strconv.Itoa(cfg.DefaultLimit)
 
 	limit, err := strconv.Atoi(query.Get("limit"))
 	if err != nil {
-		log.Event(ctx, "unable to convert search limit to int - set to default "+DefaultLimitStr, log.INFO)
-		query.Set("limit", DefaultLimitStr)
-		limit = DefaultLimit
+		log.Event(ctx, "unable to convert search limit to int - set to default "+defaultLimitStr, log.INFO)
+		query.Set("limit", defaultLimitStr)
+		limit = cfg.DefaultLimit
 	}
 
 	if limit < cfg.DefaultLimit {
+		query.Set("limit", strconv.Itoa(cfg.DefaultLimit))
 		limit = cfg.DefaultLimit
 	}
 
 	if limit > cfg.DefaultMaximumLimit {
+		query.Set("limit", strconv.Itoa(cfg.DefaultMaximumLimit))
 		limit = cfg.DefaultMaximumLimit
 	}
 
@@ -128,7 +119,7 @@ func reviewSort(ctx context.Context, cfg *config.Config, query url.Values) {
 	sortQuery := query.Get("sort")
 
 	if !sortOptions[sortQuery] {
-		log.Event(ctx, "sort chosen not available in sort options - default to sort "+DefaultSort, log.INFO)
-		query.Set("sort", DefaultSort)
+		log.Event(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort, log.INFO)
+		query.Set("sort", cfg.DefaultSort)
 	}
 }

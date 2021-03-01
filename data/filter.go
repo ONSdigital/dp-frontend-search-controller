@@ -2,10 +2,10 @@ package data
 
 import (
 	"context"
-	"errors"
 	"net/url"
 	"strings"
 
+	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -101,7 +101,10 @@ var CorporateInformation = ContentType{
 	SubTypes:        []string{"static_foi", "static_page", "static_landing_page", "static_article"},
 }
 
-var errFilterType = errors.New("invalid filter type given")
+// GetAllCategories returns all the categories and its content types where all the count is set to zero
+func GetAllCategories() []Category {
+	return setCountZero(Categories)
+}
 
 func setCountZero(categories []Category) []Category {
 	for i, category := range categories {
@@ -111,11 +114,6 @@ func setCountZero(categories []Category) []Category {
 		}
 	}
 	return categories
-}
-
-// GetAllCategories returns all the categories and its content types where all the count is set to zero
-func GetAllCategories() []Category {
-	return setCountZero(Categories)
 }
 
 // MapSubFilterTypes - adds sub filter types to filter query to be then passed to logic to retrieve search results
@@ -142,7 +140,7 @@ func MapSubFilterTypes(ctx context.Context, page *PaginationQuery, query url.Val
 				}
 			}
 			if !found {
-				return nil, errFilterType
+				return nil, errs.ErrFilterNotFound
 			}
 		}
 		apiQuery.Del("filter")

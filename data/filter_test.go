@@ -2,10 +2,10 @@ package data
 
 import (
 	"context"
-	"errors"
 	"net/http/httptest"
 	"testing"
 
+	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -34,11 +34,15 @@ func TestUnitFilter(t *testing.T) {
 
 	Convey("When MapSubFilterTypes is called", t, func() {
 		ctx := context.Background()
+		pagination := &PaginationQuery{
+			Limit:       10,
+			CurrentPage: 1,
+		}
 
 		Convey("successfully map one filter given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article", nil)
 			query := req.URL.Query()
-			apiQuery, err := MapSubFilterTypes(ctx, query)
+			apiQuery, err := MapSubFilterTypes(ctx, pagination, query)
 			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download"})
 			So(err, ShouldBeNil)
 		})
@@ -46,7 +50,7 @@ func TestUnitFilter(t *testing.T) {
 		Convey("successfully map two or more filters given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=compendia", nil)
 			query := req.URL.Query()
-			apiQuery, err := MapSubFilterTypes(ctx, query)
+			apiQuery, err := MapSubFilterTypes(ctx, pagination, query)
 			So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download,compendium_landing_page"})
 			So(err, ShouldBeNil)
 		})
@@ -54,7 +58,7 @@ func TestUnitFilter(t *testing.T) {
 		Convey("successfully map no filters given", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing", nil)
 			query := req.URL.Query()
-			apiQuery, err := MapSubFilterTypes(ctx, query)
+			apiQuery, err := MapSubFilterTypes(ctx, pagination, query)
 			So(apiQuery["content_type"], ShouldBeNil)
 			So(err, ShouldBeNil)
 		})
@@ -62,10 +66,10 @@ func TestUnitFilter(t *testing.T) {
 		Convey("return error when mapping bad filters", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
 			query := req.URL.Query()
-			apiQuery, err := MapSubFilterTypes(ctx, query)
+			apiQuery, err := MapSubFilterTypes(ctx, pagination, query)
 			So(apiQuery["content_type"], ShouldBeNil)
 			So(err, ShouldNotBeNil)
-			So(err, ShouldResemble, errors.New("invalid filter type given"))
+			So(err, ShouldResemble, errs.ErrFilterNotFound)
 		})
 	})
 }

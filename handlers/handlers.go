@@ -3,11 +3,11 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 	"net/url"
 
 	search "github.com/ONSdigital/dp-api-clients-go/site-search"
+	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
@@ -30,92 +30,12 @@ type SearchClient interface {
 	GetSearch(ctx context.Context, query url.Values) (r search.Response, err error)
 }
 
-func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
-	status := http.StatusInternalServerError
-	if err, ok := err.(ClientError); ok {
-		if err.Code() == http.StatusNotFound {
-			status = err.Code()
-		}
-	}
-	if err.Error() == "invalid filter type given" {
-		status = http.StatusBadRequest
-	}
-	if err.Error() == "invalid page value, exceeding the default maximum search results" {
-		status = http.StatusBadRequest
-	}
-	log.Event(req.Context(), "setting-response-status", log.Error(err), log.ERROR)
-	w.WriteHeader(status)
-}
-
 var marshal = func(v interface{}) ([]byte, error) {
 	return json.Marshal(v)
 }
 
 var writeResponse = func(w http.ResponseWriter, templateHTML []byte) (int, error) {
 	return w.Write(templateHTML)
-}
-
-// getSearchPage talks to the renderer to get the search page
-func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient, url *url.URL, resp search.Response, categories []data.Category, paginationQuery *data.PaginationQuery) error {
-	ctx := req.Context()
-	m := mapper.CreateSearchPage(ctx, url, resp, categories, paginationQuery)
-	b, err := marshal(m)
-	if err != nil {
-		log.Event(ctx, "unable to marshal search response", log.Error(err), log.ERROR)
-		setStatusCode(req, w, err)
-		return err
-	}
-	templateHTML, err := rendC.Do("search", b)
-	if err != nil {
-		log.Event(ctx, "getting template from renderer search failed", log.Error(err), log.ERROR)
-		setStatusCode(req, w, err)
-		return err
-	}
-	if _, err := writeResponse(w, templateHTML); err != nil {
-		log.Event(ctx, "error on write of search template", log.Error(err), log.ERROR)
-		setStatusCode(req, w, err)
-		return err
-	}
-	return err
-}
-
-func isCurrentPageLessThanTotalPages(ctx context.Context, paginationQuery *data.PaginationQuery, resp search.Response) (bool, error) {
-	totalPages := (resp.Count + paginationQuery.Limit - 1) / paginationQuery.Limit
-	if paginationQuery.CurrentPage > totalPages {
-		return false, errors.New("current page exceeds total pages")
-	}
-	return true, nil
-}
-
-func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC SearchClient) (categories []data.Category, err error) {
-	//Remove filter to get count of all types for the query from the client
-	apiQuery.Del("content_type")
-	countResp, err := searchC.GetSearch(ctx, apiQuery)
-	if err != nil {
-		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR)
-		return nil, err
-	}
-	categories = data.GetAllCategories()
-	for _, responseType := range countResp.ContentTypes {
-		foundFilter := false
-	categoryLoop:
-		for i, category := range categories {
-			for j, contentType := range category.ContentTypes {
-				for _, subType := range contentType.SubTypes {
-					if responseType.Type == subType {
-						categories[i].Count += responseType.Count
-						categories[i].ContentTypes[j].Count += responseType.Count
-						foundFilter = true
-						break categoryLoop
-					}
-				}
-			}
-		}
-		if !foundFilter {
-			return nil, errors.New("filter type from client not available in data.go")
-		}
-	}
-	return categories, nil
 }
 
 // Read Handler
@@ -162,4 +82,81 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		log.Event(ctx, "getting search page failed", log.Error(err), log.ERROR)
 	}
 	return
+}
+
+func isCurrentPageLessThanTotalPages(ctx context.Context, paginationQuery *data.PaginationQuery, resp search.Response) (bool, error) {
+	totalPages := (resp.Count + paginationQuery.Limit - 1) / paginationQuery.Limit
+	if paginationQuery.CurrentPage > totalPages {
+		return false, errs.ErrInvalidPage
+	}
+	return true, nil
+}
+
+func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC SearchClient) (categories []data.Category, err error) {
+	//Remove filter to get count of all types for the query from the client
+	apiQuery.Del("content_type")
+	countResp, err := searchC.GetSearch(ctx, apiQuery)
+	if err != nil {
+		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR)
+		return nil, err
+	}
+	categories = data.GetAllCategories()
+	for _, responseType := range countResp.ContentTypes {
+		foundFilter := false
+	categoryLoop:
+		for i, category := range categories {
+			for j, contentType := range category.ContentTypes {
+				for _, subType := range contentType.SubTypes {
+					if responseType.Type == subType {
+						categories[i].Count += responseType.Count
+						categories[i].ContentTypes[j].Count += responseType.Count
+						foundFilter = true
+						break categoryLoop
+					}
+				}
+			}
+		}
+		if !foundFilter {
+			log.Event(ctx, "unrecognised filter type returned from api", log.WARN)
+		}
+	}
+	return categories, nil
+}
+
+// getSearchPage talks to the renderer to get the search page
+func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient, url *url.URL, resp search.Response, categories []data.Category, paginationQuery *data.PaginationQuery) error {
+	ctx := req.Context()
+	m := mapper.CreateSearchPage(ctx, url, resp, categories, paginationQuery)
+	b, err := marshal(m)
+	if err != nil {
+		log.Event(ctx, "unable to marshal search response", log.Error(err), log.ERROR)
+		setStatusCode(req, w, err)
+		return err
+	}
+	templateHTML, err := rendC.Do("search", b)
+	if err != nil {
+		log.Event(ctx, "getting template from renderer search failed", log.Error(err), log.ERROR)
+		setStatusCode(req, w, err)
+		return err
+	}
+	if _, err := writeResponse(w, templateHTML); err != nil {
+		log.Event(ctx, "error on write of search template", log.Error(err), log.ERROR)
+		setStatusCode(req, w, err)
+		return err
+	}
+	return err
+}
+
+func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
+	status := http.StatusInternalServerError
+	if err, ok := err.(ClientError); ok {
+		if err.Code() == http.StatusNotFound {
+			status = err.Code()
+		}
+	}
+	if errs.BadRequestMap[err] {
+		status = http.StatusBadRequest
+	}
+	log.Event(req.Context(), "setting-response-status", log.Error(err), log.ERROR)
+	w.WriteHeader(status)
 }

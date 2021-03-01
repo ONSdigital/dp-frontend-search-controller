@@ -3,7 +3,6 @@ package handlers
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
@@ -12,6 +11,7 @@ import (
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/gorilla/mux"
@@ -58,7 +58,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("handles internal server error", func() {
 			req := httptest.NewRequest("GET", "http://localhost:", nil)
 			w := httptest.NewRecorder()
-			err := errors.New("internal server error")
+			err := errs.ErrInternalServer
 
 			setStatusCode(req, w, err)
 
@@ -68,7 +68,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("handles bad request error", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
 			w := httptest.NewRecorder()
-			err := errors.New("invalid filter type given")
+			err := errs.ErrInvalidFilter
 
 			setStatusCode(req, w, err)
 
@@ -100,7 +100,7 @@ func TestUnitHandlers(t *testing.T) {
 				validCurrentPage, err := isCurrentPageLessThanTotalPages(ctx, paginationQuery, respC)
 				So(validCurrentPage, ShouldBeFalse)
 				So(err, ShouldNotBeNil)
-				So(err, ShouldResemble, errors.New("current page exceeds total pages"))
+				So(err, ShouldResemble, errs.ErrInvalidPage)
 			})
 		})
 	})
@@ -136,7 +136,7 @@ func TestUnitHandlers(t *testing.T) {
 			Convey("returns err as unable to marshal search response", func() {
 				defaultM := marshal
 				marshal = func(v interface{}) ([]byte, error) {
-					return []byte{}, errors.New("internal server error")
+					return []byte{}, errs.ErrInternalServer
 				}
 				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories, paginationQuery)
 				So(err, ShouldNotBeNil)
@@ -147,7 +147,7 @@ func TestUnitHandlers(t *testing.T) {
 			Convey("returns err as getting template from renderer fails", func() {
 				mockedRenderClient := &RenderClientMock{
 					DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-						return []byte{}, errors.New("internal server error")
+						return []byte{}, errs.ErrInternalServer
 					},
 				}
 				err := getSearchPage(w, req, mockedRenderClient, url, respC, categories, paginationQuery)
@@ -158,7 +158,7 @@ func TestUnitHandlers(t *testing.T) {
 			Convey("returns err as unable to write of search template", func() {
 				defaultW := writeResponse
 				writeResponse = func(w http.ResponseWriter, templateHTML []byte) (int, error) {
-					return 0, errors.New("internal server error")
+					return 0, errs.ErrInternalServer
 				}
 				err = getSearchPage(w, req, mockedRenderClient, url, respC, categories, paginationQuery)
 				So(err, ShouldNotBeNil)
@@ -200,7 +200,7 @@ func TestUnitHandlers(t *testing.T) {
 		Convey("return error as unable to retrieve count response from search client", func() {
 			mockedSearchClient = &SearchClientMock{
 				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
-					return searchC.Response{}, errors.New("internal server error")
+					return searchC.Response{}, errs.ErrInternalServer
 				},
 			}
 			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
@@ -209,23 +209,22 @@ func TestUnitHandlers(t *testing.T) {
 		})
 
 		Convey("return error when filter given by client not available in map", func() {
-			invalidFilterResponse := searchC.Response{
+			filterResponse := searchC.Response{
 				ContentTypes: []searchC.ContentType{
 					{
 						Count: 3,
-						Type:  "invalid",
+						Type:  "other",
 					},
 				},
 			}
 			mockedSearchClient = &SearchClientMock{
 				GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
-					return invalidFilterResponse, nil
+					return filterResponse, nil
 				},
 			}
 			categories, err := getCategoriesTypesCount(ctx, mockedAPIQuery, mockedSearchClient)
-			So(categories, ShouldBeNil)
-			So(err, ShouldNotBeNil)
-			So(err, ShouldResemble, errors.New("filter type from client not available in data.go"))
+			So(err, ShouldBeNil)
+			So(categories, ShouldResemble, data.Categories)
 		})
 
 		Convey("successfully retrieve the count of filter mapping to single filter type", func() {
@@ -313,7 +312,7 @@ func TestUnitHandlers(t *testing.T) {
 			Convey("return error as getting search response from client failed", func() {
 				mockedSearchClient = &SearchClientMock{
 					GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
-						return searchC.Response{}, errors.New("internal server error")
+						return searchC.Response{}, errs.ErrInternalServer
 					},
 				}
 				w := doTestRequest("/search", req, Read(cfg, mockedRenderClient, mockedSearchClient), nil)
@@ -330,20 +329,10 @@ func TestUnitHandlers(t *testing.T) {
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
 			})
 
-			Convey("return error as unable to map filters from client", func() {
-				data.Categories = []data.Category{data.Data, data.Other}
-				w := doTestRequest("/search", req, Read(cfg, mockedRenderClient, mockedSearchClient), nil)
-				So(w.Code, ShouldEqual, http.StatusInternalServerError)
-				So(len(mockedRenderClient.DoCalls()), ShouldEqual, 0)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
-				data.Categories = []data.Category{data.Publication, data.Data, data.Other}
-
-			})
-
 			Convey("return error as getting search page failed", func() {
 				mockedRenderClient = &RenderClientMock{
 					DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-						return []byte{}, errors.New("internal server error")
+						return []byte{}, errs.ErrInternalServer
 					},
 				}
 				w := doTestRequest("/search", req, Read(cfg, mockedRenderClient, mockedSearchClient), nil)
