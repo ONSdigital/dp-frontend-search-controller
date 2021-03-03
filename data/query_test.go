@@ -16,20 +16,45 @@ func TestUnitQuery(t *testing.T) {
 
 	Convey("When updateQueryWithOffset called", t, func() {
 		ctx := context.Background()
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
 		pagination := &PaginationQuery{
 			Limit:       10,
 			CurrentPage: 1,
 		}
+
 		Convey("successfully update query with offset", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=1", nil)
 			query := req.URL.Query()
-			updatedQuery := updateQueryWithOffset(ctx, pagination, query).Encode()
-			So(updatedQuery, ShouldContainSubstring, "offset=0")
-			So(updatedQuery, ShouldNotContainSubstring, "page=")
+			updateQueryWithOffset(ctx, cfg, pagination, query)
+			encodedQuery := query.Encode()
+			So(encodedQuery, ShouldContainSubstring, "offset=0")
+			So(encodedQuery, ShouldNotContainSubstring, "page=")
 		})
+
+		Convey("successfully update query with offset if offset less than 0", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=1", nil)
+			query := req.URL.Query()
+			pagination.CurrentPage = -2
+			updateQueryWithOffset(ctx, cfg, pagination, query)
+			encodedQuery := query.Encode()
+			So(encodedQuery, ShouldContainSubstring, "offset=0")
+			So(encodedQuery, ShouldNotContainSubstring, "page=")
+		})
+
+		Convey("successfully update query with offset if offset more than maximum search results", func() {
+			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=1", nil)
+			query := req.URL.Query()
+			pagination.CurrentPage = 500
+			updateQueryWithOffset(ctx, cfg, pagination, query)
+			encodedQuery := query.Encode()
+			So(encodedQuery, ShouldContainSubstring, "offset=489")
+			So(encodedQuery, ShouldNotContainSubstring, "page=")
+		})
+
 	})
 
-	Convey("When SetDefaultQueries called", t, func() {
+	Convey("When ReviewQuery called", t, func() {
 		ctx := context.Background()
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)

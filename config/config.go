@@ -14,6 +14,7 @@ type Config struct {
 	GracefulShutdownTimeout     time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckInterval         time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	HealthCheckCriticalTimeout  time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
+	DefaultOffset               int           `envconfig:"DEFAULT_OFFSET"`
 	DefaultSort                 string        `envconfig:"DEFAULT_SORT"`
 	DefaultPage                 int           `envconfig:"DEFAULT_PAGE"`
 	DefaultLimit                int           `envconfig:"DEFAULT_LIMIT"`
@@ -30,13 +31,14 @@ func Get() (*Config, error) {
 		return cfg, nil
 	}
 
-	cfg := &Config{
+	cfg = &Config{
 		BindAddr:                    ":25000",
 		RendererURL:                 "http://localhost:20010",
 		SearchAPIURL:                "http://localhost:23900",
 		GracefulShutdownTimeout:     5 * time.Second,
 		HealthCheckInterval:         30 * time.Second,
 		HealthCheckCriticalTimeout:  90 * time.Second,
+		DefaultOffset:               0,
 		DefaultSort:                 "relevance",
 		DefaultPage:                 1,
 		DefaultLimit:                10,

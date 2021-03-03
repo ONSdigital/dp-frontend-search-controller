@@ -24,15 +24,24 @@ var LimitOptions = []int{
 }
 
 // UpdateQueryWithOffset - removes page key and adds offset key to query to be then passed to dp-search-query
-func updateQueryWithOffset(ctx context.Context, page *PaginationQuery, query url.Values) url.Values {
+func updateQueryWithOffset(ctx context.Context, cfg *config.Config, page *PaginationQuery, query url.Values) {
 
 	offset := page.getOffset()
 
-	updateQuery := query
-	updateQuery.Set("offset", strconv.Itoa(offset))
-	updateQuery.Del("page")
+	if offset < 0 {
+		log.Event(ctx, "offset less than 0 - defaulted to offset "+strconv.Itoa(cfg.DefaultOffset), log.INFO)
+		offset = cfg.DefaultOffset
+	}
 
-	return updateQuery
+	maxItemOffset := cfg.DefaultMaximumSearchResults - 1
+	if offset > maxItemOffset {
+		offset = maxItemOffset - page.Limit
+		log.Event(ctx, "offset exceeds maximum search results - set to max offset "+strconv.Itoa(offset), log.INFO)
+	}
+
+	query.Set("offset", strconv.Itoa(offset))
+	query.Del("page")
+
 }
 
 func (page *PaginationQuery) getOffset() int {

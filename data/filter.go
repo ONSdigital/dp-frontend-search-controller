@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
+	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -109,42 +110,76 @@ func GetAllCategories() []Category {
 func setCountZero(categories []Category) []Category {
 	for i, category := range categories {
 		categories[i].Count = 0
+
 		for j := range category.ContentTypes {
 			categories[i].ContentTypes[j].Count = 0
 		}
+
 	}
+
 	return categories
 }
 
-// MapSubFilterTypes - adds sub filter types to filter query to be then passed to logic to retrieve search results
-func MapSubFilterTypes(ctx context.Context, page *PaginationQuery, query url.Values) (apiQuery url.Values, err error) {
-	apiQuery = updateQueryWithOffset(ctx, page, query)
-	apiQuery, err = url.ParseQuery(apiQuery.Encode())
+// GetSearchAPIQuery gets the query that needs to be passed to the search-api to get search results
+func GetSearchAPIQuery(ctx context.Context, cfg *config.Config, page *PaginationQuery, query url.Values) (apiQuery url.Values, err error) {
+	apiQuery, err = url.ParseQuery(query.Encode())
 	if err != nil {
-		log.Event(ctx, "failed to parse copy of query for mapping filter types", log.Error(err), log.ERROR)
+		log.Event(ctx, "failed to parse copy of query for search-api", log.Error(err), log.ERROR)
 		return nil, err
 	}
+
+	updateQueryWithOffset(ctx, cfg, page, apiQuery)
+
+	err = updateQueryWithAPIFilters(ctx, apiQuery)
+	if err != nil {
+		log.Event(ctx, "failed to update query with api filters", log.Error(err), log.ERROR)
+		return nil, err
+	}
+
+	return apiQuery, nil
+}
+
+// updateQueryWithAPIFilters retrieves and adds all available sub filters which is related to the search filter given by the user
+func updateQueryWithAPIFilters(ctx context.Context, apiQuery url.Values) (err error) {
 	filters := apiQuery["filter"]
+
 	if len(filters) > 0 {
-		var newFilters = make([]string, 0)
-		for _, fType := range filters {
-			found := false
-		categoryLoop:
-			for _, category := range Categories {
-				for _, contentType := range category.ContentTypes {
-					if fType == contentType.Type {
-						found = true
-						newFilters = append(newFilters, contentType.SubTypes...)
-						break categoryLoop
-					}
+		subFilters, err := getSubFilters(filters)
+		if err != nil {
+			log.Event(ctx, "failed to get sub filters to query", log.Error(err), log.ERROR)
+			return err
+		}
+
+		apiQuery.Del("filter")
+		apiQuery.Set("content_type", strings.Join(subFilters, ","))
+	}
+
+	return nil
+}
+
+// getSubFilters gets all available sub filters which is related to the search filter given by the user
+func getSubFilters(filters []string) ([]string, error) {
+	var subFilters = make([]string, 0)
+
+	for _, fType := range filters {
+		found := false
+
+	categoryLoop:
+		for _, category := range Categories {
+			for _, contentType := range category.ContentTypes {
+				if fType == contentType.Type {
+					found = true
+					subFilters = append(subFilters, contentType.SubTypes...)
+					break categoryLoop
 				}
 			}
-			if !found {
-				return nil, errs.ErrFilterNotFound
-			}
 		}
-		apiQuery.Del("filter")
-		apiQuery.Set("content_type", strings.Join(newFilters, ","))
+
+		if !found {
+			return nil, errs.ErrFilterNotFound
+		}
+
 	}
-	return apiQuery, nil
+
+	return subFilters, nil
 }

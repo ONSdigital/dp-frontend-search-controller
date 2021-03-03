@@ -47,59 +47,70 @@ func Read(cfg *config.Config, rendC RenderClient, searchC SearchClient) http.Han
 
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, searchC SearchClient) {
 	ctx := req.Context()
+
 	url, paginationQuery, err := data.ReviewQuery(ctx, cfg, req.URL)
 	if err != nil {
 		log.Event(ctx, "mapping sub filter types to query failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return
 	}
-	apiQuery, err := data.MapSubFilterTypes(ctx, paginationQuery, url.Query())
+
+	apiQuery, err := data.GetSearchAPIQuery(ctx, cfg, paginationQuery, url.Query())
 	if err != nil {
-		log.Event(ctx, "mapping sub filter types to query failed", log.Error(err), log.ERROR)
+		log.Event(ctx, "getting query for search api failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return
 	}
+
 	resp, err := searchC.GetSearch(ctx, apiQuery)
 	if err != nil {
 		log.Event(ctx, "getting search response from client failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return
 	}
+
 	validCurrentPage, err := isCurrentPageLessThanTotalPages(ctx, paginationQuery, resp)
 	if !validCurrentPage {
 		log.Event(ctx, "given page is not valid", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return
 	}
+
 	categories, err := getCategoriesTypesCount(ctx, apiQuery, searchC)
 	if err != nil {
 		log.Event(ctx, "mapping count filter types failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return
 	}
+
 	err = getSearchPage(w, req, rendC, url, resp, categories, paginationQuery)
 	if err != nil {
 		log.Event(ctx, "getting search page failed", log.Error(err), log.ERROR)
+		setStatusCode(req, w, err)
+		return
 	}
-	return
 }
 
 func isCurrentPageLessThanTotalPages(ctx context.Context, paginationQuery *data.PaginationQuery, resp search.Response) (bool, error) {
 	totalPages := (resp.Count + paginationQuery.Limit - 1) / paginationQuery.Limit
+
 	if paginationQuery.CurrentPage > totalPages {
 		return false, errs.ErrInvalidPage
 	}
+
 	return true, nil
 }
 
 func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC SearchClient) (categories []data.Category, err error) {
 	//Remove filter to get count of all types for the query from the client
 	apiQuery.Del("content_type")
+
 	countResp, err := searchC.GetSearch(ctx, apiQuery)
 	if err != nil {
 		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR)
 		return nil, err
 	}
+
 	categories = data.GetAllCategories()
 	for _, responseType := range countResp.ContentTypes {
 		foundFilter := false
@@ -120,6 +131,7 @@ func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC S
 			log.Event(ctx, "unrecognised filter type returned from api", log.WARN)
 		}
 	}
+
 	return categories, nil
 }
 
