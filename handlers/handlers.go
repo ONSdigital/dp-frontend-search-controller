@@ -48,12 +48,7 @@ func Read(cfg *config.Config, rendC RenderClient, searchC SearchClient) http.Han
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, searchC SearchClient) {
 	ctx := req.Context()
 
-	url, paginationQuery, err := data.ReviewQuery(ctx, cfg, req.URL)
-	if err != nil {
-		log.Event(ctx, "mapping sub filter types to query failed", log.Error(err), log.ERROR)
-		setStatusCode(req, w, err)
-		return
-	}
+	url, paginationQuery := reviewQuery(ctx, cfg, req.URL)
 
 	apiQuery, err := data.GetSearchAPIQuery(ctx, cfg, paginationQuery, url.Query())
 	if err != nil {
@@ -69,12 +64,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		return
 	}
 
-	validCurrentPage, err := isCurrentPageLessThanTotalPages(ctx, paginationQuery, resp)
-	if !validCurrentPage {
-		log.Event(ctx, "given page is not valid", log.Error(err), log.ERROR)
-		setStatusCode(req, w, err)
-		return
-	}
+	// TO-DO: Until API handles aggregration on datatypes (e.g. bulletins, article), we need to make a second request
 
 	categories, err := getCategoriesTypesCount(ctx, apiQuery, searchC)
 	if err != nil {
@@ -91,14 +81,17 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 	}
 }
 
-func isCurrentPageLessThanTotalPages(ctx context.Context, paginationQuery *data.PaginationQuery, resp search.Response) (bool, error) {
-	totalPages := (resp.Count + paginationQuery.Limit - 1) / paginationQuery.Limit
+// reviewQuery ensures pagination query and sort query are reviewed
+func reviewQuery(ctx context.Context, cfg *config.Config, url *url.URL) (*url.URL, *data.PaginationQuery) {
+	query := url.Query()
 
-	if paginationQuery.CurrentPage > totalPages {
-		return false, errs.ErrInvalidPage
-	}
+	paginationQuery := data.ReviewPagination(ctx, cfg, query)
 
-	return true, nil
+	data.ReviewSort(ctx, cfg, query)
+
+	url.RawQuery = query.Encode()
+
+	return url, paginationQuery
 }
 
 func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC SearchClient) (categories []data.Category, err error) {
@@ -112,8 +105,16 @@ func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC S
 	}
 
 	categories = data.GetAllCategories()
+
+	categories = setCountToCategories(ctx, countResp, categories)
+
+	return categories, nil
+}
+
+func setCountToCategories(ctx context.Context, countResp search.Response, categories []data.Category) []data.Category {
 	for _, responseType := range countResp.ContentTypes {
 		foundFilter := false
+
 	categoryLoop:
 		for i, category := range categories {
 			for j, contentType := range category.ContentTypes {
@@ -121,54 +122,67 @@ func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC S
 					if responseType.Type == subType {
 						categories[i].Count += responseType.Count
 						categories[i].ContentTypes[j].Count += responseType.Count
+
 						foundFilter = true
+
 						break categoryLoop
 					}
 				}
 			}
 		}
+
 		if !foundFilter {
 			log.Event(ctx, "unrecognised filter type returned from api", log.WARN)
 		}
+
 	}
 
-	return categories, nil
+	return categories
 }
 
 // getSearchPage talks to the renderer to get the search page
 func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient, url *url.URL, resp search.Response, categories []data.Category, paginationQuery *data.PaginationQuery) error {
 	ctx := req.Context()
+
 	m := mapper.CreateSearchPage(ctx, url, resp, categories, paginationQuery)
+
 	b, err := marshal(m)
 	if err != nil {
 		log.Event(ctx, "unable to marshal search response", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return err
 	}
+
 	templateHTML, err := rendC.Do("search", b)
 	if err != nil {
 		log.Event(ctx, "getting template from renderer search failed", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return err
 	}
+
 	if _, err := writeResponse(w, templateHTML); err != nil {
 		log.Event(ctx, "error on write of search template", log.Error(err), log.ERROR)
 		setStatusCode(req, w, err)
 		return err
 	}
+
 	return err
 }
 
 func setStatusCode(req *http.Request, w http.ResponseWriter, err error) {
 	status := http.StatusInternalServerError
+
 	if err, ok := err.(ClientError); ok {
 		if err.Code() == http.StatusNotFound {
 			status = err.Code()
 		}
 	}
+
 	if errs.BadRequestMap[err] {
 		status = http.StatusBadRequest
 	}
+
 	log.Event(req.Context(), "setting-response-status", log.Error(err), log.ERROR)
+
 	w.WriteHeader(status)
 }

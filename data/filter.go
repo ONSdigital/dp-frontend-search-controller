@@ -128,8 +128,14 @@ func GetSearchAPIQuery(ctx context.Context, cfg *config.Config, page *Pagination
 		return nil, err
 	}
 
-	updateQueryWithOffset(ctx, cfg, page, apiQuery)
+	// update query with offset and remove page query
+	err = updateQueryWithOffset(ctx, cfg, page, apiQuery)
+	if err != nil {
+		log.Event(ctx, "failed to update query with offset", log.Error(err), log.ERROR)
+		return nil, err
+	}
 
+	// update query with content_type which equals to sub filters and remove filter query
 	err = updateQueryWithAPIFilters(ctx, apiQuery)
 	if err != nil {
 		log.Event(ctx, "failed to update query with api filters", log.Error(err), log.ERROR)

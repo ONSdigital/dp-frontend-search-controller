@@ -1,5 +1,13 @@
 package data
 
+import (
+	"context"
+	"net/url"
+
+	"github.com/ONSdigital/dp-frontend-search-controller/config"
+	"github.com/ONSdigital/log.go/log"
+)
+
 // Sort represents information of a particular sort option
 type Sort struct {
 	Query           string `json:"query,omitempty"`
@@ -31,4 +39,15 @@ var ReleaseDate = Sort{
 var Title = Sort{
 	Query:           "title",
 	LocaliseKeyName: "Title",
+}
+
+// ReviewSort retrieves sort from query and checks if it is one of the sort options
+func ReviewSort(ctx context.Context, cfg *config.Config, query url.Values) {
+
+	sortQuery := query.Get("sort")
+
+	if !sortOptions[sortQuery] {
+		log.Event(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort, log.INFO)
+		query.Set("sort", cfg.DefaultSort)
+	}
 }

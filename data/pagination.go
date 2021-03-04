@@ -23,62 +23,56 @@ var LimitOptions = []int{
 	50,
 }
 
-// UpdateQueryWithOffset - removes page key and adds offset key to query to be then passed to dp-search-query
-func updateQueryWithOffset(ctx context.Context, cfg *config.Config, page *PaginationQuery, query url.Values) {
+// updateQueryWithOffset - gets offset, add offset to query and removes page query to be then passed to dp-search-api
+func updateQueryWithOffset(ctx context.Context, cfg *config.Config, pagination *PaginationQuery, query url.Values) error {
 
-	offset := page.getOffset()
-
-	if offset < 0 {
-		log.Event(ctx, "offset less than 0 - defaulted to offset "+strconv.Itoa(cfg.DefaultOffset), log.INFO)
-		offset = cfg.DefaultOffset
-	}
-
-	maxItemOffset := cfg.DefaultMaximumSearchResults - 1
-	if offset > maxItemOffset {
-		offset = maxItemOffset - page.Limit
-		log.Event(ctx, "offset exceeds maximum search results - set to max offset "+strconv.Itoa(offset), log.INFO)
+	offset, err := getOffset(ctx, cfg, pagination)
+	if err != nil {
+		log.Event(ctx, "unable to get offset", log.Error(err), log.ERROR)
+		return err
 	}
 
 	query.Set("offset", strconv.Itoa(offset))
 	query.Del("page")
 
+	return nil
 }
 
-func (page *PaginationQuery) getOffset() int {
-	return (page.CurrentPage - 1) * page.Limit
-}
+func getOffset(ctx context.Context, cfg *config.Config, pagination *PaginationQuery) (offset int, err error) {
 
-// ReviewQuery ensures that all empty query fields are set to default
-func ReviewQuery(ctx context.Context, cfg *config.Config, url *url.URL) (*url.URL, *PaginationQuery, error) {
-	query := url.Query()
+	offset = (pagination.CurrentPage - 1) * pagination.Limit
 
-	paginationQuery, err := reviewPagination(ctx, cfg, query)
-	if err != nil {
-		return url, nil, err
+	// when the offset is negative due to negative current page number or limit
+	if offset < 0 {
+		log.Event(ctx, "offset less than 0 - defaulted to offset "+strconv.Itoa(cfg.DefaultOffset), log.INFO)
+		offset = cfg.DefaultOffset
 	}
 
-	reviewSort(ctx, cfg, query)
+	// when the offset is too big due to big current page number and/or limit
+	if (offset - pagination.Limit) > cfg.DefaultMaximumSearchResults {
+		err = errs.ErrInvalidPage
+		logData := log.Data{"current_page": pagination.CurrentPage, "limit": pagination.Limit}
 
-	url.RawQuery = query.Encode()
+		log.Event(ctx, "offset is too big as large page and/or limit given", log.Error(err), log.ERROR, logData)
 
-	return url, paginationQuery, nil
+		return cfg.DefaultOffset, err
+	}
+
+	return offset, nil
 }
 
-func reviewPagination(ctx context.Context, cfg *config.Config, query url.Values) (*PaginationQuery, error) {
+// ReviewPagination reviews page and limit values and returns paginationQuery containing these values
+func ReviewPagination(ctx context.Context, cfg *config.Config, query url.Values) *PaginationQuery {
 	page := getPage(ctx, cfg, query)
 
 	limit := getLimit(ctx, cfg, query)
-
-	if ((limit*page - 1) + 1) > cfg.DefaultMaximumSearchResults {
-		return nil, errs.ErrInvalidPage
-	}
 
 	paginationQuery := &PaginationQuery{
 		Limit:       limit,
 		CurrentPage: page,
 	}
 
-	return paginationQuery, nil
+	return paginationQuery
 }
 
 func getPage(ctx context.Context, cfg *config.Config, query url.Values) int {
@@ -121,14 +115,4 @@ func getLimit(ctx context.Context, cfg *config.Config, query url.Values) int {
 	}
 
 	return limit
-}
-
-func reviewSort(ctx context.Context, cfg *config.Config, query url.Values) {
-
-	sortQuery := query.Get("sort")
-
-	if !sortOptions[sortQuery] {
-		log.Event(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort, log.INFO)
-		query.Set("sort", cfg.DefaultSort)
-	}
 }
