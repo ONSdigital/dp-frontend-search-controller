@@ -63,7 +63,6 @@ func TestUnitGetSearchAPIQuery(t *testing.T) {
 
 				query := req.URL.Query()
 				apiQuery, err := GetSearchAPIQuery(ctx, cfg, pagination, query)
-
 				So(err, ShouldBeNil)
 
 				So(apiQuery, ShouldContainKey, "offset")

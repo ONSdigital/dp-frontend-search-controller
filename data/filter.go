@@ -121,8 +121,8 @@ func setCountZero(categories []Category) []Category {
 }
 
 // GetSearchAPIQuery gets the query that needs to be passed to the search-api to get search results
-func GetSearchAPIQuery(ctx context.Context, cfg *config.Config, page *PaginationQuery, query url.Values) (apiQuery url.Values, err error) {
-	apiQuery, err = url.ParseQuery(query.Encode())
+func GetSearchAPIQuery(ctx context.Context, cfg *config.Config, page *PaginationQuery, query url.Values) (url.Values, error) {
+	apiQuery, err := url.ParseQuery(query.Encode())
 	if err != nil {
 		log.Event(ctx, "failed to parse copy of query for search-api", log.Error(err), log.ERROR)
 		return nil, err
@@ -146,7 +146,7 @@ func GetSearchAPIQuery(ctx context.Context, cfg *config.Config, page *Pagination
 }
 
 // updateQueryWithAPIFilters retrieves and adds all available sub filters which is related to the search filter given by the user
-func updateQueryWithAPIFilters(ctx context.Context, apiQuery url.Values) (err error) {
+func updateQueryWithAPIFilters(ctx context.Context, apiQuery url.Values) error {
 	filters := apiQuery["filter"]
 
 	if len(filters) > 0 {

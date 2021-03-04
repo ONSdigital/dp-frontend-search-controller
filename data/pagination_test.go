@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"net/http/httptest"
+	"net/url"
 	"strconv"
 
 	"testing"
@@ -15,9 +16,59 @@ import (
 func TestUnitUpdateQueryWithOffset(t *testing.T) {
 	t.Parallel()
 
-	Convey("When updateQueryWithOffset called", t, func() {
-		ctx := context.Background()
+	ctx := context.Background()
 
+	cfg, err := config.Get()
+	if err != nil {
+		t.Logf("failed to retrieve configuration for unit tests, failing early: %v", err)
+		t.FailNow()
+	}
+
+	Convey("When updateQueryWithOffset is called with valid page and limit values", t, func() {
+		query := url.Values{
+			"page":  []string{"1"},
+			"limit": []string{"10"},
+		}
+
+		pagination := &PaginationQuery{
+			Limit:       10,
+			CurrentPage: 1,
+		}
+
+		err := updateQueryWithOffset(ctx, cfg, pagination, query)
+		So(err, ShouldBeNil)
+
+		Convey("Then the returned query parameter contains the new parameters", func() {
+			encodedQuery := query.Encode()
+			So(encodedQuery, ShouldContainSubstring, "offset=0")
+			So(encodedQuery, ShouldContainSubstring, "limit=10")
+			So(encodedQuery, ShouldNotContainSubstring, "page")
+		})
+	})
+
+	Convey("When updateQueryWithOffset is called and results in an error", t, func() {
+		query := url.Values{
+			"page":  []string{"1000"},
+			"limit": []string{"50"},
+		}
+
+		pagination := &PaginationQuery{
+			CurrentPage: 1000,
+			Limit:       50,
+		}
+
+		err := updateQueryWithOffset(ctx, cfg, pagination, query)
+		So(err, ShouldNotBeNil)
+
+		Convey("And then the returned query parameter contains the existing query object", func() {
+			encodedQuery := query.Encode()
+			t.Logf("encodeQuery: %v", encodedQuery)
+			So(encodedQuery, ShouldContainSubstring, "page=1000")
+			So(encodedQuery, ShouldContainSubstring, "limit=50")
+		})
+	})
+
+	Convey("When updateQueryWithOffset is called with invalid pagination", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
@@ -26,7 +77,7 @@ func TestUnitUpdateQueryWithOffset(t *testing.T) {
 			CurrentPage: 1,
 		}
 
-		Convey("successfully update query with offset", func() {
+		Convey("when unable to get offset", func() {
 			req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=1", nil)
 			query := req.URL.Query()
 
@@ -36,21 +87,6 @@ func TestUnitUpdateQueryWithOffset(t *testing.T) {
 			So(encodedQuery, ShouldContainSubstring, "offset=0")
 			So(encodedQuery, ShouldNotContainSubstring, "page=")
 		})
-
-		Convey("return error", func() {
-
-			Convey("when unable to get offset", func() {
-				req := httptest.NewRequest("GET", "/search?q=housing&limit=10&page=1", nil)
-				query := req.URL.Query()
-
-				updateQueryWithOffset(ctx, cfg, pagination, query)
-
-				encodedQuery := query.Encode()
-				So(encodedQuery, ShouldContainSubstring, "offset=0")
-				So(encodedQuery, ShouldNotContainSubstring, "page=")
-			})
-		})
-
 	})
 
 	Convey("When getOffset called", t, func() {
