@@ -31,7 +31,7 @@ func Get() (*Config, error) {
 		return cfg, nil
 	}
 
-	cfg = &Config{
+	cfg := &Config{
 		BindAddr:                    ":25000",
 		RendererURL:                 "http://localhost:20010",
 		SearchAPIURL:                "http://localhost:23900",
