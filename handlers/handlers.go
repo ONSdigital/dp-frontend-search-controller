@@ -58,15 +58,14 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		return
 	}
 
-	totalPages := data.GetTotalPages(validatedQueryParams.Limit, resp.Count)
-	if validatedQueryParams.CurrentPage > totalPages {
-		err = errs.ErrPageExceedsTotalPages
-		log.Event(ctx, "current page exceeds total pages", log.Error(err), log.ERROR)
+	// TO-DO: Until API handles aggregration on datatypes (e.g. bulletins, article), we need to make a second request
+
+	err = validateCurrentPage(ctx, validatedQueryParams, resp.Count)
+	if err != nil {
+		log.Event(ctx, "unable to validate current page", log.Error(err), log.ERROR)
 		setStatusCode(w, req, err)
 		return
 	}
-
-	// TO-DO: Until API handles aggregration on datatypes (e.g. bulletins, article), we need to make a second request
 
 	categories, err := getCategoriesTypesCount(ctx, apiQuery, searchC)
 	if err != nil {
@@ -81,6 +80,23 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		setStatusCode(w, req, err)
 		return
 	}
+}
+
+// validateCurrentPage checks if the current page exceeds the total pages which is a bad request
+func validateCurrentPage(ctx context.Context, validatedQueryParams data.SearchURLParams, resultsCount int) (err error) {
+
+	if resultsCount > 0 {
+		totalPages := data.GetTotalPages(validatedQueryParams.Limit, resultsCount)
+
+		if validatedQueryParams.CurrentPage > totalPages {
+			err = errs.ErrPageExceedsTotalPages
+			log.Event(ctx, "current page exceeds total pages", log.Error(err), log.ERROR)
+
+			return err
+		}
+	}
+
+	return nil
 }
 
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes

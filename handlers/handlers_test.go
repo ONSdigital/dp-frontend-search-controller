@@ -244,6 +244,76 @@ func TestUnitReadFailure(t *testing.T) {
 	})
 }
 
+func TestUnitValidateCurrentPageSuccess(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	Convey("Given number of search results is more than 0", t, func() {
+		resultsCount := 10
+
+		Convey("And current page doesn't exceed total pages", func() {
+			validatedQueryParams := data.SearchURLParams{
+				Limit:       10,
+				CurrentPage: 1,
+			}
+
+			Convey("When validateCurrentPage is called", func() {
+				err := validateCurrentPage(ctx, validatedQueryParams, resultsCount)
+
+				Convey("Then return no error", func() {
+					So(err, ShouldBeNil)
+				})
+			})
+		})
+	})
+
+	Convey("Given number of search results is 0", t, func() {
+		resultsCount := 0
+
+		Convey("And current page doesn't exceed total pages", func() {
+			validatedQueryParams := data.SearchURLParams{
+				Limit:       10,
+				CurrentPage: 1,
+			}
+
+			Convey("When validateCurrentPage is called", func() {
+				err := validateCurrentPage(ctx, validatedQueryParams, resultsCount)
+
+				Convey("Then return no error", func() {
+					So(err, ShouldBeNil)
+				})
+			})
+		})
+	})
+}
+
+func TestUnitValidateCurrentPageFailure(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	Convey("Given current page exceeds total pages", t, func() {
+		validatedQueryParams := data.SearchURLParams{
+			Limit:       10,
+			CurrentPage: 10000,
+		}
+
+		Convey("And number of search results is more than 0", func() {
+			resultsCount := 20
+
+			Convey("When validateCurrentPage is called", func() {
+				err := validateCurrentPage(ctx, validatedQueryParams, resultsCount)
+
+				Convey("Then return no error", func() {
+					So(err, ShouldNotBeNil)
+					So(err, ShouldResemble, errs.ErrPageExceedsTotalPages)
+				})
+			})
+		})
+	})
+}
+
 func TestUnitGetCategoriesTypesCountSuccess(t *testing.T) {
 	t.Parallel()
 
