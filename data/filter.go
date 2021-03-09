@@ -6,9 +6,14 @@ import (
 	"strings"
 
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
-	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/log"
 )
+
+// Filter represents information of filters selected by user
+type Filter struct {
+	Query           []string `json:"query,omitempty"`
+	LocaliseKeyName []string `json:"localise_key,omitempty"`
+}
 
 // Category represents all the search categories in search page
 type Category struct {
@@ -22,7 +27,19 @@ type ContentType struct {
 	LocaliseKeyName string   `json:"localise_key"`
 	Count           int      `json:"count"`
 	Type            string   `json:"type"`
-	SubTypes        []string `bson:"sub_types" json:"sub_types"`
+	SubTypes        []string `json:"sub_types"`
+}
+
+// filterOptions contains all the possible filter available on the search page
+var filterOptions = map[string]ContentType{
+	Article.Type:              Article,
+	Bulletin.Type:             Bulletin,
+	Compendium.Type:           Compendium,
+	CorporateInformation.Type: CorporateInformation,
+	Datasets.Type:             Datasets,
+	Methodology.Type:          Methodology,
+	TimeSeries.Type:           TimeSeries,
+	UserRequestedData.Type:    UserRequestedData,
 }
 
 // Categories represent the list of all search categories
@@ -102,90 +119,68 @@ var CorporateInformation = ContentType{
 	SubTypes:        []string{"static_foi", "static_page", "static_landing_page", "static_article"},
 }
 
-// GetAllCategories returns all the categories and its content types where all the count is set to zero
-func GetAllCategories() []Category {
-	return setCountZero(Categories)
-}
+// reviewFilter retrieves filters from query, checks if they are one of the filter options, and updates validatedQueryParams
+func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
+	filtersQuery := urlQuery["filter"]
 
-func setCountZero(categories []Category) []Category {
-	for i, category := range categories {
-		categories[i].Count = 0
+	for _, filterQuery := range filtersQuery {
+		filter, found := filterOptions[filterQuery]
 
-		for j := range category.ContentTypes {
-			categories[i].ContentTypes[j].Count = 0
-		}
+		if found {
+			validatedQueryParams.Filter.Query = append(validatedQueryParams.Filter.Query, filter.Type)
+			validatedQueryParams.Filter.LocaliseKeyName = append(validatedQueryParams.Filter.LocaliseKeyName, filter.LocaliseKeyName)
+		} else {
+			err := errs.ErrFilterNotFound
+			logData := log.Data{"filter not found": filter}
+			log.Event(ctx, "failed to find filter", log.Error(err), log.ERROR, logData)
 
-	}
-
-	return categories
-}
-
-// GetSearchAPIQuery gets the query that needs to be passed to the search-api to get search results
-func GetSearchAPIQuery(ctx context.Context, cfg *config.Config, page *PaginationQuery, query url.Values) (url.Values, error) {
-	apiQuery, err := url.ParseQuery(query.Encode())
-	if err != nil {
-		log.Event(ctx, "failed to parse copy of query for search-api", log.Error(err), log.ERROR)
-		return nil, err
-	}
-
-	// update query with offset and remove page query
-	err = updateQueryWithOffset(ctx, cfg, page, apiQuery)
-	if err != nil {
-		log.Event(ctx, "failed to update query with offset", log.Error(err), log.ERROR)
-		return nil, err
-	}
-
-	// update query with content_type which equals to sub filters and remove filter query
-	err = updateQueryWithAPIFilters(ctx, apiQuery)
-	if err != nil {
-		log.Event(ctx, "failed to update query with api filters", log.Error(err), log.ERROR)
-		return nil, err
-	}
-
-	return apiQuery, nil
-}
-
-// updateQueryWithAPIFilters retrieves and adds all available sub filters which is related to the search filter given by the user
-func updateQueryWithAPIFilters(ctx context.Context, apiQuery url.Values) error {
-	filters := apiQuery["filter"]
-
-	if len(filters) > 0 {
-		subFilters, err := getSubFilters(filters)
-		if err != nil {
-			log.Event(ctx, "failed to get sub filters to query", log.Error(err), log.ERROR)
 			return err
 		}
 
-		apiQuery.Del("filter")
-		apiQuery.Set("content_type", strings.Join(subFilters, ","))
 	}
 
 	return nil
 }
 
-// getSubFilters gets all available sub filters which is related to the search filter given by the user
-func getSubFilters(filters []string) ([]string, error) {
-	var subFilters = make([]string, 0)
+// GetCategories returns all the categories and its content types where all the count is set to zero
+func GetCategories() []Category {
+	var categories []Category
+	categories = append(categories, Categories...)
 
-	for _, fType := range filters {
-		found := false
+	// To get a different reference of ContentType - deep copy
+	for i, category := range categories {
+		categories[i].ContentTypes = []ContentType{}
+		categories[i].ContentTypes = append(categories[i].ContentTypes, Categories[i].ContentTypes...)
 
-	categoryLoop:
-		for _, category := range Categories {
-			for _, contentType := range category.ContentTypes {
-				if fType == contentType.Type {
-					found = true
-					subFilters = append(subFilters, contentType.SubTypes...)
-					break categoryLoop
-				}
-			}
+		// To get a different reference of SubTypes - deep copy
+		for j := range category.ContentTypes {
+			categories[i].ContentTypes[j].SubTypes = []string{}
+			categories[i].ContentTypes[j].SubTypes = append(categories[i].ContentTypes[j].SubTypes, Categories[i].ContentTypes[j].SubTypes...)
 		}
-
-		if !found {
-			return nil, errs.ErrFilterNotFound
-		}
-
 	}
 
-	return subFilters, nil
+	return categories
+}
+
+// updateQueryWithAPIFilters retrieves and adds all available sub filters which is related to the search filter given by the user
+func updateQueryWithAPIFilters(ctx context.Context, apiQuery url.Values) {
+	filters := apiQuery["content_type"]
+
+	if len(filters) > 0 {
+		subFilters := getSubFilters(ctx, filters)
+
+		apiQuery.Set("content_type", strings.Join(subFilters, ","))
+	}
+}
+
+// getSubFilters gets all available sub filters which is related to the search filter given by the user
+func getSubFilters(ctx context.Context, filters []string) []string {
+	var subFilters = make([]string, 0)
+
+	for _, filter := range filters {
+		subFilter := filterOptions[filter]
+		subFilters = append(subFilters, subFilter.SubTypes...)
+	}
+
+	return subFilters
 }

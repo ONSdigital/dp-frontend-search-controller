@@ -10,17 +10,17 @@ import (
 
 // Sort represents information of a particular sort option
 type Sort struct {
-	Query           string `json:"query,omitempty"`
+	Query           string `json:"query"`
 	LocaliseKeyName string `json:"localise_key"`
 }
 
 // SortOptions represent the list of all search sort options
 var SortOptions = []Sort{Relevance, ReleaseDate, Title}
 
-var sortOptions = map[string]bool{
-	Relevance.Query:   true,
-	ReleaseDate.Query: true,
-	Title.Query:       true,
+var sortOptions = map[string]Sort{
+	Relevance.Query:   Relevance,
+	ReleaseDate.Query: ReleaseDate,
+	Title.Query:       Title,
 }
 
 // Relevance - informing on sorting based on relevance
@@ -41,13 +41,19 @@ var Title = Sort{
 	LocaliseKeyName: "Title",
 }
 
-// ReviewSort retrieves sort from query and checks if it is one of the sort options
-func ReviewSort(ctx context.Context, cfg *config.Config, query url.Values) {
+// reviewSort retrieves sort from query and checks if it is one of the sort options
+func reviewSort(ctx context.Context, cfg *config.Config, urlQuery url.Values, validatedQueryParams *SearchURLParams) {
 
-	sortQuery := query.Get("sort")
+	sortQuery := urlQuery.Get("sort")
 
-	if !sortOptions[sortQuery] {
+	sort, found := sortOptions[sortQuery]
+
+	if found {
+		validatedQueryParams.Sort.Query = sort.Query
+		validatedQueryParams.Sort.LocaliseKeyName = sort.LocaliseKeyName
+	} else {
 		log.Event(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort, log.INFO)
-		query.Set("sort", cfg.DefaultSort)
+		validatedQueryParams.Sort.Query = cfg.DefaultSort
+		validatedQueryParams.Sort.LocaliseKeyName = sortOptions[cfg.DefaultSort].LocaliseKeyName
 	}
 }

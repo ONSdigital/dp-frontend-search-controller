@@ -2,178 +2,169 @@ package data
 
 import (
 	"context"
-	"net/http/httptest"
 	"net/url"
-	"strconv"
 	"testing"
 
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
-	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func createMockCategories() []Category {
-	return []Category{Publication, Data, Other}
-}
-
-func TestUnitGetAllCategories(t *testing.T) {
+func TestUnitReviewFiltersSuccess(t *testing.T) {
 	t.Parallel()
 
-	var updatedCategories []Category
+	ctx := context.Background()
 
-	Convey("When setCountZero is called", t, func() {
-		mockCategories := createMockCategories()
-		updatedCategories = setCountZero(mockCategories)
+	Convey("Given no filter is selected", t, func() {
+		urlQuery := url.Values{}
+		validatedQueryParams := &SearchURLParams{}
 
-		for i, category := range updatedCategories {
-			So(updatedCategories[i].Count, ShouldEqual, 0)
+		Convey("When reviewFilter is called", func() {
+			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
 
-			for j := range category.ContentTypes {
-				So(updatedCategories[i].ContentTypes[j].Count, ShouldEqual, 0)
+			Convey("Then return no errors", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+
+	Convey("Given one valid filter is selected", t, func() {
+		urlQuery := url.Values{
+			"filter": []string{"article"},
+		}
+
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewFilter is called", func() {
+			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
+
+			Convey("Then return no error", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And update validatedQueryParams for filter", func() {
+				So(validatedQueryParams, ShouldNotBeNil)
+				So(validatedQueryParams.Filter.Query, ShouldResemble, []string{"article"})
+				So(validatedQueryParams.Filter.LocaliseKeyName, ShouldResemble, []string{"Article"})
+			})
+		})
+	})
+
+	Convey("Given more than one valid filter is selected", t, func() {
+		urlQuery := url.Values{
+			"filter": []string{"article", "bulletin"},
+		}
+
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewFilter is called", func() {
+			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
+
+			Convey("Then return no error and update validatedQueryParams for filter", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And update validatedQueryParams for filter", func() {
+				So(validatedQueryParams, ShouldNotBeNil)
+				So(validatedQueryParams.Filter.Query, ShouldResemble, []string{"article", "bulletin"})
+				So(validatedQueryParams.Filter.LocaliseKeyName, ShouldResemble, []string{"Article", "StatisticalBulletin"})
+			})
+		})
+	})
+}
+
+func TestUnitReviewFiltersFailure(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	Convey("Given an invalid filter is provided", t, func() {
+		urlQuery := url.Values{
+			"filter": []string{"INVALID"},
+		}
+
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewFilter is called", func() {
+			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
+
+			Convey("Then return an error", func() {
+				So(err, ShouldNotBeNil)
+				So(err, ShouldResemble, errs.ErrFilterNotFound)
+			})
+		})
+	})
+
+}
+
+func TestUnitGetCategoriesSuccess(t *testing.T) {
+	t.Parallel()
+
+	Convey("When GetCategories is called", t, func() {
+		categories := GetCategories()
+
+		Convey("Then return list of categories which includes its filter types", func() {
+			So(categories, ShouldNotBeNil)
+			So(categories, ShouldResemble, Categories)
+		})
+
+		Convey("And all count should be set to zero", func() {
+			for i := range categories {
+				So(categories[i].Count, ShouldEqual, 0)
+
+				for j := range categories[i].ContentTypes {
+					So(categories[i].ContentTypes[j].Count, ShouldEqual, 0)
+				}
 			}
-
-		}
+		})
 	})
-
-	Convey("When GetAllCategories is called", t, func() {
-		allCategories := GetAllCategories()
-		So(allCategories, ShouldResemble, updatedCategories)
-	})
-
 }
 
-func TestUnitGetSearchAPIQuery(t *testing.T) {
+func TestUnitUpdateQueryWithAPIFiltersSuccess(t *testing.T) {
 	t.Parallel()
 
-	Convey("When GetSearchAPIQuery is called", t, func() {
-		ctx := context.Background()
+	ctx := context.Background()
 
-		cfg, err := config.Get()
-		So(err, ShouldBeNil)
+	Convey("Given no filter is selected", t, func() {
+		apiQuery := url.Values{}
 
-		pagination := &PaginationQuery{
-			Limit:       10,
-			CurrentPage: 1,
-		}
+		Convey("When updateQueryWithAPIFilters is called", func() {
+			updateQueryWithAPIFilters(ctx, apiQuery)
 
-		Convey("successfully get query for search api", func() {
-
-			Convey("when valid filters are given", func() {
-				req := httptest.NewRequest("GET", "/search?q=housing&filter=article&filter=bulletin", nil)
-
-				query := req.URL.Query()
-				apiQuery, err := GetSearchAPIQuery(ctx, cfg, pagination, query)
-				So(err, ShouldBeNil)
-
-				So(apiQuery, ShouldContainKey, "offset")
-				So(apiQuery.Get("offset"), ShouldEqual, strconv.Itoa(0))
-				So(apiQuery, ShouldNotContainKey, "page")
-
-				So(apiQuery, ShouldContainKey, "content_type")
-				So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download,bulletin"})
-				So(apiQuery, ShouldNotContainKey, "filter")
-			})
-		})
-
-		Convey("return error", func() {
-
-			Convey("when failed to update query with offset", func() {
-				req := httptest.NewRequest("GET", "/search?q=housing", nil)
-				query := req.URL.Query()
-
-				// A large offset value will be calculated which is invalid
-				pagination.CurrentPage = 10000
-
-				apiQuery, err := GetSearchAPIQuery(ctx, cfg, pagination, query)
-
-				So(apiQuery, ShouldBeNil)
-				So(err, ShouldNotBeNil)
-				So(err, ShouldResemble, errs.ErrInvalidPage)
-			})
-
-			Convey("when failed to update query with api filters", func() {
-				req := httptest.NewRequest("GET", "/search?q=housing&filter=INVALID", nil)
-				query := req.URL.Query()
-				apiQuery, err := GetSearchAPIQuery(ctx, cfg, pagination, query)
-
-				So(apiQuery, ShouldBeNil)
-				So(err, ShouldNotBeNil)
-				So(err, ShouldResemble, errs.ErrFilterNotFound)
+			Convey("Then do not get the sub filters and set apiQuery's content_type", func() {
+				So(apiQuery, ShouldBeEmpty)
 			})
 		})
 	})
 
-	Convey("When updateQueryWithAPIFilters is called", t, func() {
-		ctx := context.Background()
-
-		mockAPIQuery := url.Values{
-			"filter": []string{"bulletin", "article"},
+	Convey("Given one or more filters are selected", t, func() {
+		apiQuery := url.Values{
+			"content_type": []string{"article", "bulletin"},
 		}
 
-		Convey("successful update query with api filters", func() {
+		Convey("When updateQueryWithAPIFilters is called", func() {
+			updateQueryWithAPIFilters(ctx, apiQuery)
 
-			Convey("when no filters given", func() {
-				err := updateQueryWithAPIFilters(ctx, mockAPIQuery)
-				So(err, ShouldBeNil)
-			})
-
-			Convey("when valid filters given", func() {
-				err := updateQueryWithAPIFilters(ctx, mockAPIQuery)
-				So(err, ShouldBeNil)
-				So(mockAPIQuery, ShouldNotContainKey, "filter")
-				So(mockAPIQuery, ShouldContainKey, "content_type")
-				So(mockAPIQuery["content_type"], ShouldResemble, []string{"bulletin,article,article_download"})
-			})
-		})
-
-		Convey("return error", func() {
-
-			Convey("when failed to get sub filters to query", func() {
-				mockAPIQuery["filter"] = []string{"invalid"}
-				err := updateQueryWithAPIFilters(ctx, mockAPIQuery)
-				So(err, ShouldNotBeNil)
+			Convey("Then set apiQuery's content_type with the respective sub-filters", func() {
+				So(apiQuery, ShouldNotBeEmpty)
+				So(apiQuery.Get("content_type"), ShouldEqual, "article,article_download,bulletin")
 			})
 		})
 	})
+}
 
-	Convey("When getSubFilters is called", t, func() {
+func TestUnitGetSubFiltersSuccess(t *testing.T) {
+	t.Parallel()
 
-		Convey("successful update query with api filters", func() {
+	ctx := context.Background()
 
-			Convey("when no filters given", func() {
-				filters := []string{}
-				subFilters, err := getSubFilters(filters)
+	Convey("Given one or more filters are provided", t, func() {
+		filters := []string{"article", "bulletin"}
 
-				So(subFilters, ShouldResemble, []string{})
-				So(err, ShouldBeNil)
-			})
+		Convey("When getSubFilters is called", func() {
+			subFilters := getSubFilters(ctx, filters)
 
-			Convey("when one filter is given", func() {
-				filters := []string{"article"}
-				subFilters, err := getSubFilters(filters)
-
-				So(subFilters, ShouldResemble, []string{"article", "article_download"})
-				So(err, ShouldBeNil)
-			})
-
-			Convey("when two or more filters are given", func() {
-				filters := []string{"article", "bulletin"}
-				subFilters, err := getSubFilters(filters)
-
+			Convey("Then get the respective sub filters for the filters given", func() {
 				So(subFilters, ShouldResemble, []string{"article", "article_download", "bulletin"})
-				So(err, ShouldBeNil)
-			})
-		})
-
-		Convey("return error", func() {
-
-			Convey("when invalid filter given", func() {
-				filters := []string{"invalid"}
-				subFilters, err := getSubFilters(filters)
-
-				So(subFilters, ShouldBeNil)
-				So(err, ShouldNotBeNil)
-				So(err, ShouldResemble, errs.ErrFilterNotFound)
 			})
 		})
 	})

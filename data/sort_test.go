@@ -2,40 +2,54 @@ package data
 
 import (
 	"context"
-	"net/http/httptest"
+	"net/url"
 	"testing"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestUnitReviewSort(t *testing.T) {
+func TestUnitReviewSortSuccess(t *testing.T) {
 	t.Parallel()
 
-	Convey("When ReviewSort called", t, func() {
-		ctx := context.Background()
+	ctx := context.Background()
 
+	Convey("Given a valid sort which is available in the sort options", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		Convey("successfully review sort", func() {
+		urlQuery := url.Values{
+			"sort": []string{"relevance"},
+		}
 
-			Convey("when valid sort given", func() {
-				req := httptest.NewRequest("GET", "/search?q=housing&sort=release_date", nil)
-				query := req.URL.Query()
+		validatedQueryParams := &SearchURLParams{}
 
-				ReviewSort(ctx, cfg, query)
+		Convey("When reviewSort is called", func() {
+			reviewSort(ctx, cfg, urlQuery, validatedQueryParams)
 
-				So(query.Get("sort"), ShouldEqual, "release_date")
+			Convey("Then set sort query and localisation key for sort value to validatedQueryParams", func() {
+				So(validatedQueryParams.Sort.Query, ShouldEqual, "relevance")
+				So(validatedQueryParams.Sort.LocaliseKeyName, ShouldEqual, "Relevance")
 			})
+		})
+	})
 
-			Convey("when invalid sort given", func() {
-				req := httptest.NewRequest("GET", "/search?q=housing&sort=INVALID", nil)
-				query := req.URL.Query()
+	Convey("Given an invalid sort which is not available in the sort options", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
 
-				ReviewSort(ctx, cfg, query)
+		urlQuery := url.Values{
+			"sort": []string{"invalid"},
+		}
 
-				So(query.Get("sort"), ShouldEqual, cfg.DefaultSort)
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewSort is called", func() {
+			reviewSort(ctx, cfg, urlQuery, validatedQueryParams)
+
+			Convey("Then set default sort and localisation key for default to validatedQueryParams", func() {
+				So(validatedQueryParams.Sort.Query, ShouldEqual, cfg.DefaultSort)
+				So(validatedQueryParams.Sort.LocaliseKeyName, ShouldEqual, sortOptions[cfg.DefaultSort].LocaliseKeyName)
 			})
 		})
 	})
