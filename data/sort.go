@@ -17,12 +17,6 @@ type Sort struct {
 // SortOptions represent the list of all search sort options
 var SortOptions = []Sort{Relevance, ReleaseDate, Title}
 
-var sortOptions = map[string]Sort{
-	Relevance.Query:   Relevance,
-	ReleaseDate.Query: ReleaseDate,
-	Title.Query:       Title,
-}
-
 // Relevance - informing on sorting based on relevance
 var Relevance = Sort{
 	Query:           "relevance",
@@ -39,6 +33,12 @@ var ReleaseDate = Sort{
 var Title = Sort{
 	Query:           "title",
 	LocaliseKeyName: "Title",
+}
+
+var sortOptions = map[string]Sort{
+	Relevance.Query:   Relevance,
+	ReleaseDate.Query: ReleaseDate,
+	Title.Query:       Title,
 }
 
 // reviewSort retrieves sort from query and checks if it is one of the sort options

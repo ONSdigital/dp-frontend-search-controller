@@ -30,18 +30,6 @@ type ContentType struct {
 	SubTypes        []string `json:"sub_types"`
 }
 
-// filterOptions contains all the possible filter available on the search page
-var filterOptions = map[string]ContentType{
-	Article.Type:              Article,
-	Bulletin.Type:             Bulletin,
-	Compendium.Type:           Compendium,
-	CorporateInformation.Type: CorporateInformation,
-	Datasets.Type:             Datasets,
-	Methodology.Type:          Methodology,
-	TimeSeries.Type:           TimeSeries,
-	UserRequestedData.Type:    UserRequestedData,
-}
-
 // Categories represent the list of all search categories
 var Categories = []Category{Publication, Data, Other}
 
@@ -117,6 +105,18 @@ var CorporateInformation = ContentType{
 	LocaliseKeyName: "CorporateInformation",
 	Type:            "corporate_information",
 	SubTypes:        []string{"static_foi", "static_page", "static_landing_page", "static_article"},
+}
+
+// filterOptions contains all the possible filter available on the search page
+var filterOptions = map[string]ContentType{
+	Article.Type:              Article,
+	Bulletin.Type:             Bulletin,
+	Compendium.Type:           Compendium,
+	CorporateInformation.Type: CorporateInformation,
+	Datasets.Type:             Datasets,
+	Methodology.Type:          Methodology,
+	TimeSeries.Type:           TimeSeries,
+	UserRequestedData.Type:    UserRequestedData,
 }
 
 // reviewFilter retrieves filters from query, checks if they are one of the filter options, and updates validatedQueryParams
