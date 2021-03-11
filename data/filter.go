@@ -163,18 +163,18 @@ func GetCategories() []Category {
 }
 
 // updateQueryWithAPIFilters retrieves and adds all available sub filters which is related to the search filter given by the user
-func updateQueryWithAPIFilters(ctx context.Context, apiQuery url.Values) {
+func updateQueryWithAPIFilters(apiQuery url.Values) {
 	filters := apiQuery["content_type"]
 
 	if len(filters) > 0 {
-		subFilters := getSubFilters(ctx, filters)
+		subFilters := getSubFilters(filters)
 
 		apiQuery.Set("content_type", strings.Join(subFilters, ","))
 	}
 }
 
 // getSubFilters gets all available sub filters which is related to the search filter given by the user
-func getSubFilters(ctx context.Context, filters []string) []string {
+func getSubFilters(filters []string) []string {
 	var subFilters = make([]string, 0)
 
 	for _, filter := range filters {

@@ -33,17 +33,21 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values) (
 
 	reviewSort(ctx, cfg, urlQuery, &validatedQueryParams)
 
-	reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	err = reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	if err != nil {
+		log.Event(ctx, "unable to review filters", log.Error(err), log.ERROR)
+		return validatedQueryParams, err
+	}
 
 	return validatedQueryParams, nil
 }
 
 // GetSearchAPIQuery gets the query that needs to be passed to the search-api to get search results
-func GetSearchAPIQuery(ctx context.Context, cfg *config.Config, validatedQueryParams SearchURLParams) url.Values {
+func GetSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
 	apiQuery := createSearchAPIQuery(validatedQueryParams)
 
 	// update content_type query (filters) with sub filters
-	updateQueryWithAPIFilters(ctx, apiQuery)
+	updateQueryWithAPIFilters(apiQuery)
 
 	return apiQuery
 }

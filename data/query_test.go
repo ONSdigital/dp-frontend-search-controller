@@ -77,17 +77,33 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 			})
 		})
 	})
+
+	Convey("Given failure to review filter due to invalid filters provided", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		urlQuery := url.Values{
+			"q":      []string{"housing"},
+			"filter": []string{"INVALID"},
+			"sort":   []string{"relevance"},
+			"limit":  []string{"10"},
+			"page":   []string{"1"},
+		}
+
+		Convey("When ReviewQuery is called", func() {
+			_, err := ReviewQuery(ctx, cfg, urlQuery)
+
+			Convey("Then return an error", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
 }
 
 func TestUnitGetSearchAPIQuerySuccess(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	Convey("Given validated query parameters", t, func() {
-		cfg, err := config.Get()
-		So(err, ShouldBeNil)
-
 		validatedQueryParams := SearchURLParams{
 			Query: "housing",
 			Filter: Filter{
@@ -103,7 +119,7 @@ func TestUnitGetSearchAPIQuerySuccess(t *testing.T) {
 		}
 
 		Convey("When GetSearchAPIQuery is called", func() {
-			apiQuery := GetSearchAPIQuery(ctx, cfg, validatedQueryParams)
+			apiQuery := GetSearchAPIQuery(validatedQueryParams)
 
 			Convey("Then successfully return apiQuery for dp-search-api", func() {
 				So(apiQuery["q"], ShouldResemble, []string{"housing"})

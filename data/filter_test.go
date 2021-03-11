@@ -122,13 +122,11 @@ func TestUnitGetCategoriesSuccess(t *testing.T) {
 func TestUnitUpdateQueryWithAPIFiltersSuccess(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	Convey("Given no filter is selected", t, func() {
 		apiQuery := url.Values{}
 
 		Convey("When updateQueryWithAPIFilters is called", func() {
-			updateQueryWithAPIFilters(ctx, apiQuery)
+			updateQueryWithAPIFilters(apiQuery)
 
 			Convey("Then do not get the sub filters and set apiQuery's content_type", func() {
 				So(apiQuery, ShouldBeEmpty)
@@ -142,7 +140,7 @@ func TestUnitUpdateQueryWithAPIFiltersSuccess(t *testing.T) {
 		}
 
 		Convey("When updateQueryWithAPIFilters is called", func() {
-			updateQueryWithAPIFilters(ctx, apiQuery)
+			updateQueryWithAPIFilters(apiQuery)
 
 			Convey("Then set apiQuery's content_type with the respective sub-filters", func() {
 				So(apiQuery, ShouldNotBeEmpty)
@@ -155,13 +153,11 @@ func TestUnitUpdateQueryWithAPIFiltersSuccess(t *testing.T) {
 func TestUnitGetSubFiltersSuccess(t *testing.T) {
 	t.Parallel()
 
-	ctx := context.Background()
-
 	Convey("Given one or more filters are provided", t, func() {
 		filters := []string{"article", "bulletin"}
 
 		Convey("When getSubFilters is called", func() {
-			subFilters := getSubFilters(ctx, filters)
+			subFilters := getSubFilters(filters)
 
 			Convey("Then get the respective sub filters for the filters given", func() {
 				So(subFilters, ShouldResemble, []string{"article", "article_download", "bulletin"})

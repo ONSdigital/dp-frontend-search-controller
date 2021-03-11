@@ -49,7 +49,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		return
 	}
 
-	apiQuery := data.GetSearchAPIQuery(ctx, cfg, validatedQueryParams)
+	apiQuery := data.GetSearchAPIQuery(validatedQueryParams)
 
 	resp, err := searchC.GetSearch(ctx, apiQuery)
 	if err != nil {

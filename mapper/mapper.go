@@ -24,19 +24,19 @@ func mapQuery(page *model.Page, validatedQueryParams data.SearchURLParams, categ
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
 
-	mapSort(page, validatedQueryParams, categories)
+	mapSort(page, validatedQueryParams)
 
-	mapPagination(page, validatedQueryParams, categories, respC)
+	mapPagination(page, validatedQueryParams, respC)
 }
 
-func mapSort(page *model.Page, validatedQueryParams data.SearchURLParams, categories []data.Category) {
+func mapSort(page *model.Page, validatedQueryParams data.SearchURLParams) {
 	page.Data.Sort.Query = validatedQueryParams.Sort.Query
 
 	page.Data.Sort.LocaliseFilterKeys = validatedQueryParams.Filter.LocaliseKeyName
 
 	page.Data.Sort.LocaliseSortKey = validatedQueryParams.Sort.LocaliseKeyName
 
-	pageSortOptions := []model.SortOptions{}
+	var pageSortOptions []model.SortOptions
 	for _, sort := range data.SortOptions {
 		pageSortOptions = append(pageSortOptions, model.SortOptions{
 			Query:           sort.Query,
@@ -46,7 +46,7 @@ func mapSort(page *model.Page, validatedQueryParams data.SearchURLParams, catego
 	page.Data.Sort.Options = pageSortOptions
 }
 
-func mapPagination(page *model.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response) {
+func mapPagination(page *model.Page, validatedQueryParams data.SearchURLParams, respC searchC.Response) {
 	page.Data.Pagination.Limit = validatedQueryParams.Limit
 	page.Data.Pagination.LimitOptions = data.LimitOptions
 
@@ -58,14 +58,14 @@ func mapPagination(page *model.Page, validatedQueryParams data.SearchURLParams, 
 func mapResponse(page *model.Page, respC searchC.Response, categories []data.Category) {
 	page.Data.Response.Count = respC.Count
 
-	mapResponseCategories(page, respC, categories)
+	mapResponseCategories(page, categories)
 
 	mapResponseItems(page, respC)
 
 	page.Data.Response.Suggestions = respC.Suggestions
 }
 
-func mapResponseCategories(page *model.Page, respC searchC.Response, categories []data.Category) {
+func mapResponseCategories(page *model.Page, categories []data.Category) {
 	pageCategories := []model.Category{}
 
 	for _, category := range categories {
@@ -152,7 +152,7 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 
 		// Summary Match
 		if matchesDescC.Summary != nil {
-			matchesSummaryPage := []model.MatchDetails{}
+			var matchesSummaryPage []model.MatchDetails
 
 			for _, summaryC := range *matchesDescC.Summary {
 				matchesSummaryPage = append(matchesSummaryPage, model.MatchDetails{
@@ -167,7 +167,7 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 
 		// Title Match
 		if matchesDescC.Title != nil {
-			matchesTitlePage := []model.MatchDetails{}
+			var matchesTitlePage []model.MatchDetails
 
 			for _, titleC := range *matchesDescC.Title {
 				matchesTitlePage = append(matchesTitlePage, model.MatchDetails{
@@ -182,7 +182,7 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 
 		// Edition Match
 		if matchesDescC.Edition != nil {
-			matchesEditionPage := []model.MatchDetails{}
+			var matchesEditionPage []model.MatchDetails
 
 			for _, editionC := range *matchesDescC.Edition {
 				matchesEditionPage = append(matchesEditionPage, model.MatchDetails{
@@ -197,7 +197,7 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 
 		// Meta Description Match
 		if matchesDescC.MetaDescription != nil {
-			matchesMetaDescPage := []model.MatchDetails{}
+			var matchesMetaDescPage []model.MatchDetails
 
 			for _, metaDescC := range *matchesDescC.MetaDescription {
 				matchesMetaDescPage = append(matchesMetaDescPage, model.MatchDetails{
@@ -212,7 +212,7 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 
 		// Keywords Match
 		if matchesDescC.Keywords != nil {
-			matchesKeywordsPage := []model.MatchDetails{}
+			var matchesKeywordsPage []model.MatchDetails
 
 			for _, keywordC := range *matchesDescC.Keywords {
 				matchesKeywordsPage = append(matchesKeywordsPage, model.MatchDetails{
@@ -227,7 +227,7 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 
 		// DatasetID Match
 		if matchesDescC.DatasetID != nil {
-			matchesDatasetIDPage := []model.MatchDetails{}
+			var matchesDatasetIDPage []model.MatchDetails
 
 			for _, datasetIDClient := range *matchesDescC.DatasetID {
 				matchesDatasetIDPage = append(matchesDatasetIDPage, model.MatchDetails{
