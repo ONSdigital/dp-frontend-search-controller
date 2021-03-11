@@ -21,7 +21,7 @@ func TestConfig(t *testing.T) {
 				cfg, err = Get() // This Get() is only called once, when inside this function
 				So(err, ShouldBeNil)
 
-				So(cfg.BindAddr, ShouldEqual, ":25000")
+				So(cfg.BindAddr, ShouldEqual, "localhost:25000")
 				So(cfg.RendererURL, ShouldEqual, "http://localhost:20010")
 				So(cfg.SearchAPIURL, ShouldEqual, "http://localhost:23900")
 				So(cfg.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)

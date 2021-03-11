@@ -32,7 +32,7 @@ func Get() (*Config, error) {
 	}
 
 	cfg := &Config{
-		BindAddr:                    ":25000",
+		BindAddr:                    "localhost:25000",
 		RendererURL:                 "http://localhost:20010",
 		SearchAPIURL:                "http://localhost:23900",
 		GracefulShutdownTimeout:     5 * time.Second,
