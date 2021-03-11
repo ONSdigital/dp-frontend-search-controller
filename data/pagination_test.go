@@ -313,6 +313,9 @@ func TestUnitGetPagesToDisplaySuccess(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given validated query parameters and total pages", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
 		validatedQueryParams := SearchURLParams{
 			Query: "housing",
 			Filter: Filter{
@@ -331,7 +334,7 @@ func TestUnitGetPagesToDisplaySuccess(t *testing.T) {
 		totalPages := 5
 
 		Convey("When GetPagesToDisplay is called", func() {
-			pagesToDisplay := GetPagesToDisplay(validatedQueryParams, totalPages)
+			pagesToDisplay := GetPagesToDisplay(cfg, validatedQueryParams, totalPages)
 
 			Convey("Then return all available page numbers with its respective URL", func() {
 				So(pagesToDisplay, ShouldResemble, []model.PageToDisplay{
@@ -365,11 +368,14 @@ func TestUnitGetStartPageSuccess(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given currentPage is between 3 and 3rd last page", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
 		currentPage := 10
 		totalPages := 20
 
 		Convey("When getStartPage is called", func() {
-			startPage := getStartPage(currentPage, totalPages)
+			startPage := getStartPage(cfg, currentPage, totalPages)
 
 			Convey("Then successfully return start page", func() {
 				So(startPage, ShouldEqual, 8)
@@ -378,11 +384,14 @@ func TestUnitGetStartPageSuccess(t *testing.T) {
 	})
 
 	Convey("Given current page is less than or equal to 2", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
 		currentPage := 2
 		totalPages := 20
 
 		Convey("When getStartPage is called", func() {
-			startPage := getStartPage(currentPage, totalPages)
+			startPage := getStartPage(cfg, currentPage, totalPages)
 
 			Convey("Then successfully return first page", func() {
 				So(startPage, ShouldEqual, 1)
@@ -391,11 +400,14 @@ func TestUnitGetStartPageSuccess(t *testing.T) {
 	})
 
 	Convey("Given current page is second last page", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
 		currentPage := 19
 		totalPages := 20
 
 		Convey("When getStartPage is called", func() {
-			startPage := getStartPage(currentPage, totalPages)
+			startPage := getStartPage(cfg, currentPage, totalPages)
 
 			Convey("Then successfully return fifth last page", func() {
 				So(startPage, ShouldEqual, 16)
@@ -404,11 +416,14 @@ func TestUnitGetStartPageSuccess(t *testing.T) {
 	})
 
 	Convey("Given current page is last page", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
 		currentPage := 20
 		totalPages := 20
 
 		Convey("When getStartPage is called", func() {
-			startPage := getStartPage(currentPage, totalPages)
+			startPage := getStartPage(cfg, currentPage, totalPages)
 
 			Convey("Then successfully return fifth last page", func() {
 				So(startPage, ShouldEqual, 16)

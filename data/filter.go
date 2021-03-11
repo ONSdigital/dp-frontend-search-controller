@@ -126,10 +126,7 @@ func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParam
 	for _, filterQuery := range filtersQuery {
 		filter, found := filterOptions[filterQuery]
 
-		if found {
-			validatedQueryParams.Filter.Query = append(validatedQueryParams.Filter.Query, filter.Type)
-			validatedQueryParams.Filter.LocaliseKeyName = append(validatedQueryParams.Filter.LocaliseKeyName, filter.LocaliseKeyName)
-		} else {
+		if !found {
 			err := errs.ErrFilterNotFound
 			logData := log.Data{"filter not found": filter}
 			log.Event(ctx, "failed to find filter", log.Error(err), log.ERROR, logData)
@@ -137,6 +134,8 @@ func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParam
 			return err
 		}
 
+		validatedQueryParams.Filter.Query = append(validatedQueryParams.Filter.Query, filter.Type)
+		validatedQueryParams.Filter.LocaliseKeyName = append(validatedQueryParams.Filter.LocaliseKeyName, filter.LocaliseKeyName)
 	}
 
 	return nil

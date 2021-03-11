@@ -452,6 +452,9 @@ func TestUnitGetSearchPageSuccess(t *testing.T) {
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/search?q=housing", nil)
 
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
 		mockedRendererClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
 				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
@@ -476,7 +479,7 @@ func TestUnitGetSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When getSearchPage is called", func() {
-			err := getSearchPage(w, req, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse)
+			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse)
 
 			Convey("Then return no error and successfully get search page", func() {
 				So(err, ShouldBeNil)
@@ -493,6 +496,9 @@ func TestUnitGetSearchPageFailure(t *testing.T) {
 	Convey("Given an error from failing to get template from renderer", t, func() {
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/search?q=housing", nil)
+
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
 
 		mockedRendererClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
@@ -518,7 +524,7 @@ func TestUnitGetSearchPageFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When getSearchPage is called", func() {
-			err := getSearchPage(w, req, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse)
+			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse)
 
 			Convey("Then return error", func() {
 				So(err, ShouldNotBeNil)

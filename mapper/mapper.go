@@ -3,30 +3,31 @@ package mapper
 import (
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
 	model "github.com/ONSdigital/dp-frontend-models/model/search"
+	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response) (page model.Page) {
+func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response) (page model.Page) {
 	// SEARCH STRUCT MAPPING
 	page.Metadata.Title = "Search"
 	page.SearchDisabled = true
 
-	mapQuery(&page, validatedQueryParams, categories, respC)
+	mapQuery(cfg, &page, validatedQueryParams, categories, respC)
 
 	mapResponse(&page, respC, categories)
 
 	return page
 }
 
-func mapQuery(page *model.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response) {
+func mapQuery(cfg *config.Config, page *model.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
 
 	mapSort(page, validatedQueryParams)
 
-	mapPagination(page, validatedQueryParams, respC)
+	mapPagination(cfg, page, validatedQueryParams, respC)
 }
 
 func mapSort(page *model.Page, validatedQueryParams data.SearchURLParams) {
@@ -46,13 +47,13 @@ func mapSort(page *model.Page, validatedQueryParams data.SearchURLParams) {
 	page.Data.Sort.Options = pageSortOptions
 }
 
-func mapPagination(page *model.Page, validatedQueryParams data.SearchURLParams, respC searchC.Response) {
+func mapPagination(cfg *config.Config, page *model.Page, validatedQueryParams data.SearchURLParams, respC searchC.Response) {
 	page.Data.Pagination.Limit = validatedQueryParams.Limit
 	page.Data.Pagination.LimitOptions = data.LimitOptions
 
 	page.Data.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.Data.Pagination.TotalPages = data.GetTotalPages(validatedQueryParams.Limit, respC.Count)
-	page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(validatedQueryParams, page.Data.Pagination.TotalPages)
+	page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
 }
 
 func mapResponse(page *model.Page, respC searchC.Response, categories []data.Category) {

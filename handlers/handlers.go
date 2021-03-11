@@ -74,7 +74,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		return
 	}
 
-	err = getSearchPage(w, req, rendC, validatedQueryParams, categories, resp)
+	err = getSearchPage(w, req, cfg, rendC, validatedQueryParams, categories, resp)
 	if err != nil {
 		log.Event(ctx, "getting search page failed", log.Error(err), log.ERROR)
 		setStatusCode(w, req, err)
@@ -144,10 +144,10 @@ func setCountToCategories(ctx context.Context, countResp searchC.Response, categ
 }
 
 // getSearchPage talks to the renderer to get the search page
-func getSearchPage(w http.ResponseWriter, req *http.Request, rendC RenderClient, validatedQueryParams data.SearchURLParams, categories []data.Category, resp searchC.Response) error {
+func getSearchPage(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, validatedQueryParams data.SearchURLParams, categories []data.Category, resp searchC.Response) error {
 	ctx := req.Context()
 
-	m := mapper.CreateSearchPage(validatedQueryParams, categories, resp)
+	m := mapper.CreateSearchPage(cfg, validatedQueryParams, categories, resp)
 
 	b, err := json.Marshal(m)
 	if err != nil {

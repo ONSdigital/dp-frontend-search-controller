@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
 	. "github.com/smartystreets/goconvey/convey"
@@ -15,6 +16,9 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given validated query and response from search-api", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
 		validatedQueryParams := data.SearchURLParams{
 			Query: "housing",
 
@@ -40,7 +44,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
-			sp := CreateSearchPage(validatedQueryParams, categories, respC)
+			sp := CreateSearchPage(cfg, validatedQueryParams, categories, respC)
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")

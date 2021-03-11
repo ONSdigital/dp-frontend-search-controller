@@ -2,6 +2,8 @@ package data
 
 import (
 	"context"
+	"fmt"
+	"math"
 	"net/url"
 	"strconv"
 
@@ -10,6 +12,8 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/log"
 )
+
+const noOfPagesToDisplay = 5
 
 // LimitOptions contains all available limit parameter values
 var LimitOptions = []int{
@@ -37,12 +41,10 @@ func reviewPagination(ctx context.Context, cfg *config.Config, urlQuery url.Valu
 }
 
 func getLimitFromURLQuery(ctx context.Context, cfg *config.Config, query url.Values) int {
-	defaultLimitStr := strconv.Itoa(cfg.DefaultLimit)
-
 	limit, err := strconv.Atoi(query.Get("limit"))
 	if err != nil {
-		log.Event(ctx, "unable to convert search limit to int - set to default "+defaultLimitStr, log.INFO)
-		query.Set("limit", defaultLimitStr)
+		log.Event(ctx, fmt.Sprintf("unable to convert search limit to int - set to default %d", cfg.DefaultLimit), log.INFO)
+		query.Set("limit", strconv.Itoa(cfg.DefaultLimit))
 		limit = cfg.DefaultLimit
 	}
 
@@ -60,18 +62,16 @@ func getLimitFromURLQuery(ctx context.Context, cfg *config.Config, query url.Val
 }
 
 func getPageFromURLQuery(ctx context.Context, cfg *config.Config, query url.Values) int {
-	defaultPageStr := strconv.Itoa(cfg.DefaultPage)
-
 	page, err := strconv.Atoi(query.Get("page"))
 	if err != nil {
-		log.Event(ctx, "unable to convert search page to int - set to default "+defaultPageStr, log.INFO)
-		query.Set("page", defaultPageStr)
+		log.Event(ctx, fmt.Sprintf("unable to convert search page to int - set to default %d", cfg.DefaultPage), log.INFO)
+		query.Set("page", strconv.Itoa(cfg.DefaultPage))
 		page = cfg.DefaultPage
 	}
 
 	if page < 1 {
-		log.Event(ctx, "page number is less than default - default to page "+defaultPageStr, log.INFO)
-		query.Set("page", defaultPageStr)
+		log.Event(ctx, fmt.Sprintf("page number is less than default - default to page %d", cfg.DefaultPage), log.INFO)
+		query.Set("page", strconv.Itoa(cfg.DefaultPage))
 		page = cfg.DefaultPage
 	}
 
@@ -84,7 +84,7 @@ func getOffset(ctx context.Context, cfg *config.Config, page int, limit int) (of
 
 	// when the offset is negative due to negative current page number or limit
 	if offset < 0 {
-		log.Event(ctx, "offset less than 0 - defaulted to offset "+strconv.Itoa(cfg.DefaultOffset), log.INFO)
+		log.Event(ctx, fmt.Sprintf("offset less than 0 - defaulted to offset %d", cfg.DefaultOffset), log.INFO)
 		offset = cfg.DefaultOffset
 	}
 
@@ -107,12 +107,12 @@ func GetTotalPages(limit int, count int) int {
 }
 
 // GetPagesToDisplay gets all the pages available for the search results
-func GetPagesToDisplay(validatedQueryParams SearchURLParams, totalPages int) []model.PageToDisplay {
+func GetPagesToDisplay(cfg *config.Config, validatedQueryParams SearchURLParams, totalPages int) []model.PageToDisplay {
 	var pagesToDisplay = make([]model.PageToDisplay, 0)
 
 	currentPage := validatedQueryParams.CurrentPage
 
-	startPage := getStartPage(currentPage, totalPages)
+	startPage := getStartPage(cfg, currentPage, totalPages)
 
 	endPage := getEndPage(startPage, totalPages)
 
@@ -129,22 +129,28 @@ func GetPagesToDisplay(validatedQueryParams SearchURLParams, totalPages int) []m
 	return pagesToDisplay
 }
 
-func getStartPage(currentPage int, totalPages int) int {
-	startPage := currentPage - 2
+func getStartPage(cfg *config.Config, currentPage int, totalPages int) int {
+	pageOffset := getPageOffset()
 
-	if currentPage <= 2 {
-		startPage = 1
+	startPage := currentPage - pageOffset
+
+	if currentPage <= pageOffset {
+		startPage = cfg.DefaultPage
 	} else if (currentPage == totalPages-1) || (currentPage == totalPages) {
-		startPage = totalPages - 4
+		startPage = totalPages - noOfPagesToDisplay + 1
 	}
 
 	return startPage
 }
 
-func getEndPage(startPage int, totalPages int) int {
-	endPage := startPage + 4
+func getPageOffset() int {
+	return int(math.Round((float64(noOfPagesToDisplay) - 1) / 2))
+}
 
-	if totalPages < 5 {
+func getEndPage(startPage int, totalPages int) int {
+	endPage := startPage + noOfPagesToDisplay - 1
+
+	if totalPages < noOfPagesToDisplay {
 		endPage = totalPages
 	}
 
