@@ -30,94 +30,96 @@ type ContentType struct {
 	SubTypes        []string `json:"sub_types"`
 }
 
-// Categories represent the list of all search categories
-var Categories = []Category{Publication, Data, Other}
+var (
+	// Categories represent the list of all search categories
+	Categories = []Category{Publication, Data, Other}
 
-// Publication - search information on publication category
-var Publication = Category{
-	LocaliseKeyName: "Publication",
-	ContentTypes:    []ContentType{Bulletin, Article, Compendium},
-}
+	// Publication - search information on publication category
+	Publication = Category{
+		LocaliseKeyName: "Publication",
+		ContentTypes:    []ContentType{Bulletin, Article, Compendium},
+	}
 
-// Data - search information on data category
-var Data = Category{
-	LocaliseKeyName: "Data",
-	ContentTypes:    []ContentType{TimeSeries, Datasets, UserRequestedData},
-}
+	// Data - search information on data category
+	Data = Category{
+		LocaliseKeyName: "Data",
+		ContentTypes:    []ContentType{TimeSeries, Datasets, UserRequestedData},
+	}
 
-// Other - search information on other categories
-var Other = Category{
-	LocaliseKeyName: "Other",
-	ContentTypes:    []ContentType{Methodology, CorporateInformation},
-}
+	// Other - search information on other categories
+	Other = Category{
+		LocaliseKeyName: "Other",
+		ContentTypes:    []ContentType{Methodology, CorporateInformation},
+	}
 
-// Bulletin - Search information specific for statistical bulletins
-var Bulletin = ContentType{
-	LocaliseKeyName: "StatisticalBulletin",
-	Type:            "bulletin",
-	SubTypes:        []string{"bulletin"},
-}
+	// Bulletin - Search information specific for statistical bulletins
+	Bulletin = ContentType{
+		LocaliseKeyName: "StatisticalBulletin",
+		Type:            "bulletin",
+		SubTypes:        []string{"bulletin"},
+	}
 
-// Article - Search information specific for articles
-var Article = ContentType{
-	LocaliseKeyName: "Article",
-	Type:            "article",
-	SubTypes:        []string{"article", "article_download"},
-}
+	// Article - Search information specific for articles
+	Article = ContentType{
+		LocaliseKeyName: "Article",
+		Type:            "article",
+		SubTypes:        []string{"article", "article_download"},
+	}
 
-// Compendium - Search information specific for compendium
-var Compendium = ContentType{
-	LocaliseKeyName: "Compendium",
-	Type:            "compendia",
-	SubTypes:        []string{"compendium_landing_page"},
-}
+	// Compendium - Search information specific for compendium
+	Compendium = ContentType{
+		LocaliseKeyName: "Compendium",
+		Type:            "compendia",
+		SubTypes:        []string{"compendium_landing_page"},
+	}
 
-// TimeSeries - Search information specific for time series
-var TimeSeries = ContentType{
-	LocaliseKeyName: "TimeSeries",
-	Type:            "time_series",
-	SubTypes:        []string{"timeseries"},
-}
+	// TimeSeries - Search information specific for time series
+	TimeSeries = ContentType{
+		LocaliseKeyName: "TimeSeries",
+		Type:            "time_series",
+		SubTypes:        []string{"timeseries"},
+	}
 
-// Datasets - Search information specific for datasets
-var Datasets = ContentType{
-	LocaliseKeyName: "Datasets",
-	Type:            "datasets",
-	SubTypes:        []string{"dataset_landing_page", "reference_tables"},
-}
+	// Datasets - Search information specific for datasets
+	Datasets = ContentType{
+		LocaliseKeyName: "Datasets",
+		Type:            "datasets",
+		SubTypes:        []string{"dataset_landing_page", "reference_tables"},
+	}
 
-// UserRequestedData - Search information specific for user requested data
-var UserRequestedData = ContentType{
-	LocaliseKeyName: "UserRequestedData",
-	Type:            "user_requested_data",
-	SubTypes:        []string{"static_adhoc"},
-}
+	// UserRequestedData - Search information specific for user requested data
+	UserRequestedData = ContentType{
+		LocaliseKeyName: "UserRequestedData",
+		Type:            "user_requested_data",
+		SubTypes:        []string{"static_adhoc"},
+	}
 
-// Methodology - Search information specific for methodologies
-var Methodology = ContentType{
-	LocaliseKeyName: "Methodology",
-	Type:            "methodology",
-	SubTypes:        []string{"static_methodology", "static_methodology_download", "static_qmi"},
-}
+	// Methodology - Search information specific for methodologies
+	Methodology = ContentType{
+		LocaliseKeyName: "Methodology",
+		Type:            "methodology",
+		SubTypes:        []string{"static_methodology", "static_methodology_download", "static_qmi"},
+	}
 
-// CorporateInformation - Search information specific for corporate information
-var CorporateInformation = ContentType{
-	LocaliseKeyName: "CorporateInformation",
-	Type:            "corporate_information",
-	SubTypes:        []string{"static_foi", "static_page", "static_landing_page", "static_article"},
-}
+	// CorporateInformation - Search information specific for corporate information
+	CorporateInformation = ContentType{
+		LocaliseKeyName: "CorporateInformation",
+		Type:            "corporate_information",
+		SubTypes:        []string{"static_foi", "static_page", "static_landing_page", "static_article"},
+	}
 
-// filterOptions contains all the possible filter available on the search page
-var filterOptions = map[string]ContentType{
-	Article.Type:              Article,
-	Bulletin.Type:             Bulletin,
-	Compendium.Type:           Compendium,
-	CorporateInformation.Type: CorporateInformation,
-	Datasets.Type:             Datasets,
-	Methodology.Type:          Methodology,
-	TimeSeries.Type:           TimeSeries,
-	UserRequestedData.Type:    UserRequestedData,
-}
+	// filterOptions contains all the possible filter available on the search page
+	filterOptions = map[string]ContentType{
+		Article.Type:              Article,
+		Bulletin.Type:             Bulletin,
+		Compendium.Type:           Compendium,
+		CorporateInformation.Type: CorporateInformation,
+		Datasets.Type:             Datasets,
+		Methodology.Type:          Methodology,
+		TimeSeries.Type:           TimeSeries,
+		UserRequestedData.Type:    UserRequestedData,
+	}
+)
 
 // reviewFilter retrieves filters from query, checks if they are one of the filter options, and updates validatedQueryParams
 func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams) error {

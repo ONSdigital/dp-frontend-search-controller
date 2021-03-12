@@ -14,32 +14,35 @@ type Sort struct {
 	LocaliseKeyName string `json:"localise_key"`
 }
 
-// SortOptions represent the list of all search sort options
-var SortOptions = []Sort{Relevance, ReleaseDate, Title}
+var (
+	// SortOptions represent the list of all search sort options
+	SortOptions = []Sort{Relevance, ReleaseDate, Title}
 
-// Relevance - informing on sorting based on relevance
-var Relevance = Sort{
-	Query:           "relevance",
-	LocaliseKeyName: "Relevance",
-}
+	// Relevance - informing on sorting based on relevance
+	Relevance = Sort{
+		Query:           "relevance",
+		LocaliseKeyName: "Relevance",
+	}
 
-// ReleaseDate - informing on sorting based on release date
-var ReleaseDate = Sort{
-	Query:           "release_date",
-	LocaliseKeyName: "ReleaseDate",
-}
+	// ReleaseDate - informing on sorting based on release date
+	ReleaseDate = Sort{
+		Query:           "release_date",
+		LocaliseKeyName: "ReleaseDate",
+	}
 
-// Title - informing on sorting based on title
-var Title = Sort{
-	Query:           "title",
-	LocaliseKeyName: "Title",
-}
+	// Title - informing on sorting based on title
+	Title = Sort{
+		Query:           "title",
+		LocaliseKeyName: "Title",
+	}
 
-var sortOptions = map[string]Sort{
-	Relevance.Query:   Relevance,
-	ReleaseDate.Query: ReleaseDate,
-	Title.Query:       Title,
-}
+	// sortOptions contains all the possible sort available on the search page
+	sortOptions = map[string]Sort{
+		Relevance.Query:   Relevance,
+		ReleaseDate.Query: ReleaseDate,
+		Title.Query:       Title,
+	}
+)
 
 // reviewSort retrieves sort from query and checks if it is one of the sort options
 func reviewSort(ctx context.Context, cfg *config.Config, urlQuery url.Values, validatedQueryParams *SearchURLParams) {
