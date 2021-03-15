@@ -24,6 +24,51 @@ func TestUnitReviewFiltersSuccess(t *testing.T) {
 			Convey("Then return no errors", func() {
 				So(err, ShouldBeNil)
 			})
+
+			Convey("And update validatedQueryParams for filter", func() {
+				So(validatedQueryParams.Filter.Query, ShouldBeEmpty)
+				So(validatedQueryParams.Filter.LocaliseKeyName, ShouldBeEmpty)
+			})
+		})
+	})
+
+	Convey("Given empty filter is provided", t, func() {
+		urlQuery := url.Values{
+			"filter": []string{""},
+		}
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewFilter is called", func() {
+			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
+
+			Convey("Then return no errors", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And update validatedQueryParams for filter", func() {
+				So(validatedQueryParams.Filter.Query, ShouldBeEmpty)
+				So(validatedQueryParams.Filter.LocaliseKeyName, ShouldBeEmpty)
+			})
+		})
+	})
+
+	Convey("Given multiple empty filter is provided", t, func() {
+		urlQuery := url.Values{
+			"filter": []string{"", "", ""},
+		}
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewFilter is called", func() {
+			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
+
+			Convey("Then return no errors", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And update validatedQueryParams for filter", func() {
+				So(validatedQueryParams.Filter.Query, ShouldBeEmpty)
+				So(validatedQueryParams.Filter.LocaliseKeyName, ShouldBeEmpty)
+			})
 		})
 	})
 
@@ -59,7 +104,7 @@ func TestUnitReviewFiltersSuccess(t *testing.T) {
 		Convey("When reviewFilter is called", func() {
 			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
 
-			Convey("Then return no error and update validatedQueryParams for filter", func() {
+			Convey("Then return no error", func() {
 				So(err, ShouldBeNil)
 			})
 
@@ -67,6 +112,50 @@ func TestUnitReviewFiltersSuccess(t *testing.T) {
 				So(validatedQueryParams, ShouldNotBeNil)
 				So(validatedQueryParams.Filter.Query, ShouldResemble, []string{"article", "bulletin"})
 				So(validatedQueryParams.Filter.LocaliseKeyName, ShouldResemble, []string{"Article", "StatisticalBulletin"})
+			})
+		})
+	})
+
+	Convey("Given filter with mixed case", t, func() {
+		urlQuery := url.Values{
+			"filter": []string{"ArTiClE"},
+		}
+
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewFilter is called", func() {
+			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
+
+			Convey("Then return no error", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And update validatedQueryParams for filter", func() {
+				So(validatedQueryParams, ShouldNotBeNil)
+				So(validatedQueryParams.Filter.Query, ShouldResemble, []string{"article"})
+				So(validatedQueryParams.Filter.LocaliseKeyName, ShouldResemble, []string{"Article"})
+			})
+		})
+	})
+
+	Convey("Given a mix of empty and valid filters", t, func() {
+		urlQuery := url.Values{
+			"filter": []string{"", "article", ""},
+		}
+
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewFilter is called", func() {
+			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
+
+			Convey("Then return no error", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And update validatedQueryParams for filter", func() {
+				So(validatedQueryParams, ShouldNotBeNil)
+				So(validatedQueryParams.Filter.Query, ShouldResemble, []string{"article"})
+				So(validatedQueryParams.Filter.LocaliseKeyName, ShouldResemble, []string{"Article"})
 			})
 		})
 	})
@@ -94,6 +183,39 @@ func TestUnitReviewFiltersFailure(t *testing.T) {
 		})
 	})
 
+	Convey("Given a mix of valid and invalid filters", t, func() {
+		urlQuery := url.Values{
+			"filter": []string{"BORK", "article", "bark bark bark"},
+		}
+
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewFilter is called", func() {
+			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
+
+			Convey("Then return an error", func() {
+				So(err, ShouldNotBeNil)
+				So(err, ShouldResemble, errs.ErrFilterNotFound)
+			})
+		})
+	})
+
+	Convey("Given a mix of empty, valid and invalid filters", t, func() {
+		urlQuery := url.Values{
+			"filter": []string{"BORK", "article", ""},
+		}
+
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewFilter is called", func() {
+			err := reviewFilters(ctx, urlQuery, validatedQueryParams)
+
+			Convey("Then return an error", func() {
+				So(err, ShouldNotBeNil)
+				So(err, ShouldResemble, errs.ErrFilterNotFound)
+			})
+		})
+	})
 }
 
 func TestUnitGetCategoriesSuccess(t *testing.T) {

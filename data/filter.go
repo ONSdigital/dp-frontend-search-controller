@@ -126,6 +126,13 @@ func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParam
 	filtersQuery := urlQuery["filter"]
 
 	for _, filterQuery := range filtersQuery {
+
+		filterQuery = strings.ToLower(filterQuery)
+
+		if filterQuery == "" {
+			continue
+		}
+
 		filter, found := filterOptions[filterQuery]
 
 		if !found {
