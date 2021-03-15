@@ -24,5 +24,5 @@ func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, hc health.Hea
 	log.Event(ctx, "adding routes")
 
 	r.StrictSlash(true).Path("/health").HandlerFunc(hc.Handler)
-	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(c.Renderer, c.Search))
+	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, c.Renderer, c.Search))
 }
