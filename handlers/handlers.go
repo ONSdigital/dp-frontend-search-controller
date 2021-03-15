@@ -53,7 +53,8 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 
 	resp, err := searchC.GetSearch(ctx, apiQuery)
 	if err != nil {
-		log.Event(ctx, "getting search response from client failed", log.Error(err), log.ERROR)
+		logData := log.Data{"api query passed to search-api": apiQuery}
+		log.Event(ctx, "getting search response from client failed", log.Error(err), log.ERROR, logData)
 		setStatusCode(w, req, err)
 		return
 	}
@@ -106,7 +107,8 @@ func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC S
 
 	countResp, err := searchC.GetSearch(ctx, apiQuery)
 	if err != nil {
-		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR)
+		logData := log.Data{"api query passed to search-api": apiQuery}
+		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR, logData)
 		return nil, err
 	}
 
@@ -151,20 +153,23 @@ func getSearchPage(w http.ResponseWriter, req *http.Request, cfg *config.Config,
 
 	b, err := json.Marshal(m)
 	if err != nil {
-		log.Event(ctx, "unable to marshal search response", log.Error(err), log.ERROR)
+		logData := log.Data{"search response": m}
+		log.Event(ctx, "unable to marshal search response", log.Error(err), log.ERROR, logData)
 		setStatusCode(w, req, err)
 		return err
 	}
 
 	templateHTML, err := rendC.Do("search", b)
 	if err != nil {
-		log.Event(ctx, "getting template from renderer search failed", log.Error(err), log.ERROR)
+		logData := log.Data{"retrieving search template for response": b}
+		log.Event(ctx, "getting template from renderer search failed", log.Error(err), log.ERROR, logData)
 		setStatusCode(w, req, err)
 		return err
 	}
 
 	if _, err := w.Write(templateHTML); err != nil {
-		log.Event(ctx, "error on write of search template", log.Error(err), log.ERROR)
+		logData := log.Data{"search template": templateHTML}
+		log.Event(ctx, "error on write of search template", log.Error(err), log.ERROR, logData)
 		setStatusCode(w, req, err)
 		return err
 	}
