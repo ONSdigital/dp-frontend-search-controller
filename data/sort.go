@@ -52,7 +52,7 @@ func reviewSort(ctx context.Context, cfg *config.Config, urlQuery url.Values, va
 	sort, found := sortOptions[sortQuery]
 
 	if !found {
-		log.Event(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort, log.INFO)
+		log.Event(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort, log.WARN)
 		sort.Query = cfg.DefaultSort
 		sort.LocaliseKeyName = sortOptions[cfg.DefaultSort].LocaliseKeyName
 	}

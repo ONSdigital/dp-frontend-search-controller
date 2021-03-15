@@ -84,13 +84,13 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 }
 
 // validateCurrentPage checks if the current page exceeds the total pages which is a bad request
-func validateCurrentPage(ctx context.Context, validatedQueryParams data.SearchURLParams, resultsCount int) (err error) {
+func validateCurrentPage(ctx context.Context, validatedQueryParams data.SearchURLParams, resultsCount int) error {
 
 	if resultsCount > 0 {
 		totalPages := data.GetTotalPages(validatedQueryParams.Limit, resultsCount)
 
 		if validatedQueryParams.CurrentPage > totalPages {
-			err = errs.ErrPageExceedsTotalPages
+			err := errs.ErrPageExceedsTotalPages
 			log.Event(ctx, "current page exceeds total pages", log.Error(err), log.ERROR)
 
 			return err

@@ -84,7 +84,7 @@ func getOffset(ctx context.Context, cfg *config.Config, page int, limit int) (of
 
 	// when the offset is negative due to negative current page number or limit
 	if offset < 0 {
-		log.Event(ctx, fmt.Sprintf("offset less than 0 - defaulted to offset %d", cfg.DefaultOffset), log.INFO)
+		log.Event(ctx, fmt.Sprintf("offset less than 0 - defaulted to offset %d", cfg.DefaultOffset), log.WARN)
 		offset = cfg.DefaultOffset
 	}
 
