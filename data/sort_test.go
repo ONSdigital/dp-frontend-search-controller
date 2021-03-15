@@ -14,6 +14,26 @@ func TestUnitReviewSortSuccess(t *testing.T) {
 
 	ctx := context.Background()
 
+	Convey("Given an empty sort", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		urlQuery := url.Values{
+			"sort": []string{""},
+		}
+
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewSort is called", func() {
+			reviewSort(ctx, cfg, urlQuery, validatedQueryParams)
+
+			Convey("Then set default sort and localisation key for default to validatedQueryParams", func() {
+				So(validatedQueryParams.Sort.Query, ShouldEqual, cfg.DefaultSort)
+				So(validatedQueryParams.Sort.LocaliseKeyName, ShouldEqual, sortOptions[cfg.DefaultSort].LocaliseKeyName)
+			})
+		})
+	})
+
 	Convey("Given a valid sort which is available in the sort options", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)

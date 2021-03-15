@@ -51,12 +51,12 @@ func reviewSort(ctx context.Context, cfg *config.Config, urlQuery url.Values, va
 
 	sort, found := sortOptions[sortQuery]
 
-	if found {
-		validatedQueryParams.Sort.Query = sort.Query
-		validatedQueryParams.Sort.LocaliseKeyName = sort.LocaliseKeyName
-	} else {
+	if !found {
 		log.Event(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort, log.INFO)
-		validatedQueryParams.Sort.Query = cfg.DefaultSort
-		validatedQueryParams.Sort.LocaliseKeyName = sortOptions[cfg.DefaultSort].LocaliseKeyName
+		sort.Query = cfg.DefaultSort
+		sort.LocaliseKeyName = sortOptions[cfg.DefaultSort].LocaliseKeyName
 	}
+
+	validatedQueryParams.Sort.Query = sort.Query
+	validatedQueryParams.Sort.LocaliseKeyName = sort.LocaliseKeyName
 }
