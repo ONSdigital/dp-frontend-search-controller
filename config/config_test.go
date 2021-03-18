@@ -18,12 +18,21 @@ func TestConfig(t *testing.T) {
 			})
 
 			Convey("Then the values should be set to the expected defaults", func() {
-				So(cfg.BindAddr, ShouldEqual, ":25000")
+				cfg, err = Get() // This Get() is only called once, when inside this function
+				So(err, ShouldBeNil)
+
+				So(cfg.BindAddr, ShouldEqual, "localhost:25000")
 				So(cfg.RendererURL, ShouldEqual, "http://localhost:20010")
 				So(cfg.SearchAPIURL, ShouldEqual, "http://localhost:23900")
 				So(cfg.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)
 				So(cfg.HealthCheckInterval, ShouldEqual, 30*time.Second)
 				So(cfg.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
+				So(cfg.DefaultSort, ShouldEqual, "relevance")
+				So(cfg.DefaultOffset, ShouldEqual, 0)
+				So(cfg.DefaultPage, ShouldEqual, 1)
+				So(cfg.DefaultLimit, ShouldEqual, 10)
+				So(cfg.DefaultMaximumLimit, ShouldEqual, 50)
+				So(cfg.DefaultMaximumSearchResults, ShouldEqual, 500)
 			})
 
 			Convey("Then a second call to config should return the same config", func() {
