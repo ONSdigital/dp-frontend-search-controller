@@ -17,6 +17,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+const serviceName = "dp-frontend-search-controller"
+
 var (
 	// BuildTime represents the time in which the service was built
 	BuildTime string
@@ -27,7 +29,7 @@ var (
 )
 
 func main() {
-	log.Namespace = "dp-frontend-search-controller"
+	log.Namespace = serviceName
 	cfg, err := config.Get()
 	ctx := context.Background()
 	if err != nil {
