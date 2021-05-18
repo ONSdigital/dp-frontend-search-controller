@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
+	dphandlers "github.com/ONSdigital/dp-net/handlers"
 	"github.com/ONSdigital/log.go/log"
 )
 
@@ -32,12 +33,12 @@ type SearchClient interface {
 
 // Read Handler
 func Read(cfg *config.Config, rendC RenderClient, searchC SearchClient) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
-		read(w, req, cfg, rendC, searchC)
-	}
+	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		read(w, req, cfg, rendC, searchC, accessToken, collectionID, lang)
+	})
 }
 
-func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, searchC SearchClient) {
+func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, searchC SearchClient, accessToken, collectionID, lang string) {
 	ctx := req.Context()
 
 	urlQuery := req.URL.Query()
@@ -75,7 +76,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		return
 	}
 
-	err = getSearchPage(w, req, cfg, rendC, validatedQueryParams, categories, resp)
+	err = getSearchPage(w, req, cfg, rendC, validatedQueryParams, categories, resp, lang)
 	if err != nil {
 		log.Event(ctx, "getting search page failed", log.Error(err), log.ERROR)
 		setStatusCode(w, req, err)
@@ -146,10 +147,10 @@ func setCountToCategories(ctx context.Context, countResp searchC.Response, categ
 }
 
 // getSearchPage talks to the renderer to get the search page
-func getSearchPage(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, validatedQueryParams data.SearchURLParams, categories []data.Category, resp searchC.Response) error {
+func getSearchPage(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, validatedQueryParams data.SearchURLParams, categories []data.Category, resp searchC.Response, lang string) error {
 	ctx := req.Context()
 
-	m := mapper.CreateSearchPage(cfg, validatedQueryParams, categories, resp)
+	m := mapper.CreateSearchPage(cfg, validatedQueryParams, categories, resp, lang)
 
 	b, err := json.Marshal(m)
 	if err != nil {
