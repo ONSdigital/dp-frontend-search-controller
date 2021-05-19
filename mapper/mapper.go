@@ -8,10 +8,11 @@ import (
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response) (page model.Page) {
+func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, lang string) (page model.Page) {
 	// SEARCH STRUCT MAPPING
 	page.Metadata.Title = "Search"
 	page.SearchDisabled = true
+	page.Language = lang
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC)
 
