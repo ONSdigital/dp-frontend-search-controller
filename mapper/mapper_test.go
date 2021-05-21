@@ -15,6 +15,8 @@ var respC searchC.Response
 func TestUnitCreateSearchPageSuccess(t *testing.T) {
 	t.Parallel()
 
+	lang := "en"
+
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
@@ -44,7 +46,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
-			sp := CreateSearchPage(cfg, validatedQueryParams, categories, respC)
+			sp := CreateSearchPage(cfg, validatedQueryParams, categories, respC, lang)
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
