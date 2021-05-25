@@ -11,7 +11,7 @@ import (
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
-	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
+	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -39,7 +39,7 @@ var lang string
 func TestUnitReadHandlerSuccess(t *testing.T) {
 	t.Parallel()
 
-	mockSearchResponse, err := mocks.GetMockSearchResponse()
+	mockSearchResponse, err := mapper.GetMockSearchResponse()
 	if err != nil {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
@@ -50,13 +50,13 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		mockedRendererClient := &mocks.RenderClientMock{
+		mockedRendererClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
 				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
 			},
 		}
 
-		mockedSearchClient := &mocks.SearchClientMock{
+		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
@@ -78,7 +78,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 func TestUnitReadSuccess(t *testing.T) {
 	t.Parallel()
 
-	mockSearchResponse, err := mocks.GetMockSearchResponse()
+	mockSearchResponse, err := mapper.GetMockSearchResponse()
 	if err != nil {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
@@ -90,13 +90,13 @@ func TestUnitReadSuccess(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		mockedRendererClient := &mocks.RenderClientMock{
+		mockedRendererClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
 				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
 			},
 		}
 
-		mockedSearchClient := &mocks.SearchClientMock{
+		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
@@ -118,7 +118,7 @@ func TestUnitReadSuccess(t *testing.T) {
 func TestUnitReadFailure(t *testing.T) {
 	t.Parallel()
 
-	mockSearchResponse, err := mocks.GetMockSearchResponse()
+	mockSearchResponse, err := mapper.GetMockSearchResponse()
 	if err != nil {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
@@ -130,13 +130,13 @@ func TestUnitReadFailure(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		mockedRendererClient := &mocks.RenderClientMock{
+		mockedRendererClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
 				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
 			},
 		}
 
-		mockedSearchClient := &mocks.SearchClientMock{
+		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
@@ -161,13 +161,13 @@ func TestUnitReadFailure(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		mockedRendererClient := &mocks.RenderClientMock{
+		mockedRendererClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
 				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
 			},
 		}
 
-		mockedSearchClient := &mocks.SearchClientMock{
+		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return searchC.Response{}, errs.ErrInternalServer
 			},
@@ -192,13 +192,13 @@ func TestUnitReadFailure(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		mockedRendererClient := &mocks.RenderClientMock{
+		mockedRendererClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
 				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
 			},
 		}
 
-		mockedSearchClient := &mocks.SearchClientMock{
+		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
@@ -223,13 +223,13 @@ func TestUnitReadFailure(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		mockedRendererClient := &mocks.RenderClientMock{
+		mockedRendererClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
 				return []byte{}, errs.ErrInternalServer
 			},
 		}
 
-		mockedSearchClient := &mocks.SearchClientMock{
+		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
@@ -323,7 +323,7 @@ func TestUnitGetCategoriesTypesCountSuccess(t *testing.T) {
 
 	ctx := context.Background()
 
-	mockSearchResponse, err := mocks.GetMockSearchResponse()
+	mockSearchResponse, err := mapper.GetMockSearchResponse()
 	if err != nil {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
@@ -337,7 +337,7 @@ func TestUnitGetCategoriesTypesCountSuccess(t *testing.T) {
 			"offset":       []string{"0"},
 		}
 
-		mockedSearchClient := &mocks.SearchClientMock{
+		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
@@ -374,7 +374,7 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 			"offset":       []string{"0"},
 		}
 
-		mockedSearchClient := &mocks.SearchClientMock{
+		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return searchC.Response{}, errs.ErrInternalServer
 			},
@@ -405,7 +405,7 @@ func TestUnitSetCountToCategoriesSuccess(t *testing.T) {
 		categories := data.GetCategories()
 
 		Convey("And count of search results for each categories and types", func() {
-			mockCountSearchResponse, err := mocks.GetMockSearchResponse()
+			mockCountSearchResponse, err := mapper.GetMockSearchResponse()
 			So(err, ShouldBeNil)
 
 			Convey("When setCountToCategories is called", func() {
@@ -459,7 +459,7 @@ func TestUnitGetSearchPageSuccess(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		mockedRendererClient := &mocks.RenderClientMock{
+		mockedRendererClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
 				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
 			},
@@ -479,7 +479,7 @@ func TestUnitGetSearchPageSuccess(t *testing.T) {
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
 
-		mockCountSearchResponse, err := mocks.GetMockSearchResponse()
+		mockCountSearchResponse, err := mapper.GetMockSearchResponse()
 		So(err, ShouldBeNil)
 
 		Convey("When getSearchPage is called", func() {
@@ -504,7 +504,7 @@ func TestUnitGetSearchPageFailure(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		mockedRendererClient := &mocks.RenderClientMock{
+		mockedRendererClient := &RenderClientMock{
 			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
 				return []byte{}, errs.ErrInternalServer
 			},
@@ -524,7 +524,7 @@ func TestUnitGetSearchPageFailure(t *testing.T) {
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
 
-		mockCountSearchResponse, err := mocks.GetMockSearchResponse()
+		mockCountSearchResponse, err := mapper.GetMockSearchResponse()
 		So(err, ShouldBeNil)
 
 		Convey("When getSearchPage is called", func() {

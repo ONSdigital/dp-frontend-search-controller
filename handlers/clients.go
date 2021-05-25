@@ -7,7 +7,7 @@ import (
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
 )
 
-//go:generate moq -out ../mocks/clients.go -pkg mocks . RenderClient SearchClient
+//go:generate moq -out clients_mock.go -pkg handlers . RenderClient SearchClient
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored
 type ClientError interface {

@@ -1,4 +1,4 @@
-package mocks
+package mapper
 
 import (
 	"encoding/json"
@@ -11,7 +11,7 @@ import (
 func GetMockSearchResponse() (searchC.Response, error) {
 	var respC searchC.Response
 
-	sampleResponse, err := ioutil.ReadFile("../mocks/data/mock_search_response.json")
+	sampleResponse, err := ioutil.ReadFile("../mapper/data/mock_search_response.json")
 	if err != nil {
 		return searchC.Response{}, err
 	}

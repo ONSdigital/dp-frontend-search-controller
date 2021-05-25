@@ -9,8 +9,8 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/health"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
-	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
+	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/http"
 	. "github.com/smartystreets/goconvey/convey"
