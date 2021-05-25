@@ -32,6 +32,10 @@ func doTestRequest(target string, req *http.Request, handlerFunc http.HandlerFun
 	return w
 }
 
+var accessToken string
+var collectionID string
+var lang string
+
 func TestUnitReadHandlerSuccess(t *testing.T) {
 	t.Parallel()
 
@@ -99,7 +103,7 @@ func TestUnitReadSuccess(t *testing.T) {
 		}
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedRendererClient, mockedSearchClient)
+			read(w, req, cfg, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -139,7 +143,7 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedRendererClient, mockedSearchClient)
+			read(w, req, cfg, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
@@ -170,7 +174,7 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedRendererClient, mockedSearchClient)
+			read(w, req, cfg, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
 
 			Convey("Then a 500 internal server error status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -201,7 +205,7 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedRendererClient, mockedSearchClient)
+			read(w, req, cfg, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
@@ -232,7 +236,7 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedRendererClient, mockedSearchClient)
+			read(w, req, cfg, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
 
 			Convey("Then a 500 internal server error status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -479,7 +483,7 @@ func TestUnitGetSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When getSearchPage is called", func() {
-			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse)
+			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse, lang)
 
 			Convey("Then return no error and successfully get search page", func() {
 				So(err, ShouldBeNil)
@@ -524,7 +528,7 @@ func TestUnitGetSearchPageFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When getSearchPage is called", func() {
-			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse)
+			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse, lang)
 
 			Convey("Then return error", func() {
 				So(err, ShouldNotBeNil)
