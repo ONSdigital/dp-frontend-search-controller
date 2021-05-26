@@ -39,15 +39,15 @@ func run(ctx context.Context) error {
 	// Read config
 	cfg, err := config.Get()
 	if err != nil {
-		log.Event(ctx, "unable to retrieve service configuration", log.Error(err))
+		log.Event(ctx, "unable to retrieve service configuration", log.ERROR, log.Error(err))
 		return err
 	}
-	log.Event(ctx, "got service configuration", log.Data{"config": cfg})
+	log.Event(ctx, "got service configuration", log.INFO, log.Data{"config": cfg})
 
 	// Run service
 	srv, err := service.Run(ctx, cfg, svcList, svcErrors)
 	if err != nil {
-		log.Event(ctx, "failed to run service", log.Error(err))
+		log.Event(ctx, "failed to run service", log.ERROR, log.Error(err))
 		return err
 	}
 

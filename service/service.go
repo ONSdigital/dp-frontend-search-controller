@@ -64,11 +64,11 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 	srv.Server = serviceList.GetHTTPServer(cfg.BindAddr, r)
 
 	// Start HTTP server and healthcheck ticker
-	log.Event(ctx, "Starting server", log.Data{"config": cfg})
+	log.Event(ctx, "Starting server", log.Data{"config": cfg}, log.INFO)
 	srv.HealthCheck.Start(ctx)
 	go func() {
 		if err := srv.Server.ListenAndServe(); err != nil {
-			log.Event(ctx, "failed to start http listen and serve", log.Error(err))
+			log.Event(ctx, "failed to start http listen and serve", log.FATAL, log.Error(err))
 			svcErrors <- err
 		}
 	}()
@@ -121,12 +121,12 @@ func (srv *Service) registerCheckers(ctx context.Context, c routes.Clients) (err
 
 	if err = srv.HealthCheck.AddCheck("frontend renderer", c.Renderer.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "failed to add frontend renderer checker", log.Error(err))
+		log.Event(ctx, "failed to add frontend renderer checker", log.ERROR, log.Error(err))
 	}
 
 	if err = srv.HealthCheck.AddCheck("Search API", c.Search.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "failed to add search API checker", log.Error(err))
+		log.Event(ctx, "failed to add search API checker", log.ERROR, log.Error(err))
 	}
 
 	if hasErrors {
