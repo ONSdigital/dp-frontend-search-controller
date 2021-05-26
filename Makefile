@@ -4,7 +4,9 @@ BUILD_TIME=$(shell date +%s)
 GIT_COMMIT=$(shell git rev-parse HEAD)
 VERSION ?= $(shell git tag --points-at HEAD | grep ^v | head -n 1)
 
-LDFLAGS = -ldflags "-X github.com/ONSdigital/dp-frontend-search-controller/service.BuildTime=$(BUILD_TIME) -X github.com/ONSdigital/dp-frontend-search-controller/service.GitCommit=$(GIT_COMMIT) -X github.com/ONSdigital/dp-frontend-search-controller/service.Version=$(VERSION)"
+SERVICE_PATH = github.com/ONSdigital/dp-frontend-search-controller/service
+
+LDFLAGS = -ldflags "-X $(SERVICE_PATH).BuildTime=$(BUILD_TIME) -X $(SERVICE_PATH).GitCommit=$(GIT_COMMIT) -X $(SERVICE_PATH).Version=$(VERSION)"
 
 .PHONY: all
 all: audit test build
