@@ -98,16 +98,16 @@ func TestInitSuccess(t *testing.T) {
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
 
-			srv := &service.Service{}
+			svc := &service.Service{}
 
 			Convey("When Init is called", func() {
-				err := srv.Init(ctx, cfg, mockServiceList)
+				err := svc.Init(ctx, cfg, mockServiceList)
 
 				Convey("Then service is initialised successfully", func() {
-					So(srv.Config, ShouldResemble, cfg)
-					So(srv.HealthCheck, ShouldResemble, hcMock)
-					So(srv.Server, ShouldResemble, serverMock)
-					So(srv.ServiceList, ShouldResemble, mockServiceList)
+					So(svc.Config, ShouldResemble, cfg)
+					So(svc.HealthCheck, ShouldResemble, hcMock)
+					So(svc.Server, ShouldResemble, serverMock)
+					So(svc.ServiceList, ShouldResemble, mockServiceList)
 
 					Convey("And returns no errors", func() {
 						So(err, ShouldBeNil)
@@ -143,19 +143,19 @@ func TestInitFailure(t *testing.T) {
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
 
-			srv := &service.Service{}
+			svc := &service.Service{}
 
 			Convey("When Init is called", func() {
-				err := srv.Init(ctx, cfg, mockServiceList)
+				err := svc.Init(ctx, cfg, mockServiceList)
 
 				Convey("Then service initialisation fails", func() {
-					So(srv.Config, ShouldResemble, cfg)
-					So(srv.ServiceList, ShouldResemble, mockServiceList)
-					So(srv.ServiceList.HealthCheck, ShouldBeFalse)
+					So(svc.Config, ShouldResemble, cfg)
+					So(svc.ServiceList, ShouldResemble, mockServiceList)
+					So(svc.ServiceList.HealthCheck, ShouldBeFalse)
 
 					// Healthcheck and Server not initialised
-					So(srv.HealthCheck, ShouldBeNil)
-					So(srv.Server, ShouldBeNil)
+					So(svc.HealthCheck, ShouldBeNil)
+					So(svc.Server, ShouldBeNil)
 
 					Convey("And returns error", func() {
 						So(err, ShouldNotBeNil)
@@ -181,19 +181,19 @@ func TestInitFailure(t *testing.T) {
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
 
-			srv := &service.Service{}
+			svc := &service.Service{}
 
 			Convey("When Init is called", func() {
-				err := srv.Init(ctx, cfg, mockServiceList)
+				err := svc.Init(ctx, cfg, mockServiceList)
 
 				Convey("Then service initialisation fails", func() {
-					So(srv.Config, ShouldResemble, cfg)
-					So(srv.ServiceList, ShouldResemble, mockServiceList)
-					So(srv.ServiceList.HealthCheck, ShouldBeTrue)
-					So(srv.HealthCheck, ShouldResemble, hcMockAddFail)
+					So(svc.Config, ShouldResemble, cfg)
+					So(svc.ServiceList, ShouldResemble, mockServiceList)
+					So(svc.ServiceList.HealthCheck, ShouldBeTrue)
+					So(svc.HealthCheck, ShouldResemble, hcMockAddFail)
 
 					// Server not initialised
-					So(srv.Server, ShouldBeNil)
+					So(svc.Server, ShouldBeNil)
 
 					Convey("And returns error", func() {
 						So(err, ShouldNotBeNil)
@@ -227,7 +227,7 @@ func TestStart(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
-		srv := &service.Service{
+		svc := &service.Service{
 			Config:      cfg,
 			HealthCheck: hcMock,
 			Server:      serverMock,
@@ -235,7 +235,7 @@ func TestStart(t *testing.T) {
 		}
 
 		Convey("When service starts", func() {
-			srv.Start(ctx, svcErrors)
+			svc.Start(ctx, svcErrors)
 
 			Convey("Then healthcheck is started and HTTP server starts listening", func() {
 				So(len(hcMock.StartCalls()), ShouldEqual, 1)
@@ -264,7 +264,7 @@ func TestStart(t *testing.T) {
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
 
-			srv := &service.Service{
+			svc := &service.Service{
 				Config:      cfg,
 				HealthCheck: hcMock,
 				Server:      failingServerMock,
@@ -272,7 +272,7 @@ func TestStart(t *testing.T) {
 			}
 
 			Convey("When service starts", func() {
-				srv.Start(ctx, svcErrors)
+				svc.Start(ctx, svcErrors)
 
 				Convey("Then service start fails and returns an error in the error channel", func() {
 					sErr := <-svcErrors
@@ -314,7 +314,7 @@ func TestCloseSuccess(t *testing.T) {
 
 		serviceList := service.NewServiceList(nil)
 		serviceList.HealthCheck = true
-		srv := service.Service{
+		svc := service.Service{
 			Config:      cfg,
 			HealthCheck: hcCloseMock,
 			Server:      serverCloseMock,
@@ -322,7 +322,7 @@ func TestCloseSuccess(t *testing.T) {
 		}
 
 		Convey("When closing service", func() {
-			err = srv.Close(ctx)
+			err = svc.Close(ctx)
 
 			Convey("Then it results in all the dependencies being closed in the expected order", func() {
 				So(err, ShouldBeNil)
@@ -350,7 +350,7 @@ func TestCloseFailure(t *testing.T) {
 
 			serviceList := service.NewServiceList(nil)
 			serviceList.HealthCheck = true
-			srv := service.Service{
+			svc := service.Service{
 				Config:      cfg,
 				HealthCheck: hcMock,
 				Server:      failingServerCloseMock,
@@ -358,7 +358,7 @@ func TestCloseFailure(t *testing.T) {
 			}
 
 			Convey("When closing the service", func() {
-				err = srv.Close(ctx)
+				err = svc.Close(ctx)
 
 				Convey("Then Close operation tries to close all dependencies and returns an error", func() {
 					So(len(hcMock.StopCalls()), ShouldEqual, 1)
@@ -405,7 +405,7 @@ func TestCloseFailure(t *testing.T) {
 
 			serviceList := service.NewServiceList(nil)
 			serviceList.HealthCheck = true
-			srv := service.Service{
+			svc := service.Service{
 				Config:      cfg,
 				HealthCheck: hcShutdownCloseMock,
 				Server:      serverShutdownCloseMock,
@@ -413,7 +413,7 @@ func TestCloseFailure(t *testing.T) {
 			}
 
 			Convey("When closing the service", func() {
-				err = srv.Close(ctx)
+				err = svc.Close(ctx)
 
 				Convey("Then closing the service fails with context.DeadlineExceeded error and no further dependencies are attempted to close", func() {
 					So(err, ShouldResemble, context.DeadlineExceeded)
