@@ -45,11 +45,12 @@ func run(ctx context.Context) error {
 	log.Event(ctx, "got service configuration", log.INFO, log.Data{"config": cfg})
 
 	// Run service
-	srv, err := service.Run(ctx, cfg, svcList, svcErrors)
-	if err != nil {
-		log.Event(ctx, "failed to run service", log.ERROR, log.Error(err))
+	srv := service.New()
+	if err := srv.Init(ctx, cfg, svcList); err != nil {
+		log.Event(ctx, "failed to initialise service", log.ERROR, log.Error(err))
 		return err
 	}
+	srv.Start(ctx, svcErrors)
 
 	// Blocks until an os interrupt or a fatal error occurs
 	select {
@@ -59,5 +60,5 @@ func run(ctx context.Context) error {
 		log.Event(ctx, "os signal received", log.Data{"signal": sig}, log.INFO)
 	}
 
-	return srv.Close(ctx, cfg)
+	return srv.Close(ctx)
 }

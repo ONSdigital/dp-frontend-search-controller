@@ -23,19 +23,23 @@ var (
 
 // Service contains the healthcheck, server and serviceList for the frontend search controller
 type Service struct {
+	Config      *config.Config
 	HealthCheck HealthChecker
 	Server      HTTPServer
 	ServiceList *ExternalServiceList
 }
 
-// Run the service
-func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceList, svcErrors chan error) (srv *Service, err error) {
-	log.Event(ctx, "running service", log.INFO)
+// New creates a new service
+func New() *Service {
+	return &Service{}
+}
 
-	// Initialise Service struct
-	srv = &Service{
-		ServiceList: serviceList,
-	}
+// Init initialises all the service dependencies, including healthcheck with checkers, api and middleware
+func (srv *Service) Init(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceList) (err error) {
+	log.Event(ctx, "initialising service", log.INFO)
+
+	srv.Config = cfg
+	srv.ServiceList = serviceList
 
 	// Get health client for api router
 	routerHealthClient := serviceList.GetHealthClient("api-router", cfg.APIRouterURL)
@@ -50,11 +54,11 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 	srv.HealthCheck, err = serviceList.GetHealthCheck(cfg, BuildTime, GitCommit, Version)
 	if err != nil {
 		log.Event(ctx, "failed to create health check", log.FATAL, log.Error(err))
-		return nil, err
+		return err
 	}
 	if err = srv.registerCheckers(ctx, clients); err != nil {
 		log.Event(ctx, "failed to register checkers", log.ERROR, log.Error(err))
-		return srv, err
+		return err
 	}
 	clients.HealthCheckHandler = srv.HealthCheck.Handler
 
@@ -63,23 +67,30 @@ func Run(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceLi
 	routes.Setup(ctx, r, cfg, clients)
 	srv.Server = serviceList.GetHTTPServer(cfg.BindAddr, r)
 
-	// Start HTTP server and healthcheck ticker
-	log.Event(ctx, "Starting server", log.Data{"config": cfg}, log.INFO)
+	return nil
+}
+
+// Start starts an initialised service
+func (srv *Service) Start(ctx context.Context, svcErrors chan error) {
+	log.Event(ctx, "Starting service", log.Data{"config": srv.Config}, log.INFO)
+
+	// Start healthcheck
 	srv.HealthCheck.Start(ctx)
+
+	// Start HTTP server
+	log.Event(ctx, "Starting server", log.INFO)
 	go func() {
 		if err := srv.Server.ListenAndServe(); err != nil {
 			log.Event(ctx, "failed to start http listen and serve", log.FATAL, log.Error(err))
 			svcErrors <- err
 		}
 	}()
-
-	return srv, nil
 }
 
 // Close gracefully shuts the service down in the required order, with timeout
-func (srv *Service) Close(ctx context.Context, cfg *config.Config) error {
+func (srv *Service) Close(ctx context.Context) error {
 	log.Event(ctx, "commencing graceful shutdown", log.INFO)
-	ctx, cancel := context.WithTimeout(ctx, cfg.GracefulShutdownTimeout)
+	ctx, cancel := context.WithTimeout(ctx, srv.Config.GracefulShutdownTimeout)
 	hasShutdownError := false
 
 	go func() {
