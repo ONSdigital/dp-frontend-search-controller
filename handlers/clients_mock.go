@@ -10,6 +10,10 @@ import (
 	"sync"
 )
 
+var (
+	lockRenderClientMockDo sync.RWMutex
+)
+
 // Ensure, that RenderClientMock does implement RenderClient.
 // If this is not the case, regenerate this file with moq.
 var _ RenderClient = &RenderClientMock{}
@@ -43,7 +47,6 @@ type RenderClientMock struct {
 			In2 []byte
 		}
 	}
-	lockDo sync.RWMutex
 }
 
 // Do calls DoFunc.
@@ -58,9 +61,9 @@ func (mock *RenderClientMock) Do(in1 string, in2 []byte) ([]byte, error) {
 		In1: in1,
 		In2: in2,
 	}
-	mock.lockDo.Lock()
+	lockRenderClientMockDo.Lock()
 	mock.calls.Do = append(mock.calls.Do, callInfo)
-	mock.lockDo.Unlock()
+	lockRenderClientMockDo.Unlock()
 	return mock.DoFunc(in1, in2)
 }
 
@@ -75,11 +78,15 @@ func (mock *RenderClientMock) DoCalls() []struct {
 		In1 string
 		In2 []byte
 	}
-	mock.lockDo.RLock()
+	lockRenderClientMockDo.RLock()
 	calls = mock.calls.Do
-	mock.lockDo.RUnlock()
+	lockRenderClientMockDo.RUnlock()
 	return calls
 }
+
+var (
+	lockSearchClientMockGetSearch sync.RWMutex
+)
 
 // Ensure, that SearchClientMock does implement SearchClient.
 // If this is not the case, regenerate this file with moq.
@@ -114,7 +121,6 @@ type SearchClientMock struct {
 			Query url.Values
 		}
 	}
-	lockGetSearch sync.RWMutex
 }
 
 // GetSearch calls GetSearchFunc.
@@ -129,9 +135,9 @@ func (mock *SearchClientMock) GetSearch(ctx context.Context, query url.Values) (
 		Ctx:   ctx,
 		Query: query,
 	}
-	mock.lockGetSearch.Lock()
+	lockSearchClientMockGetSearch.Lock()
 	mock.calls.GetSearch = append(mock.calls.GetSearch, callInfo)
-	mock.lockGetSearch.Unlock()
+	lockSearchClientMockGetSearch.Unlock()
 	return mock.GetSearchFunc(ctx, query)
 }
 
@@ -146,8 +152,8 @@ func (mock *SearchClientMock) GetSearchCalls() []struct {
 		Ctx   context.Context
 		Query url.Values
 	}
-	mock.lockGetSearch.RLock()
+	lockSearchClientMockGetSearch.RLock()
 	calls = mock.calls.GetSearch
-	mock.lockGetSearch.RUnlock()
+	lockSearchClientMockGetSearch.RUnlock()
 	return calls
 }
