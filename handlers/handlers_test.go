@@ -43,6 +43,10 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
+	mockDepartmentResponse, err := mapper.GetMockDepartmentResponse()
+	if err != nil {
+		t.Errorf("failed to retrieve mock department response for unit tests, failing early: %v", err)
+	}
 
 	Convey("Given a valid request", t, func() {
 		req := httptest.NewRequest("GET", "/search?q=housing", nil)
@@ -59,6 +63,9 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
+			},
+			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+				return mockDepartmentResponse, nil
 			},
 		}
 
@@ -83,6 +90,11 @@ func TestUnitReadSuccess(t *testing.T) {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
 
+	mockDepartmentResponse, err := mapper.GetMockDepartmentResponse()
+	if err != nil {
+		t.Errorf("failed to retrieve mock department response for unit tests, failing early: %v", err)
+	}
+
 	Convey("Given a valid request", t, func() {
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/search?q=housing", nil)
@@ -99,6 +111,9 @@ func TestUnitReadSuccess(t *testing.T) {
 		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
+			},
+			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+				return mockDepartmentResponse, nil
 			},
 		}
 
@@ -122,6 +137,10 @@ func TestUnitReadFailure(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
+	mockDepartmentResponse, err := mapper.GetMockDepartmentResponse()
+	if err != nil {
+		t.Errorf("failed to retrieve mock department response for unit tests, failing early: %v", err)
+	}
 
 	Convey("Given an error from failing to review query", t, func() {
 		w := httptest.NewRecorder()
@@ -139,6 +158,9 @@ func TestUnitReadFailure(t *testing.T) {
 		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
+			},
+			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+				return mockDepartmentResponse, nil
 			},
 		}
 
@@ -171,6 +193,9 @@ func TestUnitReadFailure(t *testing.T) {
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return searchC.Response{}, errs.ErrInternalServer
 			},
+			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+				return mockDepartmentResponse, nil
+			},
 		}
 
 		Convey("When read is called", func() {
@@ -202,6 +227,9 @@ func TestUnitReadFailure(t *testing.T) {
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
+			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+				return mockDepartmentResponse, nil
+			},
 		}
 
 		Convey("When read is called", func() {
@@ -232,6 +260,9 @@ func TestUnitReadFailure(t *testing.T) {
 		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
+			},
+			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+				return mockDepartmentResponse, nil
 			},
 		}
 
@@ -480,10 +511,11 @@ func TestUnitGetSearchPageSuccess(t *testing.T) {
 		categories[0].ContentTypes[1].Count = 1
 
 		mockCountSearchResponse, err := mapper.GetMockSearchResponse()
+		mockDeptResponse, err := mapper.GetMockDepartmentResponse()
 		So(err, ShouldBeNil)
 
 		Convey("When getSearchPage is called", func() {
-			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse, lang)
+			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse, mockDeptResponse, lang)
 
 			Convey("Then return no error and successfully get search page", func() {
 				So(err, ShouldBeNil)
@@ -525,10 +557,11 @@ func TestUnitGetSearchPageFailure(t *testing.T) {
 		categories[0].ContentTypes[1].Count = 1
 
 		mockCountSearchResponse, err := mapper.GetMockSearchResponse()
+		mockDeptResponse, err := mapper.GetMockDepartmentResponse()
 		So(err, ShouldBeNil)
 
 		Convey("When getSearchPage is called", func() {
-			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse, lang)
+			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse, mockDeptResponse, lang)
 
 			Convey("Then return error", func() {
 				So(err, ShouldNotBeNil)
