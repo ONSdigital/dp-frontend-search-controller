@@ -8,7 +8,7 @@ import (
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, lang string) (page model.Page) {
+func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string) (page model.Page) {
 	// SEARCH STRUCT MAPPING
 	page.Metadata.Title = "Search"
 	page.SearchDisabled = true
@@ -242,4 +242,22 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 			item.Matches.Description.DatasetID = &matchesDatasetIDPage
 		}
 	}
+}
+
+func mapDepartments(page *model.Page, departments searchC.Department) {
+	if departments.Items == nil {
+		page.Department = nil
+		return
+	}
+
+	dept := (*departments.Items)[0]
+	page.Department.Code = dept.Code
+	page.Department.URL = dept.URL
+	page.Department.Name = dept.Name
+	if dept.Matches != nil {
+		matches := (*dept.Matches)[0]
+		terms := (*matches.Terms)[0]
+		page.Department.Match = terms.Value
+	}
+
 }
