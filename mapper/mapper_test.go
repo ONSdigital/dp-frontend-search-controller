@@ -42,10 +42,11 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		categories[0].ContentTypes[1].Count = 1
 
 		respC, err := GetMockSearchResponse()
+		respD, err := GetMockDepartmentResponse()
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
-			sp := CreateSearchPage(cfg, validatedQueryParams, categories, respC, lang)
+			sp := CreateSearchPage(cfg, validatedQueryParams, categories, respC, respD, lang)
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
