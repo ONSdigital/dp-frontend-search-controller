@@ -24,7 +24,8 @@ func Read(cfg *config.Config, rendC RenderClient, searchC SearchClient) http.Han
 }
 
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, searchC SearchClient, accessToken, collectionID, lang string) {
-	ctx := req.Context()
+	ctx, cancel := context.WithCancel(req.Context())
+	defer cancel()
 
 	urlQuery := req.URL.Query()
 
@@ -38,32 +39,37 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 	apiQuery := data.GetSearchAPIQuery(validatedQueryParams)
 
 	var searchResp searchCli.Response
+	var respErr error
 	var departmentResp searchCli.Department
 	var wg sync.WaitGroup
 	wg.Add(2)
 
 	go func() {
-		resp, respErr := searchC.GetSearch(ctx, apiQuery)
+		defer wg.Done()
+		searchResp, respErr = searchC.GetSearch(ctx, apiQuery)
 		if respErr != nil {
 			logData := log.Data{"api query passed to search-api": apiQuery}
-			log.Event(ctx, "getting search response from client failed", log.Error(err), log.ERROR, logData)
-			setStatusCode(w, req, err)
+			log.Event(ctx, "getting search response from client failed", log.Error(respErr), log.ERROR, logData)
+			cancel()
 			return
 		}
-		searchResp = resp
-		wg.Done()
 	}()
 	go func() {
-		deptResp, deptErr := searchC.GetDepartments(ctx, apiQuery)
+		defer wg.Done()
+		var deptErr error
+		departmentResp, deptErr = searchC.GetDepartments(ctx, apiQuery)
 		if deptErr != nil {
 			logData := log.Data{"api query passed to search-api": apiQuery}
-			log.Event(ctx, "getting search response from client failed", log.Error(err), log.ERROR, logData)
-			setStatusCode(w, req, err)
+			log.Event(ctx, "getting deartment response from client failed", log.Error(deptErr), log.ERROR, logData)
 			return
 		}
-		departmentResp = deptResp
-		wg.Done()
 	}()
+
+	wg.Wait()
+	if respErr != nil {
+		setStatusCode(w, req, respErr)
+		return
+	}
 
 	// TO-DO: Until API handles aggregration on datatypes (e.g. bulletins, article), we need to make a second request
 
