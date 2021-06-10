@@ -6,7 +6,6 @@ import (
 	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
-	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -42,7 +41,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
 
-		respC, err := mocks.GetMockSearchResponse()
+		respC, err := GetMockSearchResponse()
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
