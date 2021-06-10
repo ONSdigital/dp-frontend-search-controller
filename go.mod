@@ -12,7 +12,8 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/hokaccha/go-prettyjson v0.0.0-20210113012101-fb4e108d2519 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/smartystreets/goconvey v1.6.4
 	golang.org/x/net v0.0.0-20210525063256-abc453219eb5 // indirect
-	golang.org/x/sys v0.0.0-20210521203332-0cec03c779c1 // indirect
+	golang.org/x/sys v0.0.0-20210608053332-aa57babbf139 // indirect
 )
