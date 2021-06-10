@@ -18,6 +18,8 @@ func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLPar
 
 	mapResponse(&page, respC, categories)
 
+	mapDepartments(&page, departments)
+
 	return page
 }
 
@@ -245,15 +247,17 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 }
 
 func mapDepartments(page *model.Page, departments searchC.Department) {
-	if departments.Items == nil {
+	if &departments != nil && departments.Items == nil {
 		page.Department = nil
 		return
 	}
 
 	dept := (*departments.Items)[0]
-	page.Department.Code = dept.Code
-	page.Department.URL = dept.URL
-	page.Department.Name = dept.Name
+	page.Department = &model.Department{
+		Code: dept.Code,
+		URL:  dept.URL,
+		Name: dept.Name,
+	}
 	if dept.Matches != nil {
 		matches := (*dept.Matches)[0]
 		terms := (*matches.Terms)[0]
