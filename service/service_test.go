@@ -360,7 +360,7 @@ func TestCloseFailure(t *testing.T) {
 			Convey("When closing the service", func() {
 				err = svc.Close(ctx)
 
-				Convey("Then Close operation tries to close all dependencies and returns an error", func() {
+				Convey("Then Close operation tries to close all dependencies", func() {
 					So(len(hcMock.StopCalls()), ShouldEqual, 1)
 					So(len(failingServerCloseMock.ShutdownCalls()), ShouldEqual, 1)
 
