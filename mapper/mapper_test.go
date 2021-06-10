@@ -135,6 +135,11 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(testMatchesDescDatasetID[0].Value, ShouldEqual, "dataset_id")
 				So(testMatchesDescDatasetID[0].Start, ShouldEqual, 26)
 				So(testMatchesDescDatasetID[0].End, ShouldEqual, 30)
+
+				So(sp.Department.Code, ShouldEqual, "dept-code")
+				So(sp.Department.URL, ShouldEqual, "www.dept.com")
+				So(sp.Department.Name, ShouldEqual, "dept-name")
+				So(sp.Department.Match, ShouldEqual, "dept-match")
 			})
 		})
 	})

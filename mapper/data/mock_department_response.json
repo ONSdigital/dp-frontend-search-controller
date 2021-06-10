@@ -13,7 +13,7 @@
                 {
                     "terms": [
                         {
-                            "value": "dept",
+                            "value": "dept-match",
                             "start": 3,
                             "end": 8
                         }
