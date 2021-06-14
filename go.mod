@@ -1,9 +1,5 @@
 module github.com/ONSdigital/dp-frontend-search-controller
 
-replace github.com/ONSdigital/dp-api-clients-go => /Users/jon/dev/dp-api-clients-go
-
-replace github.com/ONSdigital/dp-frontend-models => /Users/jon/dev/dp-frontend-models
-
 go 1.16
 
 require (
