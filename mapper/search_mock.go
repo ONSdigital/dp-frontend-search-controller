@@ -23,3 +23,20 @@ func GetMockSearchResponse() (searchC.Response, error) {
 
 	return respC, nil
 }
+
+// GetMockDepartmentResponse get a mock department response in searchC.Department type
+func GetMockDepartmentResponse() (searchC.Department, error) {
+	var respC searchC.Department
+
+	sampleResponse, err := ioutil.ReadFile("../mapper/data/mock_department_response.json")
+	if err != nil {
+		return searchC.Department{}, err
+	}
+
+	err = json.Unmarshal(sampleResponse, &respC)
+	if err != nil {
+		return searchC.Department{}, err
+	}
+
+	return respC, nil
+}

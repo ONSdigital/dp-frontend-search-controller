@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/url"
+	"sync"
 
-	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	searchCli "github.com/ONSdigital/dp-api-clients-go/site-search"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -23,7 +24,8 @@ func Read(cfg *config.Config, rendC RenderClient, searchC SearchClient) http.Han
 }
 
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, searchC SearchClient, accessToken, collectionID, lang string) {
-	ctx := req.Context()
+	ctx, cancel := context.WithCancel(req.Context())
+	defer cancel()
 
 	urlQuery := req.URL.Query()
 
@@ -36,17 +38,42 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 
 	apiQuery := data.GetSearchAPIQuery(validatedQueryParams)
 
-	resp, err := searchC.GetSearch(ctx, apiQuery)
-	if err != nil {
-		logData := log.Data{"api query passed to search-api": apiQuery}
-		log.Event(ctx, "getting search response from client failed", log.Error(err), log.ERROR, logData)
-		setStatusCode(w, req, err)
+	var searchResp searchCli.Response
+	var respErr error
+	var departmentResp searchCli.Department
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func() {
+		defer wg.Done()
+		searchResp, respErr = searchC.GetSearch(ctx, apiQuery)
+		if respErr != nil {
+			logData := log.Data{"api query passed to search-api": apiQuery}
+			log.Event(ctx, "getting search response from client failed", log.Error(respErr), log.ERROR, logData)
+			cancel()
+			return
+		}
+	}()
+	go func() {
+		defer wg.Done()
+		var deptErr error
+		departmentResp, deptErr = searchC.GetDepartments(ctx, apiQuery)
+		if deptErr != nil {
+			logData := log.Data{"api query passed to search-api": apiQuery}
+			log.Event(ctx, "getting deartment response from client failed", log.Error(deptErr), log.ERROR, logData)
+			return
+		}
+	}()
+
+	wg.Wait()
+	if respErr != nil {
+		setStatusCode(w, req, respErr)
 		return
 	}
 
 	// TO-DO: Until API handles aggregration on datatypes (e.g. bulletins, article), we need to make a second request
 
-	err = validateCurrentPage(ctx, validatedQueryParams, resp.Count)
+	err = validateCurrentPage(ctx, validatedQueryParams, searchResp.Count)
 	if err != nil {
 		log.Event(ctx, "unable to validate current page", log.Error(err), log.ERROR)
 		setStatusCode(w, req, err)
@@ -60,7 +87,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		return
 	}
 
-	err = getSearchPage(w, req, cfg, rendC, validatedQueryParams, categories, resp, lang)
+	err = getSearchPage(w, req, cfg, rendC, validatedQueryParams, categories, searchResp, departmentResp, lang)
 	if err != nil {
 		log.Event(ctx, "getting search page failed", log.Error(err), log.ERROR)
 		setStatusCode(w, req, err)
@@ -104,7 +131,7 @@ func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC S
 	return categories, nil
 }
 
-func setCountToCategories(ctx context.Context, countResp searchC.Response, categories []data.Category) {
+func setCountToCategories(ctx context.Context, countResp searchCli.Response, categories []data.Category) {
 	for _, responseType := range countResp.ContentTypes {
 		foundFilter := false
 
@@ -131,10 +158,10 @@ func setCountToCategories(ctx context.Context, countResp searchC.Response, categ
 }
 
 // getSearchPage talks to the renderer to get the search page
-func getSearchPage(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, validatedQueryParams data.SearchURLParams, categories []data.Category, resp searchC.Response, lang string) error {
+func getSearchPage(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, validatedQueryParams data.SearchURLParams, categories []data.Category, resp searchCli.Response, departments searchCli.Department, lang string) error {
 	ctx := req.Context()
 
-	m := mapper.CreateSearchPage(cfg, validatedQueryParams, categories, resp, lang)
+	m := mapper.CreateSearchPage(cfg, validatedQueryParams, categories, resp, departments, lang)
 
 	b, err := json.Marshal(m)
 	if err != nil {

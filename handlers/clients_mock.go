@@ -85,7 +85,8 @@ func (mock *RenderClientMock) DoCalls() []struct {
 }
 
 var (
-	lockSearchClientMockGetSearch sync.RWMutex
+	lockSearchClientMockGetDepartments sync.RWMutex
+	lockSearchClientMockGetSearch      sync.RWMutex
 )
 
 // Ensure, that SearchClientMock does implement SearchClient.
@@ -98,6 +99,9 @@ var _ SearchClient = &SearchClientMock{}
 //
 //         // make and configure a mocked SearchClient
 //         mockedSearchClient := &SearchClientMock{
+//             GetDepartmentsFunc: func(ctx context.Context, query url.Values) (search.Department, error) {
+// 	               panic("mock out the GetDepartments method")
+//             },
 //             GetSearchFunc: func(ctx context.Context, query url.Values) (search.Response, error) {
 // 	               panic("mock out the GetSearch method")
 //             },
@@ -108,11 +112,21 @@ var _ SearchClient = &SearchClientMock{}
 //
 //     }
 type SearchClientMock struct {
+	// GetDepartmentsFunc mocks the GetDepartments method.
+	GetDepartmentsFunc func(ctx context.Context, query url.Values) (search.Department, error)
+
 	// GetSearchFunc mocks the GetSearch method.
 	GetSearchFunc func(ctx context.Context, query url.Values) (search.Response, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// GetDepartments holds details about calls to the GetDepartments method.
+		GetDepartments []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Query is the query argument value.
+			Query url.Values
+		}
 		// GetSearch holds details about calls to the GetSearch method.
 		GetSearch []struct {
 			// Ctx is the ctx argument value.
@@ -121,6 +135,41 @@ type SearchClientMock struct {
 			Query url.Values
 		}
 	}
+}
+
+// GetDepartments calls GetDepartmentsFunc.
+func (mock *SearchClientMock) GetDepartments(ctx context.Context, query url.Values) (search.Department, error) {
+	if mock.GetDepartmentsFunc == nil {
+		panic("SearchClientMock.GetDepartmentsFunc: method is nil but SearchClient.GetDepartments was just called")
+	}
+	callInfo := struct {
+		Ctx   context.Context
+		Query url.Values
+	}{
+		Ctx:   ctx,
+		Query: query,
+	}
+	lockSearchClientMockGetDepartments.Lock()
+	mock.calls.GetDepartments = append(mock.calls.GetDepartments, callInfo)
+	lockSearchClientMockGetDepartments.Unlock()
+	return mock.GetDepartmentsFunc(ctx, query)
+}
+
+// GetDepartmentsCalls gets all the calls that were made to GetDepartments.
+// Check the length with:
+//     len(mockedSearchClient.GetDepartmentsCalls())
+func (mock *SearchClientMock) GetDepartmentsCalls() []struct {
+	Ctx   context.Context
+	Query url.Values
+} {
+	var calls []struct {
+		Ctx   context.Context
+		Query url.Values
+	}
+	lockSearchClientMockGetDepartments.RLock()
+	calls = mock.calls.GetDepartments
+	lockSearchClientMockGetDepartments.RUnlock()
+	return calls
 }
 
 // GetSearch calls GetSearchFunc.
