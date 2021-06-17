@@ -294,13 +294,14 @@ func TestUnitGetOffsetFailure(t *testing.T) {
 
 func TestUnitGetTotalPagesSuccess(t *testing.T) {
 	t.Parallel()
+	cfg, _ := config.Get()
 
 	Convey("Given valid limit and/or count", t, func() {
 		limit := 10
 		count := 100
 
 		Convey("When GetTotalPages is called", func() {
-			totalPages := GetTotalPages(limit, count)
+			totalPages := GetTotalPages(cfg, limit, count)
 
 			Convey("Then successfully get total pages", func() {
 				So(totalPages, ShouldEqual, 10)
