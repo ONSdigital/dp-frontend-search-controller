@@ -102,7 +102,10 @@ func getOffset(ctx context.Context, cfg *config.Config, page int, limit int) (of
 }
 
 // GetTotalPages gets the total pages of the search results
-func GetTotalPages(limit int, count int) int {
+func GetTotalPages(cfg *config.Config, limit, count int) int {
+	if count > cfg.DefaultMaximumSearchResults {
+		return cfg.DefaultMaximumSearchResults / limit
+	}
 	return (count + limit - 1) / limit
 }
 
