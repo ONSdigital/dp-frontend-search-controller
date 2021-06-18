@@ -307,6 +307,13 @@ func TestUnitGetTotalPagesSuccess(t *testing.T) {
 				So(totalPages, ShouldEqual, 10)
 			})
 		})
+
+		Convey("When results count is greater than default max results GetTotalPages returns the max default", func() {
+			largerCount := cfg.DefaultMaximumSearchResults + 1
+			totalPages := GetTotalPages(cfg, limit, largerCount)
+			expectedNumberOfPages := cfg.DefaultMaximumSearchResults / limit
+			So(totalPages, ShouldEqual, expectedNumberOfPages)
+		})
 	})
 }
 
