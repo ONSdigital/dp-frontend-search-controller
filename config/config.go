@@ -10,7 +10,6 @@ import (
 type Config struct {
 	BindAddr                    string        `envconfig:"BIND_ADDR"`
 	RendererURL                 string        `envconfig:"RENDERER_URL"`
-	SearchAPIURL                string        `envconfig:"SEARCH_API_URL"`
 	APIRouterURL                string        `envconfig:"API_ROUTER_URL"`
 	GracefulShutdownTimeout     time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckInterval         time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
@@ -35,7 +34,6 @@ func Get() (*Config, error) {
 	cfg := &Config{
 		BindAddr:                    "localhost:25000",
 		RendererURL:                 "http://localhost:20010",
-		SearchAPIURL:                "http://localhost:23900",
 		APIRouterURL:                "http://localhost:23200/v1",
 		GracefulShutdownTimeout:     5 * time.Second,
 		HealthCheckInterval:         30 * time.Second,

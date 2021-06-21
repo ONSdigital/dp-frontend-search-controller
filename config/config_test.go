@@ -23,7 +23,6 @@ func TestConfig(t *testing.T) {
 
 				So(cfg.BindAddr, ShouldEqual, "localhost:25000")
 				So(cfg.RendererURL, ShouldEqual, "http://localhost:20010")
-				So(cfg.SearchAPIURL, ShouldEqual, "http://localhost:23900")
 				So(cfg.APIRouterURL, ShouldEqual, "http://localhost:23200/v1")
 				So(cfg.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)
 				So(cfg.HealthCheckInterval, ShouldEqual, 30*time.Second)
