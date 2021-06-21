@@ -17,7 +17,6 @@ An HTTP service for the controlling of search API
 | BIND_ADDR                      | localhost:25000              | The host and port to bind to
 | API_ROUTER_URL                 | http://localhost:23200/v1    | The URL of dp-api-router
 | RENDERER_URL                   | http://localhost:20010       | The URL of dp-frontend-renderer
-| SEARCH_API_URL                 | http://localhost:23900       | The URL of dp-search-api
 | GRACEFUL_SHUTDOWN_TIMEOUT      | 5s                           | The graceful shutdown timeout in seconds (`time.Duration` format)
 | HEALTHCHECK_INTERVAL           | 30s                          | Time between self-healthchecks (`time.Duration` format)
 | HEALTHCHECK_CRITICAL_TIMEOUT   | 90s                          | Time to wait until an unhealthy dependent propagates its state to make this app unhealthy (`time.Duration` format)
