@@ -294,17 +294,25 @@ func TestUnitGetOffsetFailure(t *testing.T) {
 
 func TestUnitGetTotalPagesSuccess(t *testing.T) {
 	t.Parallel()
+	cfg, _ := config.Get()
 
 	Convey("Given valid limit and/or count", t, func() {
 		limit := 10
 		count := 100
 
 		Convey("When GetTotalPages is called", func() {
-			totalPages := GetTotalPages(limit, count)
+			totalPages := GetTotalPages(cfg, limit, count)
 
 			Convey("Then successfully get total pages", func() {
 				So(totalPages, ShouldEqual, 10)
 			})
+		})
+
+		Convey("When results count is greater than default max results GetTotalPages returns the max default", func() {
+			largerCount := cfg.DefaultMaximumSearchResults + 1
+			totalPages := GetTotalPages(cfg, limit, largerCount)
+			expectedNumberOfPages := cfg.DefaultMaximumSearchResults / limit
+			So(totalPages, ShouldEqual, expectedNumberOfPages)
 		})
 	})
 }

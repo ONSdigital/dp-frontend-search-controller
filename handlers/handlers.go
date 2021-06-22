@@ -73,7 +73,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 
 	// TO-DO: Until API handles aggregration on datatypes (e.g. bulletins, article), we need to make a second request
 
-	err = validateCurrentPage(ctx, validatedQueryParams, searchResp.Count)
+	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
 		log.Event(ctx, "unable to validate current page", log.Error(err), log.ERROR)
 		setStatusCode(w, req, err)
@@ -96,10 +96,10 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 }
 
 // validateCurrentPage checks if the current page exceeds the total pages which is a bad request
-func validateCurrentPage(ctx context.Context, validatedQueryParams data.SearchURLParams, resultsCount int) error {
+func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQueryParams data.SearchURLParams, resultsCount int) error {
 
 	if resultsCount > 0 {
-		totalPages := data.GetTotalPages(validatedQueryParams.Limit, resultsCount)
+		totalPages := data.GetTotalPages(cfg, validatedQueryParams.Limit, resultsCount)
 
 		if validatedQueryParams.CurrentPage > totalPages {
 			err := errs.ErrPageExceedsTotalPages

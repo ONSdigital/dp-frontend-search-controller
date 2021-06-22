@@ -286,6 +286,7 @@ func TestUnitValidateCurrentPageSuccess(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	cfg, _ := config.Get()
 
 	Convey("Given number of search results is more than 0", t, func() {
 		resultsCount := 10
@@ -297,7 +298,7 @@ func TestUnitValidateCurrentPageSuccess(t *testing.T) {
 			}
 
 			Convey("When validateCurrentPage is called", func() {
-				err := validateCurrentPage(ctx, validatedQueryParams, resultsCount)
+				err := validateCurrentPage(ctx, cfg, validatedQueryParams, resultsCount)
 
 				Convey("Then return no error", func() {
 					So(err, ShouldBeNil)
@@ -316,7 +317,7 @@ func TestUnitValidateCurrentPageSuccess(t *testing.T) {
 			}
 
 			Convey("When validateCurrentPage is called", func() {
-				err := validateCurrentPage(ctx, validatedQueryParams, resultsCount)
+				err := validateCurrentPage(ctx, cfg, validatedQueryParams, resultsCount)
 
 				Convey("Then return no error", func() {
 					So(err, ShouldBeNil)
@@ -330,6 +331,7 @@ func TestUnitValidateCurrentPageFailure(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
+	cfg, _ := config.Get()
 
 	Convey("Given current page exceeds total pages", t, func() {
 		validatedQueryParams := data.SearchURLParams{
@@ -341,7 +343,7 @@ func TestUnitValidateCurrentPageFailure(t *testing.T) {
 			resultsCount := 20
 
 			Convey("When validateCurrentPage is called", func() {
-				err := validateCurrentPage(ctx, validatedQueryParams, resultsCount)
+				err := validateCurrentPage(ctx, cfg, validatedQueryParams, resultsCount)
 
 				Convey("Then return no error", func() {
 					So(err, ShouldNotBeNil)

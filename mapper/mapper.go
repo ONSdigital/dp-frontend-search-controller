@@ -55,7 +55,7 @@ func mapPagination(cfg *config.Config, page *model.Page, validatedQueryParams da
 	page.Data.Pagination.LimitOptions = data.LimitOptions
 
 	page.Data.Pagination.CurrentPage = validatedQueryParams.CurrentPage
-	page.Data.Pagination.TotalPages = data.GetTotalPages(validatedQueryParams.Limit, respC.Count)
+	page.Data.Pagination.TotalPages = data.GetTotalPages(cfg, validatedQueryParams.Limit, respC.Count)
 	page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
 }
 
