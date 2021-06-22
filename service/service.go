@@ -24,10 +24,11 @@ var (
 
 // Service contains the healthcheck, server and serviceList for the frontend search controller
 type Service struct {
-	Config      *config.Config
-	HealthCheck HealthChecker
-	Server      HTTPServer
-	ServiceList *ExternalServiceList
+	Config             *config.Config
+	HealthCheck        HealthChecker
+	routerHealthClient *health.Client
+	Server             HTTPServer
+	ServiceList        *ExternalServiceList
 }
 
 // New creates a new service
@@ -43,12 +44,12 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	svc.ServiceList = serviceList
 
 	// Get health client for api router
-	routerHealthClient := serviceList.GetHealthClient("api-router", cfg.APIRouterURL)
+	svc.routerHealthClient = serviceList.GetHealthClient("api-router", cfg.APIRouterURL)
 
 	// Initialise clients
 	clients := routes.Clients{
 		Renderer: renderer.New(cfg.RendererURL),
-		Search:   search.NewWithHealthClient(routerHealthClient),
+		Search:   search.NewWithHealthClient(svc.routerHealthClient),
 	}
 
 	// Get healthcheck with checkers
@@ -57,7 +58,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 		log.Event(ctx, "failed to create health check", log.FATAL, log.Error(err))
 		return err
 	}
-	if err = svc.registerCheckers(ctx, clients, routerHealthClient); err != nil {
+	if err = svc.registerCheckers(ctx, clients); err != nil {
 		log.Event(ctx, "failed to register checkers", log.ERROR, log.Error(err))
 		return err
 	}
@@ -128,7 +129,7 @@ func (svc *Service) Close(ctx context.Context) error {
 	return nil
 }
 
-func (svc *Service) registerCheckers(ctx context.Context, c routes.Clients, routerHealthClient *health.Client) (err error) {
+func (svc *Service) registerCheckers(ctx context.Context, c routes.Clients) (err error) {
 	hasErrors := false
 
 	if err = svc.HealthCheck.AddCheck("frontend renderer", c.Renderer.Checker); err != nil {
@@ -136,12 +137,7 @@ func (svc *Service) registerCheckers(ctx context.Context, c routes.Clients, rout
 		log.Event(ctx, "failed to add frontend renderer checker", log.ERROR, log.Error(err))
 	}
 
-	if err = svc.HealthCheck.AddCheck("Search API", c.Search.Checker); err != nil {
-		hasErrors = true
-		log.Event(ctx, "failed to add search API checker", log.ERROR, log.Error(err))
-	}
-
-	if err = svc.HealthCheck.AddCheck("API router", routerHealthClient.Checker); err != nil {
+	if err = svc.HealthCheck.AddCheck("API router", svc.routerHealthClient.Checker); err != nil {
 		hasErrors = true
 		log.Event(ctx, "failed to add API router health checker", log.ERROR, log.Error(err))
 	}
