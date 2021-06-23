@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ONSdigital/dp-api-clients-go/health"
 	"github.com/ONSdigital/dp-api-clients-go/renderer"
 	search "github.com/ONSdigital/dp-api-clients-go/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
@@ -23,10 +24,11 @@ var (
 
 // Service contains the healthcheck, server and serviceList for the frontend search controller
 type Service struct {
-	Config      *config.Config
-	HealthCheck HealthChecker
-	Server      HTTPServer
-	ServiceList *ExternalServiceList
+	Config             *config.Config
+	HealthCheck        HealthChecker
+	routerHealthClient *health.Client
+	Server             HTTPServer
+	ServiceList        *ExternalServiceList
 }
 
 // New creates a new service
@@ -42,12 +44,12 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	svc.ServiceList = serviceList
 
 	// Get health client for api router
-	routerHealthClient := serviceList.GetHealthClient("api-router", cfg.APIRouterURL)
+	svc.routerHealthClient = serviceList.GetHealthClient("api-router", cfg.APIRouterURL)
 
 	// Initialise clients
 	clients := routes.Clients{
 		Renderer: renderer.New(cfg.RendererURL),
-		Search:   search.NewWithHealthClient(routerHealthClient),
+		Search:   search.NewWithHealthClient(svc.routerHealthClient),
 	}
 
 	// Get healthcheck with checkers
@@ -135,9 +137,9 @@ func (svc *Service) registerCheckers(ctx context.Context, c routes.Clients) (err
 		log.Event(ctx, "failed to add frontend renderer checker", log.ERROR, log.Error(err))
 	}
 
-	if err = svc.HealthCheck.AddCheck("Search API", c.Search.Checker); err != nil {
+	if err = svc.HealthCheck.AddCheck("API router", svc.routerHealthClient.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "failed to add search API checker", log.ERROR, log.Error(err))
+		log.Event(ctx, "failed to add API router health checker", log.ERROR, log.Error(err))
 	}
 
 	if hasErrors {
