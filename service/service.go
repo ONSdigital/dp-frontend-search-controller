@@ -72,8 +72,8 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	return nil
 }
 
-// Start starts an initialised service
-func (svc *Service) Start(ctx context.Context, svcErrors chan error) {
+// Run starts an initialised service
+func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
 	log.Event(ctx, "Starting service", log.Data{"config": svc.Config}, log.INFO)
 
 	// Start healthcheck

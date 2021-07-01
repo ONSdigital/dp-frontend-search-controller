@@ -28,6 +28,10 @@ debug:
 test:
 	go test -race -cover ./...
 
+.PHONY:	test-component
+test-component:
+	go test -race -cover -coverprofile="coverage.txt" -coverpkg=github.com/ONSdigital/dp-frontend-search-controller/... -component
+
 .PHONY: convey
 convey:
 	goconvey ./...

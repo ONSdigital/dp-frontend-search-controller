@@ -13,7 +13,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	dphttp "github.com/ONSdigital/dp-net/http"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -70,7 +69,7 @@ var (
 		return &health.Client{
 			URL:    url,
 			Name:   name,
-			Client: newMockHTTPClient(&http.Response{}, nil),
+			Client: service.NewMockHTTPClient(&http.Response{}, nil),
 		}
 	}
 )
@@ -235,7 +234,7 @@ func TestStart(t *testing.T) {
 		}
 
 		Convey("When service starts", func() {
-			svc.Start(ctx, svcErrors)
+			svc.Run(ctx, svcErrors)
 
 			Convey("Then healthcheck is started and HTTP server starts listening", func() {
 				So(len(hcMock.StartCalls()), ShouldEqual, 1)
@@ -272,7 +271,7 @@ func TestStart(t *testing.T) {
 			}
 
 			Convey("When service starts", func() {
-				svc.Start(ctx, svcErrors)
+				svc.Run(ctx, svcErrors)
 
 				Convey("Then service start fails and returns an error in the error channel", func() {
 					sErr := <-svcErrors
@@ -423,14 +422,4 @@ func TestCloseFailure(t *testing.T) {
 			})
 		})
 	})
-}
-
-func newMockHTTPClient(r *http.Response, err error) *dphttp.ClienterMock {
-	return &dphttp.ClienterMock{
-		SetPathsWithNoRetriesFunc: func(paths []string) {},
-		GetPathsWithNoRetriesFunc: func() []string { return []string{} },
-		DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
-			return r, err
-		},
-	}
 }
