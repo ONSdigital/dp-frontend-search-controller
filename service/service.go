@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/ONSdigital/dp-api-clients-go/health"
-	"github.com/ONSdigital/dp-api-clients-go/renderer"
 	search "github.com/ONSdigital/dp-api-clients-go/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
@@ -48,7 +47,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise clients
 	clients := routes.Clients{
-		Renderer: renderer.New(cfg.RendererURL),
+		Renderer: serviceList.GetRendererClient(cfg.RendererURL),
 		Search:   search.NewWithHealthClient(svc.routerHealthClient),
 	}
 

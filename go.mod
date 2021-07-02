@@ -3,21 +3,23 @@ module github.com/ONSdigital/dp-frontend-search-controller
 go 1.16
 
 require (
-	github.com/ONSdigital/dp-api-clients-go v1.40.0
+	github.com/ONSdigital/dp-api-clients-go v1.41.0
 	github.com/ONSdigital/dp-component-test v0.3.1
 	github.com/ONSdigital/dp-frontend-models v1.12.0
 	github.com/ONSdigital/dp-healthcheck v1.0.5
 	github.com/ONSdigital/dp-net v1.0.12
 	github.com/ONSdigital/log.go v1.0.1
-	github.com/aws/aws-sdk-go v1.38.69 // indirect
+	github.com/aws/aws-sdk-go v1.38.71 // indirect
 	github.com/cucumber/godog v0.11.0
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
+	github.com/golang/snappy v0.0.4 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-memdb v1.3.2 // indirect
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/klauspost/compress v1.13.1 // indirect
+	github.com/matryer/moq v0.0.0-20191105074349-1206bf1e2aad // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/maxcnunes/httpfake v1.2.3
 	github.com/pkg/errors v0.9.1 // indirect

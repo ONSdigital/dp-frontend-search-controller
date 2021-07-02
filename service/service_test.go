@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/health"
+	"github.com/ONSdigital/dp-api-clients-go/renderer"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
@@ -72,6 +73,17 @@ var (
 			Client: service.NewMockHTTPClient(&http.Response{}, nil),
 		}
 	}
+
+	// Renderer Client Mock
+	funcDoGetRendererClientOK = func(rendererURL string) *renderer.Renderer {
+		return &renderer.Renderer{
+			HcCli: &health.Client{
+				URL:    rendererURL,
+				Name:   "renderer",
+				Client: service.NewMockHTTPClient(&http.Response{}, nil),
+			},
+		}
+	}
 )
 
 func TestNew(t *testing.T) {
@@ -83,9 +95,10 @@ func TestNew(t *testing.T) {
 func TestInitSuccess(t *testing.T) {
 	Convey("Given all dependencies are successfully initialised", t, func() {
 		initMock := &mocks.InitialiserMock{
-			DoGetHealthClientFunc: funcDoGetHealthClient,
-			DoGetHealthCheckFunc:  funcDoGetHealthCheckOK,
-			DoGetHTTPServerFunc:   funcDoGetHTTPServerOK,
+			DoGetHealthClientFunc:   funcDoGetHealthClient,
+			DoGetHealthCheckFunc:    funcDoGetHealthCheckOK,
+			DoGetHTTPServerFunc:     funcDoGetHTTPServerOK,
+			DoGetRendererClientFunc: funcDoGetRendererClientOK,
 		}
 		mockServiceList := service.NewServiceList(initMock)
 
@@ -129,8 +142,9 @@ func TestInitSuccess(t *testing.T) {
 func TestInitFailure(t *testing.T) {
 	Convey("Given failure to create healthcheck", t, func() {
 		initMock := &mocks.InitialiserMock{
-			DoGetHealthClientFunc: funcDoGetHealthClient,
-			DoGetHealthCheckFunc:  funcDoGetHealthCheckFail,
+			DoGetHealthClientFunc:   funcDoGetHealthClient,
+			DoGetHealthCheckFunc:    funcDoGetHealthCheckFail,
+			DoGetRendererClientFunc: funcDoGetRendererClientOK,
 		}
 		mockServiceList := service.NewServiceList(initMock)
 
@@ -167,8 +181,9 @@ func TestInitFailure(t *testing.T) {
 
 	Convey("Given that Checkers cannot be registered", t, func() {
 		initMock := &mocks.InitialiserMock{
-			DoGetHealthClientFunc: funcDoGetHealthClient,
-			DoGetHealthCheckFunc:  funcDoGetHealthAddCheckerFail,
+			DoGetHealthClientFunc:   funcDoGetHealthClient,
+			DoGetHealthCheckFunc:    funcDoGetHealthAddCheckerFail,
+			DoGetRendererClientFunc: funcDoGetRendererClientOK,
 		}
 		mockServiceList := service.NewServiceList(initMock)
 
@@ -214,9 +229,10 @@ func TestInitFailure(t *testing.T) {
 func TestStart(t *testing.T) {
 	Convey("Given a correctly initialised Service with mocked dependencies", t, func() {
 		initMock := &mocks.InitialiserMock{
-			DoGetHealthClientFunc: funcDoGetHealthClient,
-			DoGetHealthCheckFunc:  funcDoGetHealthCheckOK,
-			DoGetHTTPServerFunc:   funcDoGetHTTPServerOK,
+			DoGetHealthClientFunc:   funcDoGetHealthClient,
+			DoGetHealthCheckFunc:    funcDoGetHealthCheckOK,
+			DoGetHTTPServerFunc:     funcDoGetHTTPServerOK,
+			DoGetRendererClientFunc: funcDoGetRendererClientOK,
 		}
 		serverWg.Add(1)
 		mockServiceList := service.NewServiceList(initMock)
@@ -246,9 +262,10 @@ func TestStart(t *testing.T) {
 
 	Convey("Given that HTTP Server fails", t, func() {
 		initMock := &mocks.InitialiserMock{
-			DoGetHealthClientFunc: funcDoGetHealthClient,
-			DoGetHealthCheckFunc:  funcDoGetHealthCheckOK,
-			DoGetHTTPServerFunc:   funcDoGetHTTPServerFail,
+			DoGetHealthClientFunc:   funcDoGetHealthClient,
+			DoGetHealthCheckFunc:    funcDoGetHealthCheckOK,
+			DoGetHTTPServerFunc:     funcDoGetHTTPServerFail,
+			DoGetRendererClientFunc: funcDoGetRendererClientOK,
 		}
 		serverWg.Add(1)
 		mockServiceList := service.NewServiceList(initMock)

@@ -5,19 +5,21 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-api-clients-go/health"
+	rendererCli "github.com/ONSdigital/dp-api-clients-go/renderer"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 )
 
-//go:generate moq -out ../mocks/initialiser.go -pkg mocks . Initialiser
-//go:generate moq -out ../mocks/healthcheck.go -pkg mocks . HealthChecker
-//go:generate moq -out ../mocks/server.go -pkg mocks . HTTPServer
+//go:generate moq -out mocks/initialiser.go -pkg mocks . Initialiser
+//go:generate moq -out mocks/healthcheck.go -pkg mocks . HealthChecker
+//go:generate moq -out mocks/server.go -pkg mocks . HTTPServer
 
 // Initialiser defines the methods to initialise external services
 type Initialiser interface {
 	DoGetHTTPServer(bindAddr string, router http.Handler) HTTPServer
 	DoGetHealthClient(name, url string) *health.Client
 	DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, version string) (HealthChecker, error)
+	DoGetRendererClient(rendererURL string) *rendererCli.Renderer
 }
 
 // HealthChecker defines the required methods from Healthcheck

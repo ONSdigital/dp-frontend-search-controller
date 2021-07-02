@@ -8,6 +8,7 @@ import (
 	"syscall"
 
 	"github.com/ONSdigital/dp-api-clients-go/health"
+	"github.com/ONSdigital/dp-api-clients-go/renderer"
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
@@ -58,9 +59,10 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.cfg.RendererURL = c.FakeRendererApp.fakeHTTP.ResolveURL("")
 
 	initFunctions := &mocks.InitialiserMock{
-		DoGetHTTPServerFunc:   c.getHTTPServer,
-		DoGetHealthCheckFunc:  getHealthCheckOK,
-		DoGetHealthClientFunc: getHealthClient,
+		DoGetHTTPServerFunc:     c.getHTTPServer,
+		DoGetHealthCheckFunc:    getHealthCheckOK,
+		DoGetHealthClientFunc:   getHealthClient,
+		DoGetRendererClientFunc: getRendererClient,
 	}
 
 	c.serviceList = service.NewServiceList(initFunctions)
@@ -126,4 +128,14 @@ func (c *Component) getHTTPServer(bindAddr string, router http.Handler) service.
 	c.HTTPServer.Addr = bindAddr
 	c.HTTPServer.Handler = router
 	return c.HTTPServer
+}
+
+func getRendererClient(rendererURL string) *renderer.Renderer {
+	return &renderer.Renderer{
+		HcCli: &health.Client{
+			URL:    rendererURL,
+			Name:   "renderer",
+			Client: service.NewMockHTTPClient(&http.Response{}, nil),
+		},
+	}
 }
