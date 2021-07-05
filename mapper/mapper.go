@@ -67,6 +67,7 @@ func mapResponse(page *model.Page, respC searchC.Response, categories []data.Cat
 	mapResponseItems(page, respC)
 
 	page.Data.Response.Suggestions = respC.Suggestions
+	page.Data.Response.AdditionalSuggestions = respC.AdditionalSuggestions
 }
 
 func mapResponseCategories(page *model.Page, categories []data.Category) {
