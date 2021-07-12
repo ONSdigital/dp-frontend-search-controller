@@ -17,7 +17,8 @@ var componentFlag = flag.Bool("component", false, "perform component tests")
 func InitializeScenario(ctx *godog.ScenarioContext) {
 	controllerComponent, err := steps.NewSearchControllerComponent()
 	if err != nil {
-		panic(err)
+		fmt.Printf("failed to create search controller component - error: %v", err)
+		os.Exit(1)
 	}
 
 	apiFeature := componenttest.NewAPIFeature(controllerComponent.InitialiseService)
@@ -27,12 +28,12 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 		controllerComponent.Reset()
 	})
 
+	apiFeature.RegisterSteps(ctx)
+	controllerComponent.RegisterSteps(ctx)
+
 	ctx.AfterScenario(func(*godog.Scenario, error) {
 		controllerComponent.Close()
 	})
-
-	apiFeature.RegisterSteps(ctx)
-	controllerComponent.RegisterSteps(ctx)
 }
 
 func TestMain(t *testing.T) {

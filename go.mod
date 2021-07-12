@@ -3,14 +3,15 @@ module github.com/ONSdigital/dp-frontend-search-controller
 go 1.16
 
 require (
-	github.com/ONSdigital/dp-api-clients-go v1.41.0
+	github.com/ONSdigital/dp-api-clients-go v1.41.1
 	github.com/ONSdigital/dp-component-test v0.3.1
-	github.com/ONSdigital/dp-frontend-models v1.12.0
+	github.com/ONSdigital/dp-frontend-models v1.12.1
 	github.com/ONSdigital/dp-healthcheck v1.0.5
 	github.com/ONSdigital/dp-net v1.0.12
 	github.com/ONSdigital/log.go v1.0.1
-	github.com/aws/aws-sdk-go v1.38.71 // indirect
+	github.com/aws/aws-sdk-go v1.39.0 // indirect
 	github.com/cucumber/godog v0.11.0
+	github.com/davecgh/go-spew v1.1.1
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/golang/snappy v0.0.4 // indirect
@@ -29,7 +30,7 @@ require (
 	github.com/xdg/scram v1.0.3 // indirect
 	github.com/xdg/stringprep v1.0.3 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
-	go.mongodb.org/mongo-driver v1.5.3 // indirect
+	go.mongodb.org/mongo-driver v1.5.4 // indirect
 	golang.org/x/crypto v0.0.0-20210616213533-5ff15b29337e // indirect
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect

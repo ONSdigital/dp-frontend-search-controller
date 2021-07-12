@@ -3,9 +3,6 @@ package steps
 import (
 	"context"
 	"net/http"
-	"os"
-	"os/signal"
-	"syscall"
 
 	"github.com/ONSdigital/dp-api-clients-go/health"
 	"github.com/ONSdigital/dp-api-clients-go/renderer"
@@ -14,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+	dphttp "github.com/ONSdigital/dp-net/http"
 	"github.com/ONSdigital/log.go/log"
 	"github.com/maxcnunes/httpfake"
 )
@@ -21,15 +19,11 @@ import (
 // Component contains all the information to create a component test
 type Component struct {
 	componenttest.ErrorFeature
-	cfg             *config.Config
-	ctx             context.Context
 	FakeAPIRouter   *FakeAPI
 	FakeRendererApp *FakeAPI
 	fakeRequest     *httpfake.Request
 	HTTPServer      *http.Server
-	serviceList     *service.ExternalServiceList
 	ServiceRunning  bool
-	signals         chan os.Signal
 	svc             *service.Service
 	svcErrors       chan error
 }
@@ -37,7 +31,6 @@ type Component struct {
 // NewSearchControllerComponent creates a search controller component
 func NewSearchControllerComponent() (c *Component, err error) {
 	c = &Component{
-		ctx:        context.Background(),
 		HTTPServer: &http.Server{},
 		svcErrors:  make(chan error),
 	}
@@ -45,29 +38,38 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter = NewFakeAPI(c)
 	c.FakeRendererApp = NewFakeAPI(c)
 
-	c.signals = make(chan os.Signal, 1)
-	signal.Notify(c.signals, syscall.SIGINT, syscall.SIGTERM)
+	ctx := context.Background()
 
-	c.svcErrors = make(chan error, 1)
+	// signals := make(chan os.Signal, 1)
+	// signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
 
-	c.cfg, err = config.Get()
+	svcErrors := make(chan error, 1)
+
+	cfg, err := config.Get()
 	if err != nil {
 		return nil, err
 	}
 
-	c.cfg.APIRouterURL = c.FakeAPIRouter.fakeHTTP.ResolveURL("")
-	c.cfg.RendererURL = c.FakeRendererApp.fakeHTTP.ResolveURL("")
+	cfg.APIRouterURL = c.FakeAPIRouter.fakeHTTP.ResolveURL("")
+	cfg.RendererURL = c.FakeRendererApp.fakeHTTP.ResolveURL("")
 
 	initFunctions := &mocks.InitialiserMock{
 		DoGetHTTPServerFunc:     c.getHTTPServer,
 		DoGetHealthCheckFunc:    getHealthCheckOK,
-		DoGetHealthClientFunc:   getHealthClient,
-		DoGetRendererClientFunc: getRendererClient,
+		DoGetHealthClientFunc:   c.getHealthClient,
+		DoGetRendererClientFunc: c.getRendererClient,
 	}
 
-	c.serviceList = service.NewServiceList(initFunctions)
+	serviceList := service.NewServiceList(initFunctions)
 
 	c.svc = service.New()
+	if err := c.svc.Init(ctx, cfg, serviceList); err != nil {
+		log.Event(ctx, "failed to initialise service", log.ERROR, log.Error(err))
+		return nil, err
+	}
+
+	c.svc.Run(ctx, svcErrors)
+	c.ServiceRunning = true
 
 	return c, nil
 }
@@ -94,33 +96,25 @@ func (c *Component) Close() error {
 	return nil
 }
 
-// InitialiseService initialises search controller component service
+// InitialiseService returns the http.Handler that's contained within the component.
 func (c *Component) InitialiseService() (http.Handler, error) {
-	if err := c.svc.Init(c.ctx, c.cfg, c.serviceList); err != nil {
-		log.Event(c.ctx, "failed to initialise service", log.ERROR, log.Error(err))
-		return nil, err
-	}
-
-	c.svc.Run(c.ctx, c.svcErrors)
-
-	c.ServiceRunning = true
-
 	return c.HTTPServer.Handler, nil
 }
 
 func getHealthCheckOK(cfg *config.Config, buildTime, gitCommit, version string) (service.HealthChecker, error) {
 	return &mocks.HealthCheckerMock{
 		AddCheckFunc: func(name string, checker healthcheck.Checker) error { return nil },
+		HandlerFunc:  func(w http.ResponseWriter, req *http.Request) {},
 		StartFunc:    func(ctx context.Context) {},
 		StopFunc:     func() {},
 	}, nil
 }
 
-func getHealthClient(name string, url string) *health.Client {
+func (c *Component) getHealthClient(name string, url string) *health.Client {
 	return &health.Client{
 		URL:    url,
 		Name:   name,
-		Client: service.NewMockHTTPClient(&http.Response{}, nil),
+		Client: c.FakeAPIRouter.getMockAPIHTTPClient(),
 	}
 }
 
@@ -130,12 +124,23 @@ func (c *Component) getHTTPServer(bindAddr string, router http.Handler) service.
 	return c.HTTPServer
 }
 
-func getRendererClient(rendererURL string) *renderer.Renderer {
+func (c *Component) getRendererClient(rendererURL string) *renderer.Renderer {
 	return &renderer.Renderer{
 		HcCli: &health.Client{
 			URL:    rendererURL,
 			Name:   "renderer",
-			Client: service.NewMockHTTPClient(&http.Response{}, nil),
+			Client: c.FakeRendererApp.getMockAPIHTTPClient(),
+		},
+	}
+}
+
+// newMock mocks HTTP Client
+func (f *FakeAPI) getMockAPIHTTPClient() *dphttp.ClienterMock {
+	return &dphttp.ClienterMock{
+		SetPathsWithNoRetriesFunc: func(paths []string) {},
+		GetPathsWithNoRetriesFunc: func() []string { return []string{} },
+		DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+			return f.fakeHTTP.Server.Client().Do(req)
 		},
 	}
 }

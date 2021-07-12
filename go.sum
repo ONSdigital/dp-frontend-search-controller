@@ -21,10 +21,14 @@ github.com/ONSdigital/dp-api-clients-go v1.40.0 h1:sAGie19I3/CZW8u+Bp2zTFSCmM32S
 github.com/ONSdigital/dp-api-clients-go v1.40.0/go.mod h1:Ga1+ANjviu21NFJI9wp5NctJIdB4TJLDGbpQFl2V8Wc=
 github.com/ONSdigital/dp-api-clients-go v1.41.0 h1:6PImE8zWs5WcFQqgXRgOeDyhwYze+roHUtrNeqB5JMo=
 github.com/ONSdigital/dp-api-clients-go v1.41.0/go.mod h1:Ga1+ANjviu21NFJI9wp5NctJIdB4TJLDGbpQFl2V8Wc=
+github.com/ONSdigital/dp-api-clients-go v1.41.1 h1:xkeT6dCTFSAoBpZxgiJUiuqgcfjCX+c52CIiZo1Y2iU=
+github.com/ONSdigital/dp-api-clients-go v1.41.1/go.mod h1:Ga1+ANjviu21NFJI9wp5NctJIdB4TJLDGbpQFl2V8Wc=
 github.com/ONSdigital/dp-component-test v0.3.1 h1:SAtMptv7m2+5RIBydo97RVESZETBRTd57jh3ngwrguo=
 github.com/ONSdigital/dp-component-test v0.3.1/go.mod h1:uf3ysJPRWHzi6YhNlN/vbhYr62w+zvGlNU/ublCDNgw=
 github.com/ONSdigital/dp-frontend-models v1.12.0 h1:sCquTZu8G5TQZMh4OexJKYiGhSKgszufZInYw+87oPs=
 github.com/ONSdigital/dp-frontend-models v1.12.0/go.mod h1:K4n0EwATkzbuWzSajBHja+uc9zvqnKiq6WtUwLav4Kg=
+github.com/ONSdigital/dp-frontend-models v1.12.1 h1:PMtBA9T/mIwiRt11dM9llC0eZHsV8B1bWQBqZTfjJMI=
+github.com/ONSdigital/dp-frontend-models v1.12.1/go.mod h1:K4n0EwATkzbuWzSajBHja+uc9zvqnKiq6WtUwLav4Kg=
 github.com/ONSdigital/dp-healthcheck v1.0.5 h1:DXnohGIqXaLLeYGdaGOhgkZjAbWMNoLAjQ3EgZeMT3M=
 github.com/ONSdigital/dp-healthcheck v1.0.5/go.mod h1:2wbVAUHMl9+4tWhUlxYUuA1dnf2+NrwzC+So5f5BMLk=
 github.com/ONSdigital/dp-mocking v0.0.0-20190905163309-fee2702ad1b9 h1:+WXVfTDyWXY1DQRDFSmt1b/ORKk5c7jGiPu7NoeaM/0=
@@ -58,6 +62,8 @@ github.com/aws/aws-sdk-go v1.38.69 h1:V489lmrdkIQSfF6OAGZZ1Cavcm7eczCm2JcGvX+yHR
 github.com/aws/aws-sdk-go v1.38.69/go.mod h1:hcU610XS61/+aQV88ixoOzUoG7v3b31pl2zKMmprdro=
 github.com/aws/aws-sdk-go v1.38.71 h1:aWhtgoOiDhBCfaAj9XbxzcyvjEAKovbtv7d5mCVBZXw=
 github.com/aws/aws-sdk-go v1.38.71/go.mod h1:hcU610XS61/+aQV88ixoOzUoG7v3b31pl2zKMmprdro=
+github.com/aws/aws-sdk-go v1.39.0 h1:74BBwkEmiqBbi2CGflEh34l0YNtIibTjZsibGarkNjo=
+github.com/aws/aws-sdk-go v1.39.0/go.mod h1:hcU610XS61/+aQV88ixoOzUoG7v3b31pl2zKMmprdro=
 github.com/benweissmann/memongo v0.1.1 h1:L8pux/nWAmb6Zp+83vzqeW4+8GzzRIUBUhHMQizhX/M=
 github.com/benweissmann/memongo v0.1.1/go.mod h1:qMwr8bSVXCD9pUHgkcM3Nc8PZlzZy8UxNWteDDW/rw0=
 github.com/beorn7/perks v0.0.0-20180321164747-3a771d992973/go.mod h1:Dwedo/Wpr24TaqPxmxbtue+5NUziq4I4S80YR8gNf3Q=
@@ -380,6 +386,8 @@ go.mongodb.org/mongo-driver v1.4.6 h1:rh7GdYmDrb8AQSkF8yteAus8qYOgOASWDOv1BWqBXk
 go.mongodb.org/mongo-driver v1.4.6/go.mod h1:WcMNYLx/IlOxLe6JRJiv2uXuCz6zBLndR4SoGjYphSc=
 go.mongodb.org/mongo-driver v1.5.3 h1:wWbFB6zaGHpzguF3f7tW94sVE8sFl3lHx8OZx/4OuFI=
 go.mongodb.org/mongo-driver v1.5.3/go.mod h1:gRXCHX4Jo7J0IJ1oDQyUxF7jfy19UfxniMS4xxMmUqw=
+go.mongodb.org/mongo-driver v1.5.4 h1:NPIBF/lxEcKNfWwoCJRX8+dMVwecWf9q3qUJkuh75oM=
+go.mongodb.org/mongo-driver v1.5.4/go.mod h1:gRXCHX4Jo7J0IJ1oDQyUxF7jfy19UfxniMS4xxMmUqw=
 go.opencensus.io v0.21.0/go.mod h1:mSImk1erAIZhrmZN+AvHh14ztQfjbGwt4TtuofqLduU=
 go.opencensus.io v0.22.0/go.mod h1:+kGneAE2xo2IficOXnaByMWTGM9T73dGwxeWcUqIpI8=
 go.uber.org/atomic v1.4.0/go.mod h1:gD2HeocX3+yG+ygLZcrzQJaqmWj9AIm7n08wl/qW/PE=
