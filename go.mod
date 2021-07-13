@@ -3,8 +3,8 @@ module github.com/ONSdigital/dp-frontend-search-controller
 go 1.16
 
 require (
-	github.com/ONSdigital/dp-api-clients-go v1.37.1
-	github.com/ONSdigital/dp-frontend-models v1.11.1
+	github.com/ONSdigital/dp-api-clients-go v1.41.1
+	github.com/ONSdigital/dp-frontend-models v1.12.1
 	github.com/ONSdigital/dp-healthcheck v1.0.5
 	github.com/ONSdigital/dp-net v1.0.12
 	github.com/ONSdigital/log.go v1.0.1
