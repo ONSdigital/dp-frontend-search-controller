@@ -1,0 +1,18 @@
+---
+
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: golang
+    tag: latest
+
+inputs:
+  - name: dp-frontend-search-controller
+
+caches:
+  - path: go/
+
+run:
+  path: dp-frontend-search-controller/ci/scripts/lint.sh

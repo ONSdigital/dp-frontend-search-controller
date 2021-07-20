@@ -3,10 +3,12 @@ package steps
 import (
 	"context"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/health"
 	"github.com/ONSdigital/dp-api-clients-go/renderer"
-	componenttest "github.com/ONSdigital/dp-component-test"
+	componentTest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
@@ -18,7 +20,9 @@ import (
 
 // Component contains all the information to create a component test
 type Component struct {
-	componenttest.ErrorFeature
+	APIFeature      *componentTest.APIFeature
+	cfg             *config.Config
+	ErrorFeature    componentTest.ErrorFeature
 	FakeAPIRouter   *FakeAPI
 	FakeRendererApp *FakeAPI
 	fakeRequest     *httpfake.Request
@@ -26,6 +30,7 @@ type Component struct {
 	ServiceRunning  bool
 	svc             *service.Service
 	svcErrors       chan error
+	StartTime       time.Time
 }
 
 // NewSearchControllerComponent creates a search controller component
@@ -35,23 +40,23 @@ func NewSearchControllerComponent() (c *Component, err error) {
 		svcErrors:  make(chan error),
 	}
 
-	c.FakeAPIRouter = NewFakeAPI(c)
-	c.FakeRendererApp = NewFakeAPI(c)
+	c.FakeAPIRouter = NewFakeAPI(&c.ErrorFeature)
+	c.FakeRendererApp = NewFakeAPI(&c.ErrorFeature)
 
 	ctx := context.Background()
 
-	// signals := make(chan os.Signal, 1)
-	// signal.Notify(signals, syscall.SIGINT, syscall.SIGTERM)
-
 	svcErrors := make(chan error, 1)
 
-	cfg, err := config.Get()
+	c.cfg, err = config.Get()
 	if err != nil {
 		return nil, err
 	}
 
-	cfg.APIRouterURL = c.FakeAPIRouter.fakeHTTP.ResolveURL("")
-	cfg.RendererURL = c.FakeRendererApp.fakeHTTP.ResolveURL("")
+	c.cfg.APIRouterURL = c.FakeAPIRouter.fakeHTTP.ResolveURL("")
+	c.cfg.RendererURL = c.FakeRendererApp.fakeHTTP.ResolveURL("")
+
+	c.cfg.HealthCheckInterval = 1 * time.Second
+	c.cfg.HealthCheckCriticalTimeout = 2 * time.Second
 
 	initFunctions := &mocks.InitialiserMock{
 		DoGetHTTPServerFunc:     c.getHTTPServer,
@@ -63,15 +68,23 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	serviceList := service.NewServiceList(initFunctions)
 
 	c.svc = service.New()
-	if err := c.svc.Init(ctx, cfg, serviceList); err != nil {
+	if err := c.svc.Init(ctx, c.cfg, serviceList); err != nil {
 		log.Event(ctx, "failed to initialise service", log.ERROR, log.Error(err))
 		return nil, err
 	}
 
+	c.StartTime = time.Now()
 	c.svc.Run(ctx, svcErrors)
 	c.ServiceRunning = true
 
 	return c, nil
+}
+
+// InitAPIFeature initialises the ApiFeature that's contained within a specific JobsFeature.
+func (c *Component) InitAPIFeature() *componentTest.APIFeature {
+	c.APIFeature = componentTest.NewAPIFeature(c.InitialiseService)
+
+	return c.APIFeature
 }
 
 // Reset resets the search controller component
@@ -79,7 +92,6 @@ func (c *Component) Reset() *Component {
 
 	c.FakeAPIRouter.Reset()
 	c.FakeRendererApp.Reset()
-
 	return c
 }
 
@@ -102,12 +114,13 @@ func (c *Component) InitialiseService() (http.Handler, error) {
 }
 
 func getHealthCheckOK(cfg *config.Config, buildTime, gitCommit, version string) (service.HealthChecker, error) {
-	return &mocks.HealthCheckerMock{
-		AddCheckFunc: func(name string, checker healthcheck.Checker) error { return nil },
-		HandlerFunc:  func(w http.ResponseWriter, req *http.Request) {},
-		StartFunc:    func(ctx context.Context) {},
-		StopFunc:     func() {},
-	}, nil
+	componentBuildTime := strconv.Itoa(int(time.Now().Unix()))
+	versionInfo, err := healthcheck.NewVersionInfo(componentBuildTime, "componentGitCommit", "componentVersion")
+	if err != nil {
+		return nil, err
+	}
+	hc := healthcheck.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
+	return &hc, nil
 }
 
 func (c *Component) getHealthClient(name string, url string) *health.Client {

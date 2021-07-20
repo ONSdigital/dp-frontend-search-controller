@@ -24,6 +24,10 @@ debug:
 	go build -tags 'debug' $(LDFLAGS) -o $(BINPATH)/dp-frontend-search-controller
 	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-frontend-search-controller
 
+.PHONY: lint
+lint:
+	exit
+
 .PHONY: test
 test:
 	go test -race -cover ./...

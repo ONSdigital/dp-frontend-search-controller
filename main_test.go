@@ -6,7 +6,6 @@ import (
 	"os"
 	"testing"
 
-	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-frontend-search-controller/features/steps"
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
@@ -21,7 +20,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 		os.Exit(1)
 	}
 
-	apiFeature := componenttest.NewAPIFeature(controllerComponent.InitialiseService)
+	apiFeature := controllerComponent.InitAPIFeature()
 
 	ctx.BeforeScenario(func(*godog.Scenario) {
 		apiFeature.Reset()
@@ -56,7 +55,9 @@ func TestMain(t *testing.T) {
 		fmt.Printf("Component test coverage: %.2f%%\n", testing.Coverage()*100)
 		fmt.Println("=================================")
 
-		os.Exit(status)
+		if status != 0 {
+			t.FailNow()
+		}
 
 	} else {
 		t.Skip("component flag required to run component tests")
