@@ -11,10 +11,10 @@ Feature: Healthcheck endpoint should inform the health of service
             {
                 "status":"OK",
                 "version":{
-                    "git_commit":"componentGitCommit",
+                    "git_commit":"3t7e5s1t4272646ef477f8ed755",
                     "language":"go",
                     "language_version":"go1.16.5",
-                    "version":"componentVersion"
+                    "version":"v1.2.3"
                 },
                 "checks":[
                     {
@@ -44,10 +44,10 @@ Feature: Healthcheck endpoint should inform the health of service
             {
                 "status": "WARNING",
                 "version": {
-                    "git_commit": "componentGitCommit",
+                    "git_commit": "3t7e5s1t4272646ef477f8ed755",
                     "language": "go",
                     "language_version": "go1.16.5",
-                    "version": "componentVersion"
+                    "version": "v1.2.3"
                 },
                 "checks": [
                     {
@@ -77,10 +77,10 @@ Feature: Healthcheck endpoint should inform the health of service
             {
                 "status": "WARNING",
                 "version": {
-                    "git_commit": "componentGitCommit",
+                    "git_commit": "3t7e5s1t4272646ef477f8ed755",
                     "language": "go",
                     "language_version": "go1.16.5",
-                    "version": "componentVersion"
+                    "version": "v1.2.3"
                 },
                 "checks": [
                     {
@@ -112,10 +112,10 @@ Feature: Healthcheck endpoint should inform the health of service
             {
                 "status": "CRITICAL",
                 "version": {
-                    "git_commit": "componentGitCommit",
+                    "git_commit": "3t7e5s1t4272646ef477f8ed755",
                     "language": "go",
                     "language_version": "go1.16.5",
-                    "version": "componentVersion"
+                    "version": "v1.2.3"
                 },
                 "checks": [
                     {

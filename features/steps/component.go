@@ -18,6 +18,11 @@ import (
 	"github.com/maxcnunes/httpfake"
 )
 
+const (
+	gitCommitHash = "3t7e5s1t4272646ef477f8ed755"
+	appVersion    = "v1.2.3"
+)
+
 // Component contains all the information to create a component test
 type Component struct {
 	APIFeature      *componentTest.APIFeature
@@ -115,7 +120,7 @@ func (c *Component) InitialiseService() (http.Handler, error) {
 
 func getHealthCheckOK(cfg *config.Config, buildTime, gitCommit, version string) (service.HealthChecker, error) {
 	componentBuildTime := strconv.Itoa(int(time.Now().Unix()))
-	versionInfo, err := healthcheck.NewVersionInfo(componentBuildTime, "componentGitCommit", "componentVersion")
+	versionInfo, err := healthcheck.NewVersionInfo(componentBuildTime, gitCommitHash, appVersion)
 	if err != nil {
 		return nil, err
 	}
