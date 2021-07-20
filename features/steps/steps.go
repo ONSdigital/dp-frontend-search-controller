@@ -36,13 +36,13 @@ type Check struct {
 // RegisterSteps registers the specific steps needed to do component tests for the search controller
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^I wait "([^"]*)" seconds`, delayTimeBySeconds)
-	ctx.Step(`^all the downstream services are healthy$`, c.allTheDownstreamServicesAreHealthy)
-	ctx.Step(`^one the downstream services is warning`, c.oneOfTheDownstreamServicesIsWarning)
-	ctx.Step(`^one the downstream services is failing`, c.oneOfTheDownstreamServicesIsFailing)
+	ctx.Step(`^all of the downstream services are healthy$`, c.allOfTheDownstreamServicesAreHealthy)
+	ctx.Step(`^one of the downstream services is warning`, c.oneOfTheDownstreamServicesIsWarning)
+	ctx.Step(`^one of the downstream services is failing`, c.oneOfTheDownstreamServicesIsFailing)
 	ctx.Step(`^I should receive the following health JSON response:$`, c.iShouldReceiveTheFollowingHealthJSONResponse)
 }
 
-// TheHTTPStatusCodeShouldBe asserts that the status code of the response matches the expected code
+// delayTimeBySeconds pauses the goroutine for the given seconds
 func delayTimeBySeconds(seconds string) error {
 	sec, err := strconv.Atoi(seconds)
 	if err != nil {
@@ -52,7 +52,7 @@ func delayTimeBySeconds(seconds string) error {
 	return nil
 }
 
-func (c *Component) allTheDownstreamServicesAreHealthy() error {
+func (c *Component) allOfTheDownstreamServicesAreHealthy() error {
 	c.FakeAPIRouter.setJSONResponseForGet("/health", 200)
 	c.FakeRendererApp.setJSONResponseForGet("/health", 200)
 	return nil
