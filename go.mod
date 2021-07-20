@@ -13,6 +13,7 @@ require (
 	github.com/fatih/color v1.12.0 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
 	github.com/golang/snappy v0.0.4 // indirect
+	github.com/gopherjs/gopherjs v0.0.0-20210707094841-eea289f08d45 // indirect
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-memdb v1.3.2 // indirect
@@ -20,6 +21,7 @@ require (
 	github.com/klauspost/compress v1.13.1 // indirect
 	github.com/mattn/go-isatty v0.0.13 // indirect
 	github.com/maxcnunes/httpfake v1.2.3
+	github.com/smartystreets/assertions v1.2.0 // indirect
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/spf13/afero v1.6.0 // indirect
 	github.com/stretchr/testify v1.7.0
