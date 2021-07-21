@@ -114,7 +114,7 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
 func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC SearchClient) ([]data.Category, error) {
-	//Remove filter to get count of all types for the query from the client
+	// Remove filter to get count of all types for the query from the client
 	apiQuery.Del("content_type")
 
 	countResp, err := searchC.GetSearch(ctx, apiQuery)
