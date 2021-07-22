@@ -1,7 +1,7 @@
 package mapper
 
 import (
-	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	model "github.com/ONSdigital/dp-frontend-models/model/search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
