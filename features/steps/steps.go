@@ -112,7 +112,7 @@ func (c *Component) validateHealthVersion(versionResponse healthcheck.VersionInf
 	assert.True(&c.ErrorFeature, versionResponse.BuildTime.Before(maxExpectedStartTime))
 	assert.Equal(&c.ErrorFeature, expectedVersion.GitCommit, versionResponse.GitCommit)
 	assert.Equal(&c.ErrorFeature, expectedVersion.Language, versionResponse.Language)
-	assert.Equal(&c.ErrorFeature, expectedVersion.LanguageVersion, versionResponse.LanguageVersion)
+	assert.NotEmpty(&c.ErrorFeature, versionResponse.LanguageVersion)
 	assert.Equal(&c.ErrorFeature, expectedVersion.Version, versionResponse.Version)
 }
 
