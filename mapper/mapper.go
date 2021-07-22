@@ -146,20 +146,20 @@ func mapItemDescription(item *model.ContentItem, itemC searchC.ContentItem) {
 	}
 }
 
-func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
-	if itemC.Matches != nil {
+func mapItemMatches(pageItem *model.ContentItem, item searchC.ContentItem) {
+	if item.Matches != nil {
 
-		matchesDescC := itemC.Matches.Description
+		matchesDesc := item.Matches.Description
 
-		item.Matches = &model.Matches{
+		pageItem.Matches = &model.Matches{
 			Description: model.MatchDescription{},
 		}
 
 		// Summary Match
-		if matchesDescC.Summary != nil {
+		if matchesDesc.Summary != nil {
 			var matchesSummaryPage []model.MatchDetails
 
-			for _, summaryC := range *matchesDescC.Summary {
+			for _, summaryC := range *matchesDesc.Summary {
 				matchesSummaryPage = append(matchesSummaryPage, model.MatchDetails{
 					Value: summaryC.Value,
 					Start: summaryC.Start,
@@ -167,14 +167,14 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 				})
 			}
 
-			item.Matches.Description.Summary = &matchesSummaryPage
+			pageItem.Matches.Description.Summary = &matchesSummaryPage
 		}
 
 		// Title Match
-		if matchesDescC.Title != nil {
+		if matchesDesc.Title != nil {
 			var matchesTitlePage []model.MatchDetails
 
-			for _, titleC := range *matchesDescC.Title {
+			for _, titleC := range *matchesDesc.Title {
 				matchesTitlePage = append(matchesTitlePage, model.MatchDetails{
 					Value: titleC.Value,
 					Start: titleC.Start,
@@ -182,14 +182,14 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 				})
 			}
 
-			item.Matches.Description.Title = &matchesTitlePage
+			pageItem.Matches.Description.Title = &matchesTitlePage
 		}
 
 		// Edition Match
-		if matchesDescC.Edition != nil {
+		if matchesDesc.Edition != nil {
 			var matchesEditionPage []model.MatchDetails
 
-			for _, editionC := range *matchesDescC.Edition {
+			for _, editionC := range *matchesDesc.Edition {
 				matchesEditionPage = append(matchesEditionPage, model.MatchDetails{
 					Value: editionC.Value,
 					Start: editionC.Start,
@@ -197,14 +197,14 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 				})
 			}
 
-			item.Matches.Description.Edition = &matchesEditionPage
+			pageItem.Matches.Description.Edition = &matchesEditionPage
 		}
 
 		// Meta Description Match
-		if matchesDescC.MetaDescription != nil {
+		if matchesDesc.MetaDescription != nil {
 			var matchesMetaDescPage []model.MatchDetails
 
-			for _, metaDescC := range *matchesDescC.MetaDescription {
+			for _, metaDescC := range *matchesDesc.MetaDescription {
 				matchesMetaDescPage = append(matchesMetaDescPage, model.MatchDetails{
 					Value: metaDescC.Value,
 					Start: metaDescC.Start,
@@ -212,14 +212,14 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 				})
 			}
 
-			item.Matches.Description.MetaDescription = &matchesMetaDescPage
+			pageItem.Matches.Description.MetaDescription = &matchesMetaDescPage
 		}
 
 		// Keywords Match
-		if matchesDescC.Keywords != nil {
+		if matchesDesc.Keywords != nil {
 			var matchesKeywordsPage []model.MatchDetails
 
-			for _, keywordC := range *matchesDescC.Keywords {
+			for _, keywordC := range *matchesDesc.Keywords {
 				matchesKeywordsPage = append(matchesKeywordsPage, model.MatchDetails{
 					Value: keywordC.Value,
 					Start: keywordC.Start,
@@ -227,14 +227,14 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 				})
 			}
 
-			item.Matches.Description.Keywords = &matchesKeywordsPage
+			pageItem.Matches.Description.Keywords = &matchesKeywordsPage
 		}
 
 		// DatasetID Match
-		if matchesDescC.DatasetID != nil {
+		if matchesDesc.DatasetID != nil {
 			var matchesDatasetIDPage []model.MatchDetails
 
-			for _, datasetIDClient := range *matchesDescC.DatasetID {
+			for _, datasetIDClient := range *matchesDesc.DatasetID {
 				matchesDatasetIDPage = append(matchesDatasetIDPage, model.MatchDetails{
 					Value: datasetIDClient.Value,
 					Start: datasetIDClient.Start,
@@ -242,7 +242,7 @@ func mapItemMatches(item *model.ContentItem, itemC searchC.ContentItem) {
 				})
 			}
 
-			item.Matches.Description.DatasetID = &matchesDatasetIDPage
+			pageItem.Matches.Description.DatasetID = &matchesDatasetIDPage
 		}
 	}
 }

@@ -516,6 +516,8 @@ func TestUnitGetSearchPageSuccess(t *testing.T) {
 		categories[0].ContentTypes[1].Count = 1
 
 		mockCountSearchResponse, err := mapper.GetMockSearchResponse()
+		So(err, ShouldBeNil)
+
 		mockDeptResponse, err := mapper.GetMockDepartmentResponse()
 		So(err, ShouldBeNil)
 
@@ -562,6 +564,8 @@ func TestUnitGetSearchPageFailure(t *testing.T) {
 		categories[0].ContentTypes[1].Count = 1
 
 		mockCountSearchResponse, err := mapper.GetMockSearchResponse()
+		So(err, ShouldBeNil)
+
 		mockDeptResponse, err := mapper.GetMockDepartmentResponse()
 		So(err, ShouldBeNil)
 

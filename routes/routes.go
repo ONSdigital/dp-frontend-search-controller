@@ -13,7 +13,7 @@ import (
 	"github.com/gorilla/mux"
 )
 
-//Clients - struct containing all the clients for the controller
+// Clients - struct containing all the clients for the controller
 type Clients struct {
 	HealthCheckHandler func(w http.ResponseWriter, req *http.Request)
 	Renderer           *renderer.Renderer
