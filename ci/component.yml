@@ -11,11 +11,5 @@ image_resource:
 inputs:
   - name: dp-frontend-search-controller
 
-outputs:
-  - name: build
-
-caches:
-  - path: go/
-
 run:
-  path: dp-frontend-search-controller/ci/scripts/build.sh
+  path: dp-frontend-search-controller/ci/scripts/component.sh

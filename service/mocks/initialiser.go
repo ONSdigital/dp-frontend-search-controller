@@ -4,7 +4,12 @@
 package mocks
 
 import (
+<<<<<<< HEAD
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
+=======
+	"github.com/ONSdigital/dp-api-clients-go/health"
+	"github.com/ONSdigital/dp-api-clients-go/renderer"
+>>>>>>> develop
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"net/http"
@@ -12,9 +17,10 @@ import (
 )
 
 var (
-	lockInitialiserMockDoGetHTTPServer   sync.RWMutex
-	lockInitialiserMockDoGetHealthCheck  sync.RWMutex
-	lockInitialiserMockDoGetHealthClient sync.RWMutex
+	lockInitialiserMockDoGetHTTPServer     sync.RWMutex
+	lockInitialiserMockDoGetHealthCheck    sync.RWMutex
+	lockInitialiserMockDoGetHealthClient   sync.RWMutex
+	lockInitialiserMockDoGetRendererClient sync.RWMutex
 )
 
 // Ensure, that InitialiserMock does implement Initialiser.
@@ -36,6 +42,9 @@ var _ service.Initialiser = &InitialiserMock{}
 //             DoGetHealthClientFunc: func(name string, url string) *health.Client {
 // 	               panic("mock out the DoGetHealthClient method")
 //             },
+//             DoGetRendererClientFunc: func(rendererURL string) *renderer.Renderer {
+// 	               panic("mock out the DoGetRendererClient method")
+//             },
 //         }
 //
 //         // use mockedInitialiser in code that requires service.Initialiser
@@ -51,6 +60,9 @@ type InitialiserMock struct {
 
 	// DoGetHealthClientFunc mocks the DoGetHealthClient method.
 	DoGetHealthClientFunc func(name string, url string) *health.Client
+
+	// DoGetRendererClientFunc mocks the DoGetRendererClient method.
+	DoGetRendererClientFunc func(rendererURL string) *renderer.Renderer
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -78,6 +90,11 @@ type InitialiserMock struct {
 			Name string
 			// URL is the url argument value.
 			URL string
+		}
+		// DoGetRendererClient holds details about calls to the DoGetRendererClient method.
+		DoGetRendererClient []struct {
+			// RendererURL is the rendererURL argument value.
+			RendererURL string
 		}
 	}
 }
@@ -192,5 +209,36 @@ func (mock *InitialiserMock) DoGetHealthClientCalls() []struct {
 	lockInitialiserMockDoGetHealthClient.RLock()
 	calls = mock.calls.DoGetHealthClient
 	lockInitialiserMockDoGetHealthClient.RUnlock()
+	return calls
+}
+
+// DoGetRendererClient calls DoGetRendererClientFunc.
+func (mock *InitialiserMock) DoGetRendererClient(rendererURL string) *renderer.Renderer {
+	if mock.DoGetRendererClientFunc == nil {
+		panic("InitialiserMock.DoGetRendererClientFunc: method is nil but Initialiser.DoGetRendererClient was just called")
+	}
+	callInfo := struct {
+		RendererURL string
+	}{
+		RendererURL: rendererURL,
+	}
+	lockInitialiserMockDoGetRendererClient.Lock()
+	mock.calls.DoGetRendererClient = append(mock.calls.DoGetRendererClient, callInfo)
+	lockInitialiserMockDoGetRendererClient.Unlock()
+	return mock.DoGetRendererClientFunc(rendererURL)
+}
+
+// DoGetRendererClientCalls gets all the calls that were made to DoGetRendererClient.
+// Check the length with:
+//     len(mockedInitialiser.DoGetRendererClientCalls())
+func (mock *InitialiserMock) DoGetRendererClientCalls() []struct {
+	RendererURL string
+} {
+	var calls []struct {
+		RendererURL string
+	}
+	lockInitialiserMockDoGetRendererClient.RLock()
+	calls = mock.calls.DoGetRendererClient
+	lockInitialiserMockDoGetRendererClient.RUnlock()
 	return calls
 }

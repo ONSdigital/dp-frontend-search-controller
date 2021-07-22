@@ -6,16 +6,13 @@ image_resource:
   type: docker-image
   source:
     repository: golang
-    tag: 1.16.6
+    tag: latest
 
 inputs:
   - name: dp-frontend-search-controller
-
-outputs:
-  - name: build
 
 caches:
   - path: go/
 
 run:
-  path: dp-frontend-search-controller/ci/scripts/build.sh
+  path: dp-frontend-search-controller/ci/scripts/lint.sh

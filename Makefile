@@ -24,9 +24,17 @@ debug:
 	go build -tags 'debug' $(LDFLAGS) -o $(BINPATH)/dp-frontend-search-controller
 	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-frontend-search-controller
 
+.PHONY: lint
+lint:
+	exit
+
 .PHONY: test
 test:
 	go test -race -cover ./...
+
+.PHONY:	test-component
+test-component:
+	go test -race -cover -coverprofile="coverage.txt" -coverpkg=github.com/ONSdigital/dp-frontend-search-controller/... -component
 
 .PHONY: convey
 convey:
