@@ -4,12 +4,8 @@
 package mocks
 
 import (
-<<<<<<< HEAD
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
-=======
-	"github.com/ONSdigital/dp-api-clients-go/health"
-	"github.com/ONSdigital/dp-api-clients-go/renderer"
->>>>>>> develop
+	"github.com/ONSdigital/dp-api-clients-go/v2/renderer"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"net/http"
@@ -23,7 +19,7 @@ var (
 	lockInitialiserMockDoGetRendererClient sync.RWMutex
 )
 
-// Ensure, that InitialiserMock does implement Initialiser.
+// Ensure, that InitialiserMock does implement service.Initialiser.
 // If this is not the case, regenerate this file with moq.
 var _ service.Initialiser = &InitialiserMock{}
 
