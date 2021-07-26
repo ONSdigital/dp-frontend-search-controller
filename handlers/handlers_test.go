@@ -125,6 +125,8 @@ func TestUnitReadSuccess(t *testing.T) {
 
 				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
+				So(mockedSearchClient.calls.GetSearch[0].UserAuthToken, ShouldEqual, accessToken)
+				So(mockedSearchClient.calls.GetSearch[0].CollectionID, ShouldEqual, collectionID)
 			})
 		})
 	})
