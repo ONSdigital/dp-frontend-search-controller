@@ -50,7 +50,7 @@ func run(ctx context.Context) error {
 		log.Event(ctx, "failed to initialise service", log.ERROR, log.Error(err))
 		return err
 	}
-	svc.Start(ctx, svcErrors)
+	svc.Run(ctx, svcErrors)
 
 	// Blocks until an os interrupt or a fatal error occurs
 	select {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/url"
 
-	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
 	searchCli "github.com/ONSdigital/dp-api-clients-go/site-search"
 )
 
@@ -22,6 +21,6 @@ type RenderClient interface {
 
 // SearchClient is an interface with methods required for a search client
 type SearchClient interface {
-	GetSearch(ctx context.Context, query url.Values) (r searchC.Response, err error)
+	GetSearch(ctx context.Context, query url.Values) (r searchCli.Response, err error)
 	GetDepartments(ctx context.Context, query url.Values) (d searchCli.Department, err error)
 }

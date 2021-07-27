@@ -5,7 +5,6 @@ import (
 	"errors"
 
 	"github.com/ONSdigital/dp-api-clients-go/health"
-	"github.com/ONSdigital/dp-api-clients-go/renderer"
 	search "github.com/ONSdigital/dp-api-clients-go/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
@@ -48,7 +47,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise clients
 	clients := routes.Clients{
-		Renderer: renderer.New(cfg.RendererURL),
+		Renderer: serviceList.GetRendererClient(cfg.RendererURL),
 		Search:   search.NewWithHealthClient(svc.routerHealthClient),
 	}
 
@@ -72,8 +71,8 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	return nil
 }
 
-// Start starts an initialised service
-func (svc *Service) Start(ctx context.Context, svcErrors chan error) {
+// Run starts an initialised service
+func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
 	log.Event(ctx, "Starting service", log.Data{"config": svc.Config}, log.INFO)
 
 	// Start healthcheck

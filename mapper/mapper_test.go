@@ -42,6 +42,8 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		categories[0].ContentTypes[1].Count = 1
 
 		respC, err := GetMockSearchResponse()
+		So(err, ShouldBeNil)
+
 		respD, err := GetMockDepartmentResponse()
 		So(err, ShouldBeNil)
 
