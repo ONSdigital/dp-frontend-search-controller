@@ -125,8 +125,8 @@ func TestUnitReadSuccess(t *testing.T) {
 
 				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
-				So(mockedSearchClient.calls.GetSearch[0].UserAuthToken, ShouldEqual, accessToken)
-				So(mockedSearchClient.calls.GetSearch[0].CollectionID, ShouldEqual, collectionID)
+				So(mockedSearchClient.GetSearchCalls()[0].UserAuthToken, ShouldEqual, accessToken)
+				So(mockedSearchClient.GetSearchCalls()[0].CollectionID, ShouldEqual, collectionID)
 			})
 		})
 	})
@@ -427,8 +427,9 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 
 			Convey("And return nil categories", func() {
 				So(categories, ShouldBeNil)
-
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+				So(mockedSearchClient.GetSearchCalls()[0].UserAuthToken, ShouldEqual, accessToken)
+				So(mockedSearchClient.GetSearchCalls()[0].CollectionID, ShouldEqual, collectionID)
 			})
 		})
 	})
