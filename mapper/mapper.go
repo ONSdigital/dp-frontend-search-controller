@@ -11,6 +11,7 @@ import (
 func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string) (page model.Page) {
 	// SEARCH STRUCT MAPPING
 	page.Metadata.Title = "Search"
+	page.Type = "search"
 	page.SearchDisabled = true
 	page.Language = lang
 
