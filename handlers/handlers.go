@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"sync"
 
-	searchCli "github.com/ONSdigital/dp-api-clients-go/site-search"
+	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -46,7 +46,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 
 	go func() {
 		defer wg.Done()
-		searchResp, respErr = searchC.GetSearch(ctx, apiQuery)
+		searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
 		if respErr != nil {
 			logData := log.Data{"api query passed to search-api": apiQuery}
 			log.Event(ctx, "getting search response from client failed", log.Error(respErr), log.ERROR, logData)
@@ -57,7 +57,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 	go func() {
 		defer wg.Done()
 		var deptErr error
-		departmentResp, deptErr = searchC.GetDepartments(ctx, apiQuery)
+		departmentResp, deptErr = searchC.GetDepartments(ctx, accessToken, "", collectionID, apiQuery)
 		if deptErr != nil {
 			logData := log.Data{"api query passed to search-api": apiQuery}
 			log.Event(ctx, "getting deartment response from client failed", log.Error(deptErr), log.ERROR, logData)
@@ -80,7 +80,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		return
 	}
 
-	categories, err := getCategoriesTypesCount(ctx, apiQuery, searchC)
+	categories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, searchC)
 	if err != nil {
 		log.Event(ctx, "getting categories, types and its counts failed", log.Error(err), log.ERROR)
 		setStatusCode(w, req, err)
@@ -113,11 +113,11 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 }
 
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
-func getCategoriesTypesCount(ctx context.Context, apiQuery url.Values, searchC SearchClient) ([]data.Category, error) {
-	// Remove filter to get count of all types for the query from the client
+func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, apiQuery url.Values, searchC SearchClient) ([]data.Category, error) {
+	//Remove filter to get count of all types for the query from the client
 	apiQuery.Del("content_type")
 
-	countResp, err := searchC.GetSearch(ctx, apiQuery)
+	countResp, err := searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
 	if err != nil {
 		logData := log.Data{"api query passed to search-api": apiQuery}
 		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR, logData)

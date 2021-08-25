@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"testing"
 
-	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -61,10 +61,10 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
-			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
 				return mockDepartmentResponse, nil
 			},
 		}
@@ -109,10 +109,10 @@ func TestUnitReadSuccess(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
-			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
 				return mockDepartmentResponse, nil
 			},
 		}
@@ -125,6 +125,8 @@ func TestUnitReadSuccess(t *testing.T) {
 
 				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
+				So(mockedSearchClient.GetSearchCalls()[0].UserAuthToken, ShouldEqual, accessToken)
+				So(mockedSearchClient.GetSearchCalls()[0].CollectionID, ShouldEqual, collectionID)
 			})
 		})
 	})
@@ -156,10 +158,10 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
-			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
 				return mockDepartmentResponse, nil
 			},
 		}
@@ -190,10 +192,10 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return searchC.Response{}, errs.ErrInternalServer
 			},
-			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
 				return mockDepartmentResponse, nil
 			},
 		}
@@ -225,10 +227,10 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
-			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
 				return mockDepartmentResponse, nil
 			},
 		}
@@ -260,10 +262,10 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
-			GetDepartmentsFunc: func(ctx context.Context, query url.Values) (searchC.Department, error) {
+			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
 				return mockDepartmentResponse, nil
 			},
 		}
@@ -374,13 +376,13 @@ func TestUnitGetCategoriesTypesCountSuccess(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
 		}
 
 		Convey("When getCategoriesTypesCount is called", func() {
-			categories, err := getCategoriesTypesCount(ctx, apiQuery, mockedSearchClient)
+			categories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient)
 
 			Convey("Then return all categories and types with its count", func() {
 				So(categories[0].Count, ShouldEqual, 1)
@@ -411,13 +413,13 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return searchC.Response{}, errs.ErrInternalServer
 			},
 		}
 
 		Convey("When getCategoriesTypesCount is called", func() {
-			categories, err := getCategoriesTypesCount(ctx, apiQuery, mockedSearchClient)
+			categories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient)
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
@@ -425,8 +427,9 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 
 			Convey("And return nil categories", func() {
 				So(categories, ShouldBeNil)
-
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+				So(mockedSearchClient.GetSearchCalls()[0].UserAuthToken, ShouldEqual, accessToken)
+				So(mockedSearchClient.GetSearchCalls()[0].CollectionID, ShouldEqual, collectionID)
 			})
 		})
 	})

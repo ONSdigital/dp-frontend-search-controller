@@ -3,7 +3,7 @@ package mapper
 import (
 	"testing"
 
-	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

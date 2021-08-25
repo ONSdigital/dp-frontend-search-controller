@@ -14,7 +14,7 @@ var (
 	lockHTTPServerMockShutdown       sync.RWMutex
 )
 
-// Ensure, that HTTPServerMock does implement HTTPServer.
+// Ensure, that HTTPServerMock does implement service.HTTPServer.
 // If this is not the case, regenerate this file with moq.
 var _ service.HTTPServer = &HTTPServerMock{}
 

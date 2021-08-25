@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/url"
 
-	searchCli "github.com/ONSdigital/dp-api-clients-go/site-search"
+	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 )
 
 //go:generate moq -out clients_mock.go -pkg handlers . RenderClient SearchClient
@@ -21,6 +21,6 @@ type RenderClient interface {
 
 // SearchClient is an interface with methods required for a search client
 type SearchClient interface {
-	GetSearch(ctx context.Context, query url.Values) (r searchCli.Response, err error)
-	GetDepartments(ctx context.Context, query url.Values) (d searchCli.Department, err error)
+	GetSearch(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (r searchCli.Response, err error)
+	GetDepartments(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (d searchCli.Department, err error)
 }
