@@ -5,7 +5,7 @@ package handlers
 
 import (
 	"context"
-	"github.com/ONSdigital/dp-api-clients-go/site-search"
+	"github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"net/url"
 	"sync"
 )
@@ -99,10 +99,10 @@ var _ SearchClient = &SearchClientMock{}
 //
 //         // make and configure a mocked SearchClient
 //         mockedSearchClient := &SearchClientMock{
-//             GetDepartmentsFunc: func(ctx context.Context, query url.Values) (search.Department, error) {
+//             GetDepartmentsFunc: func(ctx context.Context, userAuthToken string, serviceAuthToken string, collectionID string, query url.Values) (search.Department, error) {
 // 	               panic("mock out the GetDepartments method")
 //             },
-//             GetSearchFunc: func(ctx context.Context, query url.Values) (search.Response, error) {
+//             GetSearchFunc: func(ctx context.Context, userAuthToken string, serviceAuthToken string, collectionID string, query url.Values) (search.Response, error) {
 // 	               panic("mock out the GetSearch method")
 //             },
 //         }
@@ -113,10 +113,10 @@ var _ SearchClient = &SearchClientMock{}
 //     }
 type SearchClientMock struct {
 	// GetDepartmentsFunc mocks the GetDepartments method.
-	GetDepartmentsFunc func(ctx context.Context, query url.Values) (search.Department, error)
+	GetDepartmentsFunc func(ctx context.Context, userAuthToken string, serviceAuthToken string, collectionID string, query url.Values) (search.Department, error)
 
 	// GetSearchFunc mocks the GetSearch method.
-	GetSearchFunc func(ctx context.Context, query url.Values) (search.Response, error)
+	GetSearchFunc func(ctx context.Context, userAuthToken string, serviceAuthToken string, collectionID string, query url.Values) (search.Response, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -124,6 +124,12 @@ type SearchClientMock struct {
 		GetDepartments []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
+			// UserAuthToken is the userAuthToken argument value.
+			UserAuthToken string
+			// ServiceAuthToken is the serviceAuthToken argument value.
+			ServiceAuthToken string
+			// CollectionID is the collectionID argument value.
+			CollectionID string
 			// Query is the query argument value.
 			Query url.Values
 		}
@@ -131,6 +137,12 @@ type SearchClientMock struct {
 		GetSearch []struct {
 			// Ctx is the ctx argument value.
 			Ctx context.Context
+			// UserAuthToken is the userAuthToken argument value.
+			UserAuthToken string
+			// ServiceAuthToken is the serviceAuthToken argument value.
+			ServiceAuthToken string
+			// CollectionID is the collectionID argument value.
+			CollectionID string
 			// Query is the query argument value.
 			Query url.Values
 		}
@@ -138,33 +150,45 @@ type SearchClientMock struct {
 }
 
 // GetDepartments calls GetDepartmentsFunc.
-func (mock *SearchClientMock) GetDepartments(ctx context.Context, query url.Values) (search.Department, error) {
+func (mock *SearchClientMock) GetDepartments(ctx context.Context, userAuthToken string, serviceAuthToken string, collectionID string, query url.Values) (search.Department, error) {
 	if mock.GetDepartmentsFunc == nil {
 		panic("SearchClientMock.GetDepartmentsFunc: method is nil but SearchClient.GetDepartments was just called")
 	}
 	callInfo := struct {
-		Ctx   context.Context
-		Query url.Values
+		Ctx              context.Context
+		UserAuthToken    string
+		ServiceAuthToken string
+		CollectionID     string
+		Query            url.Values
 	}{
-		Ctx:   ctx,
-		Query: query,
+		Ctx:              ctx,
+		UserAuthToken:    userAuthToken,
+		ServiceAuthToken: serviceAuthToken,
+		CollectionID:     collectionID,
+		Query:            query,
 	}
 	lockSearchClientMockGetDepartments.Lock()
 	mock.calls.GetDepartments = append(mock.calls.GetDepartments, callInfo)
 	lockSearchClientMockGetDepartments.Unlock()
-	return mock.GetDepartmentsFunc(ctx, query)
+	return mock.GetDepartmentsFunc(ctx, userAuthToken, serviceAuthToken, collectionID, query)
 }
 
 // GetDepartmentsCalls gets all the calls that were made to GetDepartments.
 // Check the length with:
 //     len(mockedSearchClient.GetDepartmentsCalls())
 func (mock *SearchClientMock) GetDepartmentsCalls() []struct {
-	Ctx   context.Context
-	Query url.Values
+	Ctx              context.Context
+	UserAuthToken    string
+	ServiceAuthToken string
+	CollectionID     string
+	Query            url.Values
 } {
 	var calls []struct {
-		Ctx   context.Context
-		Query url.Values
+		Ctx              context.Context
+		UserAuthToken    string
+		ServiceAuthToken string
+		CollectionID     string
+		Query            url.Values
 	}
 	lockSearchClientMockGetDepartments.RLock()
 	calls = mock.calls.GetDepartments
@@ -173,33 +197,45 @@ func (mock *SearchClientMock) GetDepartmentsCalls() []struct {
 }
 
 // GetSearch calls GetSearchFunc.
-func (mock *SearchClientMock) GetSearch(ctx context.Context, query url.Values) (search.Response, error) {
+func (mock *SearchClientMock) GetSearch(ctx context.Context, userAuthToken string, serviceAuthToken string, collectionID string, query url.Values) (search.Response, error) {
 	if mock.GetSearchFunc == nil {
 		panic("SearchClientMock.GetSearchFunc: method is nil but SearchClient.GetSearch was just called")
 	}
 	callInfo := struct {
-		Ctx   context.Context
-		Query url.Values
+		Ctx              context.Context
+		UserAuthToken    string
+		ServiceAuthToken string
+		CollectionID     string
+		Query            url.Values
 	}{
-		Ctx:   ctx,
-		Query: query,
+		Ctx:              ctx,
+		UserAuthToken:    userAuthToken,
+		ServiceAuthToken: serviceAuthToken,
+		CollectionID:     collectionID,
+		Query:            query,
 	}
 	lockSearchClientMockGetSearch.Lock()
 	mock.calls.GetSearch = append(mock.calls.GetSearch, callInfo)
 	lockSearchClientMockGetSearch.Unlock()
-	return mock.GetSearchFunc(ctx, query)
+	return mock.GetSearchFunc(ctx, userAuthToken, serviceAuthToken, collectionID, query)
 }
 
 // GetSearchCalls gets all the calls that were made to GetSearch.
 // Check the length with:
 //     len(mockedSearchClient.GetSearchCalls())
 func (mock *SearchClientMock) GetSearchCalls() []struct {
-	Ctx   context.Context
-	Query url.Values
+	Ctx              context.Context
+	UserAuthToken    string
+	ServiceAuthToken string
+	CollectionID     string
+	Query            url.Values
 } {
 	var calls []struct {
-		Ctx   context.Context
-		Query url.Values
+		Ctx              context.Context
+		UserAuthToken    string
+		ServiceAuthToken string
+		CollectionID     string
+		Query            url.Values
 	}
 	lockSearchClientMockGetSearch.RLock()
 	calls = mock.calls.GetSearch

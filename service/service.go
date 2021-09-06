@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/ONSdigital/dp-api-clients-go/health"
-	search "github.com/ONSdigital/dp-api-clients-go/site-search"
+	"github.com/ONSdigital/dp-api-clients-go/v2/health"
+	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
 	"github.com/ONSdigital/log.go/log"

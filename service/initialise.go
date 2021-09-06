@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"github.com/ONSdigital/dp-api-clients-go/health"
-	rendererCli "github.com/ONSdigital/dp-api-clients-go/renderer"
+	"github.com/ONSdigital/dp-api-clients-go/v2/health"
+	rendererCli "github.com/ONSdigital/dp-api-clients-go/v2/renderer"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/http"

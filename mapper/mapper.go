@@ -1,7 +1,7 @@
 package mapper
 
 import (
-	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	model "github.com/ONSdigital/dp-frontend-models/model/search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -11,6 +11,7 @@ import (
 func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string) (page model.Page) {
 	// SEARCH STRUCT MAPPING
 	page.Metadata.Title = "Search"
+	page.Type = "search"
 	page.SearchDisabled = true
 	page.Language = lang
 

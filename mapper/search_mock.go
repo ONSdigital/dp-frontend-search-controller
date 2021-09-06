@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 
-	searchC "github.com/ONSdigital/dp-api-clients-go/site-search"
+	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 )
 
 // GetMockSearchResponse get a mock search response in searchC.Response type
