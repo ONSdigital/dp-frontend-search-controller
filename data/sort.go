@@ -5,7 +5,7 @@ import (
 	"net/url"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // Sort represents information of a particular sort option
@@ -52,7 +52,7 @@ func reviewSort(ctx context.Context, cfg *config.Config, urlQuery url.Values, va
 	sort, found := sortOptions[sortQuery]
 
 	if !found {
-		log.Event(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort, log.WARN)
+		log.Warn(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort)
 		sort.Query = cfg.DefaultSort
 		sort.LocaliseKeyName = sortOptions[cfg.DefaultSort].LocaliseKeyName
 	}

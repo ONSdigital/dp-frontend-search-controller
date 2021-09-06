@@ -13,7 +13,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	dphandlers "github.com/ONSdigital/dp-net/handlers"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // Read Handler
@@ -31,7 +31,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 
 	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery)
 	if err != nil {
-		log.Event(ctx, "unable to review query", log.Error(err), log.ERROR)
+		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
 		return
 	}
@@ -49,7 +49,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
 		if respErr != nil {
 			logData := log.Data{"api query passed to search-api": apiQuery}
-			log.Event(ctx, "getting search response from client failed", log.Error(respErr), log.ERROR, logData)
+			log.Error(ctx, "getting search response from client failed", respErr, logData)
 			cancel()
 			return
 		}
@@ -60,7 +60,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		departmentResp, deptErr = searchC.GetDepartments(ctx, accessToken, "", collectionID, apiQuery)
 		if deptErr != nil {
 			logData := log.Data{"api query passed to search-api": apiQuery}
-			log.Event(ctx, "getting deartment response from client failed", log.Error(deptErr), log.ERROR, logData)
+			log.Error(ctx, "getting deartment response from client failed", deptErr, logData)
 			return
 		}
 	}()
@@ -75,21 +75,21 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
-		log.Event(ctx, "unable to validate current page", log.Error(err), log.ERROR)
+		log.Error(ctx, "unable to validate current page", err)
 		setStatusCode(w, req, err)
 		return
 	}
 
 	categories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, searchC)
 	if err != nil {
-		log.Event(ctx, "getting categories, types and its counts failed", log.Error(err), log.ERROR)
+		log.Error(ctx, "getting categories, types and its counts failed", err)
 		setStatusCode(w, req, err)
 		return
 	}
 
 	err = getSearchPage(w, req, cfg, rendC, validatedQueryParams, categories, searchResp, departmentResp, lang)
 	if err != nil {
-		log.Event(ctx, "getting search page failed", log.Error(err), log.ERROR)
+		log.Error(ctx, "getting search page failed", err)
 		setStatusCode(w, req, err)
 		return
 	}
@@ -103,7 +103,7 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 
 		if validatedQueryParams.CurrentPage > totalPages {
 			err := errs.ErrPageExceedsTotalPages
-			log.Event(ctx, "current page exceeds total pages", log.Error(err), log.ERROR)
+			log.Error(ctx, "current page exceeds total pages", err)
 
 			return err
 		}
@@ -120,7 +120,7 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 	countResp, err := searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
 	if err != nil {
 		logData := log.Data{"api query passed to search-api": apiQuery}
-		log.Event(ctx, "getting search query count from client failed", log.Error(err), log.ERROR, logData)
+		log.Error(ctx, "getting search query count from client failed", err, logData)
 		return nil, err
 	}
 
@@ -152,7 +152,7 @@ func setCountToCategories(ctx context.Context, countResp searchCli.Response, cat
 		}
 
 		if !foundFilter {
-			log.Event(ctx, "unrecognised filter type returned from api", log.WARN)
+			log.Warn(ctx, "unrecognised filter type returned from api")
 		}
 	}
 }
@@ -166,7 +166,7 @@ func getSearchPage(w http.ResponseWriter, req *http.Request, cfg *config.Config,
 	b, err := json.Marshal(m)
 	if err != nil {
 		logData := log.Data{"search response": m}
-		log.Event(ctx, "unable to marshal search response", log.Error(err), log.ERROR, logData)
+		log.Error(ctx, "unable to marshal search response", err, logData)
 		setStatusCode(w, req, err)
 		return err
 	}
@@ -174,14 +174,14 @@ func getSearchPage(w http.ResponseWriter, req *http.Request, cfg *config.Config,
 	templateHTML, err := rendC.Do("search", b)
 	if err != nil {
 		logData := log.Data{"retrieving search template for response": b}
-		log.Event(ctx, "getting template from renderer search failed", log.Error(err), log.ERROR, logData)
+		log.Error(ctx, "getting template from renderer search failed", err, logData)
 		setStatusCode(w, req, err)
 		return err
 	}
 
 	if _, err := w.Write(templateHTML); err != nil {
 		logData := log.Data{"search template": templateHTML}
-		log.Event(ctx, "error on write of search template", log.Error(err), log.ERROR, logData)
+		log.Error(ctx, "error on write of search template", err, logData)
 		setStatusCode(w, req, err)
 		return err
 	}
@@ -202,7 +202,7 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 		status = http.StatusBadRequest
 	}
 
-	log.Event(req.Context(), "setting-response-status", log.Error(err), log.ERROR)
+	log.Error(req.Context(), "setting-response-status", err)
 
 	w.WriteHeader(status)
 }

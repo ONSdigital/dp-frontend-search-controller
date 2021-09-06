@@ -6,7 +6,7 @@ import (
 	"strconv"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // SearchURLParams is a struct which contains all information of search url parameters and values
@@ -27,7 +27,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values) (
 
 	err := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
 	if err != nil {
-		log.Event(ctx, "unable to review pagination", log.Error(err), log.ERROR)
+		log.Error(ctx, "unable to review pagination", err)
 		return validatedQueryParams, err
 	}
 
@@ -35,7 +35,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values) (
 
 	err = reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	if err != nil {
-		log.Event(ctx, "unable to review filters", log.Error(err), log.ERROR)
+		log.Error(ctx, "unable to review filters", err)
 		return validatedQueryParams, err
 	}
 
