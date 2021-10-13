@@ -14,6 +14,7 @@ func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLPar
 	page.Type = "search"
 	page.SearchDisabled = true
 	page.Language = lang
+	page.BetaBannerEnabled = true
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC)
 
