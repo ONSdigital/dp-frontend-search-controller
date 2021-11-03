@@ -2,13 +2,13 @@ package mapper
 
 import (
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
-	model "github.com/ONSdigital/dp-frontend-models/model/search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
+	model "github.com/ONSdigital/dp-frontend-search-controller/model"
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string) (page model.Page) {
+func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string) (page model.SearchPage) {
 	// SEARCH STRUCT MAPPING
 	page.Metadata.Title = "Search"
 	page.Type = "search"
@@ -25,7 +25,7 @@ func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLPar
 	return page
 }
 
-func mapQuery(cfg *config.Config, page *model.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response) {
+func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
@@ -35,7 +35,7 @@ func mapQuery(cfg *config.Config, page *model.Page, validatedQueryParams data.Se
 	mapPagination(cfg, page, validatedQueryParams, respC)
 }
 
-func mapSort(page *model.Page, validatedQueryParams data.SearchURLParams) {
+func mapSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) {
 	page.Data.Sort.Query = validatedQueryParams.Sort.Query
 
 	page.Data.Sort.LocaliseFilterKeys = validatedQueryParams.Filter.LocaliseKeyName
@@ -52,7 +52,7 @@ func mapSort(page *model.Page, validatedQueryParams data.SearchURLParams) {
 	page.Data.Sort.Options = pageSortOptions
 }
 
-func mapPagination(cfg *config.Config, page *model.Page, validatedQueryParams data.SearchURLParams, respC searchC.Response) {
+func mapPagination(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC searchC.Response) {
 	page.Data.Pagination.Limit = validatedQueryParams.Limit
 	page.Data.Pagination.LimitOptions = data.LimitOptions
 
@@ -61,7 +61,7 @@ func mapPagination(cfg *config.Config, page *model.Page, validatedQueryParams da
 	page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
 }
 
-func mapResponse(page *model.Page, respC searchC.Response, categories []data.Category) {
+func mapResponse(page *model.SearchPage, respC searchC.Response, categories []data.Category) {
 	page.Data.Response.Count = respC.Count
 
 	mapResponseCategories(page, categories)
@@ -72,7 +72,7 @@ func mapResponse(page *model.Page, respC searchC.Response, categories []data.Cat
 	page.Data.Response.AdditionalSuggestions = respC.AdditionalSuggestions
 }
 
-func mapResponseCategories(page *model.Page, categories []data.Category) {
+func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
 	pageCategories := []model.Category{}
 
 	for _, category := range categories {
@@ -96,7 +96,7 @@ func mapResponseCategories(page *model.Page, categories []data.Category) {
 	page.Data.Response.Categories = pageCategories
 }
 
-func mapResponseItems(page *model.Page, respC searchC.Response) {
+func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
 	itemPage := []model.ContentItem{}
 
 	for _, itemC := range respC.Items {
@@ -249,7 +249,7 @@ func mapItemMatches(pageItem *model.ContentItem, item searchC.ContentItem) {
 	}
 }
 
-func mapDepartments(page *model.Page, departments searchC.Department) {
+func mapDepartments(page *model.SearchPage, departments searchC.Department) {
 	if &departments != nil && departments.Items == nil {
 		page.Department = nil
 		return
