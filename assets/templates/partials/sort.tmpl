@@ -1,0 +1,54 @@
+{{ $lang := .Language }}
+<div class="col-wrap print-hidden">
+    <div class="col">
+        <div class="col col--md-28 col--lg-38">
+            <h2 aria-live="polite" class="search-page__results-text font-size--16">
+                <span class="stand-out-text">{{ .Data.Response.Count}}</span>
+                {{ if .Data.Filter }}
+                    {{ $length := len .Data.Sort.LocaliseFilterKeys }}
+                    {{ range $i, $LocaliseFilterKey := .Data.Sort.LocaliseFilterKeys }}
+                        <span class="lowercase">
+                            <strong>
+                                {{ localise $LocaliseFilterKey $lang 4 }}{{ if lt $i (subtract $length 2) }}, {{end}}
+                                {{ if eq $i (subtract $length 2) }} {{ localise "And" $lang 1 }} {{end}}
+                            </strong>
+                        </span>
+                    {{ end }}
+                {{else}} results {{end}} 
+                containing
+                <strong>‘{{ .Data.Query}}’</strong>.
+                {{ if eq .Data.Response.Count 0 }}
+                    {{ if .Data.Response.Suggestions}}
+                        Did you mean <a class="underline-link" href="/search?q={{ index .Data.Response.Suggestions 0 }}">{{ index .Data.Response.Suggestions 0 }}</a>?
+                    {{ else }}
+                        Try
+                        {{ $len := len .Data.Response.AdditionalSuggestions}}
+                        {{ range $i, $suggestion := .Data.Response.AdditionalSuggestions}}
+                            <a class="underline-link" href="/search?q={{ $suggestion }}">{{ $suggestion }}</a> 
+                            {{ if notLastItem $len $i }}
+                            or
+                            {{ end }}
+                        {{ end }}
+                    {{ end }}
+                {{ end }}
+            </h2>
+        </div>
+        <div class="float-right">
+            <div class="sort-results">
+                <form id="form-sort" class="js-auto-submit__form">
+                    <div class="js-mobile-filters__sort">
+                        <label for="sort" class="sort__label font-size--16">Sort by
+                            <select class="input select width-auto js-auto-submit__input font-size--16" id="sort" name="sort">
+                                {{ $sortQuery := .Data.Sort.Query }}
+                                {{ range $sort := .Data.Sort.Options }}
+                                    <option class="sort__option" value={{ .Query}} {{ if eq .Query $sortQuery }}selected{{end}}>{{ localise .LocaliseKeyName $lang 1 }}</option>
+                                {{ end }}
+                            </select>
+                        </label>
+                        <button type="submit" class="btn btn--primary btn--thin btn--small js--hide font-size--16">Sort</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

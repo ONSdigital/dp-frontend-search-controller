@@ -1,0 +1,51 @@
+{{ $pagination := .Data.Pagination }}
+<form id="js-pagination-container" class="js-auto-submit__form">
+    <div class="col col--md-47 col--lg-28">
+        {{ if ne .Data.Response.Count 0 }}
+            <nav aria-label="Pagination breadcrumbs">
+                <ul class="list--neutral list--inline margin-right-sm--1 margin-right-md--1">
+                    {{ $prevURL := "" }}
+                    {{ $nextURL := "" }}
+                    {{ range $pagination.PagesToDisplay }}
+                        {{ if eq .PageNumber (subtract $pagination.CurrentPage 1 ) }}{{ $prevURL = .URL }}{{end}}
+                        {{ if eq .PageNumber (add $pagination.CurrentPage 1 ) }}{{ $nextURL = .URL }}{{end}}
+                    {{ end }}
+                    {{ if gt $pagination.CurrentPage 1 }}
+                        <li class="margin-top-sm--0 margin-top-md--0">
+                            <a href={{ $prevURL }} class="page-link btn btn--plain" rel="prev">Prev</a>
+                        </li>
+                    {{ end }}
+                    {{ range $pagination.PagesToDisplay }}
+                        {{ if eq .PageNumber $pagination.CurrentPage }}
+                            <li class="margin-top-sm--0 margin-top-md--0">
+                                <a href={{ .URL}} class="page-link btn btn--plain btn--plain-active btn--block" aria-current="true" aria-label="Current page (Page {{ .PageNumber}} of {{ $pagination.TotalPages}})">{{ .PageNumber}}</a>
+                            </li>
+                        {{ else }}
+                            <li class="margin-top-sm--0 margin-top-md--0">
+                                <a href={{ .URL}} class="page-link btn btn--plain" aria-label="Page {{ .PageNumber}} of {{ $pagination.TotalPages}}">{{ .PageNumber}}</a>
+                            </li>
+                        {{ end }}
+                    {{ end }}
+                    {{ if lt $pagination.CurrentPage $pagination.TotalPages }}
+                        <li class="margin-top-sm--0 margin-top-md--0">
+                            <a href={{ $nextURL }} class="page-link btn btn--plain" rel="next">Next</a>
+                        </li>
+                    {{ end }}
+                </ul>
+            </nav>
+        {{end}}
+    </div>
+    <div class="col col--md-12 col--lg-12 margin-top-md--1 padding-left--1">
+        {{ if ne .Data.Response.Count 0 }}
+            <div class="baseline">
+                <label for="limit-size">Results per page:</label>
+                <select name="limit" id="limit-size" class="input select font-size--14 width-auto js-auto-submit__input">
+                    {{ range $pagination.LimitOptions }}
+                        <option value={{.}} {{ if eq . $pagination.Limit }}selected{{end}}>{{.}}</option>
+                    {{ end }}
+                </select>
+                <button class="btn btn--primary btn--thin btn--small hide--md" type="submit">Submit</button>
+            </div>
+        {{end}}
+    </div>
+</form>
