@@ -1,0 +1,10 @@
+{{ $lang := .Language }}
+{{ if .Department }}
+<div class="col col--md-34 col--lg-40 height--20 margin-top-sm--0 margin-top-md--0 margin-bottom-sm--2 margin-bottom-md--2 background--alabaster border-top--iron-sm border-right--iron-sm border-bottom--iron-sm border-left--iron-sm border-top--iron-md border-right--iron-md border-bottom--iron-md border-left--iron-md padding-top--2 padding-right--1 padding-bottom--1 padding-left--1">
+    <!--<div class="box padding-top--2 padding-right--1 padding-bottom--1 padding-left--1">-->
+        <h3 class="flush">{{ localise "DidYouKnow" .Language 1}}</h3>
+        <p class="margin-top-sm--0 margin-top-md--0 margin-bottom-md--2 float-left width-md--18 width-lg--24"><a class="underline-link" href="{{.Department.URL}}">{{.Department.Name}}</a> {{ localise "ProduceStatisticsRelatingTo" .Language 1}} {{.Department.Match}}.</p>
+    <img src="../../img/{{.Department.Code}}.png" alt="{{.Department.Name}} logo" class="hide--sm {{if or (eq .Department.Code "fc") (eq .Department.Code "nhs") (eq .Department.Code "nie")}}width-md--10{{else}}height-md--11{{end}} float-right margin-right-md--1 margin-bottom-md--2"/>
+    <!--</div>-->
+</div>
+{{end}}

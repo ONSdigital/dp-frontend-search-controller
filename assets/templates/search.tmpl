@@ -1,0 +1,16 @@
+<div class="search search--results-page print--hide" id="searchBar">
+    {{ template "search/bar" . }}
+</div>
+<main id="main" role="main" tabindex="-1">
+    <div class="page-content border">
+        <div class="wrapper">
+            {{ template "search/sort" . }}
+            {{ template "search/filter" . }}
+            <section class="col col--md-34 col--lg-40 margin-left-md--1" aria-label="Search results">
+                {{ template "search/department" . }}
+                {{ template "search/results" . }}
+                {{ template "search/pagination" . }}
+            </section>
+        </div>
+    </div>
+</main>
