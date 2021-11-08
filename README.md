@@ -1,16 +1,16 @@
-dp-frontend-search-controller
-================
+# dp-frontend-search-controller
+
 An HTTP service for the controlling of search API
 
-### Getting started
+## Getting started
 
 * Run `make debug`
 
-### Dependencies
+## Dependencies
 
 * No further dependencies other than those defined in `go.mod`
 
-### Configuration
+## Configuration
 
 | Environment variable           | Default                      | Description
 | ------------------------------ | -----------------------      | -----------
@@ -27,11 +27,11 @@ An HTTP service for the controlling of search API
 | DEFAULT_MAXIMUM_LIMIT          | 50                           | The default maximum limit of search results in a page
 | DEFAULT_MAXIMUM_SEARCH_RESULTS | 500                          | The default maximum search results
 
-### Contributing
+## Contributing
 
 See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
-### License
+## License
 
 Copyright © 2020 - 2021, Office for National Statistics (https://www.ons.gov.uk)
 
