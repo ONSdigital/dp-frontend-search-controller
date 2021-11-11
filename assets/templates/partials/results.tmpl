@@ -15,7 +15,7 @@
                             data-gtm-search-result-page="{{ $currentPage }}"
                             data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
                             data-gtm-search-result-url="{{ .URI }}"
-                            data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlash .Description.ReleaseDate }}"
+                            data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
                             >
                                 {{ .Description.Title | safeHTML }}
                             </a>
