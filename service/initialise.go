@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
-	rendererCli "github.com/ONSdigital/dp-api-clients-go/v2/renderer"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/http"
+	render "github.com/ONSdigital/dp-renderer"
 )
 
 // ExternalServiceList holds the initialiser and initialisation state of external services.
@@ -49,8 +49,8 @@ func (e *ExternalServiceList) GetHealthCheck(cfg *config.Config, buildTime, gitC
 }
 
 // GetRendererClient creates a renderer Client
-func (e *ExternalServiceList) GetRendererClient(rendererURL string) *rendererCli.Renderer {
-	return e.Init.DoGetRendererClient(rendererURL)
+func (e *ExternalServiceList) GetRendererClient(assets func(name string) ([]byte, error), assetsNames func() []string, patternLibraryAssetsPath, siteDomain string) *render.Render {
+	return e.Init.DoGetRendererClient(assets, assetsNames, patternLibraryAssetsPath, siteDomain)
 }
 
 // DoGetHTTPServer creates an HTTP Server with the provided bind address and router
@@ -76,8 +76,8 @@ func (e *Init) DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, versio
 }
 
 // DoGetRendererClient creates a renderer Client
-func (e *Init) DoGetRendererClient(rendererURL string) *rendererCli.Renderer {
-	return rendererCli.New(rendererURL)
+func (e *Init) DoGetRendererClient(assets func(name string) ([]byte, error), assetsNames func() []string, patternLibraryAssetsPath, siteDomain string) *render.Render {
+	return render.NewWithDefaultClient(assets, assetsNames, patternLibraryAssetsPath, siteDomain)
 }
 
 // NewMockHTTPClient mocks HTTP Client
