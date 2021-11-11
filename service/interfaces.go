@@ -5,9 +5,9 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
-	rendererCli "github.com/ONSdigital/dp-api-clients-go/v2/renderer"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+	render "github.com/ONSdigital/dp-renderer"
 )
 
 //go:generate moq -out mocks/initialiser.go -pkg mocks . Initialiser
@@ -19,7 +19,7 @@ type Initialiser interface {
 	DoGetHTTPServer(bindAddr string, router http.Handler) HTTPServer
 	DoGetHealthClient(name, url string) *health.Client
 	DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, version string) (HealthChecker, error)
-	DoGetRendererClient(rendererURL string) *rendererCli.Renderer
+	DoGetRendererClient(assets func(name string) ([]byte, error), assetsNames func() []string, patternLibraryAssetsPath string, siteDomain string) *render.Render
 }
 
 // HealthChecker defines the required methods from Healthcheck
