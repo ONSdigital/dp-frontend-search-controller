@@ -5,9 +5,9 @@ package mocks
 
 import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
-	"github.com/ONSdigital/dp-api-clients-go/v2/renderer"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
+	"github.com/ONSdigital/dp-renderer"
 	"net/http"
 	"sync"
 )
@@ -38,7 +38,7 @@ var _ service.Initialiser = &InitialiserMock{}
 //             DoGetHealthClientFunc: func(name string, url string) *health.Client {
 // 	               panic("mock out the DoGetHealthClient method")
 //             },
-//             DoGetRendererClientFunc: func(rendererURL string) *renderer.Renderer {
+//             DoGetRendererClientFunc: func(assets func(name string) ([]byte, error), assetsNames func() []string, patternLibraryAssetsPath string, siteDomain string) *render.Render {
 // 	               panic("mock out the DoGetRendererClient method")
 //             },
 //         }
@@ -58,7 +58,7 @@ type InitialiserMock struct {
 	DoGetHealthClientFunc func(name string, url string) *health.Client
 
 	// DoGetRendererClientFunc mocks the DoGetRendererClient method.
-	DoGetRendererClientFunc func(rendererURL string) *renderer.Renderer
+	DoGetRendererClientFunc func(assets func(name string) ([]byte, error), assetsNames func() []string, patternLibraryAssetsPath string, siteDomain string) *render.Render
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -89,8 +89,14 @@ type InitialiserMock struct {
 		}
 		// DoGetRendererClient holds details about calls to the DoGetRendererClient method.
 		DoGetRendererClient []struct {
-			// RendererURL is the rendererURL argument value.
-			RendererURL string
+			// Assets is the assets argument value.
+			Assets func(name string) ([]byte, error)
+			// AssetsNames is the assetsNames argument value.
+			AssetsNames func() []string
+			// PatternLibraryAssetsPath is the patternLibraryAssetsPath argument value.
+			PatternLibraryAssetsPath string
+			// SiteDomain is the siteDomain argument value.
+			SiteDomain string
 		}
 	}
 }
@@ -209,29 +215,41 @@ func (mock *InitialiserMock) DoGetHealthClientCalls() []struct {
 }
 
 // DoGetRendererClient calls DoGetRendererClientFunc.
-func (mock *InitialiserMock) DoGetRendererClient(rendererURL string) *renderer.Renderer {
+func (mock *InitialiserMock) DoGetRendererClient(assets func(name string) ([]byte, error), assetsNames func() []string, patternLibraryAssetsPath string, siteDomain string) *render.Render {
 	if mock.DoGetRendererClientFunc == nil {
 		panic("InitialiserMock.DoGetRendererClientFunc: method is nil but Initialiser.DoGetRendererClient was just called")
 	}
 	callInfo := struct {
-		RendererURL string
+		Assets                   func(name string) ([]byte, error)
+		AssetsNames              func() []string
+		PatternLibraryAssetsPath string
+		SiteDomain               string
 	}{
-		RendererURL: rendererURL,
+		Assets:                   assets,
+		AssetsNames:              assetsNames,
+		PatternLibraryAssetsPath: patternLibraryAssetsPath,
+		SiteDomain:               siteDomain,
 	}
 	lockInitialiserMockDoGetRendererClient.Lock()
 	mock.calls.DoGetRendererClient = append(mock.calls.DoGetRendererClient, callInfo)
 	lockInitialiserMockDoGetRendererClient.Unlock()
-	return mock.DoGetRendererClientFunc(rendererURL)
+	return mock.DoGetRendererClientFunc(assets, assetsNames, patternLibraryAssetsPath, siteDomain)
 }
 
 // DoGetRendererClientCalls gets all the calls that were made to DoGetRendererClient.
 // Check the length with:
 //     len(mockedInitialiser.DoGetRendererClientCalls())
 func (mock *InitialiserMock) DoGetRendererClientCalls() []struct {
-	RendererURL string
+	Assets                   func(name string) ([]byte, error)
+	AssetsNames              func() []string
+	PatternLibraryAssetsPath string
+	SiteDomain               string
 } {
 	var calls []struct {
-		RendererURL string
+		Assets                   func(name string) ([]byte, error)
+		AssetsNames              func() []string
+		PatternLibraryAssetsPath string
+		SiteDomain               string
 	}
 	lockInitialiserMockDoGetRendererClient.RLock()
 	calls = mock.calls.DoGetRendererClient
