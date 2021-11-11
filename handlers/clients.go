@@ -2,9 +2,11 @@ package handlers
 
 import (
 	"context"
+	"io"
 	"net/url"
 
 	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
 //go:generate moq -out clients_mock.go -pkg handlers . RenderClient SearchClient
@@ -16,7 +18,8 @@ type ClientError interface {
 
 // RenderClient is an interface with methods for require for rendering a template
 type RenderClient interface {
-	Do(string, []byte) ([]byte, error)
+	BuildPage(w io.Writer, pageModel interface{}, templateName string)
+	NewBasePageModel() coreModel.Page
 }
 
 // SearchClient is an interface with methods required for a search client

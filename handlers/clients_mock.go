@@ -6,12 +6,15 @@ package handlers
 import (
 	"context"
 	"github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	"github.com/ONSdigital/dp-renderer/model"
+	"io"
 	"net/url"
 	"sync"
 )
 
 var (
-	lockRenderClientMockDo sync.RWMutex
+	lockRenderClientMockBuildPage        sync.RWMutex
+	lockRenderClientMockNewBasePageModel sync.RWMutex
 )
 
 // Ensure, that RenderClientMock does implement RenderClient.
@@ -24,8 +27,11 @@ var _ RenderClient = &RenderClientMock{}
 //
 //         // make and configure a mocked RenderClient
 //         mockedRenderClient := &RenderClientMock{
-//             DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-// 	               panic("mock out the Do method")
+//             BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string)  {
+// 	               panic("mock out the BuildPage method")
+//             },
+//             NewBasePageModelFunc: func() model.Page {
+// 	               panic("mock out the NewBasePageModel method")
 //             },
 //         }
 //
@@ -34,53 +40,91 @@ var _ RenderClient = &RenderClientMock{}
 //
 //     }
 type RenderClientMock struct {
-	// DoFunc mocks the Do method.
-	DoFunc func(in1 string, in2 []byte) ([]byte, error)
+	// BuildPageFunc mocks the BuildPage method.
+	BuildPageFunc func(w io.Writer, pageModel interface{}, templateName string)
+
+	// NewBasePageModelFunc mocks the NewBasePageModel method.
+	NewBasePageModelFunc func() model.Page
 
 	// calls tracks calls to the methods.
 	calls struct {
-		// Do holds details about calls to the Do method.
-		Do []struct {
-			// In1 is the in1 argument value.
-			In1 string
-			// In2 is the in2 argument value.
-			In2 []byte
+		// BuildPage holds details about calls to the BuildPage method.
+		BuildPage []struct {
+			// W is the w argument value.
+			W io.Writer
+			// PageModel is the pageModel argument value.
+			PageModel interface{}
+			// TemplateName is the templateName argument value.
+			TemplateName string
+		}
+		// NewBasePageModel holds details about calls to the NewBasePageModel method.
+		NewBasePageModel []struct {
 		}
 	}
 }
 
-// Do calls DoFunc.
-func (mock *RenderClientMock) Do(in1 string, in2 []byte) ([]byte, error) {
-	if mock.DoFunc == nil {
-		panic("RenderClientMock.DoFunc: method is nil but RenderClient.Do was just called")
+// BuildPage calls BuildPageFunc.
+func (mock *RenderClientMock) BuildPage(w io.Writer, pageModel interface{}, templateName string) {
+	if mock.BuildPageFunc == nil {
+		panic("RenderClientMock.BuildPageFunc: method is nil but RenderClient.BuildPage was just called")
 	}
 	callInfo := struct {
-		In1 string
-		In2 []byte
+		W            io.Writer
+		PageModel    interface{}
+		TemplateName string
 	}{
-		In1: in1,
-		In2: in2,
+		W:            w,
+		PageModel:    pageModel,
+		TemplateName: templateName,
 	}
-	lockRenderClientMockDo.Lock()
-	mock.calls.Do = append(mock.calls.Do, callInfo)
-	lockRenderClientMockDo.Unlock()
-	return mock.DoFunc(in1, in2)
+	lockRenderClientMockBuildPage.Lock()
+	mock.calls.BuildPage = append(mock.calls.BuildPage, callInfo)
+	lockRenderClientMockBuildPage.Unlock()
+	mock.BuildPageFunc(w, pageModel, templateName)
 }
 
-// DoCalls gets all the calls that were made to Do.
+// BuildPageCalls gets all the calls that were made to BuildPage.
 // Check the length with:
-//     len(mockedRenderClient.DoCalls())
-func (mock *RenderClientMock) DoCalls() []struct {
-	In1 string
-	In2 []byte
+//     len(mockedRenderClient.BuildPageCalls())
+func (mock *RenderClientMock) BuildPageCalls() []struct {
+	W            io.Writer
+	PageModel    interface{}
+	TemplateName string
 } {
 	var calls []struct {
-		In1 string
-		In2 []byte
+		W            io.Writer
+		PageModel    interface{}
+		TemplateName string
 	}
-	lockRenderClientMockDo.RLock()
-	calls = mock.calls.Do
-	lockRenderClientMockDo.RUnlock()
+	lockRenderClientMockBuildPage.RLock()
+	calls = mock.calls.BuildPage
+	lockRenderClientMockBuildPage.RUnlock()
+	return calls
+}
+
+// NewBasePageModel calls NewBasePageModelFunc.
+func (mock *RenderClientMock) NewBasePageModel() model.Page {
+	if mock.NewBasePageModelFunc == nil {
+		panic("RenderClientMock.NewBasePageModelFunc: method is nil but RenderClient.NewBasePageModel was just called")
+	}
+	callInfo := struct {
+	}{}
+	lockRenderClientMockNewBasePageModel.Lock()
+	mock.calls.NewBasePageModel = append(mock.calls.NewBasePageModel, callInfo)
+	lockRenderClientMockNewBasePageModel.Unlock()
+	return mock.NewBasePageModelFunc()
+}
+
+// NewBasePageModelCalls gets all the calls that were made to NewBasePageModel.
+// Check the length with:
+//     len(mockedRenderClient.NewBasePageModelCalls())
+func (mock *RenderClientMock) NewBasePageModelCalls() []struct {
+} {
+	var calls []struct {
+	}
+	lockRenderClientMockNewBasePageModel.RLock()
+	calls = mock.calls.NewBasePageModel
+	lockRenderClientMockNewBasePageModel.RUnlock()
 	return calls
 }
 
