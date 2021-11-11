@@ -1,20 +1,32 @@
 package mapper
 
 import (
+	"net/http"
+
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	model "github.com/ONSdigital/dp-frontend-search-controller/model"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(cfg *config.Config, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string) (page model.SearchPage) {
-	// SEARCH STRUCT MAPPING
+func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string) (page model.SearchPage) {
+
+	p := model.SearchPage{
+		Page: basePage,
+	}
+
+	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
+
 	page.Metadata.Title = "Search"
 	page.Type = "search"
 	page.SearchDisabled = true
 	page.Language = lang
 	page.BetaBannerEnabled = true
+	page.URI = req.URL.Path
+	page.FeatureFlags.SixteensVersion = "67f6982"
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC)
 
@@ -267,4 +279,14 @@ func mapDepartments(page *model.SearchPage, departments searchC.Department) {
 		page.Department.Match = terms.Value
 	}
 
+}
+
+// MapCookiePreferences reads cookie policy and preferences cookies and then maps the values to the page model
+func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *coreModel.CookiesPolicy) {
+	preferencesCookie := cookies.GetCookiePreferences(req)
+	*preferencesIsSet = preferencesCookie.IsPreferenceSet
+	*policy = coreModel.CookiesPolicy{
+		Essential: preferencesCookie.Policy.Essential,
+		Usage:     preferencesCookie.Policy.Usage,
+	}
 }
