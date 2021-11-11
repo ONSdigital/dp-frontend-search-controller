@@ -9,7 +9,6 @@ import (
 // Config represents service configuration for dp-frontend-search-controller
 type Config struct {
 	BindAddr                    string        `envconfig:"BIND_ADDR"`
-	RendererURL                 string        `envconfig:"RENDERER_URL"`
 	APIRouterURL                string        `envconfig:"API_ROUTER_URL"`
 	GracefulShutdownTimeout     time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckInterval         time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
@@ -20,6 +19,10 @@ type Config struct {
 	DefaultLimit                int           `envconfig:"DEFAULT_LIMIT"`
 	DefaultMaximumLimit         int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
 	DefaultMaximumSearchResults int           `envconfig:"DEFAULT_MAXIMUM_SEARCH_RESULTS"`
+	PatternLibraryAssetsPath    string        `envconfig:"PATTERN_LIBRARY_ASSETS_PATH"`
+	SiteDomain                  string        `envconfig:"SITE_DOMAIN"`
+	Debug                       bool          `envconfig:"DEBUG"`
+	SupportedLanguages          []string      `envconfig:"SUPPORTED_LANGUAGES"`
 }
 
 var cfg *Config
@@ -27,13 +30,26 @@ var cfg *Config
 // Get returns the default config with any modifications through environment
 // variables
 func Get() (*Config, error) {
+	cfg, err := get()
+	if err != nil {
+		return nil, err
+	}
+
+	if cfg.Debug {
+		cfg.PatternLibraryAssetsPath = "http://localhost:9000/dist"
+	} else {
+		cfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/sixteens/67f6982"
+	}
+	return cfg, nil
+}
+
+func get() (*Config, error) {
 	if cfg != nil {
 		return cfg, nil
 	}
 
 	cfg := &Config{
 		BindAddr:                    "localhost:25000",
-		RendererURL:                 "http://localhost:20010",
 		APIRouterURL:                "http://localhost:23200/v1",
 		GracefulShutdownTimeout:     5 * time.Second,
 		HealthCheckInterval:         30 * time.Second,
@@ -44,6 +60,9 @@ func Get() (*Config, error) {
 		DefaultLimit:                10,
 		DefaultMaximumLimit:         50,
 		DefaultMaximumSearchResults: 500,
+		SiteDomain:                  "localhost",
+		Debug:                       false,
+		SupportedLanguages:          []string{"en", "cy"},
 	}
 
 	return cfg, envconfig.Process("", cfg)

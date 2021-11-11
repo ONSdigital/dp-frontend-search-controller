@@ -22,7 +22,6 @@ func TestConfig(t *testing.T) {
 				So(err, ShouldBeNil)
 
 				So(cfg.BindAddr, ShouldEqual, "localhost:25000")
-				So(cfg.RendererURL, ShouldEqual, "http://localhost:20010")
 				So(cfg.APIRouterURL, ShouldEqual, "http://localhost:23200/v1")
 				So(cfg.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)
 				So(cfg.HealthCheckInterval, ShouldEqual, 30*time.Second)
@@ -33,6 +32,7 @@ func TestConfig(t *testing.T) {
 				So(cfg.DefaultLimit, ShouldEqual, 10)
 				So(cfg.DefaultMaximumLimit, ShouldEqual, 50)
 				So(cfg.DefaultMaximumSearchResults, ShouldEqual, 500)
+				So(cfg.SiteDomain, ShouldEqual, "localhost")
 			})
 
 			Convey("Then a second call to config should return the same config", func() {
