@@ -9,6 +9,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/assets"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
+	render "github.com/ONSdigital/dp-renderer"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -48,9 +49,11 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise clients
 	clients := routes.Clients{
-		Renderer: serviceList.GetRendererClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain),
-		Search:   search.NewWithHealthClient(svc.routerHealthClient),
+		Search: search.NewWithHealthClient(svc.routerHealthClient),
 	}
+
+	// Initialise render client, routes and initialise localisations bundles
+	rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
 
 	// Get healthcheck with checkers
 	svc.HealthCheck, err = serviceList.GetHealthCheck(cfg, BuildTime, GitCommit, Version)
@@ -66,7 +69,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise router
 	r := mux.NewRouter()
-	routes.Setup(ctx, r, cfg, clients)
+	routes.Setup(ctx, r, cfg, clients, rend)
 	svc.Server = serviceList.GetHTTPServer(cfg.BindAddr, r)
 
 	return nil

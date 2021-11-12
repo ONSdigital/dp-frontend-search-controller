@@ -21,8 +21,8 @@ type Clients struct {
 }
 
 // Setup registers routes for the service
-func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients) {
+func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, rend handlers.RenderClient) {
 	log.Info(ctx, "adding routes")
 	r.StrictSlash(true).Path("/health").HandlerFunc(c.HealthCheckHandler)
-	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, c.Renderer, c.Search))
+	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, rend, c.Search))
 }

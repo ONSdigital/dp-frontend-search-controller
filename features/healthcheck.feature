@@ -18,12 +18,6 @@ Feature: Healthcheck endpoint should inform the health of service
                 },
                 "checks":[
                     {
-                        "name":"frontend renderer",
-                        "status":"OK",
-                        "status_code":200,
-                        "message":"renderer is ok"
-                    },
-                    {
                         "name":"API router",
                         "status":"OK",
                         "status_code":200,
@@ -51,12 +45,6 @@ Feature: Healthcheck endpoint should inform the health of service
                 },
                 "checks": [
                     {
-                        "name": "frontend renderer",
-                        "status": "OK",
-                        "status_code": 200,
-                        "message": "renderer is ok"
-                    },
-                    {
                         "name": "API router",
                         "status": "WARNING",
                         "status_code": 429,
@@ -83,12 +71,6 @@ Feature: Healthcheck endpoint should inform the health of service
                     "version": "v1.2.3"
                 },
                 "checks": [
-                    {
-                        "name": "frontend renderer",
-                        "status": "OK",
-                        "status_code": 200,
-                        "message": "renderer is ok"
-                    },
                     {
                         "name": "API router",
                         "status": "CRITICAL",
@@ -118,12 +100,6 @@ Feature: Healthcheck endpoint should inform the health of service
                     "version": "v1.2.3"
                 },
                 "checks": [
-                    {
-                        "name": "frontend renderer",
-                        "status": "OK",
-                        "status_code": 200,
-                        "message": "renderer is ok"
-                    },
                     {
                         "name": "API router",
                         "status": "CRITICAL",
