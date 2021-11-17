@@ -8,7 +8,7 @@ import (
 	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
 
@@ -37,7 +37,7 @@ func New() *Service {
 
 // Init initialises all the service dependencies, including healthcheck with checkers, api and middleware
 func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *ExternalServiceList) (err error) {
-	log.Event(ctx, "initialising service", log.INFO)
+	log.Info(ctx, "initialising service")
 
 	svc.Config = cfg
 	svc.ServiceList = serviceList
@@ -54,11 +54,11 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	// Get healthcheck with checkers
 	svc.HealthCheck, err = serviceList.GetHealthCheck(cfg, BuildTime, GitCommit, Version)
 	if err != nil {
-		log.Event(ctx, "failed to create health check", log.FATAL, log.Error(err))
+		log.Fatal(ctx, "failed to create health check", err)
 		return err
 	}
 	if err = svc.registerCheckers(ctx, clients); err != nil {
-		log.Event(ctx, "failed to register checkers", log.ERROR, log.Error(err))
+		log.Error(ctx, "failed to register checkers", err)
 		return err
 	}
 	clients.HealthCheckHandler = svc.HealthCheck.Handler
@@ -73,16 +73,16 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 // Run starts an initialised service
 func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
-	log.Event(ctx, "Starting service", log.Data{"config": svc.Config}, log.INFO)
+	log.Info(ctx, "Starting service", log.Data{"config": svc.Config})
 
 	// Start healthcheck
 	svc.HealthCheck.Start(ctx)
 
 	// Start HTTP server
-	log.Event(ctx, "Starting server", log.INFO)
+	log.Info(ctx, "Starting server")
 	go func() {
 		if err := svc.Server.ListenAndServe(); err != nil {
-			log.Event(ctx, "failed to start http listen and serve", log.FATAL, log.Error(err))
+			log.Fatal(ctx, "failed to start http listen and serve", err)
 			svcErrors <- err
 		}
 	}()
@@ -90,7 +90,7 @@ func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
 
 // Close gracefully shuts the service down in the required order, with timeout
 func (svc *Service) Close(ctx context.Context) error {
-	log.Event(ctx, "commencing graceful shutdown", log.INFO)
+	log.Info(ctx, "commencing graceful shutdown")
 	ctx, cancel := context.WithTimeout(ctx, svc.Config.GracefulShutdownTimeout)
 	hasShutdownError := false
 
@@ -98,12 +98,12 @@ func (svc *Service) Close(ctx context.Context) error {
 		defer cancel()
 
 		// stop healthcheck, as it depends on everything else
-		log.Event(ctx, "stop health checkers", log.INFO)
+		log.Info(ctx, "stop health checkers")
 		svc.HealthCheck.Stop()
 
 		// stop any incoming requests
 		if err := svc.Server.Shutdown(ctx); err != nil {
-			log.Event(ctx, "failed to shutdown http server", log.Error(err), log.ERROR)
+			log.Error(ctx, "failed to shutdown http server", err)
 			hasShutdownError = true
 		}
 	}()
@@ -113,18 +113,18 @@ func (svc *Service) Close(ctx context.Context) error {
 
 	// timeout expired
 	if ctx.Err() == context.DeadlineExceeded {
-		log.Event(ctx, "shutdown timed out", log.ERROR, log.Error(ctx.Err()))
+		log.Error(ctx, "shutdown timed out", ctx.Err())
 		return ctx.Err()
 	}
 
 	// other error
 	if hasShutdownError {
 		err := errors.New("failed to shutdown gracefully")
-		log.Event(ctx, "failed to shutdown gracefully ", log.ERROR, log.Error(err))
+		log.Error(ctx, "failed to shutdown gracefully ", err)
 		return err
 	}
 
-	log.Event(ctx, "graceful shutdown was successful", log.INFO)
+	log.Info(ctx, "graceful shutdown was successful")
 	return nil
 }
 
@@ -133,12 +133,12 @@ func (svc *Service) registerCheckers(ctx context.Context, c routes.Clients) (err
 
 	if err = svc.HealthCheck.AddCheck("frontend renderer", c.Renderer.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "failed to add frontend renderer checker", log.ERROR, log.Error(err))
+		log.Error(ctx, "failed to add frontend renderer checker", err)
 	}
 
 	if err = svc.HealthCheck.AddCheck("API router", svc.routerHealthClient.Checker); err != nil {
 		hasErrors = true
-		log.Event(ctx, "failed to add API router health checker", log.ERROR, log.Error(err))
+		log.Error(ctx, "failed to add API router health checker", err)
 	}
 
 	if hasErrors {

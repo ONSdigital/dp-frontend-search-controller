@@ -7,10 +7,10 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/ONSdigital/dp-frontend-models/model"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 const noOfPagesToDisplay = 5
@@ -32,7 +32,7 @@ func reviewPagination(ctx context.Context, cfg *config.Config, urlQuery url.Valu
 
 	offset, err := getOffset(ctx, cfg, page, limit)
 	if err != nil {
-		log.Event(ctx, "unable to get offset", log.Error(err), log.ERROR)
+		log.Error(ctx, "unable to get offset", err)
 		return err
 	}
 	validatedQueryParams.Offset = offset
@@ -43,7 +43,7 @@ func reviewPagination(ctx context.Context, cfg *config.Config, urlQuery url.Valu
 func getLimitFromURLQuery(ctx context.Context, cfg *config.Config, query url.Values) int {
 	limit, err := strconv.Atoi(query.Get("limit"))
 	if err != nil {
-		log.Event(ctx, fmt.Sprintf("unable to convert search limit to int - set to default %d", cfg.DefaultLimit), log.INFO)
+		log.Info(ctx, fmt.Sprintf("unable to convert search limit to int - set to default %d", cfg.DefaultLimit))
 		query.Set("limit", strconv.Itoa(cfg.DefaultLimit))
 		limit = cfg.DefaultLimit
 	}
@@ -64,13 +64,13 @@ func getLimitFromURLQuery(ctx context.Context, cfg *config.Config, query url.Val
 func getPageFromURLQuery(ctx context.Context, cfg *config.Config, query url.Values) int {
 	page, err := strconv.Atoi(query.Get("page"))
 	if err != nil {
-		log.Event(ctx, fmt.Sprintf("unable to convert search page to int - set to default %d", cfg.DefaultPage), log.INFO)
+		log.Info(ctx, fmt.Sprintf("unable to convert search page to int - set to default %d", cfg.DefaultPage))
 		query.Set("page", strconv.Itoa(cfg.DefaultPage))
 		page = cfg.DefaultPage
 	}
 
 	if page < 1 {
-		log.Event(ctx, fmt.Sprintf("page number is less than default - default to page %d", cfg.DefaultPage), log.INFO)
+		log.Info(ctx, fmt.Sprintf("page number is less than default - default to page %d", cfg.DefaultPage))
 		query.Set("page", strconv.Itoa(cfg.DefaultPage))
 		page = cfg.DefaultPage
 	}
@@ -84,7 +84,7 @@ func getOffset(ctx context.Context, cfg *config.Config, page int, limit int) (of
 
 	// when the offset is negative due to negative current page number or limit
 	if offset < 0 {
-		log.Event(ctx, fmt.Sprintf("offset less than 0 - defaulted to offset %d", cfg.DefaultOffset), log.WARN)
+		log.Warn(ctx, fmt.Sprintf("offset less than 0 - defaulted to offset %d", cfg.DefaultOffset))
 		offset = cfg.DefaultOffset
 	}
 
@@ -93,7 +93,7 @@ func getOffset(ctx context.Context, cfg *config.Config, page int, limit int) (of
 		err = errs.ErrInvalidPage
 		logData := log.Data{"current_page": page, "limit": limit}
 
-		log.Event(ctx, "offset is too big as large page and/or limit given", log.Error(err), log.ERROR, logData)
+		log.Error(ctx, "offset is too big as large page and/or limit given", err, logData)
 
 		return cfg.DefaultOffset, err
 	}

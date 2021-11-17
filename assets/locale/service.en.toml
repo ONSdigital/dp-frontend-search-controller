@@ -1,0 +1,110 @@
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+# Notes
+# - Documentation: https://github.com/nicksnyder/go-i18n/blob/master/README.md
+# - Description should be the English version of the text, unless English version is a shorthand e.g. Home button is shorthand in English for Homepage
+# - Arguments can be added via {{.argN}} where N is integer index starting at 0 e.g. {{.arg0}} {{.arg1}}
+# - To inject HTML (Avoid where possible as it is messy) use "| safeHTML" e.g. {{ localise Foo .Language 1 | safeHTML }} where Foo might be "<strong>test</strong>"
+# count - 0 = zero
+# count - 1 = one
+# count - 2 = two; useful for languages with mutations like welsh (radical) 'brother'=brawd, two (soft) 'brothers'=frawd, three or more (nasal) 'brothers'=brodyr
+# count - 3 = few
+# count - 6 = many
+# count - 4 = other; 4,5 & >6
+# Plural rules can be found here: http://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
+#-------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+[RefineResults]
+description = "Refine results"
+other = "Refine results"
+
+[ContentTypesToShow]
+description = "Content types to show"
+other = "Content types to show"
+
+[ClearAll]
+description = "Clear all"
+one = "Clear all"
+
+[Publication]
+description = "Publications"
+other = "Publications"
+
+[Data]
+description = "Data"
+other = "Data"
+
+[Other]
+description = "Other"
+other = "Other"
+
+[StatisticalBulletin]
+description = "Statistical bulletins"
+one = "Statistical bulletin"
+other = "Statistical bulletins"
+
+[Article]
+description = "Articles"
+one = "Article"
+other = "Articles"
+
+[Compendium]
+description = "Compendiums"
+one = "Compendium"
+other = "Compendiums"
+
+[TimeSeries]
+description = "Time series"
+other = "Time series"
+
+[Datasets]
+description = "Datasets"
+other = "Datasets"
+
+[Methodology]
+description = "Methodology"
+one = "Methodology"
+other = "Methodology"
+
+[ReleaseDate]
+description = "Release date"
+one = "Release date"
+
+[UserRequestedData]
+description = "User requested data"
+other = "User requested data"
+
+[CorporateInformation]
+description = "Corporate Information"
+other = "Corporate Information"
+
+[And]
+description = "and"
+one = "and"
+
+[Relevance]
+description = "Relevance"
+one = "Relevance"
+
+[Title]
+description = "Title"
+one = "Title"
+
+[ReleasedOn]
+description = "Released on"
+one = "Released on"
+
+[Keywords]
+description = "Keywords"
+other = "Keywords"
+
+[Next]
+description = "Next"
+one = "Next" 
+
+[DidYouKnow]
+description = "Did you know?"
+one = "Did you know?" 
+
+[ProduceStatisticsRelatingTo]
+description = "also produce statistics relating to"
+one = "also produce statistics relating to" 

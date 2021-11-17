@@ -14,7 +14,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/http"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/maxcnunes/httpfake"
 )
 
@@ -74,7 +74,7 @@ func NewSearchControllerComponent() (c *Component, err error) {
 
 	c.svc = service.New()
 	if err := c.svc.Init(ctx, c.cfg, serviceList); err != nil {
-		log.Event(ctx, "failed to initialise service", log.ERROR, log.Error(err))
+		log.Error(ctx, "failed to initialise service", err)
 		return nil, err
 	}
 

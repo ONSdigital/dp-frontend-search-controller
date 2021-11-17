@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
-	"github.com/ONSdigital/log.go/log"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // Filter represents information of filters selected by user
@@ -138,7 +138,7 @@ func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParam
 		if !found {
 			err := errs.ErrFilterNotFound
 			logData := log.Data{"filter not found": filter}
-			log.Event(ctx, "failed to find filter", log.Error(err), log.ERROR, logData)
+			log.Error(ctx, "failed to find filter", err, logData)
 
 			return err
 		}

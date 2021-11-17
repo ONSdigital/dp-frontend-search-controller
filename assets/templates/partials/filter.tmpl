@@ -1,0 +1,50 @@
+{{ $filter := .Data.Filter }}
+{{ $response := .Data.Response }}
+{{ $lang := .Language }}
+<form id="form" class="js-auto-submit__form">
+    <div class="col col--md-12 col--lg-18 margin-bottom">
+        <div class="margin-bottom-md--2 flush-col js-mobile-filters">
+            <div class="background--gallery padding-top-md--2 padding-right-md--1 padding-bottom-md--4 padding-left-sm--1 padding-left-md--1 flush js-mobile-filters__title">
+                <h3 class="inline-block flush">{{ localise "RefineResults" $lang 4 }}</h3>
+                <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right">{{ localise "ClearAll" $lang 1 }}</a>
+            </div>
+            <div class="background--mercury border-top--iron-md padding-top-sm--2 padding-top-md--1 padding-right-sm--1 padding-right-md--1 padding-bottom-sm--2 padding-bottom-md--2 padding-left-sm--1 padding-left-md--1 js-mobile-filters__contents">
+                <div class="filters js-filters">
+                    <h4 class="filters__title">{{ localise "ContentTypesToShow" $lang 4 }}</h4>
+                    {{ range $category := $response.Categories }}
+                        <fieldset class="filters__fieldset">
+                            <legend class="filters__sub-title">{{ localise $category.LocaliseKeyName $lang 4 }}</legend>
+                            <div class="js-checkbox-container">
+                                <ul class="list--neutral margin-top--0 margin-bottom--0">
+                                {{ range $content := $category.ContentTypes }}    
+                                    <li class="filters__item">
+                                        <div class="filters__field">
+                                            {{ $id := (print "checkout-" $content.Type) }}
+                                            <input id=$id class="js-auto-submit__input" type="checkbox" name="filter" value={{ $content.Type }} {{ range $filter }}{{ if eq . $content.Type }}checked{{end}}{{end}}>
+                                            <label for=$id>
+                                            {{ localise $content.LocaliseKeyName $lang 4 }} ({{ $content.Count }})
+                                            </label>
+                                        </div>
+                                    </li>
+                                {{ end }}
+                                </ul>
+                            </div>
+                        </fieldset>
+                    {{ end }}
+                </div>
+                <button type="submit" class="btn btn--primary btn--thick margin-top-sm--2 margin-top-md--2 js-submit-button">Filter</button>
+            </div>
+        </div>
+        <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
+            <h3 class="tiles__title-h3 tiles__title-h3--nav">Need an earlier release?</h3>
+            <div class="tiles__content tiles__content--nav">
+                <p>
+                We moved them to <a href="http://webarchive.nationalarchives.gov.uk/20160105160709/http://www.ons.gov.uk/ons/index.html">The National Archives</a> website, to keep this website as responsive as possible.
+                </p>
+                <p>
+                <strong>Please note: </strong>all historical data is still on this website.
+                </p>
+            </div>
+        </div>
+    </div>
+</form> 
