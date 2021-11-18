@@ -54,19 +54,16 @@ func delayTimeBySeconds(seconds string) error {
 
 func (c *Component) allOfTheDownstreamServicesAreHealthy() error {
 	c.FakeAPIRouter.setJSONResponseForGet("/health", 200)
-	c.FakeRendererApp.setJSONResponseForGet("/health", 200)
 	return nil
 }
 
 func (c *Component) oneOfTheDownstreamServicesIsWarning() error {
 	c.FakeAPIRouter.setJSONResponseForGet("/health", 429)
-	c.FakeRendererApp.setJSONResponseForGet("/health", 200)
 	return nil
 }
 
 func (c *Component) oneOfTheDownstreamServicesIsFailing() error {
 	c.FakeAPIRouter.setJSONResponseForGet("/health", 500)
-	c.FakeRendererApp.setJSONResponseForGet("/health", 200)
 	return nil
 }
 

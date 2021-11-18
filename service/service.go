@@ -6,8 +6,10 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
 	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	"github.com/ONSdigital/dp-frontend-search-controller/assets"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
+	render "github.com/ONSdigital/dp-renderer"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -47,9 +49,11 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise clients
 	clients := routes.Clients{
-		Renderer: serviceList.GetRendererClient(cfg.RendererURL),
-		Search:   search.NewWithHealthClient(svc.routerHealthClient),
+		Search: search.NewWithHealthClient(svc.routerHealthClient),
 	}
+
+	// Initialise render client, routes and initialise localisations bundles
+	rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
 
 	// Get healthcheck with checkers
 	svc.HealthCheck, err = serviceList.GetHealthCheck(cfg, BuildTime, GitCommit, Version)
@@ -65,7 +69,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise router
 	r := mux.NewRouter()
-	routes.Setup(ctx, r, cfg, clients)
+	routes.Setup(ctx, r, cfg, clients, rend)
 	svc.Server = serviceList.GetHTTPServer(cfg.BindAddr, r)
 
 	return nil
@@ -130,11 +134,6 @@ func (svc *Service) Close(ctx context.Context) error {
 
 func (svc *Service) registerCheckers(ctx context.Context, c routes.Clients) (err error) {
 	hasErrors := false
-
-	if err = svc.HealthCheck.AddCheck("frontend renderer", c.Renderer.Checker); err != nil {
-		hasErrors = true
-		log.Error(ctx, "failed to add frontend renderer checker", err)
-	}
 
 	if err = svc.HealthCheck.AddCheck("API router", svc.routerHealthClient.Checker); err != nil {
 		hasErrors = true

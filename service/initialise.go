@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
-	rendererCli "github.com/ONSdigital/dp-api-clients-go/v2/renderer"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/http"
@@ -48,11 +47,6 @@ func (e *ExternalServiceList) GetHealthCheck(cfg *config.Config, buildTime, gitC
 	return hc, nil
 }
 
-// GetRendererClient creates a renderer Client
-func (e *ExternalServiceList) GetRendererClient(rendererURL string) *rendererCli.Renderer {
-	return e.Init.DoGetRendererClient(rendererURL)
-}
-
 // DoGetHTTPServer creates an HTTP Server with the provided bind address and router
 func (e *Init) DoGetHTTPServer(bindAddr string, router http.Handler) HTTPServer {
 	s := dphttp.NewServer(bindAddr, router)
@@ -73,11 +67,6 @@ func (e *Init) DoGetHealthCheck(cfg *config.Config, buildTime, gitCommit, versio
 	}
 	hc := healthcheck.New(versionInfo, cfg.HealthCheckCriticalTimeout, cfg.HealthCheckInterval)
 	return &hc, nil
-}
-
-// DoGetRendererClient creates a renderer Client
-func (e *Init) DoGetRendererClient(rendererURL string) *rendererCli.Renderer {
-	return rendererCli.New(rendererURL)
 }
 
 // NewMockHTTPClient mocks HTTP Client

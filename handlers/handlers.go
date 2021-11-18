@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"encoding/json"
 	"net/http"
 	"net/url"
 	"sync"
@@ -17,13 +16,13 @@ import (
 )
 
 // Read Handler
-func Read(cfg *config.Config, rendC RenderClient, searchC SearchClient) http.HandlerFunc {
+func Read(cfg *config.Config, rend RenderClient, searchC SearchClient) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		read(w, req, cfg, rendC, searchC, accessToken, collectionID, lang)
+		read(w, req, cfg, rend, searchC, accessToken, collectionID, lang)
 	})
 }
 
-func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, searchC SearchClient, accessToken, collectionID, lang string) {
+func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend RenderClient, searchC SearchClient, accessToken, collectionID, lang string) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
 
@@ -87,12 +86,9 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC Re
 		return
 	}
 
-	err = getSearchPage(w, req, cfg, rendC, validatedQueryParams, categories, searchResp, departmentResp, lang)
-	if err != nil {
-		log.Error(ctx, "getting search page failed", err)
-		setStatusCode(w, req, err)
-		return
-	}
+	basePage := rend.NewBasePageModel()
+	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, searchResp, departmentResp, lang)
+	rend.BuildPage(w, m, "search")
 }
 
 // validateCurrentPage checks if the current page exceeds the total pages which is a bad request
@@ -155,38 +151,6 @@ func setCountToCategories(ctx context.Context, countResp searchCli.Response, cat
 			log.Warn(ctx, "unrecognised filter type returned from api")
 		}
 	}
-}
-
-// getSearchPage talks to the renderer to get the search page
-func getSearchPage(w http.ResponseWriter, req *http.Request, cfg *config.Config, rendC RenderClient, validatedQueryParams data.SearchURLParams, categories []data.Category, resp searchCli.Response, departments searchCli.Department, lang string) error {
-	ctx := req.Context()
-
-	m := mapper.CreateSearchPage(cfg, validatedQueryParams, categories, resp, departments, lang)
-
-	b, err := json.Marshal(m)
-	if err != nil {
-		logData := log.Data{"search response": m}
-		log.Error(ctx, "unable to marshal search response", err, logData)
-		setStatusCode(w, req, err)
-		return err
-	}
-
-	templateHTML, err := rendC.Do("search", b)
-	if err != nil {
-		logData := log.Data{"retrieving search template for response": b}
-		log.Error(ctx, "getting template from renderer search failed", err, logData)
-		setStatusCode(w, req, err)
-		return err
-	}
-
-	if _, err := w.Write(templateHTML); err != nil {
-		logData := log.Data{"search template": templateHTML}
-		log.Error(ctx, "error on write of search template", err, logData)
-		setStatusCode(w, req, err)
-		return err
-	}
-
-	return err
 }
 
 func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
