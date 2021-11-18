@@ -58,9 +58,10 @@ type ContentType struct {
 // ContentItem represents each search result
 type ContentItem struct {
 	Description Description `json:"description"`
-	Type        string      `json:"type"`
-	URI         string      `json:"uri"`
-	Matches     *Matches    `json:"matches,omitempty"`
+
+	Type    string   `json:"type"`
+	URI     string   `json:"uri"`
+	Matches *Matches `json:"matches,omitempty"`
 }
 
 // Description represents each search result description
@@ -83,6 +84,17 @@ type Description struct {
 	Summary           string    `json:"summary"`
 	Title             string    `json:"title"`
 	Unit              string    `json:"unit,omitempty"`
+	Highlight         Highlight `json:"hightlight"`
+}
+
+// Hightlight contains specfic metadata with search keyword(s) highlighted
+type Highlight struct {
+	Title           string    `json:"title"`
+	Keywords        *[]string `json:"keywords"`
+	Summary         string    `json:"summary"`
+	MetaDescription string    `json:"meta_description"`
+	DatasetID       string    `json:"dataset_id"`
+	Edition         string    `json:"edition"`
 }
 
 // Contact represents each search result contact details
