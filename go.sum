@@ -45,8 +45,8 @@ github.com/ONSdigital/dp-api-clients-go v1.34.3/go.mod h1:kX+YKuoLYLfkeLHMvQKRRy
 github.com/ONSdigital/dp-api-clients-go v1.41.1/go.mod h1:Ga1+ANjviu21NFJI9wp5NctJIdB4TJLDGbpQFl2V8Wc=
 github.com/ONSdigital/dp-api-clients-go v1.43.0 h1:0982P/YxnYXvba1RhEcFmwF3xywC4eXokWQ8YH3Mm24=
 github.com/ONSdigital/dp-api-clients-go v1.43.0/go.mod h1:V5MfINik+o3OAF985UXUoMjXIfrZe3JKYa5AhZn5jts=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.0.3-beta h1:DU8oWCuwseGPtDpooXo6mF69Ax/fATBoCQ/geyrvp4M=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.0.3-beta/go.mod h1:zN8+84r1tWgyCmypku7JFN63nCMOGTIM26zf5GwHkJ4=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.4.3 h1:JnOkScuhkqxXywt2KqrH/jAmbZzQv2k8C/Kfl005afo=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.4.3/go.mod h1:oB+Pw1BJlLHUh+a6BJY52VFTRGBEM5RSPlg2Xkq7D9k=
 github.com/ONSdigital/dp-component-test v0.4.0 h1:Xw1WBXmVCa75RXrkQyhAaINhvL277Tc8cRidAOlgtKk=
 github.com/ONSdigital/dp-component-test v0.4.0/go.mod h1:tjuipUmWohNtIOQXB3cktugGxcEw6mBOjgQeXW1tJZQ=
 github.com/ONSdigital/dp-cookies v0.3.3 h1:KXX4swf+OnljIYbsTYICIBjuRJoxQukGWKBTvBaISlA=
@@ -63,8 +63,6 @@ github.com/ONSdigital/dp-net v1.0.7/go.mod h1:1QFzx32FwPKD2lgZI6MtcsUXritsBdJihl
 github.com/ONSdigital/dp-net v1.0.12/go.mod h1:2lvIKOlD4T3BjWQwjHhBUO2UNWDk82u/+mHRn0R3C9A=
 github.com/ONSdigital/dp-net v1.2.0 h1:gP9pBt/J8gktYeKsb7hq6uOC2xx1tfvTorUBNXp6pX0=
 github.com/ONSdigital/dp-net v1.2.0/go.mod h1:NinlaqcsPbIR+X7j5PXCl3UI5G2zCL041SDF6WIiiO4=
-github.com/ONSdigital/dp-renderer v1.9.0 h1:lM9PikNMSDCu627asqFTXChDL4FyVJY3XJ6gcaaTzjo=
-github.com/ONSdigital/dp-renderer v1.9.0/go.mod h1:Z5sbyS0ApY6D8ikGDt2KIl5bt2p5kk73PeeMxGs1pEM=
 github.com/ONSdigital/dp-renderer v1.9.1 h1:g0w6JwXanrefSJ8eB3R08Zw1r0/PUYfqXQLz6fPY1WA=
 github.com/ONSdigital/dp-renderer v1.9.1/go.mod h1:Z5sbyS0ApY6D8ikGDt2KIl5bt2p5kk73PeeMxGs1pEM=
 github.com/ONSdigital/go-ns v0.0.0-20191104121206-f144c4ec2e58/go.mod h1:iWos35il+NjbvDEqwtB736pyHru0MPFE/LqcwkV1wDc=
@@ -421,6 +419,7 @@ github.com/russross/blackfriday/v2 v2.1.0/go.mod h1:+Rmxgy9KzJVeS9/2gXHxylqXiyQD
 github.com/ryanuber/columnize v0.0.0-20160712163229-9b3edd62028f/go.mod h1:sm1tb6uqfes/u+d4ooFouqFdy9/2g9QGwK3SQygK0Ts=
 github.com/sean-/seed v0.0.0-20170313163322-e2103e2c3529/go.mod h1:DxrIzT+xaE7yg65j358z/aeFdxmN0P9QXhEzd20vsDc=
 github.com/shurcooL/go v0.0.0-20200502201357-93f07166e636/go.mod h1:TDJrrUr11Vxrven61rcy3hJMUqaf/CLWYhHNPmT14Lk=
+github.com/shurcooL/graphql v0.0.0-20200928012149-18c5c3165e3a/go.mod h1:AuYgA5Kyo4c7HfUmvRGs/6rGlMMV/6B1bVnB9JxJEEg=
 github.com/shurcooL/httpfs v0.0.0-20190707220628-8d4bc4ba7749/go.mod h1:ZY1cvUeJuFPAdZ/B6v7RHavJWZn2YPVFQ1OSXhCGOkg=
 github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeVRXNmyL/1OwPU0+IJeTBvfc=
 github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546/go.mod h1:TrYk7fJVaAttu97ZZKrO9UbRa8izdowaMIZcxYMbVaw=
