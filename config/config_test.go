@@ -33,6 +33,8 @@ func TestConfig(t *testing.T) {
 				So(cfg.DefaultMaximumLimit, ShouldEqual, 50)
 				So(cfg.DefaultMaximumSearchResults, ShouldEqual, 500)
 				So(cfg.SiteDomain, ShouldEqual, "localhost")
+				So(cfg.Debug, ShouldEqual, false)
+				So(cfg.SupportedLanguages, ShouldResemble, []string{"en", "cy"})
 			})
 
 			Convey("Then a second call to config should return the same config", func() {
