@@ -116,6 +116,8 @@ func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
 
 		mapItemDescription(&item, itemC)
 
+		mapItemHighlight(&item, itemC)
+
 		item.Type = itemC.Type
 
 		item.URI = itemC.URI
@@ -157,6 +159,19 @@ func mapItemDescription(item *model.ContentItem, itemC searchC.ContentItem) {
 			Telephone: descriptionC.Contact.Telephone,
 			Email:     descriptionC.Contact.Email,
 		}
+	}
+}
+
+func mapItemHighlight(item *model.ContentItem, itemC searchC.ContentItem) {
+	highlightC := itemC.Description.Highlight
+
+	item.Description.Highlight = model.Highlight{
+		DatasetID:       highlightC.DatasetID,
+		Edition:         highlightC.Edition,
+		Keywords:        highlightC.Keywords,
+		MetaDescription: highlightC.MetaDescription,
+		Summary:         highlightC.Summary,
+		Title:           highlightC.Title,
 	}
 }
 
