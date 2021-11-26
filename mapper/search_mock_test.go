@@ -48,8 +48,13 @@ func TestUnitGetMockSearchResponseSuccess(t *testing.T) {
 						Summary:           "Test Summary",
 						Title:             "Title Title",
 						Unit:              "",
+						Highlight: searchC.Highlight{
+							Summary:  "Test Summary",
+							Title:    "Title Title",
+							Keywords: &[]string{"regional house prices", "property prices", "area with cheapest houses", "area with most expensive houses"},
+							Edition:  "1995 to 2013",
+						},
 					},
-
 					Type: "article",
 					URI:  "/uri1/housing/articles/uri2/2015-02-17",
 

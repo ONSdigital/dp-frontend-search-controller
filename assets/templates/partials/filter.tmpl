@@ -20,8 +20,8 @@
                                     <li class="filters__item">
                                         <div class="filters__field">
                                             {{ $id := (print "checkout-" $content.Type) }}
-                                            <input id=$id class="js-auto-submit__input" type="checkbox" name="filter" value={{ $content.Type }} {{ range $filter }}{{ if eq . $content.Type }}checked{{end}}{{end}}>
-                                            <label for=$id>
+                                            <input id="{{ $id }}" class="js-auto-submit__input" type="checkbox" name="filter" value={{ $content.Type }} {{ range $filter }}{{ if eq . $content.Type }}checked{{end}}{{end}}>
+                                            <label for="{{ $id }}">
                                             {{ localise $content.LocaliseKeyName $lang 4 }} ({{ $content.Count }})
                                             </label>
                                         </div>

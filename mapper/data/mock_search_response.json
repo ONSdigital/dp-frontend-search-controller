@@ -29,7 +29,18 @@
                 "source": "",
                 "summary": "Test Summary",
                 "title": "Title Title",
-                "unit": ""
+                "unit": "",
+                "highlight": {
+                    "summary": "Test Summary",
+                    "title": "Title Title",
+                    "keywords": [
+                        "regional house prices",
+                        "property prices",
+                        "area with cheapest houses",
+                        "area with most expensive houses"
+                    ],
+                    "edition": "1995 to 2013"
+                }
             },
             "matches": {
                 "description": {

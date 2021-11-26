@@ -15,15 +15,15 @@
 
 [RefineResults]
 description = "Refine results"
-other = "Refine results"
+other = "Mireinio'r canlyniadau"
 
 [ContentTypesToShow]
 description = "Content types to show"
-other = "Content types to show"
+other = "Mathau o gynnwys i'w dangos"
 
 [ClearAll]
 description = "Clear all"
-one = "Clear all"
+one = "Clirio'r cyfan"
 
 [Publication]
 description = "Publications"
@@ -39,22 +39,22 @@ other = "Other"
 
 [StatisticalBulletin]
 description = "Statistical bulletins"
-one = "Statistical bulletin"
-other = "Statistical bulletins"
+one = "Bwletin ystadegol"
+other = "Bwletinau ystadegol"
 
 [Article]
 description = "Articles"
-one = "Article"
-other = "Articles"
+one = "Erthygl"
+other = "Erthyglau"
 
 [Compendium]
 description = "Compendiums"
-one = "Compendium"
-other = "Compendiums"
+one = "Casgliad"
+other = "Compendiwm"
 
 [TimeSeries]
 description = "Time series"
-other = "Time series"
+other = "Cyfres amser"
 
 [Datasets]
 description = "Datasets"
@@ -62,16 +62,16 @@ other = "Datasets"
 
 [Methodology]
 description = "Methodology"
-one = "Methodology"
-other = "Methodology"
+one = "Methodoleg"
+other = "Methodoleg"
 
 [ReleaseDate]
 description = "Release date"
-one = "Release date"
+one = "Dyddiad y datganiad"
 
 [UserRequestedData]
 description = "User requested data"
-other = "User requested data"
+other = "Data a gyrchwyd gan y defnyddiwr"
 
 [CorporateInformation]
 description = "Corporate Information"
@@ -79,27 +79,27 @@ other = "Corporate Information"
 
 [And]
 description = "and"
-one = "and"
+one = "a"
 
 [Relevance]
 description = "Relevance"
-one = "Relevance"
+one = "Perthnasedd"
 
 [Title]
 description = "Title"
-one = "Title"
+one = "Teitl"
 
 [ReleasedOn]
 description = "Released on"
-one = "Released on"
+one = "Rhyddhawyd ar"
 
 [Keywords]
 description = "Keywords"
-other = "Keywords"
+other = "Allweddeiriau"
 
 [Next]
 description = "Next"
-one = "Next" 
+one = "Nesaf" 
 
 [DidYouKnow]
 description = "Did you know?"

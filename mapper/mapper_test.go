@@ -1,11 +1,13 @@
 package mapper
 
 import (
+	"net/http/httptest"
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
+	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -19,6 +21,8 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
+		req := httptest.NewRequest("", "/", nil)
+		mdl := model.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
 			Query: "housing",
@@ -48,7 +52,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
-			sp := CreateSearchPage(cfg, validatedQueryParams, categories, respC, respD, lang)
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, respC, respD, lang)
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")

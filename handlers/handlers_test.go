@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -12,6 +13,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -55,8 +57,9 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		mockedRendererClient := &RenderClientMock{
-			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
 			},
 		}
 
@@ -75,7 +78,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
 
-				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 1)
+				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 			})
 		})
@@ -103,8 +106,9 @@ func TestUnitReadSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		mockedRendererClient := &RenderClientMock{
-			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
 			},
 		}
 
@@ -123,7 +127,7 @@ func TestUnitReadSuccess(t *testing.T) {
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
 
-				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 1)
+				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 				So(mockedSearchClient.GetSearchCalls()[0].UserAuthToken, ShouldEqual, accessToken)
 				So(mockedSearchClient.GetSearchCalls()[0].CollectionID, ShouldEqual, collectionID)
@@ -152,8 +156,9 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		mockedRendererClient := &RenderClientMock{
-			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
 			},
 		}
 
@@ -172,7 +177,7 @@ func TestUnitReadFailure(t *testing.T) {
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 
-				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 0)
+				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 0)
 			})
 		})
@@ -186,8 +191,9 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		mockedRendererClient := &RenderClientMock{
-			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
 			},
 		}
 
@@ -206,7 +212,7 @@ func TestUnitReadFailure(t *testing.T) {
 			Convey("Then a 500 internal server error status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
 
-				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 0)
+				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetDepartmentsCalls()), ShouldEqual, 1)
 			})
@@ -221,8 +227,9 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		mockedRendererClient := &RenderClientMock{
-			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
 			},
 		}
 
@@ -241,43 +248,8 @@ func TestUnitReadFailure(t *testing.T) {
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 
-				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 0)
+				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetDepartmentsCalls()), ShouldEqual, 1)
-			})
-		})
-	})
-
-	Convey("Given an error from failing to get search page from renderer", t, func() {
-		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/search?q=housing", nil)
-
-		cfg, err := config.Get()
-		So(err, ShouldBeNil)
-
-		mockedRendererClient := &RenderClientMock{
-			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-				return []byte{}, errs.ErrInternalServer
-			},
-		}
-
-		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
-				return mockSearchResponse, nil
-			},
-			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
-				return mockDepartmentResponse, nil
-			},
-		}
-
-		Convey("When read is called", func() {
-			read(w, req, cfg, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
-
-			Convey("Then a 500 internal server error status should be returned", func() {
-				So(w.Code, ShouldEqual, http.StatusInternalServerError)
-
-				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 				So(len(mockedSearchClient.GetDepartmentsCalls()), ShouldEqual, 1)
 			})
 		})
@@ -483,102 +455,6 @@ func TestUnitSetCountToCategoriesSuccess(t *testing.T) {
 					So(categories[0].Count, ShouldEqual, 1)
 					So(categories[0].ContentTypes[1].Count, ShouldEqual, 1)
 				})
-			})
-		})
-	})
-}
-
-func TestUnitGetSearchPageSuccess(t *testing.T) {
-	t.Parallel()
-
-	Convey("Given valid search data such as query parameters, categories and response", t, func() {
-		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/search?q=housing", nil)
-
-		cfg, err := config.Get()
-		So(err, ShouldBeNil)
-
-		mockedRendererClient := &RenderClientMock{
-			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-				return []byte(`<html><body><h1>Some HTML from renderer!</h1></body></html>`), nil
-			},
-		}
-
-		validatedQueryParams := data.SearchURLParams{
-			Query: "housing",
-			Sort: data.Sort{
-				Query:           "relevance",
-				LocaliseKeyName: "Relevance",
-			},
-			Limit:       10,
-			CurrentPage: 1,
-		}
-
-		categories := data.GetCategories()
-		categories[0].Count = 1
-		categories[0].ContentTypes[1].Count = 1
-
-		mockCountSearchResponse, err := mapper.GetMockSearchResponse()
-		So(err, ShouldBeNil)
-
-		mockDeptResponse, err := mapper.GetMockDepartmentResponse()
-		So(err, ShouldBeNil)
-
-		Convey("When getSearchPage is called", func() {
-			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse, mockDeptResponse, lang)
-
-			Convey("Then return no error and successfully get search page", func() {
-				So(err, ShouldBeNil)
-
-				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 1)
-			})
-		})
-	})
-}
-
-func TestUnitGetSearchPageFailure(t *testing.T) {
-	t.Parallel()
-
-	Convey("Given an error from failing to get template from renderer", t, func() {
-		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/search?q=housing", nil)
-
-		cfg, err := config.Get()
-		So(err, ShouldBeNil)
-
-		mockedRendererClient := &RenderClientMock{
-			DoFunc: func(in1 string, in2 []byte) ([]byte, error) {
-				return []byte{}, errs.ErrInternalServer
-			},
-		}
-
-		validatedQueryParams := data.SearchURLParams{
-			Query: "housing",
-			Sort: data.Sort{
-				Query:           "relevance",
-				LocaliseKeyName: "Relevance",
-			},
-			Limit:       10,
-			CurrentPage: 1,
-		}
-
-		categories := data.GetCategories()
-		categories[0].Count = 1
-		categories[0].ContentTypes[1].Count = 1
-
-		mockCountSearchResponse, err := mapper.GetMockSearchResponse()
-		So(err, ShouldBeNil)
-
-		mockDeptResponse, err := mapper.GetMockDepartmentResponse()
-		So(err, ShouldBeNil)
-
-		Convey("When getSearchPage is called", func() {
-			err := getSearchPage(w, req, cfg, mockedRendererClient, validatedQueryParams, categories, mockCountSearchResponse, mockDeptResponse, lang)
-
-			Convey("Then return error", func() {
-				So(err, ShouldNotBeNil)
-
-				So(len(mockedRendererClient.DoCalls()), ShouldEqual, 1)
 			})
 		})
 	})
