@@ -17,9 +17,9 @@
                             data-gtm-search-result-url="{{ .URI }}"
                             data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
                             >
-                                {{ if .Description.Highlight.Title}}{{ .Description.Highlight.Title | safeHTML }}{{ else }}{{ .Description.Title | safeHTML }}{{ end }}
-                                {{ if or .Description.Highlight.Edition .Description.Edition }}:{{ end }}
-                                {{ if .Description.Highlight.Edition}}{{ .Description.Highlight.Edition | safeHTML }}{{ else }}{{ .Description.Edition | safeHTML }}{{ end }}
+                                {{ .Description.Title | safeHTML }}
+                                {{ if .Description.Edition }}:{{ end }}
+                                {{ .Description.Edition | safeHTML }}
                             </a>
                         </h3>
                         <p class="search-results__meta font-size--16">
@@ -30,31 +30,16 @@
                         <div class="search-results__summary font-size--16">
                             {{ if .Description.Highlight.Summary}} {{ .Description.Highlight.Title | safeHTML }} {{ else }} {{ .Description.Summary | safeHTML }} {{ end }}
                         </div>
-                        {{ if .Description.Highlight.Keywords }}
-                            {{ $keywords := .Description.Highlight.Keywords }}
-                            {{ if $keywords }}
-                                {{ $numberOfKeywords := len $keywords }}
-                                {{ if gt $numberOfKeywords 0}}
-                                    <p class="search-results__keywords font-size--16">
-                                        {{ localise "Keywords" $lang 4 }}:
-                                        {{ range $i, $el := $keywords }}
-                                            {{$el | safeHTML }}{{ if notLastItem $numberOfKeywords $i }},{{end}}
-                                        {{end}}
-                                    </p>
-                                {{ end }}
-                            {{ end }}
-                        {{ else }}
-                            {{ $keywords := .Description.Keywords }}
-                            {{ if $keywords }}
-                                {{ $numberOfKeywords := len $keywords }}
-                                {{ if gt $numberOfKeywords 0}}
-                                    <p class="search-results__keywords font-size--16">
-                                        {{ localise "Keywords" $lang 4 }}:
-                                        {{ range $i, $el := $keywords }}
-                                            {{$el | safeHTML }}{{ if notLastItem $numberOfKeywords $i }},{{end}}
-                                        {{end}}
-                                    </p>
-                                {{ end }}
+                        {{ $keywords := .Description.Keywords }}
+                        {{ if $keywords }}
+                            {{ $numberOfKeywords := len $keywords }}
+                            {{ if gt $numberOfKeywords 0}}
+                                <p class="search-results__keywords font-size--16">
+                                    {{ localise "Keywords" $lang 4 }}:
+                                    {{ range $i, $el := $keywords }}
+                                        {{$el | safeHTML }}{{ if notLastItem $numberOfKeywords $i }},{{end}}
+                                    {{end}}
+                                </p>
                             {{ end }}
                         {{ end }}
                     </li>
