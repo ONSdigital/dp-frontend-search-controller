@@ -28,7 +28,7 @@
                             {{ localise "ReleasedOn" $lang 1 }} {{dateFormat .Description.ReleaseDate}}
                         </p>
                         <div class="search-results__summary font-size--16">
-                            {{ if .Description.Highlight.Summary}} {{ .Description.Highlight.Title | safeHTML }} {{ else }} {{ .Description.Summary | safeHTML }} {{ end }}
+                            {{ if .Description.Highlight.Summary }} {{ .Description.Highlight.Summary | safeHTML }} {{ else }} {{ .Description.Summary | safeHTML }} {{ end }}
                         </div>
                         {{ $keywords := .Description.Keywords }}
                         {{ if $keywords }}
