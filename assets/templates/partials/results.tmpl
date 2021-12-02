@@ -28,11 +28,13 @@
                         {{ $type := .Type }}
                             {{ range $category := $response.Categories }}
                                 {{ range $content := $category.ContentTypes }}
-                                    {{ if eq $type $content.Type }}
-                                        {{ localise $content.LocaliseKeyName $lang 4 }}
+                                    {{ range $content.SubTypes }}
+                                        {{ if eq . $type }}
+                                            {{ localise $content.LocaliseKeyName $lang 4 }}
+                                        {{ end }}
                                     {{ end }}
-                                {{end}}
-                             {{end}}
+                                {{ end }}
+                             {{ end }}
                             |
                             {{ localise "ReleasedOn" $lang 1 }} {{dateFormat .Description.ReleaseDate}}
                         </p>
