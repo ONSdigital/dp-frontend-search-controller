@@ -54,10 +54,12 @@ other = "Compendiums"
 
 [TimeSeries]
 description = "Time series"
+one = "Time series"
 other = "Time series"
 
 [Datasets]
 description = "Datasets"
+one = "Dataset"
 other = "Datasets"
 
 [Methodology]
@@ -75,6 +77,7 @@ other = "User requested data"
 
 [CorporateInformation]
 description = "Corporate Information"
+one = "Corporate Information"
 other = "Corporate Information"
 
 [And]

@@ -2,7 +2,6 @@
 {{ $currentPage := .Data.Pagination.CurrentPage }}
 {{ $itemsPerPage := .Data.Pagination.Limit }}
 {{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
-{{ $filter := .Data.Filter }}
 {{ $response := .Data.Response }}
 <div id="results" class="results">    
     {{ if ne .Data.Response.Count 0 }}
@@ -30,7 +29,7 @@
                                 {{ range $content := $category.ContentTypes }}
                                     {{ range $content.SubTypes }}
                                         {{ if eq . $type }}
-                                            {{ localise $content.LocaliseKeyName $lang 4 }}
+                                            {{ localise $content.LocaliseKeyName $lang 1 }}
                                         {{ end }}
                                     {{ end }}
                                 {{ end }}
