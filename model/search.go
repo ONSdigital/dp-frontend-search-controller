@@ -53,7 +53,7 @@ type ContentType struct {
 	Type            string 		`json:"type"`
 	Count           int    		`json:"count"`
 	LocaliseKeyName string 		`json:"localise_key"`
-	SubTypes		[]string 	`json:"sub_types"`
+	SubTypes        []string    `json:"sub_types"`
 }
 
 // ContentItem represents each search result
