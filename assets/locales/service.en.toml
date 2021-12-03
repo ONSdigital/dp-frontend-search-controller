@@ -73,6 +73,7 @@ one = "Release date"
 
 [UserRequestedData]
 description = "User requested data"
+one = "User requested data"
 other = "User requested data"
 
 [CorporateInformation]
