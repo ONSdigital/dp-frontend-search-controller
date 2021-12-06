@@ -95,6 +95,7 @@ func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
 				Type:            contentType.Type,
 				Count:           contentType.Count,
 				LocaliseKeyName: contentType.LocaliseKeyName,
+				SubTypes:		contentType.SubTypes,
 			})
 		}
 

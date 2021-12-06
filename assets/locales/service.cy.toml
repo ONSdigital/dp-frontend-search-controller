@@ -54,10 +54,12 @@ other = "Compendiwm"
 
 [TimeSeries]
 description = "Time series"
+one = "Cyfres amser"
 other = "Cyfres amser"
 
 [Datasets]
 description = "Datasets"
+one = "Set ddata"
 other = "Datasets"
 
 [Methodology]
@@ -71,10 +73,12 @@ one = "Dyddiad y datganiad"
 
 [UserRequestedData]
 description = "User requested data"
+one = "Data a gyrchwyd gan y defnyddiwr"
 other = "Data a gyrchwyd gan y defnyddiwr"
 
 [CorporateInformation]
 description = "Corporate Information"
+one = "Corporate Information"
 other = "Corporate Information"
 
 [And]

@@ -2,6 +2,7 @@
 {{ $currentPage := .Data.Pagination.CurrentPage }}
 {{ $itemsPerPage := .Data.Pagination.Limit }}
 {{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
+{{ $response := .Data.Response }}
 <div id="results" class="results">    
     {{ if ne .Data.Response.Count 0 }}
         <div class="search-results ">
@@ -23,7 +24,16 @@
                             </a>
                         </h3>
                         <p class="search-results__meta font-size--16">
-                            {{ .Type}}
+                        {{ $type := .Type }}
+                            {{ range $category := $response.Categories }}
+                                {{ range $content := $category.ContentTypes }}
+                                    {{ range $content.SubTypes }}
+                                        {{ if eq . $type }}
+                                            {{ localise $content.LocaliseKeyName $lang 1 }}
+                                        {{ end }}
+                                    {{ end }}
+                                {{ end }}
+                             {{ end }}
                             |
                             {{ localise "ReleasedOn" $lang 1 }} {{dateFormat .Description.ReleaseDate}}
                         </p>
