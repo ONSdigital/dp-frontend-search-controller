@@ -12,13 +12,13 @@ import (
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string) (page model.SearchPage) {
+func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string) model.SearchPage {
 
-	p := model.SearchPage{
+	page := model.SearchPage{
 		Page: basePage,
 	}
 
-	MapCookiePreferences(req, &p.Page.CookiesPreferencesSet, &p.Page.CookiesPolicy)
+	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
 
 	page.Metadata.Title = "Search"
 	page.Type = "search"
@@ -95,7 +95,7 @@ func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
 				Type:            contentType.Type,
 				Count:           contentType.Count,
 				LocaliseKeyName: contentType.LocaliseKeyName,
-				SubTypes:		contentType.SubTypes,
+				SubTypes:        contentType.SubTypes,
 			})
 		}
 
