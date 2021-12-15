@@ -22,12 +22,10 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	page.Metadata.Title = "Search"
 	page.Type = "search"
-	page.SearchDisabled = true
 	page.Language = lang
 	page.BetaBannerEnabled = true
 	page.URI = req.URL.Path
 	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath
-	// page.FeatureFlags.SixteensVersion = "67f6982"
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC)
 
