@@ -1,10 +1,20 @@
+{{ $lang := .Language }}
 <div class="page-content border">
     <div class="wrapper">
-        <section>
-            <div>
+        <section class="col">
             {{ template "partials/summary" . }}
+        </section>
+        <section>
+
+                <div class="col col--md-12 col--lg-18 padding-top-md--2 padding-right-md--1 padding-bottom-md--4 padding-left-sm--1 padding-left-md--1 flush js-mobile-filters__title">
+                    <h3 class="inline-block flush font-size--18">{{ localise "FilterResults" $lang 4 }}</h3>
+                </div>
+
+            <div class="col-wrap col--md-34 col--lg-40">
+                {{ template "partials/sort" . }}
             </div>
-            {{ template "partials/sort" . }}
+        </section>
+        <section class="col col--md-12 col--lg-18 margin-bottom">
             {{ template "partials/filter" . }}
         </section>
         <section class="col col--md-34 col--lg-40 margin-left-md--1" aria-label="Search results">
@@ -13,4 +23,4 @@
             {{ template "partials/pagination" . }}
         </section>
     </div>
-</div>
+</div>Ï
