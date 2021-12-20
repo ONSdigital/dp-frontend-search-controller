@@ -1,11 +1,16 @@
 <div class="page-content border">
     <div class="wrapper">
-        {{ template "partials/sort" . }}
-        {{ template "partials/filter" . }}
-            <section class="col col--md-34 col--lg-40 margin-left-md--1" aria-label="Search results">
-                {{ template "partials/department" . }}
-                {{ template "partials/results" . }}
-                {{ template "partials/pagination" . }}
-            </section>
+        <section>
+            <div>
+            {{ template "partials/summary" . }}
+            </div>
+            {{ template "partials/sort" . }}
+            {{ template "partials/filter" . }}
+        </section>
+        <section class="col col--md-34 col--lg-40 margin-left-md--1" aria-label="Search results">
+            {{ template "partials/department" . }}
+            {{ template "partials/results" . }}
+            {{ template "partials/pagination" . }}
+        </section>
     </div>
 </div>

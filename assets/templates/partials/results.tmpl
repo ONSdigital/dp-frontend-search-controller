@@ -4,8 +4,8 @@
 {{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
 {{ $response := .Data.Response }}
 <div id="results" class="results">    
-    {{ if ne .Data.Response.Count 0 }}
-        <div class="search-results ">
+        <h2 class="search-results ">
+            {{ if ne .Data.Response.Count 0 }}
             <ul class="list--neutral flush">
                 {{ range $i, $item := .Data.Response.Items }}
                     {{ $currentPosition := add $i 1 }}
@@ -53,9 +53,9 @@
                             {{ end }}
                         {{ end }}
                     </li>
-                {{end}}
             </ul>
-        </div>
+                {{end}}
+
     {{else}}
         <div id="js-search-help" class="col col--lg-42">
             <h2 class="margin-top-sm--0 margin-top-md--2 margin-top-lg--2">You could try one of the following:</h2>
@@ -68,4 +68,5 @@
             </ul>
         </div>
     {{end}}
+    </h2>
 </div>
