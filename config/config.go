@@ -2,7 +2,6 @@ package config
 
 import (
 	"time"
-
 	"github.com/kelseyhightower/envconfig"
 )
 
