@@ -2,51 +2,50 @@
 {{ $response := .Data.Response }}
 {{ $query := .Data.Query }}
 {{ $lang := .Language }}
-<form id="form" class="js-auto-submit__form" action="/search" method="get">
+<form id="filterForm" class="js-auto-submit__form" action="/search" method="get">
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sortBy" value="relevance"/>
 
     <div class="margin-bottom-md--2 flush-col js-mobile-filters">
-
-        {{/*            <div class="background--gallery padding-top-md--2 padding-right-md--1 padding-bottom-md--4 padding-left-sm--1 padding-left-md--1 flush js-mobile-filters__title">*/}}
-        {{/*                <h3 class="inline-block flush font-size--18">{{ localise "FilterResults" $lang 4 }}</h3>*/}}
-        {{/*                <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search"*/}}
-        {{/*                   class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>*/}}
-        {{/*            </div>*/}}
-
-
-
         <div class="background--mercury border-top--iron-md padding-top-sm--2 padding-top-md--1 padding-right-sm--1 padding-right-md--1 padding-bottom-sm--2 padding-bottom-md--2 padding-left-sm--1 padding-left-md--1 js-mobile-filters__contents">
             <fieldset class="ons-fieldset">
                 <legend class="ons-fieldset__legend">
                     Content type
                 </legend>
+                <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search"
+                   class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
                 <p class="ons-checkboxes__label">Show only:</p>
-{{ $filter }}
                 {{ range $index, $category := $response.Categories }}
-                <div class="ons-checkboxes__items">
+                    <div class="ons-checkboxes__items">
                             <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
                                 <span class="ons-checkbox ons-checkbox--no-border">
                                     <input type="checkbox" id="group-{{ $index }}"
-                                           class="js-auto-submit__input ons-checkbox__input ons-js-checkbox {{if contains $filter "bullitins"}} ons-js-select-all-children{{end}}"
+                                           class="js-auto-submit__input ons-checkbox__input ons-js-checkbox ons-js-select-all-children"
                                            value="{{ $category }}" aria-controls="group-{{ $index }}-other-wrap"
-                                           aria-haspopup="true">
+                                           aria-haspopup="true"
+                                              {{ range $content := $category.ContentTypes}}
+                                                  {{if stringArrayContains $content.Type $filter }}
+                                                      checked
+                                                  {{end}}
+                                              {{end}}
+                                           >
                                     <label class="ons-checkbox__label" for="group-{{ $index }}"
                                            id="group-{{ $index }}-label">
                                         {{ localise $category.LocaliseKeyName $lang 4 }} ({{ $category.Count }})
                                     </label>
-                                    <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
+                                    <span class="ons-checkbox__other ons-checkbox__other--open" id="group-{{ $index }}-other-wrap">
                                         <fieldset class="ons-fieldset ons-js-other-fieldset">
                                             {{ range $contentIndex, $content := $category.ContentTypes }}
                                                 <div class="ons-checkboxes__items">
                                                 <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                                    <span class="ons-checkbox ons-checkbox--no-border">
+                                                    <span class="ons-checkbox ons-checkbox--no-border child-filter">
                                                         {{ $id := (print $content.Type) }}
                                                         <input id="{{ $id }}"
                                                                class="js-auto-submit__input ons-checkbox__input ons-js-checkbox"
                                                                type="checkbox" name="filter"
                                                                {{ range $filter }}{{ if eq . $content.Type }}checked{{end}}{{end}}
-                                                               value="{{ $id }}"/>
+                                                               value="{{ $id }}"
+                                                        />
 
                                                         <label class="ons-checkbox__label" for="{{ $id }}"
                                                                id="{{ $id }}-label">
@@ -60,13 +59,14 @@
                                     </span>
                                 </span>
                             </span>
-                </div>
+                    </div>
                 {{ end }}
-
             </fieldset>
-            <button type="submit"
-                    class="btn btn--primary btn--thick margin-top-sm--2 margin-top-md--2 js-submit-button">Filter
-            </button>
+            <noscript>
+                <button type="submit"
+                        class="btn btn--primary btn--thick margin-top-sm--2 margin-top-md--2 js-submit-button">Filter
+                </button>
+            </noscript>
         </div>
     </div>
     <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
