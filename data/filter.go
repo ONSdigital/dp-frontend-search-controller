@@ -30,6 +30,27 @@ type ContentType struct {
 	SubTypes        []string `json:"sub_types"`
 }
 
+var defaultContentTypes = "article," +
+	"article_download," +
+	"bulletin," +
+	"compendium_landing_page," +
+	"compendium_chapter," +
+	"compendium_data," +
+	"dataset," +
+	"dataset_landing_page," +
+	"product_page," +
+	"reference_tables," +
+	"static_adhoc," +
+	"static_article," +
+	"static_foi," +
+	"static_landing_page," +
+	"static_methodology," +
+	"static_methodology_download," +
+	"static_page," +
+	"static_qmi," +
+	"timeseries," +
+	"timeseries_dataset"
+
 var (
 	// Categories represent the list of all search categories
 	Categories = []Category{Publication, Data, Other}
@@ -178,6 +199,8 @@ func updateQueryWithAPIFilters(apiQuery url.Values) {
 		subFilters := getSubFilters(filters)
 
 		apiQuery.Set("content_type", strings.Join(subFilters, ","))
+	} else {
+		apiQuery.Set("content_type", defaultContentTypes)
 	}
 }
 
