@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
-	"github.com/davecgh/go-spew/spew"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -253,7 +252,6 @@ func TestUnitUpdateQueryWithAPIFiltersSuccess(t *testing.T) {
 			updateQueryWithAPIFilters(apiQuery)
 
 			Convey("Use default content type list", func() {
-				spew.Dump(apiQuery)
 				So(apiQuery, ShouldResemble, expected)
 			})
 		})
