@@ -2,15 +2,13 @@ module github.com/ONSdigital/dp-frontend-search-controller
 
 go 1.17
 
-
-
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.4.3
 	github.com/ONSdigital/dp-component-test v0.6.3
 	github.com/ONSdigital/dp-cookies v0.3.3
 	github.com/ONSdigital/dp-healthcheck v1.1.0
 	github.com/ONSdigital/dp-net v1.2.0
-	github.com/ONSdigital/dp-renderer v1.10.2
+	github.com/ONSdigital/dp-renderer v1.10.3
 	github.com/ONSdigital/log.go/v2 v2.0.9
 	github.com/cucumber/godog v0.11.0
 	github.com/gorilla/mux v1.8.0
@@ -19,8 +17,6 @@ require (
 	github.com/smartystreets/goconvey v1.7.2
 	github.com/stretchr/testify v1.7.0
 )
-
-
 
 require (
 	github.com/BurntSushi/toml v0.3.1 // indirect
@@ -68,4 +64,5 @@ require (
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	winterdrache.de/goformat v0.0.0-20180512004123-256ef38c4271 // indirect
 )
