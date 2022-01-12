@@ -246,12 +246,13 @@ func TestUnitUpdateQueryWithAPIFiltersSuccess(t *testing.T) {
 
 	Convey("Given no filter is selected", t, func() {
 		apiQuery := url.Values{}
+		expected := url.Values{"content_type": []string{defaultContentTypes}}
 
 		Convey("When updateQueryWithAPIFilters is called", func() {
 			updateQueryWithAPIFilters(apiQuery)
 
-			Convey("Then do not get the sub filters and set apiQuery's content_type", func() {
-				So(apiQuery, ShouldBeEmpty)
+			Convey("Use default content type list", func() {
+				So(apiQuery, ShouldResemble, expected)
 			})
 		})
 	})
