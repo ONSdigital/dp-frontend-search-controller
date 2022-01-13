@@ -1,36 +1,34 @@
 {{ $lang := .Language }}
-
-<div class="search-summary">
-    <div aria-live="polite">
-        <span class="search-summary__count">{{ .Data.Response.Count}}
-            {{ if and (.Data.Filter) (not .Data.Response.Suggestions) }}
-                {{ $length := len .Data.Sort.LocaliseFilterKeys }}
-                {{ range $i, $LocaliseFilterKey := .Data.Sort.LocaliseFilterKeys }}
-                    <span class="lowercase">
-                        {{ localise $LocaliseFilterKey $lang 4 }}{{ if lt $i (subtract $length 2) }}, {{end}}
-                        {{ if eq $i (subtract $length 2) }} {{ localise "And" $lang 1 }} {{end}}
-                    </span>
-                {{ end }}
-            {{else}} results {{end}} 
-            for
-        </span>
-        <span class="search-summary__query">{{ .Data.Query}}</span>
-        <span class="search-summary__suggestion">
-            {{ if .Data.Response.Suggestions}}
-                Did you mean <a class="underline-link"
-                                href="/search?q={{ index .Data.Response.Suggestions 0 }}">{{ index .Data.Response.Suggestions 0 }}</a>?
-            {{ else }}
-                {{ $len := len .Data.Response.AdditionalSuggestions}}
-                {{ if gt $len 0 }}
-                    Try
-                    {{ range $i, $suggestion := .Data.Response.AdditionalSuggestions}}
-                        <a class="underline-link" href="/search?q={{ $suggestion }}">{{ $suggestion }}</a>
-                        {{ if notLastItem $len $i }}
-                            or
-                        {{ end }}
+<div aria-live="polite">
+    <span class="search__summary__count">{{ .Data.Response.Count}}
+        {{ if and (.Data.Filter) (not .Data.Response.Suggestions) }}
+            {{ $length := len .Data.Sort.LocaliseFilterKeys }}
+            {{ range $i, $LocaliseFilterKey := .Data.Sort.LocaliseFilterKeys }}
+                <span class="lowercase">
+                    {{ localise $LocaliseFilterKey $lang 4 }}{{ if lt $i (subtract $length 2) }}, {{end}}
+                    {{ if eq $i (subtract $length 2) }} {{ localise "And" $lang 1 }} {{end}}
+                </span>
+            {{ end }}
+        {{else}} results {{end}} 
+        for
+    </span>
+    <span class="search__summary__query">{{ .Data.Query}}</span>
+    <span class="search__summary__suggestion">
+        {{ if .Data.Response.Suggestions}}
+            Did you mean <a class="underline-link"
+                            href="/search?q={{ index .Data.Response.Suggestions 0 }}">{{ index .Data.Response.Suggestions 0 }}</a>?
+        {{ else }}
+            {{ $len := len .Data.Response.AdditionalSuggestions}}
+            {{ if gt $len 0 }}
+                Try
+                {{ range $i, $suggestion := .Data.Response.AdditionalSuggestions}}
+                    <a class="underline-link" href="/search?q={{ $suggestion }}">{{ $suggestion }}</a>
+                    {{ if notLastItem $len $i }}
+                        or
                     {{ end }}
                 {{ end }}
             {{ end }}
-        </span>
-    </div>
+        {{ end }}
+    </span>
 </div>
+

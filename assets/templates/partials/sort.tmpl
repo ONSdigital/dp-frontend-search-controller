@@ -1,17 +1,15 @@
 {{ $lang := .Language }}
-<div class="sort-results">
-    <form id="form-sort" class="js-auto-submit__form">
-        <div class="js-mobile-filters__sort">
-            <label for="sort" class="sort__label font-size--16">Sort by
-                <select class="input select width-auto js-auto-submit__input font-size--16" id="sort" name="sort">
-                    {{ $sortQuery := .Data.Sort.Query }}
-                    {{ range $sort := .Data.Sort.Options }}
-                        <option class="sort__option"
-                                value={{ .Query}} {{ if eq .Query $sortQuery }}selected{{end}}>{{ localise .LocaliseKeyName $lang 1 }}</option>
-                    {{ end }}
-                </select>
-            </label>
-            <button type="submit" class="btn btn--primary btn--thin btn--small js--hide font-size--16">Sort</button>
-        </div>
-    </form>
-</div>
+<form id="form-sort" class="js-auto-submit__form">
+    <div class="js-mobile-filters__sort">
+        <label for="sort" class="sort__label font-size--16">Sort by
+            <select class="input select width-auto js-auto-submit__input font-size--16" id="sort" name="sort">
+                {{ $sortQuery := .Data.Sort.Query }}
+                {{ range $sort := .Data.Sort.Options }}
+                    <option class="sort__option"
+                            value={{ .Query}} {{ if eq .Query $sortQuery }}selected{{end}}>{{ localise .LocaliseKeyName $lang 1 }}</option>
+                {{ end }}
+            </select>
+        </label>
+        <button type="submit" class="btn btn--primary btn--thin btn--small js--hide font-size--16">Sort</button>
+    </div>
+</form>

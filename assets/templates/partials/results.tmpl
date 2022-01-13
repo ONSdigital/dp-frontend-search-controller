@@ -3,13 +3,13 @@
 {{ $itemsPerPage := .Data.Pagination.Limit }}
 {{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
 {{ $response := .Data.Response }}
-<div id="results" class="results">
-    <h2 class="search-results ">
+<div id="results" class="search__results">
+    <h2>
         {{ if ne .Data.Response.Count 0 }}
             <ul class="list--neutral flush">
             {{ range $i, $item := .Data.Response.Items }}
                 {{ $currentPosition := add $i 1 }}
-                <li class="col col--md-34 col--lg-40 search-results__item">
+                <li class="col col--md-34 col--lg-40 search__results__item">
                     <h3 class="search-results__title underline-link">
                         <a href="{{ .URI }}"
                            data-gtm-search-result-title="{{ .Description.Title }}"
