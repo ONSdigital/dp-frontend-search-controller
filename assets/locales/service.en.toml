@@ -81,6 +81,11 @@ description = "Corporate Information"
 one = "Corporate Information"
 other = "Corporate Information"
 
+[ProductPage]
+description = "Topic"
+one = "Topic"
+other = "Topic"
+
 [And]
 description = "and"
 one = "and"
