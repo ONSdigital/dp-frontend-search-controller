@@ -34,12 +34,8 @@ var defaultContentTypes = "article," +
 	"article_download," +
 	"bulletin," +
 	"compendium_landing_page," +
-	"compendium_chapter," +
-	"compendium_data," +
-	"dataset," +
 	"dataset_landing_page," +
 	"product_page," +
-	"reference_tables," +
 	"static_adhoc," +
 	"static_article," +
 	"static_foi," +
@@ -70,7 +66,7 @@ var (
 	// Other - search information on other categories
 	Other = Category{
 		LocaliseKeyName: "Other",
-		ContentTypes:    []ContentType{Methodology, CorporateInformation},
+		ContentTypes:    []ContentType{Methodology, CorporateInformation, ProductPage},
 	}
 
 	// Bulletin - Search information specific for statistical bulletins
@@ -105,7 +101,7 @@ var (
 	Datasets = ContentType{
 		LocaliseKeyName: "Datasets",
 		Type:            "datasets",
-		SubTypes:        []string{"dataset_landing_page", "reference_tables"},
+		SubTypes:        []string{"dataset_landing_page", "timeseries_dataset", "reference_tables"},
 	}
 
 	// UserRequestedData - Search information specific for user requested data
@@ -127,6 +123,11 @@ var (
 		LocaliseKeyName: "CorporateInformation",
 		Type:            "corporate_information",
 		SubTypes:        []string{"static_foi", "static_page", "static_landing_page", "static_article"},
+	}
+
+	ProductPage = ContentType{
+		LocaliseKeyName: "ProductPage",
+		Type:            "product_page",
 	}
 
 	// filterOptions contains all the possible filter available on the search page
