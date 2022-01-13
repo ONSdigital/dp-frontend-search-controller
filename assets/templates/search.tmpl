@@ -6,7 +6,8 @@
     </section>
     <section class="col col--md-12 col--lg-18 margin-bottom search__filter">
       <div
-        class="col col--md-12 col--lg-18 padding-top-md--2 padding-right-md--1 padding-bottom-md--4 padding-left-sm--1 padding-left-md--1 js-mobile-filters__title">
+        class="col col--md-12 col--lg-18 padding-top-md--2 padding-right-md--1 padding-bottom-md--4 padding-left-sm--1 padding-left-md--1 js-mobile-filters__title"
+      >
         <h3 class="font-size--18">
           {{ localise "FilterResults" $lang 4 }}
         </h3>
@@ -17,13 +18,16 @@
     </section>
     <section
       class="col col--md-34 col--lg-40 margin-left-md--1"
-      aria-label="Search results">
+      aria-label="Search results"
+    >
       <div class="col--md-34 col--lg-40 search__sort">
         {{ template "partials/sort" . }}
       </div>
       <div class="search__results col--border-top">
         {{ template "partials/department" . }}
         {{ template "partials/results" . }}
+      </div>
+      <div class="search__pagintion">
         {{ template "partials/pagination" . }}
       </div>
     </section>
