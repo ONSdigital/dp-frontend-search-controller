@@ -101,7 +101,7 @@ var (
 	Datasets = ContentType{
 		LocaliseKeyName: "Datasets",
 		Type:            "datasets",
-		SubTypes:        []string{"dataset_landing_page", "timeseries_dataset", "reference_tables"},
+		SubTypes:        []string{"dataset_landing_page", "timeseries_dataset"},
 	}
 
 	// UserRequestedData - Search information specific for user requested data
@@ -128,7 +128,7 @@ var (
 	ProductPage = ContentType{
 		LocaliseKeyName: "ProductPage",
 		Type:            "product_page",
-		SubTypes:        []string{},
+		SubTypes:        []string{"product_page"},
 	}
 
 	// filterOptions contains all the possible filter available on the search page
