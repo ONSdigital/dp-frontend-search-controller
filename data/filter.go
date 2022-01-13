@@ -128,6 +128,7 @@ var (
 	ProductPage = ContentType{
 		LocaliseKeyName: "ProductPage",
 		Type:            "product_page",
+		SubTypes:        []string{},
 	}
 
 	// filterOptions contains all the possible filter available on the search page
