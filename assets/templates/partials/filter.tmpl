@@ -23,7 +23,7 @@
                                            value="{{ $category }}" aria-controls="group-{{ $index }}-other-wrap"
                                            aria-haspopup="true"
                                               {{ range $content := $category.ContentTypes}}
-                                                  {{if stringArrayContains $content.Type $filter }}
+                                                  {{if stringArrayContains $content.Group $filter }}
                                                       checked
                                                   {{end}}
                                               {{end}}
@@ -38,11 +38,11 @@
                                                 <div class="ons-checkboxes__items">
                                                 <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
                                                     <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                        {{ $id := (print $content.Type) }}
+                                                        {{ $id := (print $content.Group) }}
                                                         <input id="{{ $id }}"
                                                                class="js-auto-submit__input ons-checkbox__input ons-js-checkbox"
                                                                type="checkbox" name="filter"
-                                                               {{ range $filter }}{{ if eq . $content.Type }}checked{{end}}{{end}}
+                                                               {{ range $filter }}{{ if eq . $content.Group }}checked{{end}}{{end}}
                                                                value="{{ $id }}"
                                                         />
                                                         <label class="ons-checkbox__label" for="{{ $id }}"

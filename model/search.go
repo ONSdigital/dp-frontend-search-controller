@@ -50,10 +50,10 @@ type Category struct {
 
 // ContentType represents the type of the search results and the number of results for each type
 type ContentType struct {
-	Type            string		`json:"type"`
-	Count           int		`json:"count"`
-	LocaliseKeyName string		`json:"localise_key"`
-	SubTypes        []string	`json:"sub_types"`
+	Group           string   `json:"group"`
+	Count           int      `json:"count"`
+	LocaliseKeyName string   `json:"localise_key"`
+	Types           []string `json:"types"`
 }
 
 // ContentItem represents each search result

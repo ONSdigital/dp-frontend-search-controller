@@ -93,10 +93,10 @@ func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
 
 		for _, contentType := range category.ContentTypes {
 			pageContentType = append(pageContentType, model.ContentType{
-				Type:            contentType.Type,
+				Group:           contentType.Group,
 				Count:           contentType.Count,
 				LocaliseKeyName: contentType.LocaliseKeyName,
-				SubTypes:        contentType.SubTypes,
+				Types:           contentType.Types,
 			})
 		}
 

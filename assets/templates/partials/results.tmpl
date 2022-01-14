@@ -27,7 +27,7 @@
                         {{ $type := .Type }}
                         {{ range $category := $response.Categories }}
                             {{ range $content := $category.ContentTypes }}
-                                {{ range $content.SubTypes }}
+                                {{ range $content.Types }}
                                     {{ if eq . $type }}
                                         {{ localise $content.LocaliseKeyName $lang 1 }}
                                     {{ end }}
