@@ -11,23 +11,23 @@
                         {{ if eq .PageNumber (add $pagination.CurrentPage 1 ) }}{{ $nextURL = .URL }}{{end}}
                     {{ end }}
                     {{ if gt $pagination.CurrentPage 1 }}
-                        <li class="margin-top-sm--0 margin-top-md--0">
+                        <li class="margin-top-sm--0 margin-top-md--0 search__pagination__item">
                             <a href={{ $prevURL }} class="page-link btn btn--plain" rel="prev">Prev</a>
                         </li>
                     {{ end }}
                     {{ range $pagination.PagesToDisplay }}
                         {{ if eq .PageNumber $pagination.CurrentPage }}
-                            <li class="margin-top-sm--0 margin-top-md--0">
+                            <li class="margin-top-sm--0 margin-top-md--0 search__pagination__item">
                                 <a href={{ .URL}} class="page-link btn btn--plain btn--plain-active btn--block" aria-current="true" aria-label="Current page (Page {{ .PageNumber}} of {{ $pagination.TotalPages}})">{{ .PageNumber}}</a>
                             </li>
                         {{ else }}
-                            <li class="margin-top-sm--0 margin-top-md--0">
+                            <li class="margin-top-sm--0 margin-top-md--0 search__pagination__item">
                                 <a href={{ .URL}} class="page-link btn btn--plain" aria-label="Page {{ .PageNumber}} of {{ $pagination.TotalPages}}">{{ .PageNumber}}</a>
                             </li>
                         {{ end }}
                     {{ end }}
                     {{ if lt $pagination.CurrentPage $pagination.TotalPages }}
-                        <li class="margin-top-sm--0 margin-top-md--0">
+                        <li class="margin-top-sm--0 margin-top-md--0 search__pagination__item">
                             <a href={{ $nextURL }} class="page-link btn btn--plain" rel="next">Next</a>
                         </li>
                     {{ end }}

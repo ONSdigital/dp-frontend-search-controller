@@ -28,6 +28,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	page.SearchDisabled = false
 	page.URI = req.URL.Path
 	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath
+	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC)
 
