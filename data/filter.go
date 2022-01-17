@@ -125,10 +125,11 @@ var (
 		Types:           []string{"static_foi", "static_page", "static_landing_page", "static_article"},
 	}
 
+	// ProductPage - Search information specific for product pages
 	ProductPage = ContentType{
 		LocaliseKeyName: "ProductPage",
-		Type:            "product_page",
-		SubTypes:        []string{"product_page"},
+		Group:           "product_page",
+		Types:           []string{"product_page"},
 	}
 
 	// filterOptions contains all the possible filter available on the search page
