@@ -13,8 +13,8 @@
 # Plural rules can be found here: http://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-[RefineResults]
-description = "Refine results"
+[FilterResults]
+description = "Filter results"
 other = "Mireinio'r canlyniadau"
 
 [ContentTypesToShow]
@@ -80,6 +80,11 @@ other = "Data a gyrchwyd gan y defnyddiwr"
 description = "Corporate Information"
 one = "Corporate Information"
 other = "Corporate Information"
+
+[ProductPage]
+description = "Topic"
+one = "Topic"
+other = "Topic"
 
 [And]
 description = "and"

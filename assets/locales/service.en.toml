@@ -13,9 +13,9 @@
 # Plural rules can be found here: http://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-[RefineResults]
-description = "Refine results"
-other = "Refine results"
+[FilterResults]
+description = "Filter results"
+other = "Filter results"
 
 [ContentTypesToShow]
 description = "Content types to show"
@@ -80,6 +80,11 @@ other = "User requested data"
 description = "Corporate Information"
 one = "Corporate Information"
 other = "Corporate Information"
+
+[ProductPage]
+description = "Topic"
+one = "Topic"
+other = "Topic"
 
 [And]
 description = "and"

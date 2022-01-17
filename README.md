@@ -6,6 +6,10 @@ An HTTP service for the controlling of search API
 
 * Run `make debug`
 
+In order to see new search in the UI:
+* run the [dp-design-system](https://github.com/ONSdigital/dp-design-system)
+* set `SearchRoutesEnabled` to `true` in the config of the [dp-frontend-router](https://github.com/ONSdigital/dp-frontend-router)
+
 ## Dependencies
 
 * No further dependencies other than those defined in `go.mod`

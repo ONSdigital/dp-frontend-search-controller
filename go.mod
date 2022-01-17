@@ -8,7 +8,7 @@ require (
 	github.com/ONSdigital/dp-cookies v0.3.3
 	github.com/ONSdigital/dp-healthcheck v1.1.0
 	github.com/ONSdigital/dp-net v1.2.0
-	github.com/ONSdigital/dp-renderer v1.9.5
+	github.com/ONSdigital/dp-renderer v1.10.7
 	github.com/ONSdigital/log.go/v2 v2.0.9
 	github.com/cucumber/godog v0.11.0
 	github.com/gorilla/mux v1.8.0
@@ -64,4 +64,5 @@ require (
 	golang.org/x/sys v0.0.0-20211124211545-fe61309f8881 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	winterdrache.de/goformat v0.0.0-20180512004123-256ef38c4271 // indirect
 )

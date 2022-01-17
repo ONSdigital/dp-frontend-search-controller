@@ -22,10 +22,13 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	page.Metadata.Title = "Search"
 	page.Type = "search"
+	page.Count = respC.Count
 	page.Language = lang
 	page.BetaBannerEnabled = true
+	page.SearchDisabled = false
 	page.URI = req.URL.Path
 	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath
+	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC)
 

@@ -1,9 +1,8 @@
 package config
 
 import (
-	"time"
-
 	"github.com/kelseyhightower/envconfig"
+	"time"
 )
 
 // Config represents service configuration for dp-frontend-search-controller
@@ -38,7 +37,7 @@ func Get() (*Config, error) {
 	if cfg.Debug {
 		cfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
 	} else {
-		cfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/sixteens/67f6982"
+		cfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/00967c3"
 	}
 	return cfg, nil
 }

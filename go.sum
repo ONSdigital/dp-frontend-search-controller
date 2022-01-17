@@ -39,12 +39,16 @@ github.com/ONSdigital/dp-net v1.0.7/go.mod h1:1QFzx32FwPKD2lgZI6MtcsUXritsBdJihl
 github.com/ONSdigital/dp-net v1.0.12/go.mod h1:2lvIKOlD4T3BjWQwjHhBUO2UNWDk82u/+mHRn0R3C9A=
 github.com/ONSdigital/dp-net v1.2.0 h1:gP9pBt/J8gktYeKsb7hq6uOC2xx1tfvTorUBNXp6pX0=
 github.com/ONSdigital/dp-net v1.2.0/go.mod h1:NinlaqcsPbIR+X7j5PXCl3UI5G2zCL041SDF6WIiiO4=
-github.com/ONSdigital/dp-renderer v1.9.1 h1:g0w6JwXanrefSJ8eB3R08Zw1r0/PUYfqXQLz6fPY1WA=
-github.com/ONSdigital/dp-renderer v1.9.1/go.mod h1:Z5sbyS0ApY6D8ikGDt2KIl5bt2p5kk73PeeMxGs1pEM=
 github.com/ONSdigital/dp-renderer v1.9.4 h1:A3zyIVRndOZYUZiHw8ZJY8xSaV9iALsPmmd3iQe7Uxg=
 github.com/ONSdigital/dp-renderer v1.9.4/go.mod h1:Z5sbyS0ApY6D8ikGDt2KIl5bt2p5kk73PeeMxGs1pEM=
-github.com/ONSdigital/dp-renderer v1.9.5 h1:ssNbHMDiqKgOkYqunLa7Sg+bM4UZ3H51c7Hh5ll21DI=
-github.com/ONSdigital/dp-renderer v1.9.5/go.mod h1:Z5sbyS0ApY6D8ikGDt2KIl5bt2p5kk73PeeMxGs1pEM=
+github.com/ONSdigital/dp-renderer v1.10.2 h1:ef8pUiMmXWV0EKLsZwHG2/lOLHNZ775fxrthh/QrV7o=
+github.com/ONSdigital/dp-renderer v1.10.2/go.mod h1:Z5sbyS0ApY6D8ikGDt2KIl5bt2p5kk73PeeMxGs1pEM=
+github.com/ONSdigital/dp-renderer v1.10.5 h1:1/xSOs11ktfYjBO45xhicH7/Foaaca9pJvk8h5yXeDM=
+github.com/ONSdigital/dp-renderer v1.10.5/go.mod h1:Z5sbyS0ApY6D8ikGDt2KIl5bt2p5kk73PeeMxGs1pEM=
+github.com/ONSdigital/dp-renderer v1.10.6 h1:Mh/WgoyMl2ITI7MaI89QqAJ3tibb0syoiiDKqFLUo8s=
+github.com/ONSdigital/dp-renderer v1.10.6/go.mod h1:Z5sbyS0ApY6D8ikGDt2KIl5bt2p5kk73PeeMxGs1pEM=
+github.com/ONSdigital/dp-renderer v1.10.7 h1:x/6N0LJ61FJO4io/Woe/BxK2PmnwmJFWCQ86BbSgu+k=
+github.com/ONSdigital/dp-renderer v1.10.7/go.mod h1:Z5sbyS0ApY6D8ikGDt2KIl5bt2p5kk73PeeMxGs1pEM=
 github.com/ONSdigital/go-ns v0.0.0-20191104121206-f144c4ec2e58/go.mod h1:iWos35il+NjbvDEqwtB736pyHru0MPFE/LqcwkV1wDc=
 github.com/ONSdigital/log.go v1.0.0/go.mod h1:UnGu9Q14gNC+kz0DOkdnLYGoqugCvnokHBRBxFRpVoQ=
 github.com/ONSdigital/log.go v1.0.1-0.20200805084515-ee61165ea36a/go.mod h1:dDnQATFXCBOknvj6ZQuKfmDhbOWf3e8mtV+dPEfWJqs=
@@ -514,3 +518,5 @@ honnef.co/go/tools v0.0.0-20190106161140-3f1c8253044a/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.0-20190418001031-e561f6794a2a/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.1-2019.2.3/go.mod h1:a3bituU0lyd329TUQxRnasdCoJDkEUEAqEt0JzvZhAg=
 rsc.io/binaryregexp v0.2.0/go.mod h1:qTv7/COck+e2FymRvadv62gMdZztPaShugOCi3I+8D8=
+winterdrache.de/goformat v0.0.0-20180512004123-256ef38c4271 h1:7RzwjFNamMx2zy/trI3eAVpEXuce2HwNWBbY9ZCX1Eo=
+winterdrache.de/goformat v0.0.0-20180512004123-256ef38c4271/go.mod h1:l7D1vfqorgZW4OOSPGR1M3Y4lQnRQJ0diYv8WPtUexg=
