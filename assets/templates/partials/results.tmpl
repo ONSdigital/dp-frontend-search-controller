@@ -24,16 +24,7 @@
                         </a>
                     </h3>
                     <p class="search-results__meta font-size--16">
-                        {{ $type := .Type }}
-                        {{ range $category := $response.Categories }}
-                            {{ range $content := $category.ContentTypes }}
-                                {{ range $content.Types }}
-                                    {{ if eq . $type }}
-                                        {{ localise $content.LocaliseKeyName $lang 1 }}
-                                    {{ end }}
-                                {{ end }}
-                            {{ end }}
-                        {{ end }}
+                        {{ localise .Type.LocaliseKeyName $lang 1 }}
                         |
                         {{ localise "ReleasedOn" $lang 1 }} {{dateFormat .Description.ReleaseDate}}
                     </p>

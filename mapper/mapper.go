@@ -120,7 +120,8 @@ func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
 
 		mapItemHighlight(&item, itemC)
 
-		item.Type = itemC.Type
+		item.Type.Type = itemC.Type
+		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(itemC.Type)
 
 		item.URI = itemC.URI
 

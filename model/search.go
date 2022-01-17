@@ -58,11 +58,16 @@ type ContentType struct {
 
 // ContentItem represents each search result
 type ContentItem struct {
-	Description Description `json:"description"`
+	Type        ContentItemType `json:"type"`
+	Description Description     `json:"description"`
+	URI         string          `json:"uri"`
+	Matches     *Matches        `json:"matches,omitempty"`
+}
 
-	Type    string   `json:"type"`
-	URI     string   `json:"uri"`
-	Matches *Matches `json:"matches,omitempty"`
+// ContentItemType represents the type of each search result
+type ContentItemType struct {
+	Type            string `json:"type"`
+	LocaliseKeyName string `json:"localise_key"`
 }
 
 // Description represents each search result description

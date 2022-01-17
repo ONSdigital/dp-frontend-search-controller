@@ -83,8 +83,8 @@ var (
 	// Article - Search information specific for articles
 	Article = ContentType{
 		LocaliseKeyName: "Article",
-		Group:           "article",
-		Types:           []string{"article", "article_download"},
+		Group:           "article",                               //Type
+		Types:           []string{"article", "article_download"}, //SubType
 	}
 
 	// Compendium - Search information specific for compendium
@@ -214,4 +214,16 @@ func getSubFilters(filters []string) []string {
 	}
 
 	return subFilters
+}
+
+// GetGroupLocaliseKey gets the localise key of the group type of the search result to be displayed
+func GetGroupLocaliseKey(resultType string) string {
+	for _, filterOption := range filterOptions {
+		for _, optionType := range filterOption.Types {
+			if resultType == optionType {
+				return filterOption.LocaliseKeyName
+			}
+		}
+	}
+	return ""
 }

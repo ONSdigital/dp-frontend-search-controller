@@ -103,7 +103,8 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Data.Response.Items[0].Description.Summary, ShouldEqual, "Test Summary")
 				So(sp.Data.Response.Items[0].Description.Title, ShouldEqual, "Title Title")
 
-				So(sp.Data.Response.Items[0].Type, ShouldEqual, "article")
+				So(sp.Data.Response.Items[0].Type.Type, ShouldEqual, "article")
+				So(sp.Data.Response.Items[0].Type.LocaliseKeyName, ShouldEqual, "Article")
 				So(sp.Data.Response.Items[0].URI, ShouldEqual, "/uri1/housing/articles/uri2/2015-02-17")
 
 				testMatchesDescSummary := *sp.Data.Response.Items[0].Matches.Description.Summary
