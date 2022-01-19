@@ -79,8 +79,8 @@ var (
 	// Article - Search information specific for articles
 	Article = ContentType{
 		LocaliseKeyName: "Article",
-		Group:           "article",                               //Type
-		Types:           []string{"article", "article_download"}, //SubType
+		Group:           "article",
+		Types:           []string{"article", "article_download"},
 	}
 
 	// Compendium - Search information specific for compendium
@@ -101,7 +101,7 @@ var (
 	Datasets = ContentType{
 		LocaliseKeyName: "Datasets",
 		Group:           "datasets",
-		Types:           []string{"dataset_landing_page", "reference_tables"},
+		Types:           []string{"dataset_landing_page", "timeseries_dataset"},
 	}
 
 	// UserRequestedData - Search information specific for user requested data
