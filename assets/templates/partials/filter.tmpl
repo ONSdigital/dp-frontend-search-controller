@@ -17,10 +17,10 @@
                 {{ range $index, $category := $response.Categories }}
                     <div class="ons-checkboxes__items">
                             <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                <span class="ons-checkbox ons-checkbox--no-border">
+                                <span class="ons-checkbox ons-checkbox--no-border category-filter">
                                     <input type="checkbox" id="group-{{ $index }}"
-                                           class="js-auto-submit__input ons-checkbox__input ons-js-checkbox ons-js-select-all-children"
-                                           value="{{ $category }}" aria-controls="group-{{ $index }}-other-wrap"
+                                           class="js-auto-submit__input ons-checkbox__input ons-js-checkbox"
+                                           value="{{ $category }}" categoryChildren="{{ range $contentIndex, $content := $category.ContentTypes }}{{$content.Type}}{{","}}{{end}}" aria-controls="group-{{ $index }}-other-wrap"
                                            aria-haspopup="true"
                                               {{ range $content := $category.ContentTypes}}
                                                   {{if stringArrayContains $content.Type $filter }}
@@ -60,11 +60,9 @@
                     </div>
                 {{ end }}
             </fieldset>
-            <noscript>
-                <button type="submit"
-                        class="btn btn--primary btn--thick margin-top-sm--2 margin-top-md--2 js-submit-button">Filter
-                </button>
-            </noscript>
+            <button type="submit"
+                    class="btn btn--primary btn--thick margin-top-sm--2 margin-top-md--2 js-submit-button">Filter
+            </button>
         </div>
     </div>
     <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
