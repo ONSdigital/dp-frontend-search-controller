@@ -94,10 +94,10 @@ func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
 
 		for _, contentType := range category.ContentTypes {
 			pageContentType = append(pageContentType, model.ContentType{
-				Type:            contentType.Type,
+				Group:           contentType.Group,
 				Count:           contentType.Count,
 				LocaliseKeyName: contentType.LocaliseKeyName,
-				SubTypes:        contentType.SubTypes,
+				Types:           contentType.Types,
 			})
 		}
 
@@ -121,7 +121,8 @@ func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
 
 		mapItemHighlight(&item, itemC)
 
-		item.Type = itemC.Type
+		item.Type.Type = itemC.Type
+		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(itemC.Type)
 
 		item.URI = itemC.URI
 
