@@ -20,7 +20,7 @@
                                 <span class="ons-checkbox ons-checkbox--no-border category-filter">
                                     <input type="checkbox" id="group-{{ $index }}"
                                            class="js-auto-submit__input ons-checkbox__input ons-js-checkbox"
-                                           value="{{ $category }}" categoryChildren="{{ range $contentIndex, $content := $category.ContentTypes }}{{$content.Type}}{{","}}{{end}}" aria-controls="group-{{ $index }}-other-wrap"
+                                           value="{{ $category }}" categoryChildren="{{ range $contentIndex, $content := $category.ContentTypes }}{{$content.Group}}{{","}}{{end}}" aria-controls="group-{{ $index }}-other-wrap"
                                            aria-haspopup="true"
                                               {{ range $content := $category.ContentTypes}}
                                                   {{if stringArrayContains $content.Group $filter }}
@@ -32,7 +32,7 @@
                                            id="group-{{ $index }}-label">
                                         {{ localise $category.LocaliseKeyName $lang 4 }} ({{ $category.Count }})
                                     </label>
-                                    <span class="ons-checkbox__other {{ range $content := $category.ContentTypes }}{{ range $filter }}{{ if eq . $content.Type }}ons-checkbox__other--open{{end}}{{end}}{{end}}" id="group-{{ $index }}-other-wrap">
+                                    <span class="ons-checkbox__other {{ range $content := $category.ContentTypes }}{{ range $filter }}{{ if eq . $content.Group }}ons-checkbox__other--open{{end}}{{end}}{{end}}" id="group-{{ $index }}-other-wrap">
                                         <fieldset class="ons-fieldset ons-js-other-fieldset">
                                             {{ range $contentIndex, $content := $category.ContentTypes }}
                                                 <div class="ons-checkboxes__items">
