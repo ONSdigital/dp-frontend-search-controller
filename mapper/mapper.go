@@ -9,6 +9,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	model "github.com/ONSdigital/dp-frontend-search-controller/model"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
+	"github.com/davecgh/go-spew/spew"
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
@@ -297,13 +298,13 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 				var subType model.Filter
 				subType.LocaliseKeyName = contentType.LocaliseKeyName
 				subType.NumberOfResults = contentType.Count
-				subType.FilterKey = []string{contentType.Type}
+				subType.FilterKey = []string{contentType.Group}
 
 				isChecked := mapIsChecked(subType.FilterKey, queryParams)
 				subType.IsChecked = isChecked
 				subTypes = append(subTypes, subType)
 
-				keys = append(keys, contentType.Type)
+				keys = append(keys, contentType.Group)
 			}
 		}
 		filter.Types = subTypes
@@ -312,6 +313,7 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 		filters = append(filters, filter)
 	}
 	page.Data.Filters = filters
+	spew.Dump(filters)
 }
 
 func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool {
