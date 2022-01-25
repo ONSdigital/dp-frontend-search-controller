@@ -13,9 +13,18 @@ type SearchPage struct {
 type Search struct {
 	Query      string           `json:"query"`
 	Filter     []string         `json:"filter,omitempty"`
+	Filters    []Filter         `json:"filters"`
 	Sort       Sort             `json:"sort,omitempty"`
 	Pagination model.Pagination `json:"pagination,omitempty"`
 	Response   Response         `json:"response"`
+}
+
+type Filter struct {
+	LocaliseKeyName string   `json:"localise_key_name,omitempty"`
+	FilterKey       []string `json:"filter_key,omitempty"`
+	IsChecked       bool     `json:"is_checked,omitempty"`
+	NumberOfResults int      `json:"number_of_results,omitempty"`
+	Types           []Filter `json:"types,omitempty"`
 }
 
 // Sort represents all the information of sorting related to the search page
@@ -50,10 +59,10 @@ type Category struct {
 
 // ContentType represents the type of the search results and the number of results for each type
 type ContentType struct {
-	Type            string		`json:"type"`
-	Count           int		`json:"count"`
-	LocaliseKeyName string		`json:"localise_key"`
-	SubTypes        []string	`json:"sub_types"`
+	Type            string   `json:"type"`
+	Count           int      `json:"count"`
+	LocaliseKeyName string   `json:"localise_key"`
+	SubTypes        []string `json:"sub_types"`
 }
 
 // ContentItem represents each search result
