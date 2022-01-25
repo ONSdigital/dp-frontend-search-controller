@@ -288,3 +288,31 @@ func TestUnitGetSubFiltersSuccess(t *testing.T) {
 		})
 	})
 }
+
+func TestUnitGetGroupLocaliseKey(t *testing.T) {
+	t.Parallel()
+
+	Convey("Given the type of the search result", t, func() {
+		searchType := "static_methodology"
+
+		Convey("When getSubFilters is called", func() {
+			groupLocaliseKey := GetGroupLocaliseKey(searchType)
+
+			Convey("Then the localise key of the group type should be returned", func() {
+				So(groupLocaliseKey, ShouldEqual, "Methodology")
+			})
+		})
+	})
+
+	Convey("Given an unknown type of the search result", t, func() {
+		searchType := "unknown"
+
+		Convey("When getSubFilters is called", func() {
+			groupLocaliseKey := GetGroupLocaliseKey(searchType)
+
+			Convey("Then an empty localise key should be returned", func() {
+				So(groupLocaliseKey, ShouldEqual, "")
+			})
+		})
+	})
+}

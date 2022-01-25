@@ -81,11 +81,11 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Data.Response.Categories[0].LocaliseKeyName, ShouldEqual, "Publication")
 				So(sp.Data.Response.Categories[0].ContentTypes, ShouldHaveLength, 3)
 
-				So(sp.Data.Response.Categories[0].ContentTypes[0].Type, ShouldEqual, "bulletin")
+				So(sp.Data.Response.Categories[0].ContentTypes[0].Group, ShouldEqual, "bulletin")
 				So(sp.Data.Response.Categories[0].ContentTypes[0].Count, ShouldEqual, 0)
 				So(sp.Data.Response.Categories[0].ContentTypes[0].LocaliseKeyName, ShouldEqual, "StatisticalBulletin")
 
-				So(sp.Data.Response.Categories[0].ContentTypes[1].Type, ShouldEqual, "article")
+				So(sp.Data.Response.Categories[0].ContentTypes[1].Group, ShouldEqual, "article")
 				So(sp.Data.Response.Categories[0].ContentTypes[1].Count, ShouldEqual, 1)
 				So(sp.Data.Response.Categories[0].ContentTypes[1].LocaliseKeyName, ShouldEqual, "Article")
 
@@ -103,7 +103,8 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Data.Response.Items[0].Description.Summary, ShouldEqual, "Test Summary")
 				So(sp.Data.Response.Items[0].Description.Title, ShouldEqual, "Title Title")
 
-				So(sp.Data.Response.Items[0].Type, ShouldEqual, "article")
+				So(sp.Data.Response.Items[0].Type.Type, ShouldEqual, "article")
+				So(sp.Data.Response.Items[0].Type.LocaliseKeyName, ShouldEqual, "Article")
 				So(sp.Data.Response.Items[0].URI, ShouldEqual, "/uri1/housing/articles/uri2/2015-02-17")
 
 				testMatchesDescSummary := *sp.Data.Response.Items[0].Matches.Description.Summary

@@ -59,19 +59,24 @@ type Category struct {
 
 // ContentType represents the type of the search results and the number of results for each type
 type ContentType struct {
-	Type            string   `json:"type"`
+	Group           string   `json:"group"`
 	Count           int      `json:"count"`
 	LocaliseKeyName string   `json:"localise_key"`
-	SubTypes        []string `json:"sub_types"`
+	Types           []string `json:"types"`
 }
 
 // ContentItem represents each search result
 type ContentItem struct {
-	Description Description `json:"description"`
+	Type        ContentItemType `json:"type"`
+	Description Description     `json:"description"`
+	URI         string          `json:"uri"`
+	Matches     *Matches        `json:"matches,omitempty"`
+}
 
-	Type    string   `json:"type"`
-	URI     string   `json:"uri"`
-	Matches *Matches `json:"matches,omitempty"`
+// ContentItemType represents the type of each search result
+type ContentItemType struct {
+	Type            string `json:"type"`
+	LocaliseKeyName string `json:"localise_key"`
 }
 
 // Description represents each search result description
