@@ -34,6 +34,8 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	mapResponse(&page, respC, categories)
 
+	mapFilters(&page, categories, validatedQueryParams)
+
 	mapDepartments(&page, departments)
 
 	return page
@@ -277,6 +279,49 @@ func mapItemMatches(pageItem *model.ContentItem, item searchC.ContentItem) {
 			pageItem.Matches.Description.DatasetID = &matchesDatasetIDPage
 		}
 	}
+}
+
+func mapFilters(page *model.SearchPage, categories []data.Category, queryParams data.SearchURLParams) {
+	var filters []model.Filter
+
+	for _, category := range categories {
+		var filter model.Filter
+		filter.LocaliseKeyName = category.LocaliseKeyName
+		filter.NumberOfResults = category.Count
+
+		var keys []string
+		var subTypes []model.Filter
+		if len(category.ContentTypes) > 0 {
+			for _, contentType := range category.ContentTypes {
+				var subType model.Filter
+				subType.LocaliseKeyName = contentType.LocaliseKeyName
+				subType.NumberOfResults = contentType.Count
+				subType.FilterKey = []string{contentType.Type}
+
+				isChecked := mapIsChecked(subType.FilterKey, queryParams)
+				subType.IsChecked = isChecked
+				subTypes = append(subTypes, subType)
+
+				keys = append(keys, contentType.Type)
+			}
+		}
+		filter.Types = subTypes
+		filter.FilterKey = keys
+		filter.IsChecked = mapIsChecked(filter.FilterKey, queryParams)
+		filters = append(filters, filter)
+	}
+	page.Data.Filters = filters
+}
+
+func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool {
+	for _, query := range queryParams.Filter.Query {
+		for _, contentType := range contentTypes {
+			if query == contentType {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 func mapDepartments(page *model.SearchPage, departments searchC.Department) {
