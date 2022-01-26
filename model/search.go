@@ -19,6 +19,7 @@ type Search struct {
 	Response   Response         `json:"response"`
 }
 
+// Filter respresents all filter information needed by templates
 type Filter struct {
 	LocaliseKeyName string   `json:"localise_key_name,omitempty"`
 	FilterKey       []string `json:"filter_key,omitempty"`
