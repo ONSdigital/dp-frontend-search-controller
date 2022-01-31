@@ -13,9 +13,19 @@ type SearchPage struct {
 type Search struct {
 	Query      string           `json:"query"`
 	Filter     []string         `json:"filter,omitempty"`
+	Filters    []Filter         `json:"filters"`
 	Sort       Sort             `json:"sort,omitempty"`
 	Pagination model.Pagination `json:"pagination,omitempty"`
 	Response   Response         `json:"response"`
+}
+
+// Filter respresents all filter information needed by templates
+type Filter struct {
+	LocaliseKeyName string   `json:"localise_key_name,omitempty"`
+	FilterKey       []string `json:"filter_key,omitempty"`
+	IsChecked       bool     `json:"is_checked,omitempty"`
+	NumberOfResults int      `json:"number_of_results,omitempty"`
+	Types           []Filter `json:"types,omitempty"`
 }
 
 // Sort represents all the information of sorting related to the search page
