@@ -8,6 +8,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-renderer/model"
+	"github.com/davecgh/go-spew/spew"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -81,11 +82,11 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Data.Response.Categories[0].LocaliseKeyName, ShouldEqual, "Publication")
 				So(sp.Data.Response.Categories[0].ContentTypes, ShouldHaveLength, 3)
 
-				So(sp.Data.Response.Categories[0].ContentTypes[0].Type, ShouldEqual, "bulletin")
+				So(sp.Data.Response.Categories[0].ContentTypes[0].Group, ShouldEqual, "bulletin")
 				So(sp.Data.Response.Categories[0].ContentTypes[0].Count, ShouldEqual, 0)
 				So(sp.Data.Response.Categories[0].ContentTypes[0].LocaliseKeyName, ShouldEqual, "StatisticalBulletin")
 
-				So(sp.Data.Response.Categories[0].ContentTypes[1].Type, ShouldEqual, "article")
+				So(sp.Data.Response.Categories[0].ContentTypes[1].Group, ShouldEqual, "article")
 				So(sp.Data.Response.Categories[0].ContentTypes[1].Count, ShouldEqual, 1)
 				So(sp.Data.Response.Categories[0].ContentTypes[1].LocaliseKeyName, ShouldEqual, "Article")
 
@@ -103,7 +104,8 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Data.Response.Items[0].Description.Summary, ShouldEqual, "Test Summary")
 				So(sp.Data.Response.Items[0].Description.Title, ShouldEqual, "Title Title")
 
-				So(sp.Data.Response.Items[0].Type, ShouldEqual, "article")
+				So(sp.Data.Response.Items[0].Type.Type, ShouldEqual, "article")
+				So(sp.Data.Response.Items[0].Type.LocaliseKeyName, ShouldEqual, "Article")
 				So(sp.Data.Response.Items[0].URI, ShouldEqual, "/uri1/housing/articles/uri2/2015-02-17")
 
 				testMatchesDescSummary := *sp.Data.Response.Items[0].Matches.Description.Summary
@@ -141,6 +143,25 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(testMatchesDescDatasetID[0].Value, ShouldEqual, "dataset_id")
 				So(testMatchesDescDatasetID[0].Start, ShouldEqual, 26)
 				So(testMatchesDescDatasetID[0].End, ShouldEqual, 30)
+
+				spew.Dump(sp.Data.Filters)
+				//So(sp.Data.Filters, ShouldEqual, 1)
+				So(len(sp.Data.Filters[0].FilterKey), ShouldEqual, 3)
+				So(sp.Data.Filters[0].LocaliseKeyName, ShouldEqual, "Publication")
+				So(sp.Data.Filters[0].IsChecked, ShouldBeTrue)
+				So(sp.Data.Filters[0].NumberOfResults, ShouldEqual, 1)
+				So(len(sp.Data.Filters[0].Types[0].FilterKey), ShouldEqual, 1)
+				So(sp.Data.Filters[0].Types[0].LocaliseKeyName, ShouldEqual, "StatisticalBulletin")
+				So(sp.Data.Filters[0].Types[0].IsChecked, ShouldBeFalse)
+				So(sp.Data.Filters[0].Types[0].NumberOfResults, ShouldEqual, 0)
+				So(len(sp.Data.Filters[0].Types[1].FilterKey), ShouldEqual, 1)
+				So(sp.Data.Filters[0].Types[1].LocaliseKeyName, ShouldEqual, "Article")
+				So(sp.Data.Filters[0].Types[1].IsChecked, ShouldBeTrue)
+				So(sp.Data.Filters[0].Types[1].NumberOfResults, ShouldEqual, 1)
+				So(len(sp.Data.Filters[0].Types[2].FilterKey), ShouldEqual, 1)
+				So(sp.Data.Filters[0].Types[2].LocaliseKeyName, ShouldEqual, "Compendium")
+				So(sp.Data.Filters[0].Types[2].IsChecked, ShouldBeFalse)
+				So(sp.Data.Filters[0].Types[2].NumberOfResults, ShouldEqual, 0)
 
 				So(sp.Department.Code, ShouldEqual, "dept-code")
 				So(sp.Department.URL, ShouldEqual, "www.dept.com")

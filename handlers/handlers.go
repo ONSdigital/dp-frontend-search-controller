@@ -134,7 +134,7 @@ func setCountToCategories(ctx context.Context, countResp searchCli.Response, cat
 	categoryLoop:
 		for i, category := range categories {
 			for j, contentType := range category.ContentTypes {
-				for _, subType := range contentType.SubTypes {
+				for _, subType := range contentType.Types {
 					if responseType.Type == subType {
 						categories[i].Count += responseType.Count
 						categories[i].ContentTypes[j].Count += responseType.Count
