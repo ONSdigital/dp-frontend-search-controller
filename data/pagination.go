@@ -132,6 +132,28 @@ func GetPagesToDisplay(cfg *config.Config, validatedQueryParams SearchURLParams,
 	return pagesToDisplay
 }
 
+// GetFirstAndLastPages gets the first and last pages
+func GetFirstAndLastPages(cfg *config.Config, validatedQueryParams SearchURLParams, totalPages int) []model.PageToDisplay {
+	var firstAndLastPages = make([]model.PageToDisplay, 0)
+
+	controllerQuery := createSearchControllerQuery(validatedQueryParams)
+	query := controllerQuery.Get("q")
+
+	// add first
+	firstAndLastPages = append(firstAndLastPages, model.PageToDisplay{
+		PageNumber: 1,
+		URL:        getPageURL(query, 1, controllerQuery),
+	})
+
+	// add last
+	firstAndLastPages = append(firstAndLastPages, model.PageToDisplay{
+		PageNumber: totalPages,
+		URL:        getPageURL(query, totalPages, controllerQuery),
+	})
+
+	return firstAndLastPages
+}
+
 func getStartPage(cfg *config.Config, currentPage int, totalPages int) int {
 	pageOffset := getPageOffset()
 

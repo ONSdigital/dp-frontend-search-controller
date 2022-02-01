@@ -372,6 +372,49 @@ func TestUnitGetPagesToDisplaySuccess(t *testing.T) {
 	})
 }
 
+func TestUnitGetFirstAndLastPagesSuccess(t *testing.T) {
+	t.Parallel()
+
+	Convey("Given validated query parameters and total pages", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		validatedQueryParams := SearchURLParams{
+			Query: "housing",
+			Filter: Filter{
+				Query:           []string{"article"},
+				LocaliseKeyName: []string{"Article"},
+			},
+			Sort: Sort{
+				Query:           "relevance",
+				LocaliseKeyName: "Relevance",
+			},
+			Limit:       10,
+			CurrentPage: 1,
+			Offset:      0,
+		}
+
+		totalPages := 50
+
+		Convey("When GetFirstAndLastPages is called", func() {
+			firstAndLastPages := GetFirstAndLastPages(cfg, validatedQueryParams, totalPages)
+
+			Convey("Then return the first and last page numbers with their respective URLs", func() {
+				So(firstAndLastPages, ShouldResemble, []model.PageToDisplay{
+					{
+						PageNumber: 1,
+						URL:        "/search?q=housing&filter=article&limit=10&sort=relevance&page=1",
+					},
+					{
+						PageNumber: 50,
+						URL:        "/search?q=housing&filter=article&limit=10&sort=relevance&page=50",
+					},
+				})
+			})
+		})
+	})
+}
+
 func TestUnitGetStartPageSuccess(t *testing.T) {
 	t.Parallel()
 

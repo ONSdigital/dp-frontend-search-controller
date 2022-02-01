@@ -75,6 +75,7 @@ func mapPagination(cfg *config.Config, page *model.SearchPage, validatedQueryPar
 	page.Data.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.Data.Pagination.TotalPages = data.GetTotalPages(cfg, validatedQueryParams.Limit, respC.Count)
 	page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
+	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
 }
 
 func mapResponse(page *model.SearchPage, respC searchC.Response, categories []data.Category) {

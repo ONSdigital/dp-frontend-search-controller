@@ -1,51 +1,58 @@
 {{ $pagination := .Data.Pagination }}
+{{ $showLinkToFirst := gt (index $pagination.PagesToDisplay 0).PageNumber 1}}
+{{ $lastIndexOfPagesToDisplay := subtract (len $pagination.PagesToDisplay) 1 }}
+{{ $showLinkToLast := ne (index $pagination.PagesToDisplay $lastIndexOfPagesToDisplay).PageNumber $pagination.TotalPages}}
 <form id="js-pagination-container" class="js-auto-submit__form">
-    <div class="col col--md-47 col--lg-28">
-        {{ if ne .Data.Response.Count 0 }}
-            <nav aria-label="Pagination breadcrumbs">
-                <ul class="list--neutral list--inline margin-right-sm--1 margin-right-md--1">
-                    {{ $prevURL := "" }}
-                    {{ $nextURL := "" }}
-                    {{ range $pagination.PagesToDisplay }}
-                        {{ if eq .PageNumber (subtract $pagination.CurrentPage 1 ) }}{{ $prevURL = .URL }}{{end}}
-                        {{ if eq .PageNumber (add $pagination.CurrentPage 1 ) }}{{ $nextURL = .URL }}{{end}}
-                    {{ end }}
-                    {{ if gt $pagination.CurrentPage 1 }}
-                        <li class="margin-top-sm--0 margin-top-md--0 search__pagination__item">
-                            <a href={{ $prevURL }} class="page-link btn btn--plain" rel="prev">Prev</a>
+    {{ if ne .Data.Response.Count 0 }}
+        <nav class="ons-pagination " arial-label="Pagination (Page {{$pagination.CurrentPage}} of {{$pagination.TotalPages}})">
+            <div class="ons-pagination__position">Page {{$pagination.CurrentPage}} of {{$pagination.TotalPages}}</div>
+            <ul class="ons-pagination__items">
+                {{ $prevURL := "" }}
+                {{ $nextURL := "" }}
+                {{ range $pagination.PagesToDisplay }}
+                    {{ if eq .PageNumber (subtract $pagination.CurrentPage 1 ) }}{{ $prevURL = .URL }}{{end}}
+                    {{ if eq .PageNumber (add $pagination.CurrentPage 1 ) }}{{ $nextURL = .URL }}{{end}}
+                {{ end }}
+
+                {{ if gt  $pagination.CurrentPage 1 }}
+                    <li class="ons-pagination__item ons-pagination__item--previous">
+                        <a href={{ $prevURL }} class="ons-pagination__link" rel="prev" aria-label="Go to the previous page (Page {{subtract $pagination.CurrentPage 1}})" data-target-page={{subtract $pagination.CurrentPage 1}}>Previous</a>
+                    </li>
+                {{end}}
+
+                {{if $showLinkToFirst}}
+                    <li class="ons-pagination__item" data-target-page={{$pagination.CurrentPage}}>
+                        <a href="{{(index $pagination.FirstAndLastPages 0).URL}}" class="ons-pagination__link" aria-label="Go to the first page (Page 1)"  data-target-page={{1}}>1</a>
+                    </li>
+                    <li class="ons-pagination__item ons-pageination__item--gap">&hellip;</li>
+                {{end}}
+
+                {{ range $pagination.PagesToDisplay }}
+                    {{ if eq .PageNumber $pagination.CurrentPage }}
+                        <li class="ons-pagination__item ons-pagination__item--current">
+                            <a href={{ .URL}} class="ons-pagination__link" aria-current="true" aria-label="Current page (Page {{$pagination.CurrentPage}} of {{$pagination.TotalPages}})" data-target-page={{$pagination.CurrentPage}}>{{ .PageNumber}}</a>
+                        </li>
+                    {{ else }}
+                        <li class="ons-pagination__item">
+                            <a href={{ .URL}} class="ons-pagination__link" aria-label="Page {{ .PageNumber}} of {{$pagination.TotalPages}}" data-target-page={{ .PageNumber}}>{{ .PageNumber}}</a>
                         </li>
                     {{ end }}
-                    {{ range $pagination.PagesToDisplay }}
-                        {{ if eq .PageNumber $pagination.CurrentPage }}
-                            <li class="margin-top-sm--0 margin-top-md--0 search__pagination__item">
-                                <a href={{ .URL}} class="page-link btn btn--plain btn--plain-active btn--block" aria-current="true" aria-label="Current page (Page {{ .PageNumber}} of {{ $pagination.TotalPages}})">{{ .PageNumber}}</a>
-                            </li>
-                        {{ else }}
-                            <li class="margin-top-sm--0 margin-top-md--0 search__pagination__item">
-                                <a href={{ .URL}} class="page-link btn btn--plain" aria-label="Page {{ .PageNumber}} of {{ $pagination.TotalPages}}">{{ .PageNumber}}</a>
-                            </li>
-                        {{ end }}
-                    {{ end }}
-                    {{ if lt $pagination.CurrentPage $pagination.TotalPages }}
-                        <li class="margin-top-sm--0 margin-top-md--0 search__pagination__item">
-                            <a href={{ $nextURL }} class="page-link btn btn--plain" rel="next">Next</a>
-                        </li>
-                    {{ end }}
-                </ul>
-            </nav>
-        {{end}}
-    </div>
-    <div class="col col--md-12 col--lg-12 margin-top-md--1 padding-left--1">
-        {{ if ne .Data.Response.Count 0 }}
-            <div class="baseline">
-                <label for="limit-size">Results per page:</label>
-                <select name="limit" id="limit-size" class="input select font-size--14 width-auto js-auto-submit__input">
-                    {{ range $pagination.LimitOptions }}
-                        <option value={{.}} {{ if eq . $pagination.Limit }}selected{{end}}>{{.}}</option>
-                    {{ end }}
-                </select>
-                <button class="btn btn--primary btn--thin btn--small hide--md" type="submit">Submit</button>
-            </div>
-        {{end}}
-    </div>
+                {{ end }}
+
+                {{if $showLinkToLast}}
+                    <li class="ons-pagination__item ons-pageination__item--gap">&hellip;</li>
+                    <li class="ons-pagination__item">
+                        <a href="{{(index $pagination.FirstAndLastPages 1).URL}}" class="ons-pagination__link" aria-label="Go to the last page (Page {{$pagination.TotalPages}})" data-target-page={{$pagination.TotalPages}}>{{$pagination.TotalPages}}</a>
+                    </li>
+                {{end}}
+
+                {{ if lt $pagination.CurrentPage $pagination.TotalPages }}
+                    <li class="ons-pagination__item ons-pagination__item--next">
+                        <a href={{ $nextURL }} class="ons-pagination__link" rel="next" aria-label="Go to the next page (Page {{ add $pagination.CurrentPage 1 }})" data-target-page={{ add $pagination.CurrentPage 1 }}>Next</a>
+                    </li>
+                {{ end }}
+
+            </ul>
+        </nav>
+    {{end}}
 </form>

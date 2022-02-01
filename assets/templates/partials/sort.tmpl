@@ -1,15 +1,25 @@
 {{ $lang := .Language }}
+{{ $query := .Data.Query }}
+{{ $filter := .Data.Filter }}
+
 <form id="form-sort" class="js-auto-submit__form">
-    <div class="js-mobile-filters__sort">
-        <label for="sort" class="sort__label font-size--16">Sort by
-            <select class="input select width-auto js-auto-submit__input font-size--16" id="sort" name="sort">
+    <input type="hidden" name="q" value="{{ $query }}"/>
+    {{ range $theFilter := .Data.Filter }}
+        <input type="hidden" name="filter" value="{{ $theFilter }}"/>
+    {{end}}
+    <div class="ons-field--search-sort js-mobile-filters__sort">
+        <label for="sort" class="ons-label sort__label font-size--16">Sort by
+            <select class="ons-input ons-input--select ons-input--sort-select input select width-auto js-auto-submit__input font-size--16" id="sort" name="sort">
                 {{ $sortQuery := .Data.Sort.Query }}
                 {{ range $sort := .Data.Sort.Options }}
                     <option class="sort__option"
-                            value={{ .Query}} {{ if eq .Query $sortQuery }}selected{{end}}>{{ localise .LocaliseKeyName $lang 1 }}</option>
+                            value={{ .Query}} 
+                            {{ if eq .Query $sortQuery }}selected{{end}}>
+                        {{ localise .LocaliseKeyName $lang 1 }}
+                    </option>
                 {{ end }}
             </select>
         </label>
-        <button type="submit" class="btn btn--primary btn--thin btn--small js--hide font-size--16">Sort</button>
+        <button type="submit" class="ons-btn btn btn--primary btn--thin btn--small js--hide font-size--16">Sort</button>
     </div>
 </form>
