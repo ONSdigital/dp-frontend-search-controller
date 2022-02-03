@@ -9,7 +9,7 @@
     </div>
 
     <div class="ons-grid__col ons-col-4@m">
-      <section class="search__filter" role="contentinfo" aria-label="Search filtering">
+      <section class="search__filter" role="contentinfo" aria-label="Search filtering" id="search-filter">
         <div class="search__filter__heading">
           <h3 class="font-size--18">
             {{ localise "FilterResults" $lang 4 }}
@@ -25,6 +25,11 @@
       <section role="contentinfo" aria-label="Search results">
         <div class="search__sort">
           {{ template "partials/sort" . }}
+        </div>
+        <div class="search__filter__mobile-filter-toggle hide">
+            <button type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
+              <span class="ons-btn__inner">Filter results</span>
+            </button>
         </div>
         <div class="search__results">
           {{ template "partials/department" . }}
