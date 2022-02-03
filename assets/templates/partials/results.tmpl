@@ -4,60 +4,58 @@
 {{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
 {{ $response := .Data.Response }}
 <div id="results">
-    <h2>
-        {{ if ne .Data.Response.Count 0 }}
-            <ul class="list--neutral flush">
-            {{ range $i, $item := .Data.Response.Items }}
-                {{ $currentPosition := add $i 1 }}
-                <li class="col col--md-34 col--lg-40 search__results__item">
-                    <h3 class="search-results__title underline-link">
-                        <a href="{{ .URI }}"
-                           data-gtm-search-result-title="{{ .Description.Title }}"
-                           data-gtm-search-result-page="{{ $currentPage }}"
-                           data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
-                           data-gtm-search-result-url="{{ .URI }}"
-                           data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
-                        >
-                            {{ .Description.Title | safeHTML }}
-                            {{ if .Description.Edition }}:{{ end }}
-                            {{ .Description.Edition | safeHTML }}
-                        </a>
-                    </h3>
-                    <p class="search-results__meta font-size--16">
-                        {{ localise .Type.LocaliseKeyName $lang 1 }}
-                        |
-                        {{ localise "ReleasedOn" $lang 1 }} {{dateFormat .Description.ReleaseDate}}
-                    </p>
-                    <div class="search-results__summary font-size--16">
-                        {{ if .Description.Highlight.Summary }} {{ .Description.Highlight.Summary | safeHTML }} {{ else }} {{ .Description.Summary | safeHTML }} {{ end }}
-                    </div>
-                    {{ $keywords := .Description.Keywords }}
-                    {{ if $keywords }}
-                        {{ $numberOfKeywords := len $keywords }}
-                        {{ if gt $numberOfKeywords 0}}
-                            <p class="search-results__keywords font-size--16">
-                                {{ localise "Keywords" $lang 4 }}:
-                                {{ range $i, $el := $keywords }}
-                                    {{$el | safeHTML }}{{ if notLastItem $numberOfKeywords $i }},{{end}}
-                                {{end}}
-                            </p>
-                        {{ end }}
+    {{ if ne .Data.Response.Count 0 }}
+        <ul class="flush--padding">
+        {{ range $i, $item := .Data.Response.Items }}
+            {{ $currentPosition := add $i 1 }}
+            <li class="search__results__item">
+                <h3>
+                    <a href="{{ .URI }}"
+                        data-gtm-search-result-title="{{ .Description.Title }}"
+                        data-gtm-search-result-page="{{ $currentPage }}"
+                        data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
+                        data-gtm-search-result-url="{{ .URI }}"
+                        data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
+                    >
+                        {{ .Description.Title | safeHTML }}
+                        {{ if .Description.Edition }}:{{ end }}
+                        {{ .Description.Edition | safeHTML }}
+                    </a>
+                </h3>
+                <p class="search__results__meta font-size--16">
+                    <b>{{ localise "ReleasedOn" $lang 1 }}:</b> {{dateFormat .Description.ReleaseDate}}
+                    |
+                    <b>{{ localise .Type.LocaliseKeyName $lang 1 }}</b>
+                </p>
+                <p class="search__results__summary font-size--16">
+                    {{ if .Description.Highlight.Summary }} {{ .Description.Highlight.Summary | safeHTML }} {{ else }} {{ .Description.Summary | safeHTML }} {{ end }}
+                </p>
+                {{ $keywords := .Description.Keywords }}
+                {{ if $keywords }}
+                    {{ $numberOfKeywords := len $keywords }}
+                    {{ if gt $numberOfKeywords 0}}
+                        <p class="search__results__keywords font-size--16">
+                            {{ localise "Keywords" $lang 4 }}:
+                            {{ range $i, $el := $keywords }}
+                                {{$el | safeHTML }}{{ if notLastItem $numberOfKeywords $i }},{{end}}
+                            {{end}}
+                        </p>
                     {{ end }}
-                </li>
+                {{ end }}
+            </li>
 
-            {{end}}
-            </ul>
-        {{else}}
-            <div id="js-search-help" class="col col--lg-42">
-                <h2 class="margin-top-sm--0 margin-top-md--2 margin-top-lg--2">You could try one of the following:</h2>
-                <ul>
-                    <li>search again using different words</li>
-                </ul>
-            </div>
-            <div class="search-results margin-top-md--2">
-                <ul class="list--neutral flush">
-                </ul>
-            </div>
         {{end}}
-    </h2>
+        </ul>
+    {{else}}
+        <div id="js-search-help" class="col col--lg-42">
+            <h2 class="margin-top-sm--0 margin-top-md--2 margin-top-lg--2">You could try one of the following:</h2>
+            <ul>
+                <li>search again using different words</li>
+            </ul>
+        </div>
+        <div class="search__results margin-top-md--2">
+            <ul class="list--neutral flush">
+            </ul>
+        </div>
+    {{end}}
 </div>

@@ -3,80 +3,87 @@
 {{ $query := .Data.Query }}
 {{ $sort := .Data.Sort.Query }}
 {{ $lang := .Language }}
-<form id="filterForm" class="js-auto-submit__form" method="get">
+<form id="filterForm" method="get">
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sort" value="{{$sort}}"/>
-    <div class="margin-bottom-md--2 flush-col js-mobile-filters">
-        <div class="background--mercury border-top--iron-md padding-top-sm--2 padding-top-md--1 padding-right-sm--1 padding-right-md--1 padding-bottom-sm--2 padding-bottom-md--2 padding-left-sm--1 padding-left-md--1 js-mobile-filters__contents">
-            <fieldset class="ons-fieldset">
+    <fieldset class="ons-fieldset">
+        <div id="collapsible" class="ons-collapsible ons-js-collapsible" data-btn-close="Hide this">
+        <div class="ons-collapsible__heading ons-js-collapsible-heading">
+            <div class="ons-collapsible__controls">
+            <h2 class="ons-collapsible__title">
                 <legend class="ons-fieldset__legend">
                     Content type
                 </legend>
-                <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search"
-                   class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
-                <p class="ons-checkboxes__label">Show only:</p>
-                {{ range $index, $topFilter := $filters}}
-                    <div class="ons-checkboxes__items">
-                            <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                <span class="ons-checkbox ons-checkbox--no-border category-filter">
-                                    <input type="checkbox" id="group-{{ $index }}"
-                                        class="js-auto-submit__input ons-checkbox__input ons-js-checkbox"
-                                        value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
-                                        aria-haspopup="true"
-                                        {{if $topFilter.IsChecked }}
-                                            checked
-                                        {{end}}
-                                    >
-                                    <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
-                                        {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
-                                    </label>
-                                    <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
-                                        <fieldset class="ons-fieldset ons-js-other-fieldset">
-                                            {{range $index, $childFilter := $topFilter.Types}}
-                                                {{$id := index $childFilter.FilterKey 0}}
-                                                <div class="ons-checkboxes__items">
-                                                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                                        <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                            <input id="{{ $id }}"
-                                                                class="js-auto-submit__input ons-checkbox__input ons-js-checkbox"
-                                                                type="checkbox" name="filter"
-                                                                {{ if $childFilter.IsChecked }}checked{{end}}
-                                                                value="{{ $id }}"
-                                                            />
-                                                            <label class="ons-checkbox__label" for="{{ $id }}"
-                                                                id="{{ $id }}-label">
-                                                                {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
-                                                            </label>
-                                                        </span>
-                                                    </span>
-                                                </div>
-                                            {{ end }}
-                                        </fieldset>
-                                    </span>
-                                </span>
+            </h2>
+            <span class="ons-collapsible__icon">
+                <svg class="ons-svg-icon " viewBox="0 0 8 13" xmlns="http://www.w3.org/2000/svg" focusable="false" fill="currentColor">
+                <path d="M5.74,14.28l-.57-.56a.5.5,0,0,1,0-.71h0l5-5-5-5a.5.5,0,0,1,0-.71h0l.57-.56a.5.5,0,0,1,.71,0h0l5.93,5.93a.5.5,0,0,1,0,.7L6.45,14.28a.5.5,0,0,1-.71,0Z" transform="translate(-5.02 -1.59)" />
+                </svg>
+            </span>
+            </div>
+        </div>
+        <div id="collapsible-content" class="ons-collapsible__content ons-js-collapsible-content">
+            <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
+            <p class="ons-checkboxes__label">Show only:</p>
+            {{ range $index, $topFilter := $filters}}
+                <div class="ons-checkboxes__items">
+                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                        <span class="ons-checkbox ons-checkbox--no-border category-filter">
+                            <input type="checkbox" id="group-{{ $index }}"
+                                class="ons-checkbox__input ons-js-checkbox"
+                                value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
+                                aria-haspopup="true"
+                                {{if $topFilter.IsChecked }}
+                                    checked
+                                {{end}}
+                            >
+                            <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
+                                {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
+                            </label>
+                            <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
+                                <fieldset class="ons-fieldset ons-js-other-fieldset">
+                                    {{range $index, $childFilter := $topFilter.Types}}
+                                        {{$id := index $childFilter.FilterKey 0}}
+                                        <div class="ons-checkboxes__items">
+                                            <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                                                <span class="ons-checkbox ons-checkbox--no-border child-filter">
+                                                    <input id="{{ $id }}"
+                                                        class="ons-checkbox__input ons-js-checkbox"
+                                                        type="checkbox" name="filter"
+                                                        {{ if $childFilter.IsChecked }}checked{{end}}
+                                                        value="{{ $id }}"
+                                                    />
+                                                    <label class="ons-checkbox__label" for="{{ $id }}"
+                                                        id="{{ $id }}-label">
+                                                        {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
+                                                    </label>
+                                                </span>
+                                            </span>
+                                        </div>
+                                    {{ end }}
+                                </fieldset>
                             </span>
-                    </div>
-                {{ end }}
-                <hr />
-            </fieldset>
-            <noscript>
-                <button type="submit"
-                        class="btn btn--primary btn--thick margin-top-sm--2 margin-top-md--2 js-submit-button">Filter
-                </button>
-            </noscript>
+                        </span>
+                    </span>
+                </div>
+            {{ end }}
         </div>
-    </div>
-    <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
-        <h3 class="tiles__title-h3 tiles__title-h3--nav">Need an earlier release?</h3>
-        <div class="tiles__content tiles__content--nav">
-            <p>
-                We moved them to <a
-                        href="http://webarchive.nationalarchives.gov.uk/20160105160709/http://www.ons.gov.uk/ons/index.html">The
-                    National Archives</a> website, to keep this website as responsive as possible.
-            </p>
-            <p>
-                <strong>Please note: </strong>all historical data is still on this website.
-            </p>
         </div>
-    </div>
+    </fieldset>
+    <noscript>
+        <button type="submit"
+                class="btn btn--primary btn--thick margin-top-sm--2 margin-top-md--2 js-submit-button">Filter
+        </button>
+    </noscript>
 </form>
+<div class="search__filter__content__archive-info">
+    <h3>Need an earlier release?</h3>
+    <p>
+        We moved them to <a
+                href="http://webarchive.nationalarchives.gov.uk/20160105160709/http://www.ons.gov.uk/ons/index.html">The
+            National Archives</a> website, to keep this website as responsive as possible.
+    </p>
+    <p>
+        <strong>Please note: </strong>all historical data is still on this website.
+    </p>
+</div>
