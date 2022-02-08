@@ -3,11 +3,12 @@
 {{ $query := .Data.Query }}
 {{ $sort := .Data.Sort.Query }}
 {{ $lang := .Language }}
-<form id="filterForm" method="get">
+<form id="filterForm" method="get" class="js-auto-submit__form" action="/search">
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sort" value="{{$sort}}"/>
     <fieldset class="ons-fieldset">
-        <div id="collapsible" class="ons-collapsible ons-js-collapsible" data-btn-close="Hide this">
+        <script>window.localStorage.collapsibleContentType = true</script>
+        <div id="collapsibleContentType" class="ons-collapsible ons-js-collapsible" data-btn-close="Hide this">
         <div class="ons-collapsible__heading ons-js-collapsible-heading">
             <div class="ons-collapsible__controls">
             <h2 class="ons-collapsible__title">
@@ -16,9 +17,7 @@
                 </legend>
             </h2>
             <span class="ons-collapsible__icon">
-                <svg class="ons-svg-icon " viewBox="0 0 8 13" xmlns="http://www.w3.org/2000/svg" focusable="false" fill="currentColor">
-                <path d="M5.74,14.28l-.57-.56a.5.5,0,0,1,0-.71h0l5-5-5-5a.5.5,0,0,1,0-.71h0l.57-.56a.5.5,0,0,1,.71,0h0l5.93,5.93a.5.5,0,0,1,0,.7L6.45,14.28a.5.5,0,0,1-.71,0Z" transform="translate(-5.02 -1.59)" />
-                </svg>
+                 {{ template "icons/chevron-right" }}
             </span>
             </div>
         </div>
