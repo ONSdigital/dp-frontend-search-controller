@@ -28,7 +28,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 
 	urlQuery := req.URL.Query()
 
-	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery)
+	validatedQueryParams, validationProblem, err := data.ReviewQuery(ctx, cfg, urlQuery)
 	if err != nil {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
@@ -40,6 +40,15 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 	var searchResp searchCli.Response
 	var respErr error
 	var departmentResp searchCli.Department
+
+	if validationProblem {
+		// avoid making any API calls
+		basePage := rend.NewBasePageModel()
+		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, searchResp, departmentResp, lang, validationProblem)
+		rend.BuildPage(w, m, "search")
+		return
+	}
+
 	var wg sync.WaitGroup
 	wg.Add(2)
 
@@ -87,7 +96,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, searchResp, departmentResp, lang)
+	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, searchResp, departmentResp, lang, validationProblem)
 	rend.BuildPage(w, m, "search")
 }
 
