@@ -8,7 +8,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-renderer/model"
-	"github.com/davecgh/go-spew/spew"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -144,8 +143,6 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(testMatchesDescDatasetID[0].Start, ShouldEqual, 26)
 				So(testMatchesDescDatasetID[0].End, ShouldEqual, 30)
 
-				spew.Dump(sp.Data.Filters)
-				//So(sp.Data.Filters, ShouldEqual, 1)
 				So(len(sp.Data.Filters[0].FilterKey), ShouldEqual, 3)
 				So(sp.Data.Filters[0].LocaliseKeyName, ShouldEqual, "Publication")
 				So(sp.Data.Filters[0].IsChecked, ShouldBeTrue)
@@ -162,6 +159,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Data.Filters[0].Types[2].LocaliseKeyName, ShouldEqual, "Compendium")
 				So(sp.Data.Filters[0].Types[2].IsChecked, ShouldBeFalse)
 				So(sp.Data.Filters[0].Types[2].NumberOfResults, ShouldEqual, 0)
+				So(len(sp.Data.Filters[2].Types), ShouldEqual, 2)
 
 				So(sp.Department.Code, ShouldEqual, "dept-code")
 				So(sp.Department.URL, ShouldEqual, "www.dept.com")
