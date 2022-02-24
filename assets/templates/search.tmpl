@@ -24,6 +24,12 @@
 
     {{else}}
 
+      <div class="ons-grid__col ons-col-12@m">
+        <section class="search__summary" role="contentinfo" aria-label="Search summary">
+          {{ template "partials/summary" . }}
+        </section>
+      </div>
+
       <div class="ons-grid__col ons-col-4@m">
         <section class="search__filter" role="contentinfo" aria-label="Search filtering" id="search-filter">
           <div class="search__filter__heading">
