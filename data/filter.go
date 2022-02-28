@@ -28,6 +28,7 @@ type ContentType struct {
 	Count           int      `json:"count"`
 	Group           string   `json:"group"`
 	Types           []string `json:"types"`
+	ShowInWebUI     bool     `json:"show_in_web_ui"`
 }
 
 var defaultContentTypes = "article," +
@@ -74,6 +75,7 @@ var (
 		LocaliseKeyName: "StatisticalBulletin",
 		Group:           "bulletin",
 		Types:           []string{"bulletin"},
+		ShowInWebUI:     true,
 	}
 
 	// Article - Search information specific for articles
@@ -81,6 +83,7 @@ var (
 		LocaliseKeyName: "Article",
 		Group:           "article",
 		Types:           []string{"article", "article_download"},
+		ShowInWebUI:     true,
 	}
 
 	// Compendium - Search information specific for compendium
@@ -88,6 +91,7 @@ var (
 		LocaliseKeyName: "Compendium",
 		Group:           "compendia",
 		Types:           []string{"compendium_landing_page"},
+		ShowInWebUI:     true,
 	}
 
 	// TimeSeries - Search information specific for time series
@@ -95,6 +99,7 @@ var (
 		LocaliseKeyName: "TimeSeries",
 		Group:           "time_series",
 		Types:           []string{"timeseries"},
+		ShowInWebUI:     true,
 	}
 
 	// Datasets - Search information specific for datasets
@@ -102,6 +107,7 @@ var (
 		LocaliseKeyName: "Datasets",
 		Group:           "datasets",
 		Types:           []string{"dataset_landing_page", "timeseries_dataset"},
+		ShowInWebUI:     true,
 	}
 
 	// UserRequestedData - Search information specific for user requested data
@@ -109,6 +115,7 @@ var (
 		LocaliseKeyName: "UserRequestedData",
 		Group:           "user_requested_data",
 		Types:           []string{"static_adhoc"},
+		ShowInWebUI:     true,
 	}
 
 	// Methodology - Search information specific for methodologies
@@ -116,6 +123,7 @@ var (
 		LocaliseKeyName: "Methodology",
 		Group:           "methodology",
 		Types:           []string{"static_methodology", "static_methodology_download", "static_qmi"},
+		ShowInWebUI:     true,
 	}
 
 	// CorporateInformation - Search information specific for corporate information
@@ -123,6 +131,7 @@ var (
 		LocaliseKeyName: "CorporateInformation",
 		Group:           "corporate_information",
 		Types:           []string{"static_foi", "static_page", "static_landing_page", "static_article"},
+		ShowInWebUI:     true,
 	}
 
 	// ProductPage - Search information specific for product pages
@@ -130,6 +139,7 @@ var (
 		LocaliseKeyName: "ProductPage",
 		Group:           "product_page",
 		Types:           []string{"product_page"},
+		ShowInWebUI:     false,
 	}
 
 	// filterOptions contains all the possible filter available on the search page
