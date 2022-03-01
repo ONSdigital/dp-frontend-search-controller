@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"testing"
 
+	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -20,10 +21,10 @@ func TestUnitReviewQueryStringSuccess(t *testing.T) {
 		}
 
 		Convey("When reviewQueryString is called", func() {
-			validationProblem := reviewQueryString(ctx, urlQuery)
+			err := reviewQueryString(ctx, urlQuery)
 
 			Convey("Then return false with a valid query string", func() {
-				So(validationProblem, ShouldBeFalse)
+				So(err, ShouldBeNil)
 			})
 
 		})
@@ -42,10 +43,10 @@ func TestUnitReviewQueryStringFailure(t *testing.T) {
 		}
 
 		Convey("When reviewQueryString is called", func() {
-			validationProblem := reviewQueryString(ctx, urlQuery)
+			err := reviewQueryString(ctx, urlQuery)
 
 			Convey("Then return true with a valid query string", func() {
-				So(validationProblem, ShouldBeTrue)
+				So(err, ShouldResemble, errs.ErrInvalidQueryString)
 			})
 
 		})
@@ -58,10 +59,10 @@ func TestUnitReviewQueryStringFailure(t *testing.T) {
 		}
 
 		Convey("When reviewQueryString is called", func() {
-			validationProblem := reviewQueryString(ctx, urlQuery)
+			err := reviewQueryString(ctx, urlQuery)
 
 			Convey("Then return true with a valid query string", func() {
-				So(validationProblem, ShouldBeTrue)
+				So(err, ShouldResemble, errs.ErrInvalidQueryString)
 			})
 
 		})

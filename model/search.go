@@ -12,7 +12,7 @@ type SearchPage struct {
 // Search represents all search parameters and response data of the search
 type Search struct {
 	Query             string           `json:"query"`
-	ValidationProblem bool             `json:"ValidationProblem"`
+	ValidationProblem string           `json:"ValidationProblem"`
 	Filter            []string         `json:"filter,omitempty"`
 	Filters           []Filter         `json:"filters"`
 	Sort              Sort             `json:"sort,omitempty"`

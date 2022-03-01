@@ -27,7 +27,7 @@ func TestUnitReviewQuerySuccess(t *testing.T) {
 		}
 
 		Convey("When ReviewQuery is called", func() {
-			validatedQueryParams, validationProblem, err := ReviewQuery(ctx, cfg, urlQuery)
+			validatedQueryParams, err := ReviewQuery(ctx, cfg, urlQuery)
 
 			Convey("Then successfully review and return validated query parameters", func() {
 				So(validatedQueryParams, ShouldResemble, SearchURLParams{
@@ -50,7 +50,7 @@ func TestUnitReviewQuerySuccess(t *testing.T) {
 			})
 
 			Convey("And have a valid query string", func() {
-				So(validationProblem, ShouldBeFalse)
+				So(err, ShouldBeNil)
 			})
 		})
 	})
@@ -74,7 +74,7 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 		}
 
 		Convey("When ReviewQuery is called", func() {
-			_, _, err := ReviewQuery(ctx, cfg, urlQuery)
+			_, err := ReviewQuery(ctx, cfg, urlQuery)
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
@@ -95,7 +95,7 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 		}
 
 		Convey("When ReviewQuery is called", func() {
-			_, _, err := ReviewQuery(ctx, cfg, urlQuery)
+			_, err := ReviewQuery(ctx, cfg, urlQuery)
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)

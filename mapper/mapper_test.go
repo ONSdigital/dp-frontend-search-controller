@@ -53,7 +53,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, respC, respD, lang, false)
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, respC, respD, lang, "")
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")

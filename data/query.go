@@ -20,14 +20,14 @@ type SearchURLParams struct {
 }
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
-func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values) (SearchURLParams, bool, error) {
+func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values) (SearchURLParams, error) {
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
 
 	err := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
 	if err != nil {
 		log.Error(ctx, "unable to review pagination", err)
-		return validatedQueryParams, false, err
+		return validatedQueryParams, err
 	}
 
 	reviewSort(ctx, cfg, urlQuery, &validatedQueryParams)
@@ -35,12 +35,16 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values) (
 	err = reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	if err != nil {
 		log.Error(ctx, "unable to review filters", err)
-		return validatedQueryParams, false, err
+		return validatedQueryParams, err
 	}
 
-	validationProblem := reviewQueryString(ctx, urlQuery)
+	err = reviewQueryString(ctx, urlQuery)
+	if err != nil {
+		log.Info(ctx, "the query string did not pass review")
+		return validatedQueryParams, err
+	}
 
-	return validatedQueryParams, validationProblem, nil
+	return validatedQueryParams, nil
 }
 
 // GetSearchAPIQuery gets the query that needs to be passed to the search-api to get search results

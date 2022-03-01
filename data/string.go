@@ -5,37 +5,33 @@ import (
 	"fmt"
 	"net/url"
 	"regexp"
+	"strings"
 
+	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-const minQueryLength = 3
-
 // reviewQueryString performs basic checks on the string entered by the user
-func reviewQueryString(ctx context.Context, urlQuery url.Values) bool {
-	validationProblem, err := checkForNonSpaceCharacters(ctx, urlQuery.Get("q"))
-	if err != nil {
-		log.Error(ctx, "query string did not have sufficient non-space characters", err)
-	}
-	return validationProblem
+func reviewQueryString(ctx context.Context, urlQuery url.Values) error {
+	return checkForNonSpaceCharacters(ctx, urlQuery.Get("q"))
 }
 
-func checkForNonSpaceCharacters(ctx context.Context, queryString string) (bool, error) {
-	var regexString string
-	for i := 0; i < minQueryLength; i++ {
-		regexString += `\S\s*`
-	}
+func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
+	const minQueryLength = 3
+	var regexString = strings.Repeat(`\S\s*`, minQueryLength)
 
 	match, err := regexp.MatchString(regexString, queryString)
 	if err != nil {
 		log.Error(ctx, "unable to check query string against regex", err)
-		return false, err
+		errVal := errs.ErrInvalidQueryString
+		return errVal
 	}
 
 	if !match {
-		log.Info(ctx, fmt.Sprintf("the query string did not match the regex, %v non-space characters required", minQueryLength))
-		return true, nil
+		log.Warn(ctx, fmt.Sprintf("the query string did not match the regex, %v non-space characters required", minQueryLength))
+		errVal := errs.ErrInvalidQueryString
+		return errVal
 	}
 
-	return false, nil
+	return nil
 }

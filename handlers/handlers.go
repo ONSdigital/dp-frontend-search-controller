@@ -28,8 +28,8 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 
 	urlQuery := req.URL.Query()
 
-	validatedQueryParams, validationProblem, err := data.ReviewQuery(ctx, cfg, urlQuery)
-	if err != nil {
+	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery)
+	if err != nil && err != errs.ErrInvalidQueryString {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
 		return
@@ -41,10 +41,10 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 	var respErr error
 	var departmentResp searchCli.Department
 
-	if validationProblem {
+	if err == errs.ErrInvalidQueryString {
 		// avoid making any API calls
 		basePage := rend.NewBasePageModel()
-		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, searchResp, departmentResp, lang, validationProblem)
+		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, searchResp, departmentResp, lang, err.Error())
 		rend.BuildPage(w, m, "search")
 		return
 	}
@@ -96,7 +96,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, searchResp, departmentResp, lang, validationProblem)
+	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, searchResp, departmentResp, lang, "")
 	rend.BuildPage(w, m, "search")
 }
 

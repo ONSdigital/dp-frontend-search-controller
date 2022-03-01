@@ -12,7 +12,7 @@ import (
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string, validationProblem bool) model.SearchPage {
+func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string, validationProblem string) model.SearchPage {
 
 	page := model.SearchPage{
 		Page: basePage,
@@ -41,7 +41,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	return page
 }
 
-func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, validationProblem bool) {
+func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, validationProblem string) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
