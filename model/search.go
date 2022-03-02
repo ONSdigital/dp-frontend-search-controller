@@ -11,13 +11,13 @@ type SearchPage struct {
 
 // Search represents all search parameters and response data of the search
 type Search struct {
-	Query             string           `json:"query"`
-	ValidationProblem string           `json:"ValidationProblem"`
-	Filter            []string         `json:"filter,omitempty"`
-	Filters           []Filter         `json:"filters"`
-	Sort              Sort             `json:"sort,omitempty"`
-	Pagination        model.Pagination `json:"pagination,omitempty"`
-	Response          Response         `json:"response"`
+	Query        string           `json:"query"`
+	ErrorMessage string           `json:"error_message,omitempty"`
+	Filter       []string         `json:"filter,omitempty"`
+	Filters      []Filter         `json:"filters"`
+	Sort         Sort             `json:"sort,omitempty"`
+	Pagination   model.Pagination `json:"pagination,omitempty"`
+	Response     Response         `json:"response"`
 }
 
 // Filter respresents all filter information needed by templates

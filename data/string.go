@@ -11,15 +11,16 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
+const minQueryLength = 3
+
+var regexString = strings.Repeat(`\S\s*`, minQueryLength)
+
 // reviewQueryString performs basic checks on the string entered by the user
 func reviewQueryString(ctx context.Context, urlQuery url.Values) error {
 	return checkForNonSpaceCharacters(ctx, urlQuery.Get("q"))
 }
 
 func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
-	const minQueryLength = 3
-	var regexString = strings.Repeat(`\S\s*`, minQueryLength)
-
 	match, err := regexp.MatchString(regexString, queryString)
 	if err != nil {
 		log.Error(ctx, "unable to check query string against regex", err)
