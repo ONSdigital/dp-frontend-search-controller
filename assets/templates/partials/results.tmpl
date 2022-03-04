@@ -51,18 +51,6 @@
                     </a>
                 </p>
             {{end}}
-            {{ $keywords := .Description.Keywords }}
-            {{ if $keywords }}
-                {{ $numberOfKeywords := len $keywords }}
-                {{ if gt $numberOfKeywords 0}}
-                    <p class="search__results__keywords font-size--16">
-                        {{ localise "Keywords" $lang 4 }}:
-                        {{ range $i, $el := $keywords }}
-                            {{$el | safeHTML }}{{ if notLastItem $numberOfKeywords $i }},{{end}}
-                        {{end}}
-                    </p>
-                {{ end }}
-            {{ end }}
         </li>
 
     {{end}}
