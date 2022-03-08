@@ -48,6 +48,10 @@ func TestUnitReviewQuerySuccess(t *testing.T) {
 			Convey("And return no errors", func() {
 				So(err, ShouldBeNil)
 			})
+
+			Convey("And have a valid query string", func() {
+				So(err, ShouldBeNil)
+			})
 		})
 	})
 }

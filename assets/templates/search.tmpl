@@ -2,44 +2,67 @@
 <div class="ons-container search__container">
   <div class="ons-grid">
 
-    <div class="ons-grid__col ons-col-12@m">
-      <section class="search__summary" role="contentinfo" aria-label="Search summary">
-        {{ template "partials/summary" . }}
-      </section>
-    </div>
+    {{if .Data.ErrorMessage}}
 
-    <div class="ons-grid__col ons-col-4@m">
-      <section class="search__filter" role="contentinfo" aria-label="Search filtering" id="search-filter">
-        <div class="search__filter__heading">
-          <h3 class="font-size--18">
-            {{ localise "FilterResults" $lang 4 }}
-          </h3>
-        </div>
-        <div class="search__filter__content">
-          {{ template "partials/filter" . }}
-        </div>
-      </section>
-    </div>
+      <div class="ons-grid__col ons-col-12@m">
+        <section class="search__summary">
+          <span class="search__summary__generic">Enter a search term</span>
+        </section>
+        {{ template "partials/standalone-search" . }}
+      </div>
 
-    <div class="ons-grid__col ons-col-8@m">
-      <section role="contentinfo" aria-label="Search results">
-        <div class="search__sort">
-          {{ template "partials/sort" . }}
-        </div>
-        <div class="search__filter__mobile-filter-toggle hide">
-            <button type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
-              <span class="ons-btn__inner">Filter results</span>
-            </button>
-        </div>
-        <div class="search__results">
-          {{ template "partials/department" . }}
-          {{ template "partials/results" . }}
-        </div>
-        <div class="search__pagination">
-          {{ template "partials/pagination" . }}
-        </div>
-      </section>
-    </div>
+    {{else if eq .Data.Response.Count 0}}
+      <div class="ons-grid__col ons-col-12@m">
+        <section class="search__summary" role="contentinfo" aria-label="Search summary">
+          {{ template "partials/summary" . }}
+        </section>
+      </div>
+
+      <div class="ons-grid__col ons-col-12@m">
+        {{ template "partials/standalone-search" . }}
+      </div>
+
+    {{else}}
+
+      <div class="ons-grid__col ons-col-12@m">
+        <section class="search__summary" role="contentinfo" aria-label="Search summary">
+          {{ template "partials/summary" . }}
+        </section>
+      </div>
+
+      <div class="ons-grid__col ons-col-4@m">
+        <section class="search__filter" role="contentinfo" aria-label="Search filtering" id="search-filter">
+          <div class="search__filter__heading">
+            <h3 class="font-size--18">
+              {{ localise "FilterResults" $lang 4 }}
+            </h3>
+          </div>
+          <div class="search__filter__content">
+            {{ template "partials/filter" . }}
+          </div>
+        </section>
+      </div>
+
+      <div class="ons-grid__col ons-col-8@m">
+        <section role="contentinfo" aria-label="Search results">
+          <div class="search__sort">
+            {{ template "partials/sort" . }}
+          </div>
+          <div class="search__filter__mobile-filter-toggle hide">
+              <button type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
+                <span class="ons-btn__inner">Filter results</span>
+              </button>
+          </div>
+          <div class="search__results">
+            {{ template "partials/department" . }}
+            {{ template "partials/results" . }}
+          </div>
+          <div class="search__pagination">
+            {{ template "partials/pagination" . }}
+          </div>
+        </section>
+      </div>
+    {{end}}
 
   </div>
 </div>

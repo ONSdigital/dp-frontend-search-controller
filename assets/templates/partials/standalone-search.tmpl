@@ -1,0 +1,16 @@
+<form class="search__form search__form--no-results" action="/search">
+    <label class="search__label--no-results" for="search-in-page">Search for data, analysis and other publications.</label>
+    <input
+        type="search"
+        autocomplete="off"
+        class="search__input search__input--no-results"
+        id="search-in-page"
+        name="q"
+        value="">
+    <button type="submit" class="search__button search__button--no-results" id="search-in-page-submit">
+        <span class="visuallyhidden">{{ localise "Search" .Language 1 }}</span>
+        <span class="icon icon-search--light">
+            {{ template "icons/search" . }}
+        </span>
+    </button>
+</form>
