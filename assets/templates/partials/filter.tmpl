@@ -32,6 +32,7 @@
                                     class="ons-checkbox__input ons-js-checkbox"
                                     value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
                                     aria-haspopup="true"
+                                    data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
                                     {{if $topFilter.IsChecked }}
                                         checked
                                     {{end}}
@@ -51,6 +52,7 @@
                                                                 class="ons-checkbox__input ons-js-checkbox"
                                                                 type="checkbox" name="filter"
                                                                 {{ if $childFilter.IsChecked }}checked{{end}}
+                                                                data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
                                                                 value="{{ $id }}"
                                                             />
                                                             <label class="ons-checkbox__label" for="{{ $id }}"
