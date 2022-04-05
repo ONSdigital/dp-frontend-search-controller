@@ -26,7 +26,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	page.Language = lang
 	page.BetaBannerEnabled = true
 	page.SearchDisabled = false
-	page.URI = req.URL.Path
+	page.URI = req.URL.RequestURI()
 	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath
 	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 
