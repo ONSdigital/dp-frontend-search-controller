@@ -20,6 +20,7 @@
             Did you mean <a class="underline-link"
                             href="/search?q={{ index .Data.Response.Suggestions 0 }}">{{ index .Data.Response.Suggestions 0 }}</a>?
         </span>
+    {{/* if additional suggestions and no results */}}
     {{ else if (and (gt $len 0) (le $numberResults 0) ) }}
         <span class="search__summary__suggestion">
             Try
