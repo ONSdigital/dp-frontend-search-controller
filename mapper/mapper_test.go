@@ -159,7 +159,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Data.Filters[0].Types[2].LocaliseKeyName, ShouldEqual, "Compendium")
 				So(sp.Data.Filters[0].Types[2].IsChecked, ShouldBeFalse)
 				So(sp.Data.Filters[0].Types[2].NumberOfResults, ShouldEqual, 0)
-				So(len(sp.Data.Filters[2].Types), ShouldEqual, 2)
+				So(len(sp.Data.Filters[2].Types), ShouldEqual, 3)
 
 				So(sp.Department.Code, ShouldEqual, "dept-code")
 				So(sp.Department.URL, ShouldEqual, "www.dept.com")

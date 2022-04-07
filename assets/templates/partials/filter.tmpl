@@ -24,7 +24,7 @@
             <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
             <p class="ons-checkboxes__label">Show only:</p>
             {{ range $index, $topFilter := $filters}}
-                {{if ne $topFilter.NumberOfResults 0}}
+                {{if gt $topFilter.NumberOfResults 0}}
                     <div class="ons-checkboxes__items">
                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
                             <span class="ons-checkbox ons-checkbox--no-border category-filter">
