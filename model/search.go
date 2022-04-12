@@ -15,6 +15,7 @@ type Search struct {
 	ErrorMessage string           `json:"error_message,omitempty"`
 	Filter       []string         `json:"filter,omitempty"`
 	Filters      []Filter         `json:"filters"`
+	TopicFilters []TopicFilter    `json:"topic_filters"`
 	Sort         Sort             `json:"sort,omitempty"`
 	Pagination   model.Pagination `json:"pagination,omitempty"`
 	Response     Response         `json:"response"`
@@ -22,6 +23,15 @@ type Search struct {
 
 // Filter respresents all filter information needed by templates
 type Filter struct {
+	LocaliseKeyName string   `json:"localise_key_name,omitempty"`
+	FilterKey       []string `json:"filter_key,omitempty"`
+	IsChecked       bool     `json:"is_checked,omitempty"`
+	NumberOfResults int      `json:"number_of_results,omitempty"`
+	Types           []Filter `json:"types,omitempty"`
+}
+
+// TopicFilter respresents all topic filter information needed by templates
+type TopicFilter struct {
 	LocaliseKeyName string   `json:"localise_key_name,omitempty"`
 	FilterKey       []string `json:"filter_key,omitempty"`
 	IsChecked       bool     `json:"is_checked,omitempty"`
