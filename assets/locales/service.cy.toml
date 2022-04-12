@@ -37,6 +37,51 @@ other = "Data"
 description = "Other"
 other = "Other"
 
+[DemographyAndMigration]
+description = "Demography and migration"
+one = "Demography and migration"
+other = "Demography and migration"
+
+[Education]
+description = "Education"
+one = "Education"
+other = "Education"
+
+[EthnicGroupNationalIdentityAndReligion]
+description = "Ethnic group, national identity and religion"
+one = "Ethnic group, national identity and religion"
+other = "Ethnic group, national identity and religion"
+
+[HealthDisabilityAndUnpaidCare]
+description = "Health, disability and unpaid care"
+one = "Health, disability and unpaid care"
+other = "Health, disability and unpaid care"
+
+[Housing]
+description = "Housing"
+one = "Housing"
+other = "Housing"
+
+[LabourMarketAndTravelToWork]
+description = "Labour market and travel to work"
+one = "Labour market and travel to work"
+other = "Labour market and travel to work"
+
+[SexualOrientationAndGenderIdentity]
+description = "Sexual orientation and gender identity"
+one = "Sexual orientation and gender identity"
+other = "Sexual orientation and gender identity"
+
+[Veteran]
+description = "Veteran"
+one = "Veteran"
+other = "Veterans"
+
+[Census]
+description = "Census"
+one = "Census"
+other = "Census"
+
 [StatisticalBulletin]
 description = "Statistical bulletins"
 one = "Bwletin ystadegol"
