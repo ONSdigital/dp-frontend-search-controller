@@ -13,6 +13,7 @@ import (
 type SearchURLParams struct {
 	Query       string
 	Filter      Filter
+	TopicFilter TopicFilter
 	Sort        Sort
 	Limit       int
 	CurrentPage int
@@ -35,6 +36,12 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values) (
 	err = reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	if err != nil {
 		log.Error(ctx, "unable to review filters", err)
+		return validatedQueryParams, err
+	}
+
+	err = reviewTopicFilters(ctx, urlQuery, &validatedQueryParams)
+	if err != nil {
+		log.Error(ctx, "unable to review topic filters", err)
 		return validatedQueryParams, err
 	}
 

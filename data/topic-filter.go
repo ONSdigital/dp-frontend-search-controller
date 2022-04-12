@@ -2,6 +2,8 @@ package data
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"net/url"
 	"strings"
 
@@ -137,28 +139,33 @@ var (
 
 // reviewFilter retrieves filters from query, checks if they are one of the filter options, and updates validatedQueryParams
 func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
-	filtersQuery := urlQuery["filter"]
+	topicFiltersQuery := urlQuery["topic"]
 
-	for _, filterQuery := range filtersQuery {
+	fmt.Println(string("––––––––––––––––––––––––––––––––––––––––––––topic-filter.go"))
+	data, _ := json.Marshal(topicFiltersQuery)
+	fmt.Println(string(data))
+	fmt.Println(string("––––––––––––––––––––––––––––––––––––––––––––"))
 
-		filterQuery = strings.ToLower(filterQuery)
+	for _, topicFilterQuery := range topicFiltersQuery {
 
-		if filterQuery == "" {
+		topicFilterQuery = strings.ToLower(topicFilterQuery)
+
+		if topicFilterQuery == "" {
 			continue
 		}
 
-		filter, found := topicFilterOptions[filterQuery]
+		topicFilter, found := topicFilterOptions[topicFilterQuery]
 
 		if !found {
 			err := errs.ErrFilterNotFound
-			logData := log.Data{"filter not found": filter}
-			log.Error(ctx, "failed to find filter", err, logData)
+			logData := log.Data{"topic filter not found": topicFilter}
+			log.Error(ctx, "failed to find topic filter", err, logData)
 
 			return err
 		}
 
-		validatedQueryParams.Filter.Query = append(validatedQueryParams.Filter.Query, filter.Group)
-		validatedQueryParams.Filter.LocaliseKeyName = append(validatedQueryParams.Filter.LocaliseKeyName, filter.LocaliseKeyName)
+		validatedQueryParams.TopicFilter.Query = append(validatedQueryParams.TopicFilter.Query, topicFilter.Group)
+		validatedQueryParams.TopicFilter.LocaliseKeyName = append(validatedQueryParams.TopicFilter.LocaliseKeyName, topicFilter.LocaliseKeyName)
 	}
 
 	return nil
