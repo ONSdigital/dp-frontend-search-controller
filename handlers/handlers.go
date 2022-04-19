@@ -150,7 +150,7 @@ func getTopicCategoriesTypesCount(ctx context.Context, accessToken, collectionID
 	mockTopicCategories := []data.TopicCategory{
 		{
 			LocaliseKeyName: "Census",
-			Count:           1,
+			Count:           0,
 			ContentTypes: []data.TopicContentType{
 				data.DemographyAndMigration,
 				data.Education,
