@@ -2,8 +2,6 @@ package data
 
 import (
 	"context"
-	"encoding/json"
-	"fmt"
 	"net/url"
 	"strings"
 
@@ -140,11 +138,6 @@ var (
 // reviewFilter retrieves filters from query, checks if they are one of the filter options, and updates validatedQueryParams
 func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
 	topicFiltersQuery := urlQuery["topic"]
-
-	fmt.Println(string("––––––––––––––––––––––––––––––––––––––––––––topic-filter.go"))
-	data, _ := json.Marshal(topicFiltersQuery)
-	fmt.Println(string(data))
-	fmt.Println(string("––––––––––––––––––––––––––––––––––––––––––––"))
 
 	for _, topicFilterQuery := range topicFiltersQuery {
 
