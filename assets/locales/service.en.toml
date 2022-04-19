@@ -21,12 +21,18 @@ other = "Filter results"
 description = "Content types to show"
 other = "Content types to show"
 
+[ContentType]
+description = "Content type"
+one = "Content type"
+other = "Content type"
+
 [ClearAll]
 description = "Clear all"
 one = "Clear all"
 
 [Publication]
 description = "Publications"
+one="publication"
 other = "Publications"
 
 [Data]
