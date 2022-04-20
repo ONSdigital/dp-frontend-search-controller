@@ -9,7 +9,7 @@
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sort" value="{{$sort}}"/>
     <fieldset class="ons-fieldset">
-        {{ range $index, $topFilter := $topicFilters}}
+        {{ range $index, $topFilter := $topicFilters }}
             {{if gt $topFilter.NumberOfResults 0}}
                 <div class="ons-checkboxes__items">
                     <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
