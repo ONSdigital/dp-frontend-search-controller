@@ -23,24 +23,24 @@ other = "Mathau o gynnwys i'w dangos"
 
 [ContentType]
 description = "Content type"
-one = "math o gynnwys"
-other = "math o gynnwys"
+one = "Math o gynnwys"
+other = "Math o gynnwys"
 
 [ClearAll]
 description = "Clear all"
 one = "Clirio'r cyfan"
 
 [Publication]
-description = "cyhoeddiadau"
-other = "cyhoeddiadau"
+description = "Cyhoeddiadau"
+other = "Cyhoeddiadau"
 
 [Data]
 description = "Data"
 other = "Data"
 
 [Other]
-description = "arall"
-other = "arall"
+description = "Arall"
+other = "Arall"
 
 [StatisticalBulletin]
 description = "Statistical bulletins"
