@@ -117,3 +117,31 @@ one = "Did you know?"
 [ProduceStatisticsRelatingTo]
 description = "also produce statistics relating to"
 one = "also produce statistics relating to" 
+
+[EnterSearchTerm]
+description = "Enter a search term"
+one = "Nodi term i chwilio amdano" 
+
+[SearchForData]
+description = "Search for data, analysis and other publications."
+one = "Chwilio am ddata, gwaith dadansoddi a chyhoeddiadau eraill." 
+
+[Results]
+description = "results"
+one = "canlyniadau" 
+
+[For]
+description = "for"
+one = "ar gyfer" 
+
+[DidYouMean]
+description = "Did you mean"
+one = "Oeddech chi'n golygu" 
+
+[Try]
+description = "Try"
+one = "Rhoi cynnig ar" 
+
+[Or]
+description = "or"
+one = "neu" 

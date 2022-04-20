@@ -117,3 +117,31 @@ one = "Did you know?"
 [ProduceStatisticsRelatingTo]
 description = "also produce statistics relating to"
 one = "also produce statistics relating to" 
+
+[EnterSearchTerm]
+description = "Enter a search term"
+one = "Enter a search term" 
+
+[SearchForData]
+description = "Search for data, analysis and other publications."
+one = "Search for data, analysis and other publications." 
+
+[Results]
+description = "results"
+one = "results" 
+
+[For]
+description = "for"
+one = "for" 
+
+[DidYouMean]
+description = "Did you mean"
+one = "Did you mean" 
+
+[Try]
+description = "Try"
+one = "Try" 
+
+[Or]
+description = "or"
+one = "or" 
