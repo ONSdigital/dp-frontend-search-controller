@@ -297,7 +297,7 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 		var subTypes []model.Filter
 		if len(category.ContentTypes) > 0 {
 			for _, contentType := range category.ContentTypes {
-				if !contentType.ShowInWebUI {
+				if !contentType.ShowInWebUI && contentType.Count > 0 {
 					filter.NumberOfResults -= 1
 					continue
 				}
