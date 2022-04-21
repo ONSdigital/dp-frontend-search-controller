@@ -21,21 +21,26 @@ other = "Mireinio'r canlyniadau"
 description = "Content types to show"
 other = "Mathau o gynnwys i'w dangos"
 
+[ContentType]
+description = "Content type"
+one = "Math o gynnwys"
+other = "Math o gynnwys"
+
 [ClearAll]
 description = "Clear all"
 one = "Clirio'r cyfan"
 
 [Publication]
-description = "Publications"
-other = "Publications"
+description = "Cyhoeddiadau"
+other = "Cyhoeddiadau"
 
 [Data]
 description = "Data"
 other = "Data"
 
 [Other]
-description = "Other"
-other = "Other"
+description = "Arall"
+other = "Arall"
 
 [StatisticalBulletin]
 description = "Statistical bulletins"
@@ -59,8 +64,8 @@ other = "Cyfres amser"
 
 [Datasets]
 description = "Datasets"
-one = "Set ddata"
-other = "Datasets"
+one = "Setiau data"
+other = "Setiau data"
 
 [Methodology]
 description = "Methodology"
@@ -78,8 +83,8 @@ other = "Data a gyrchwyd gan y defnyddiwr"
 
 [CorporateInformation]
 description = "Corporate Information"
-one = "Corporate Information"
-other = "Corporate Information"
+one = "Gwybodaeth gorfforaethol"
+other = "Gwybodaeth gorfforaethol"
 
 [ProductPage]
 description = "Topic"
