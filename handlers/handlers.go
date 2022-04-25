@@ -11,18 +11,23 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
-	dphandlers "github.com/ONSdigital/dp-net/handlers"
+	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 )
+// Constants...
+const (
+	homepagePath         = "/"
+)
+
 
 // Read Handler
-func Read(cfg *config.Config, rend RenderClient, searchC SearchClient) http.HandlerFunc {
+func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		read(w, req, cfg, rend, searchC, accessToken, collectionID, lang)
+		read(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang)
 	})
 }
 
-func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend RenderClient, searchC SearchClient, accessToken, collectionID, lang string) {
+func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, accessToken, collectionID, lang string) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
 
@@ -35,6 +40,11 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 		return
 	}
 
+	homepageContent, err := zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+	if err != nil {
+		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
+	}
+
 	apiQuery := data.GetSearchAPIQuery(validatedQueryParams)
 
 	var searchResp searchCli.Response
@@ -44,7 +54,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 	if err == errs.ErrInvalidQueryString {
 		// avoid making any API calls
 		basePage := rend.NewBasePageModel()
-		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, searchResp, departmentResp, lang, err.Error())
+		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, searchResp, departmentResp, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, err.Error())
 		rend.BuildPage(w, m, "search")
 		return
 	}
@@ -96,7 +106,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, searchResp, departmentResp, lang, "")
+	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, searchResp, departmentResp, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, err.Error())
 	rend.BuildPage(w, m, "search")
 }
 

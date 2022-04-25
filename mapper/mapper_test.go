@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"net/http/httptest"
+	"strings"
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
@@ -45,6 +46,9 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
 
+		serviceMessage := GetTestServiceMessage()
+		emergencyBanner := GetTestEmergencyBanner()
+
 		respC, err := GetMockSearchResponse()
 		So(err, ShouldBeNil)
 
@@ -52,7 +56,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, respC, respD, lang, "")
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, respC, respD, lang, serviceMessage, emergencyBanner, "")
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -165,7 +169,16 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Department.URL, ShouldEqual, "www.dept.com")
 				So(sp.Department.Name, ShouldEqual, "dept-name")
 				So(sp.Department.Match, ShouldEqual, "dept-match")
+
+				So(sp.ServiceMessage, ShouldEqual, serviceMessage)
+
+				So(sp.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
+				So(sp.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
+				So(sp.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
+				So(sp.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
+				So(sp.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
 			})
 		})
 	})
 }
+

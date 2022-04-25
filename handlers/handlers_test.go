@@ -14,6 +14,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
+	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -50,6 +51,8 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 		t.Errorf("failed to retrieve mock department response for unit tests, failing early: %v", err)
 	}
 
+	mockHomepageClient, err := mapper.Get
+
 	Convey("Given a valid request", t, func() {
 		req := httptest.NewRequest("GET", "/search?q=housing", nil)
 
@@ -72,8 +75,13 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 			},
 		}
 
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error){
+				return mockHomepageContent, nil
+		}}
+
 		Convey("When Read is called", func() {
-			w := doTestRequest("/search", req, Read(cfg, mockedRendererClient, mockedSearchClient), nil)
+			w := doTestRequest("/search", req, Read(cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient), nil)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)

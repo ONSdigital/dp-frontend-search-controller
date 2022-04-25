@@ -7,9 +7,10 @@ import (
 
 	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 )
 
-//go:generate moq -out clients_mock.go -pkg handlers . RenderClient SearchClient
+//go:generate moq -out clients_mock.go -pkg handlers . RenderClient SearchClient ZebedeeClient
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored
 type ClientError interface {
@@ -26,4 +27,9 @@ type RenderClient interface {
 type SearchClient interface {
 	GetSearch(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (r searchCli.Response, err error)
 	GetDepartments(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (d searchCli.Department, err error)
+}
+
+// ZebedeeClient is an interface with methods required for a zebedee client
+type ZebedeeClient interface {
+	GetHomepageContent(ctx context.Context, userAuthToken, collectionID, lang, path string) (m zebedee.HomepageContent, err error)
 }

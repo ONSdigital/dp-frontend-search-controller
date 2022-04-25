@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"encoding/json"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"io/ioutil"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
@@ -40,3 +41,24 @@ func GetMockDepartmentResponse() (searchC.Department, error) {
 
 	return respC, nil
 }
+
+func GetMockHomepageContent() zebedee.HomepageContent {
+	return zebedee.HomepageContent{
+
+	}
+}
+
+
+//func GetTestEmergencyBanner() zebedee.EmergencyBanner {
+//	return zebedee.EmergencyBanner{
+//		Type:        "notable_death",
+//		Title:       "This is not not an emergency",
+//		Description: "Something has gone wrong",
+//		URI:         "google.com",
+//		LinkText:    "More info",
+//	}
+//}
+//
+//func GetTestServiceMessage() string {
+//	return "Test service message"
+//}
