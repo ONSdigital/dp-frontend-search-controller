@@ -15,7 +15,7 @@ type Search struct {
 	ErrorMessage string           `json:"error_message,omitempty"`
 	Filter       []string         `json:"filter,omitempty"`
 	Filters      []Filter         `json:"filters"`
-	TopicFilters []TopicFilter    `json:"topic_filters"`
+	TopicFilters []Filter         `json:"topic_filters"`
 	Sort         Sort             `json:"sort,omitempty"`
 	Pagination   model.Pagination `json:"pagination,omitempty"`
 	Response     Response         `json:"response"`
@@ -28,11 +28,6 @@ type Filter struct {
 	IsChecked       bool     `json:"is_checked,omitempty"`
 	NumberOfResults int      `json:"number_of_results,omitempty"`
 	Types           []Filter `json:"types,omitempty"`
-}
-
-// TopicFilter respresents all topic filter information needed by templates
-type TopicFilter struct {
-	Filter
 }
 
 // Sort represents all the information of sorting related to the search page

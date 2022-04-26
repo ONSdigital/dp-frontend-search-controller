@@ -31,22 +31,7 @@ type Topic struct {
 }
 
 // TODO extend default topics with list of topics
-var defaultTopics = "article," +
-	"article_download," +
-	"bulletin," +
-	"compendium_landing_page," +
-	"dataset_landing_page," +
-	"product_page," +
-	"static_adhoc," +
-	"static_article," +
-	"static_foi," +
-	"static_landing_page," +
-	"static_methodology," +
-	"static_methodology_download," +
-	"static_page," +
-	"static_qmi," +
-	"timeseries," +
-	"timeseries_dataset"
+var defaultTopics = ""
 
 var (
 	// Categories represent the list of all search categories
@@ -190,29 +175,29 @@ func GetTopicCategories() []TopicCategory {
 	return topicCategories
 }
 
-// updateQueryWithAPITopics retrieves and adds all available sub filters which is related to the search filter given by the user
+// updateQueryWithAPITopics retrieves and adds all available subtopics which is related to the search filter given by the user
 func updateQueryWithAPITopics(apiQuery url.Values) {
-	filters := apiQuery["topics"]
+	topics := apiQuery["topics"]
 
-	if len(filters) > 0 {
-		subFilters := getTopicSubFilters(filters)
+	if len(topics) > 0 {
+		subTopics := getListOfSubTopics(topics)
 
-		apiQuery.Set("topics", strings.Join(subFilters, ","))
+		apiQuery.Set("topics", strings.Join(subTopics, ","))
 	} else {
 		apiQuery.Set("topics", defaultTopics)
 	}
 }
 
-// getTopicSubFilters gets all available sub filters which is related to the search filter given by the user
-func getTopicSubFilters(filters []string) []string {
-	var subFilters = make([]string, 0)
+// getListOfSubTopics gets all available subtopics for topics which have been set to filter results by the user
+func getListOfSubTopics(topics []string) []string {
+	var subTopics []string
 
-	for _, filter := range filters {
-		subFilter := topicFilterOptions[filter]
-		subFilters = append(subFilters, subFilter.SubTopics...)
+	for _, topic := range topics {
+		subFilter := topicFilterOptions[topic]
+		subTopics = append(subTopics, subFilter.SubTopics...)
 	}
 
-	return subFilters
+	return subTopics
 }
 
 // GetTopicGroupLocaliseKey gets the localise key of the group type of the search result to be displayed

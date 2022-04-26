@@ -61,6 +61,10 @@ func GetSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
 	// update content_type query (filters) with sub filters
 	updateQueryWithAPIFilters(apiQuery)
 
+	// TODO finish the process for querying topics once the API is up and running, currently apiQuery will not include topics and so does nothing
+	// update topics query with subtopics
+	updateQueryWithAPITopics(apiQuery)
+
 	return apiQuery
 }
 

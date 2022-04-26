@@ -324,10 +324,10 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 }
 
 func mapTopicFilters(page *model.SearchPage, topicCategories []data.TopicCategory, queryParams data.SearchURLParams) {
-	var topicFilters []model.TopicFilter
+	var topicFilters []model.Filter
 
 	for _, topicCategory := range topicCategories {
-		var topicFilter model.TopicFilter
+		var topicFilter model.Filter
 		topicFilter.LocaliseKeyName = topicCategory.LocaliseKeyName
 		topicFilter.NumberOfResults = topicCategory.Count
 
