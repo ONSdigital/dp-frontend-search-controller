@@ -333,8 +333,8 @@ func mapTopicFilters(page *model.SearchPage, topicCategories []data.TopicCategor
 
 		var keys []string
 		var subTypes []model.Filter
-		if len(topicCategory.ContentTypes) > 0 {
-			for _, contentType := range topicCategory.ContentTypes {
+		if len(topicCategory.Topics) > 0 {
+			for _, contentType := range topicCategory.Topics {
 				if !contentType.ShowInWebUI {
 					topicFilter.NumberOfResults -= 1
 					continue

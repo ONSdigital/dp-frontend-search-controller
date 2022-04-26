@@ -151,7 +151,7 @@ func getTopicCategoriesTypesCount(ctx context.Context, accessToken, collectionID
 		{
 			LocaliseKeyName: "Census",
 			Count:           0,
-			ContentTypes: []data.TopicContentType{
+			Topics: []data.Topic{
 				data.DemographyAndMigration,
 				data.Education,
 				data.EthnicGroupNationalIdentityAndReligion,

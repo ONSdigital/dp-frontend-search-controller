@@ -32,11 +32,7 @@ type Filter struct {
 
 // TopicFilter respresents all topic filter information needed by templates
 type TopicFilter struct {
-	LocaliseKeyName string   `json:"localise_key_name,omitempty"`
-	FilterKey       []string `json:"filter_key,omitempty"`
-	IsChecked       bool     `json:"is_checked,omitempty"`
-	NumberOfResults int      `json:"number_of_results,omitempty"`
-	Types           []Filter `json:"types,omitempty"`
+	Filter
 }
 
 // Sort represents all the information of sorting related to the search page

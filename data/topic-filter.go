@@ -11,27 +11,27 @@ import (
 
 // Filter represents information of filters selected by user
 type TopicFilter struct {
-	Query           []string `json:"query,omitempty"`
-	LocaliseKeyName []string `json:"localise_key,omitempty"`
+	Filter
 }
 
 // TopicCategory represents all the search categories in search page
 type TopicCategory struct {
-	LocaliseKeyName string             `json:"localise_key"`
-	Count           int                `json:"count"`
-	ContentTypes    []TopicContentType `json:"content_types"`
+	LocaliseKeyName string  `json:"localise_key"`
+	Count           int     `json:"count"`
+	Topics          []Topic `json:"topics"`
 }
 
-// ContentType represents the type of the search results and the number of results for each type
-type TopicContentType struct {
+// Topic represents the type of the search results and the number of results for each type
+type Topic struct {
 	LocaliseKeyName string   `json:"localise_key"`
 	Count           int      `json:"count"`
 	Group           string   `json:"group"`
-	Types           []string `json:"types"`
+	SubTopics       []string `json:"subtopics"`
 	ShowInWebUI     bool     `json:"show_in_web_ui"`
 }
 
-var defaultTopicContentTypes = "article," +
+// TODO extend default topics with list of topics
+var defaultTopics = "article," +
 	"article_download," +
 	"bulletin," +
 	"compendium_landing_page," +
@@ -55,75 +55,75 @@ var (
 	// Census - search information on census category
 	Census = TopicCategory{
 		LocaliseKeyName: "Census",
-		ContentTypes:    []TopicContentType{DemographyAndMigration, Education, EthnicGroupNationalIdentityAndReligion, HealthDisabilityAndUnpaidCare, Housing, LabourMarketAndTravelToWork, SexualOrientationAndGenderIdentity, Veterans},
+		Topics:          []Topic{DemographyAndMigration, Education, EthnicGroupNationalIdentityAndReligion, HealthDisabilityAndUnpaidCare, Housing, LabourMarketAndTravelToWork, SexualOrientationAndGenderIdentity, Veterans},
 	}
 
 	// Bulletin - Search information specific for statistical bulletins
-	DemographyAndMigration = TopicContentType{
+	DemographyAndMigration = Topic{
 		LocaliseKeyName: "DemographyAndMigration",
 		Group:           "demography_and_migration",
-		Types:           []string{"demography_and_migration"},
+		SubTopics:       []string{"demography_and_migration"},
 		ShowInWebUI:     true,
 	}
 
 	// Education - Search information specific for Education
-	Education = TopicContentType{
+	Education = Topic{
 		LocaliseKeyName: "Education",
 		Group:           "education",
-		Types:           []string{"education"},
+		SubTopics:       []string{"education"},
 		ShowInWebUI:     true,
 	}
 
 	// EthnicGroupNationalIdentityAndReligion - Search information specific for ethnic groups, national identity and religion
-	EthnicGroupNationalIdentityAndReligion = TopicContentType{
+	EthnicGroupNationalIdentityAndReligion = Topic{
 		LocaliseKeyName: "EthnicGroupNationalIdentityAndReligion",
 		Group:           "ethnic_group_national_identity_and_religion",
-		Types:           []string{"ethnic_group_national_identity_and_religion"},
+		SubTopics:       []string{"ethnic_group_national_identity_and_religion"},
 		ShowInWebUI:     true,
 	}
 
 	// HealthDisabilityAndUnpaidCare - Search information specific for health, disabilities and unpaid care
-	HealthDisabilityAndUnpaidCare = TopicContentType{
+	HealthDisabilityAndUnpaidCare = Topic{
 		LocaliseKeyName: "HealthDisabilityAndUnpaidCare",
 		Group:           "health_disability_and_unpaid_care",
-		Types:           []string{"health_disability_and_unpaid_care"},
+		SubTopics:       []string{"health_disability_and_unpaid_care"},
 		ShowInWebUI:     true,
 	}
 
 	// Housing - Search information specific for Housing
-	Housing = TopicContentType{
+	Housing = Topic{
 		LocaliseKeyName: "Housing",
 		Group:           "housing",
-		Types:           []string{"housing"},
+		SubTopics:       []string{"housing"},
 		ShowInWebUI:     true,
 	}
 
 	// LabourMarketAndTravelToWork - Search information specific for labour market and travel to work
-	LabourMarketAndTravelToWork = TopicContentType{
+	LabourMarketAndTravelToWork = Topic{
 		LocaliseKeyName: "LabourMarketAndTravelToWork",
 		Group:           "labour_market_and_travel_to_work",
-		Types:           []string{"labour_market_and_travel_to_work"},
+		SubTopics:       []string{"labour_market_and_travel_to_work"},
 		ShowInWebUI:     true,
 	}
 
 	// SexualOrientationAndGenderIdentity - Search information specific for sexual orientation and gender identity
-	SexualOrientationAndGenderIdentity = TopicContentType{
+	SexualOrientationAndGenderIdentity = Topic{
 		LocaliseKeyName: "SexualOrientationAndGenderIdentity",
 		Group:           "sexual_orientation_and_gender_identity",
-		Types:           []string{"sexual_orientation_and_gender_identity"},
+		SubTopics:       []string{"sexual_orientation_and_gender_identity"},
 		ShowInWebUI:     true,
 	}
 
 	// Veterans - Search information specific for Veterans
-	Veterans = TopicContentType{
+	Veterans = Topic{
 		LocaliseKeyName: "Veteran",
 		Group:           "veterans",
-		Types:           []string{"veterans"},
+		SubTopics:       []string{"veterans"},
 		ShowInWebUI:     true,
 	}
 
 	// topicFilterOptions contains all the possible filter available on the search page
-	topicFilterOptions = map[string]TopicContentType{
+	topicFilterOptions = map[string]Topic{
 		DemographyAndMigration.Group:                 DemographyAndMigration,
 		Education.Group:                              Education,
 		EthnicGroupNationalIdentityAndReligion.Group: EthnicGroupNationalIdentityAndReligion,
@@ -137,9 +137,15 @@ var (
 
 // reviewFilter retrieves filters from query, checks if they are one of the filter options, and updates validatedQueryParams
 func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
-	topicFiltersQuery := urlQuery["topic"]
+	topicFilters := urlQuery["topics"]
 
-	for _, topicFilterQuery := range topicFiltersQuery {
+	if topicFilters == nil {
+		return nil
+	}
+
+	topics := strings.Split(topicFilters[0], ",")
+
+	for _, topicFilterQuery := range topics {
 
 		topicFilterQuery = strings.ToLower(topicFilterQuery)
 
@@ -169,31 +175,31 @@ func GetTopicCategories() []TopicCategory {
 	var topicCategories []TopicCategory
 	topicCategories = append(topicCategories, TopicCategories...)
 
-	// To get a different reference of TopicContentType - deep copy
+	// To get a different reference of Topic - deep copy
 	for i, topicCategory := range topicCategories {
-		topicCategories[i].ContentTypes = []TopicContentType{}
-		topicCategories[i].ContentTypes = append(topicCategories[i].ContentTypes, TopicCategories[i].ContentTypes...)
+		topicCategories[i].Topics = []Topic{}
+		topicCategories[i].Topics = append(topicCategories[i].Topics, TopicCategories[i].Topics...)
 
 		// To get a different reference of SubTypes - deep copy
-		for j := range topicCategory.ContentTypes {
-			topicCategories[i].ContentTypes[j].Types = []string{}
-			topicCategories[i].ContentTypes[j].Types = append(topicCategories[i].ContentTypes[j].Types, TopicCategories[i].ContentTypes[j].Types...)
+		for j := range topicCategory.Topics {
+			topicCategories[i].Topics[j].SubTopics = []string{}
+			topicCategories[i].Topics[j].SubTopics = append(topicCategories[i].Topics[j].SubTopics, TopicCategories[i].Topics[j].SubTopics...)
 		}
 	}
 
 	return topicCategories
 }
 
-// updateQueryWithAPITopicFilters retrieves and adds all available sub filters which is related to the search filter given by the user
-func updateQueryWithAPITopicFilters(apiQuery url.Values) {
-	filters := apiQuery["content_type"]
+// updateQueryWithAPITopics retrieves and adds all available sub filters which is related to the search filter given by the user
+func updateQueryWithAPITopics(apiQuery url.Values) {
+	filters := apiQuery["topics"]
 
 	if len(filters) > 0 {
 		subFilters := getTopicSubFilters(filters)
 
-		apiQuery.Set("content_type", strings.Join(subFilters, ","))
+		apiQuery.Set("topics", strings.Join(subFilters, ","))
 	} else {
-		apiQuery.Set("content_type", defaultTopicContentTypes)
+		apiQuery.Set("topics", defaultTopics)
 	}
 }
 
@@ -203,7 +209,7 @@ func getTopicSubFilters(filters []string) []string {
 
 	for _, filter := range filters {
 		subFilter := topicFilterOptions[filter]
-		subFilters = append(subFilters, subFilter.Types...)
+		subFilters = append(subFilters, subFilter.SubTopics...)
 	}
 
 	return subFilters
@@ -212,7 +218,7 @@ func getTopicSubFilters(filters []string) []string {
 // GetTopicGroupLocaliseKey gets the localise key of the group type of the search result to be displayed
 func GetTopicGroupLocaliseKey(resultType string) string {
 	for _, filterOption := range topicFilterOptions {
-		for _, optionType := range filterOption.Types {
+		for _, optionType := range filterOption.SubTopics {
 			if resultType == optionType {
 				return filterOption.LocaliseKeyName
 			}
