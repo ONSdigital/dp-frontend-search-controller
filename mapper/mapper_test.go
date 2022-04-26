@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -12,7 +13,11 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-var respC searchC.Response
+var (
+	respC searchC.Response
+	hc	  zebedeeC.HomepageContent
+)
+
 
 func TestUnitCreateSearchPageSuccess(t *testing.T) {
 	t.Parallel()
@@ -46,8 +51,11 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
 
-		serviceMessage := GetTestServiceMessage()
-		emergencyBanner := GetTestEmergencyBanner()
+		hc, err := GetMockHomepageContent()
+		So(err, ShouldBeNil)
+
+		//serviceMessage := GetTestServiceMessage()
+		//emergencyBanner := GetTestEmergencyBanner()
 
 		respC, err := GetMockSearchResponse()
 		So(err, ShouldBeNil)
@@ -56,7 +64,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, respC, respD, lang, serviceMessage, emergencyBanner, "")
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, respC, respD, lang, hc.ServiceMessage, hc.EmergencyBanner, "")
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -170,15 +178,28 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Department.Name, ShouldEqual, "dept-name")
 				So(sp.Department.Match, ShouldEqual, "dept-match")
 
-				So(sp.ServiceMessage, ShouldEqual, serviceMessage)
+				So(sp.ServiceMessage, ShouldEqual, hc.ServiceMessage)
 
-				So(sp.EmergencyBanner.Type, ShouldEqual, strings.Replace(emergencyBanner.Type, "_", "-", -1))
-				So(sp.EmergencyBanner.Title, ShouldEqual, emergencyBanner.Title)
-				So(sp.EmergencyBanner.Description, ShouldEqual, emergencyBanner.Description)
-				So(sp.EmergencyBanner.URI, ShouldEqual, emergencyBanner.URI)
-				So(sp.EmergencyBanner.LinkText, ShouldEqual, emergencyBanner.LinkText)
+				So(sp.EmergencyBanner.Type, ShouldEqual, strings.Replace(hc.EmergencyBanner.Type, "_", "-", -1))
+				So(sp.EmergencyBanner.Title, ShouldEqual, hc.EmergencyBanner.Title)
+				So(sp.EmergencyBanner.Description, ShouldEqual, hc.EmergencyBanner.Description)
+				So(sp.EmergencyBanner.URI, ShouldEqual, hc.EmergencyBanner.URI)
+				So(sp.EmergencyBanner.LinkText, ShouldEqual, hc.EmergencyBanner.LinkText)
 			})
 		})
 	})
 }
 
+//func GetTestEmergencyBanner() zebedee.EmergencyBanner {
+//	return zebedee.EmergencyBanner{
+//		Type:        "notable_death",
+//		Title:       "This is not not an emergency",
+//		Description: "Something has gone wrong",
+//		URI:         "google.com",
+//		LinkText:    "More info",
+//	}
+//}
+//
+//func GetTestServiceMessage() string {
+//	return "Test service message"
+//}

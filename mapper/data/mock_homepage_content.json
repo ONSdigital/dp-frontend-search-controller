@@ -1,0 +1,110 @@
+{
+  "featuredContent": [
+    {
+      "title": "Weekly deaths",
+      "uri": "https://www.ons.gov.uk/peoplepopulationandcommunity/birthsdeathsandmarriages/deaths/datasets/weeklyprovisionalfiguresondeathsregisteredinenglandandwales",
+      "description": "The most up-to-date provisional figures for deaths involving the coronavirus (COVID-19) on Mars.",
+      "image": "23083a36-f835-4731-8189-8ee8d7918120"
+    },
+    {
+      "title": "Coronavirus - faster indicators",
+      "uri": "https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/bulletins/coronavirustheukeconomyandsocietyfasterindicators/latest",
+      "description": "The latest data and experimental indicators on the UK economy and society.",
+      "image": "b085fec3-bba6-40fc-9763-a2b36f98e538"
+    },
+    {
+      "title": "Coronavirus roundup",
+      "uri": "https://www.ons.gov.uk/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/articles/coronaviruscovid19roundup/2020-03-26",
+      "description": "Our summary of the latest data and analysis related to the coronavirus pandemic.",
+      "image": "e354e92b-d991-4e5a-8873-0b9ca9915226"
+    },
+    {
+      "title": "homepage preview",
+      "uri": "https://blog.ons.gov.uk/category/coronavirus/",
+      "description": "Find out more about the work ONS is doing to respond to the challenge of the pandemic.",
+      "image": "0d5d1b9a-c497-42bc-ba7e-f88681271d52"
+    },
+    {
+      "title": "The News",
+      "uri": "https://www.bbc.co.uk/news",
+      "description": "This is the news",
+      "image": "6fda8715-1389-4fb1-96d0-a2b817d3cc5b"
+    },
+    {
+      "title": "Something",
+      "uri": "http://www.somewhere.com/",
+      "description": "Some text here. Some more text here.",
+      "image": "14a87d00-308c-4eb1-8c25-5bbd939dc9a1"
+    },
+    {
+      "title": "Cows",
+      "uri": "https://www.britannica.com/animal/cow",
+      "description": "Cows are lovely",
+      "image": "028b71c9-9b67-4b6f-be76-78b5c056ee96"
+    },
+    {
+      "title": "Batman",
+      "uri": "testimage.gov.uk",
+      "description": "Batman",
+      "image": "9507972f-7072-41d5-9d97-ed02aa4482e7"
+    }
+  ],
+  "aroundONS": [
+    {
+      "title": "Local statistics",
+      "uri": "https://www.ons.gov.uk/help/localstatistics",
+      "description": "Where to find statistics covering specific areas.",
+      "image": "55664eaa-36a5-45b5-afd4-0e8243c16f1b"
+    },
+    {
+      "title": "Secure Research Service",
+      "uri": "https://www.ons.gov.uk/aboutus/whatwedo/statistics/requestingstatistics/approvedresearcherscheme",
+      "description": "Find out how ONS secure data could help your research project.",
+      "image": "d9ec9cae-087c-47c6-959a-1c51e7db165a"
+    },
+    {
+      "title": "ONS Centres",
+      "uri": "https://www.ons.gov.uk/aboutus/whatwedo/programmesandprojects/onscentres",
+      "description": "Producing new analysis and insights to support key policy areas.",
+      "image": "7fa70866-e8b9-4152-b9e5-f25a05e6621c"
+    },
+    {
+      "title": "Other government statistics",
+      "uri": "https://www.gov.uk/government/statistics",
+      "description": "Official Statistics available from across government.",
+      "image": "6f84daa0-3eea-4264-87af-18d00022cc6f"
+    },
+    {
+      "title": "Test Around ONS",
+      "uri": "/aroundonstest",
+      "description": "Test the Around ONS feature for demo some more",
+      "image": "491d665d-d0f5-4f4b-9570-6c2a28f11c1a"
+    }
+  ],
+  "emergencyBanner": {
+    "type":        "notable_death",
+    "title":       "This is not not an emergency",
+    "description": "Something has gone wrong",
+    "uri":         "google.com",
+    "linkText":    "More info"
+  },
+  "serviceMessage": "this is a test",
+  "type": "home_page",
+  "uri": "/",
+  "description": {
+    "title": "Home",
+    "summary": "The UK's largest independent producer of official statistics and the recognised national statistical institute of the UK.",
+    "keywords": [
+      "statistics",
+      "economy",
+      "census",
+      "population",
+      "inflation",
+      "employment"
+    ],
+    "metaDescription": "The UK's largest independent producer of official statistics and the recognised national statistical institute of the UK.",
+    "unit": "",
+    "preUnit": "",
+    "source": ""
+  }
+}
