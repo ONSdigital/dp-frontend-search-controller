@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -9,12 +10,12 @@ import (
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
-	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -80,6 +81,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 
 		mockedZebedeeClient := &ZebedeeClientMock{
 			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error){
+				fmt.Printf("%+v\n", mockHomepageContent)
 				return mockHomepageContent, nil
 		}}
 
@@ -167,6 +169,7 @@ func TestUnitReadFailure(t *testing.T) {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
 	mockDepartmentResponse, err := mapper.GetMockDepartmentResponse()
+	fmt.Printf("%+v\n", mockDepartmentResponse)
 	if err != nil {
 		t.Errorf("failed to retrieve mock department response for unit tests, failing early: %v", err)
 	}
@@ -240,8 +243,13 @@ func TestUnitReadFailure(t *testing.T) {
 			},
 		}
 
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error){
+				return mockHomepageContent, nil
+			}}
+
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
 
 			Convey("Then a 500 internal server error status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -249,6 +257,7 @@ func TestUnitReadFailure(t *testing.T) {
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetDepartmentsCalls()), ShouldEqual, 1)
+				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
 	})
@@ -276,8 +285,13 @@ func TestUnitReadFailure(t *testing.T) {
 			},
 		}
 
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error){
+				return mockHomepageContent, nil
+			}}
+
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
@@ -285,6 +299,7 @@ func TestUnitReadFailure(t *testing.T) {
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetDepartmentsCalls()), ShouldEqual, 1)
+				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
 	})

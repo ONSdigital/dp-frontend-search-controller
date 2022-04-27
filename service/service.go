@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
 	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
@@ -55,6 +56,9 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	// Initialise render client, routes and initialise localisations bundles
 	rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
 
+	// Initialise zebedee client
+	zc := zebedee.NewWithHealthClient(svc.routerHealthClient)
+
 	// Get healthcheck with checkers
 	svc.HealthCheck, err = serviceList.GetHealthCheck(cfg, BuildTime, GitCommit, Version)
 	if err != nil {
@@ -69,7 +73,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise router
 	r := mux.NewRouter()
-	routes.Setup(ctx, r, cfg, clients, rend)
+	routes.Setup(ctx, r, cfg, zc, clients, rend)
 	svc.Server = serviceList.GetHTTPServer(cfg.BindAddr, r)
 
 	return nil
