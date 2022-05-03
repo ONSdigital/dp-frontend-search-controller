@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	zebedee "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/handlers"
 	rend "github.com/ONSdigital/dp-renderer"
-	zebedee "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
