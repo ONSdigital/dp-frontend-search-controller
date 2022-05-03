@@ -188,7 +188,6 @@ func getListOfSubTopics(topics []string) []string {
 	var subTopics []string
 
 	for i := range topics {
-		//subFilter := topicFilterOptions[topic]
 		topicFilterOption := topicFilterOptions[topics[i]]
 		subTopics = append(subTopics, topicFilterOption.SubTopics...)
 	}
