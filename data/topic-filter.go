@@ -122,24 +122,19 @@ var (
 
 // reviewFilter retrieves filters from query, checks if they are one of the filter options, and updates validatedQueryParams
 func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
-	topicFilters := urlQuery["topics"]
+	topicFilters := urlQuery.Get("topics")
 
-	if topicFilters == nil {
-		return nil
-	}
+	topics := strings.Split(topicFilters, ",")
 
-	topics := strings.Split(topicFilters[0], ",")
+	for i := range topics {
 
-	for _, topicFilterQuery := range topics {
-
-		topicFilterQuery = strings.ToLower(topicFilterQuery)
+		topicFilterQuery := strings.ToLower(topics[i])
 
 		if topicFilterQuery == "" {
 			continue
 		}
 
 		topicFilter, found := topicFilterOptions[topicFilterQuery]
-
 		if !found {
 			err := errs.ErrFilterNotFound
 			logData := log.Data{"topic filter not found": topicFilter}
@@ -188,13 +183,14 @@ func updateQueryWithAPITopics(apiQuery url.Values) {
 	}
 }
 
-// getListOfSubTopics gets all available subtopics for topics which have been set to filter results by the user
+// updateQueryWithAPITopicFilters adds all available subtopic filters to the API query
 func getListOfSubTopics(topics []string) []string {
 	var subTopics []string
 
-	for _, topic := range topics {
-		subFilter := topicFilterOptions[topic]
-		subTopics = append(subTopics, subFilter.SubTopics...)
+	for i := range topics {
+		//subFilter := topicFilterOptions[topic]
+		topicFilterOption := topicFilterOptions[topics[i]]
+		subTopics = append(subTopics, topicFilterOption.SubTopics...)
 	}
 
 	return subTopics
@@ -202,10 +198,10 @@ func getListOfSubTopics(topics []string) []string {
 
 // GetTopicGroupLocaliseKey gets the localise key of the group type of the search result to be displayed
 func GetTopicGroupLocaliseKey(resultType string) string {
-	for _, filterOption := range topicFilterOptions {
-		for _, optionType := range filterOption.SubTopics {
-			if resultType == optionType {
-				return filterOption.LocaliseKeyName
+	for i := range topicFilterOptions {
+		for j := range topicFilterOptions[i].SubTopics {
+			if resultType == topicFilterOptions[i].SubTopics[j] {
+				return topicFilterOptions[i].LocaliseKeyName
 			}
 		}
 	}
