@@ -45,6 +45,10 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
 
+		topicCategories := data.GetTopicCategories()
+		categories[0].Count = 1
+		categories[0].ContentTypes[1].Count = 1
+
 		respC, err := GetMockSearchResponse()
 		So(err, ShouldBeNil)
 
@@ -52,7 +56,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, respC, respD, lang, "")
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, respD, lang, "")
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -160,6 +164,24 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Data.Filters[0].Types[2].IsChecked, ShouldBeFalse)
 				So(sp.Data.Filters[0].Types[2].NumberOfResults, ShouldEqual, 0)
 				So(len(sp.Data.Filters[2].Types), ShouldEqual, 3)
+
+				// NOTE until the API is built for topics, it seems silly to mock the data, some of the following lines have been removed until a later stage.
+				So(len(sp.Data.TopicFilters[0].FilterKey), ShouldEqual, 8)
+				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, "Census")
+				//So(sp.Data.TopicFilters[0].IsChecked, ShouldBeTrue)
+				//So(sp.Data.TopicFilters[0].NumberOfResults, ShouldEqual, 1)
+				So(len(sp.Data.TopicFilters[0].Types[0].FilterKey), ShouldEqual, 1)
+				So(sp.Data.TopicFilters[0].Types[0].LocaliseKeyName, ShouldEqual, "DemographyAndMigration")
+				So(sp.Data.TopicFilters[0].Types[0].IsChecked, ShouldBeFalse)
+				So(sp.Data.TopicFilters[0].Types[0].NumberOfResults, ShouldEqual, 0)
+				So(len(sp.Data.TopicFilters[0].Types[1].FilterKey), ShouldEqual, 1)
+				So(sp.Data.TopicFilters[0].Types[1].LocaliseKeyName, ShouldEqual, "Education")
+				//So(sp.Data.TopicFilters[0].Types[1].IsChecked, ShouldBeTrue)
+				//So(sp.Data.TopicFilters[0].Types[1].NumberOfResults, ShouldEqual, 1)
+				So(len(sp.Data.TopicFilters[0].Types[2].FilterKey), ShouldEqual, 1)
+				So(sp.Data.TopicFilters[0].Types[2].LocaliseKeyName, ShouldEqual, "EthnicGroupNationalIdentityAndReligion")
+				//So(sp.Data.TopicFilters[0].Types[2].IsChecked, ShouldBeFalse)
+				So(sp.Data.TopicFilters[0].Types[2].NumberOfResults, ShouldEqual, 0)
 
 				So(sp.Department.Code, ShouldEqual, "dept-code")
 				So(sp.Department.URL, ShouldEqual, "www.dept.com")
