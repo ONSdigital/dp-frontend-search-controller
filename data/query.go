@@ -13,6 +13,7 @@ import (
 type SearchURLParams struct {
 	Query       string
 	Filter      Filter
+	TopicFilter TopicFilter
 	Sort        Sort
 	Limit       int
 	CurrentPage int
@@ -38,6 +39,12 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values) (
 		return validatedQueryParams, err
 	}
 
+	err = reviewTopicFilters(ctx, urlQuery, &validatedQueryParams)
+	if err != nil {
+		log.Error(ctx, "unable to review topic filters", err)
+		return validatedQueryParams, err
+	}
+
 	err = reviewQueryString(ctx, urlQuery)
 	if err != nil {
 		log.Info(ctx, "the query string did not pass review")
@@ -53,6 +60,10 @@ func GetSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
 
 	// update content_type query (filters) with sub filters
 	updateQueryWithAPIFilters(apiQuery)
+
+	// TODO finish the process for querying topics once the API is up and running, currently apiQuery will not include topics and so does nothing
+	// update topics query with subtopics
+	updateQueryWithAPITopics(apiQuery)
 
 	return apiQuery
 }

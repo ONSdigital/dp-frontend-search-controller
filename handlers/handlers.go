@@ -44,7 +44,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 	if err == errs.ErrInvalidQueryString {
 		// avoid making any API calls
 		basePage := rend.NewBasePageModel()
-		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, searchResp, departmentResp, lang, err.Error())
+		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.TopicCategory{}, searchResp, departmentResp, lang, err.Error())
 		rend.BuildPage(w, m, "search")
 		return
 	}
@@ -95,8 +95,15 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, rend Ren
 		return
 	}
 
+	topicCategories, err := getTopicCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, searchC)
+	if err != nil {
+		log.Error(ctx, "getting categories, types and its counts failed", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, searchResp, departmentResp, lang, "")
+	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, departmentResp, lang, "")
 	rend.BuildPage(w, m, "search")
 }
 
@@ -134,6 +141,29 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 	setCountToCategories(ctx, countResp, categories)
 
 	return categories, nil
+}
+
+// getTopicCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
+func getTopicCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, apiQuery url.Values, searchC SearchClient) ([]data.TopicCategory, error) {
+
+	// NOTE: for now the API does not return any data for Topics, so here it is mocked until further notice.
+	mockTopicCategories := []data.TopicCategory{
+		{
+			LocaliseKeyName: "Census",
+			Count:           0,
+			Topics: []data.Topic{
+				data.DemographyAndMigration,
+				data.Education,
+				data.EthnicGroupNationalIdentityAndReligion,
+				data.HealthDisabilityAndUnpaidCare,
+				data.Housing,
+				data.LabourMarketAndTravelToWork,
+				data.SexualOrientationAndGenderIdentity,
+				data.Veterans,
+			},
+		},
+	}
+	return mockTopicCategories, nil
 }
 
 func setCountToCategories(ctx context.Context, countResp searchCli.Response, categories []data.Category) {
