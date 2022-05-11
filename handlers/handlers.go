@@ -15,11 +15,11 @@ import (
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	"github.com/ONSdigital/log.go/v2/log"
 )
+
 // Constants...
 const (
-	homepagePath         = "/"
+	homepagePath = "/"
 )
-
 
 // Read Handler
 func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient) http.HandlerFunc {
@@ -43,7 +43,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 	apiQuery := data.GetSearchAPIQuery(validatedQueryParams)
 
-	var homepageContent zebedeeCli.HomepageContent
+	var homepageResponse zebedeeCli.HomepageContent
 	var searchResp searchCli.Response
 	var respErr error
 	var departmentResp searchCli.Department
@@ -51,7 +51,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	if err == errs.ErrInvalidQueryString {
 		// avoid making any API calls
 		basePage := rend.NewBasePageModel()
-		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, searchResp, departmentResp, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, err.Error())
+		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, searchResp, departmentResp, lang, homepageResponse, err.Error())
 		rend.BuildPage(w, m, "search")
 		return
 	}
@@ -61,7 +61,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 	go func() {
 		defer wg.Done()
-		homepageContent, err = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+		homepageResponse, err = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
 		if err != nil {
 			logData := log.Data{"homepage_content": err}
 			log.Error(ctx, "unable to get homepage content", err, logData)
@@ -113,7 +113,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, searchResp, departmentResp, lang, homepageContent.ServiceMessage, homepageContent.EmergencyBanner, err.Error())
+	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, searchResp, departmentResp, lang, homepageResponse, "")
 	rend.BuildPage(w, m, "search")
 }
 
