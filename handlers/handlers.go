@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -40,13 +41,9 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
-	homepageContent, err := zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
-	if err != nil {
-		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}), log.Data{"homepage_content": err})
-	}
-
 	apiQuery := data.GetSearchAPIQuery(validatedQueryParams)
 
+	var homepageContent zebedeeCli.HomepageContent
 	var searchResp searchCli.Response
 	var respErr error
 	var departmentResp searchCli.Department
@@ -60,8 +57,18 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	}
 
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(3)
 
+	go func() {
+		defer wg.Done()
+		homepageContent, err = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+		if err != nil {
+			logData := log.Data{"homepage_content": err}
+			log.Error(ctx, "unable to get homepage content", err, logData)
+			cancel()
+			return
+		}
+	}()
 	go func() {
 		defer wg.Done()
 		searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
