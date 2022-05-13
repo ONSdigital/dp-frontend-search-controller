@@ -56,6 +56,8 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 
 		//serviceMessage := GetTestServiceMessage()
 		//emergencyBanner := GetTestEmergencyBanner()
+		respH, err := GetMockHomepageContent()
+		So(err, ShouldBeNil)
 
 		respC, err := GetMockSearchResponse()
 		So(err, ShouldBeNil)
@@ -64,7 +66,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, respC, respD, lang, hc.ServiceMessage, hc.EmergencyBanner, "")
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, respC, respD, lang, respH, "")
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -189,17 +191,3 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		})
 	})
 }
-
-//func GetTestEmergencyBanner() zebedee.EmergencyBanner {
-//	return zebedee.EmergencyBanner{
-//		Type:        "notable_death",
-//		Title:       "This is not not an emergency",
-//		Description: "Something has gone wrong",
-//		URI:         "google.com",
-//		LinkText:    "More info",
-//	}
-//}
-//
-//func GetTestServiceMessage() string {
-//	return "Test service message"
-//}
