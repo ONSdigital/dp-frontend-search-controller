@@ -15,7 +15,8 @@ import (
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, departments searchC.Department, lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string) model.SearchPage {
+
+func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.TopicCategory, respC searchC.Response, departments searchC.Department, lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string) model.SearchPage {
 
 	page := model.SearchPage{
 		Page: basePage,
@@ -40,6 +41,8 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	mapResponse(&page, respC, categories)
 
 	mapFilters(&page, categories, validatedQueryParams)
+
+	mapTopicFilters(&page, topicCategories, validatedQueryParams)
 
 	mapDepartments(&page, departments)
 
@@ -324,6 +327,42 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 		filters = append(filters, filter)
 	}
 	page.Data.Filters = filters
+}
+
+func mapTopicFilters(page *model.SearchPage, topicCategories []data.TopicCategory, queryParams data.SearchURLParams) {
+	var topicFilters []model.Filter
+
+	for _, topicCategory := range topicCategories {
+		var topicFilter model.Filter
+		topicFilter.LocaliseKeyName = topicCategory.LocaliseKeyName
+		topicFilter.NumberOfResults = topicCategory.Count
+
+		var keys []string
+		var subTypes []model.Filter
+		if len(topicCategory.Topics) > 0 {
+			for _, contentType := range topicCategory.Topics {
+				if !contentType.ShowInWebUI {
+					topicFilter.NumberOfResults -= 1
+					continue
+				}
+				var subType model.Filter
+				subType.LocaliseKeyName = contentType.LocaliseKeyName
+				subType.NumberOfResults = contentType.Count
+				subType.FilterKey = []string{contentType.Group}
+
+				isChecked := mapIsChecked(subType.FilterKey, queryParams)
+				subType.IsChecked = isChecked
+				subTypes = append(subTypes, subType)
+
+				keys = append(keys, contentType.Group)
+			}
+		}
+		topicFilter.Types = subTypes
+		topicFilter.FilterKey = keys
+		topicFilter.IsChecked = mapIsChecked(topicFilter.FilterKey, queryParams)
+		topicFilters = append(topicFilters, topicFilter)
+	}
+	page.Data.TopicFilters = topicFilters
 }
 
 func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool {

@@ -9,23 +9,25 @@
                     {{ if eq $i (subtract $length 2) }} {{ localise "And" $lang 1 }} {{end}}
                 </span>
             {{ end }}
-        {{else}} results {{end}} 
-        for
+        {{else}} {{ localise "Results" $lang 1 }} {{end}} 
+        {{ localise "For" $lang 1 }}
     </span>
     <span class="search__summary__query">{{ .Data.Query}}</span>
     {{ $len := len .Data.Response.AdditionalSuggestions}}
+    {{ $numberResults := len .Data.Response.Items}}
     {{ if .Data.Response.Suggestions}}
         <span class="search__summary__suggestion">
-            Did you mean <a class="underline-link"
+            {{ localise "DidYouMean" $lang 1 }} <a class="underline-link"
                             href="/search?q={{ index .Data.Response.Suggestions 0 }}">{{ index .Data.Response.Suggestions 0 }}</a>?
         </span>
-    {{ else if gt $len 0 }}
+    {{/* if additional suggestions and no results */}}
+    {{ else if (and (gt $len 0) (le $numberResults 0) ) }}
         <span class="search__summary__suggestion">
-            Try
+            {{ localise "Try" $lang 1 }}
             {{ range $i, $suggestion := .Data.Response.AdditionalSuggestions}}
                 <a class="underline-link" href="/search?q={{ $suggestion }}">{{ $suggestion }}</a>
                 {{ if notLastItem $len $i }}
-                    or
+                    {{ localise "Or" $lang 1 }}
                 {{ end }}
             {{ end }}
         </span>

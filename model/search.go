@@ -15,6 +15,7 @@ type Search struct {
 	ErrorMessage string           `json:"error_message,omitempty"`
 	Filter       []string         `json:"filter,omitempty"`
 	Filters      []Filter         `json:"filters"`
+	TopicFilters []Filter         `json:"topic_filters"`
 	Sort         Sort             `json:"sort,omitempty"`
 	Pagination   model.Pagination `json:"pagination,omitempty"`
 	Response     Response         `json:"response"`
