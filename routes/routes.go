@@ -23,8 +23,8 @@ type Clients struct {
 }
 
 // Setup registers routes for the service
-func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, zc handlers.ZebedeeClient, c Clients, rend handlers.RenderClient) {
+func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients) {
 	log.Info(ctx, "adding routes")
 	r.StrictSlash(true).Path("/health").HandlerFunc(c.HealthCheckHandler)
-	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, zc, rend, c.Search))
+	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, c.Zebedee, c.Renderer, c.Search))
 }

@@ -1,23 +1,15 @@
 package mapper
 
 import (
-	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
-	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
 )
-
-var (
-	respC searchC.Response
-	hc	  zebedeeC.HomepageContent
-)
-
 
 func TestUnitCreateSearchPageSuccess(t *testing.T) {
 	t.Parallel()
@@ -198,13 +190,13 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Department.Name, ShouldEqual, "dept-name")
 				So(sp.Department.Match, ShouldEqual, "dept-match")
 
-				So(sp.ServiceMessage, ShouldEqual, hc.ServiceMessage)
+				So(sp.ServiceMessage, ShouldEqual, respH.ServiceMessage)
 
-				So(sp.EmergencyBanner.Type, ShouldEqual, strings.Replace(hc.EmergencyBanner.Type, "_", "-", -1))
-				So(sp.EmergencyBanner.Title, ShouldEqual, hc.EmergencyBanner.Title)
-				So(sp.EmergencyBanner.Description, ShouldEqual, hc.EmergencyBanner.Description)
-				So(sp.EmergencyBanner.URI, ShouldEqual, hc.EmergencyBanner.URI)
-				So(sp.EmergencyBanner.LinkText, ShouldEqual, hc.EmergencyBanner.LinkText)
+				So(sp.EmergencyBanner.Type, ShouldEqual, strings.Replace(respH.EmergencyBanner.Type, "_", "-", -1))
+				So(sp.EmergencyBanner.Title, ShouldEqual, respH.EmergencyBanner.Title)
+				So(sp.EmergencyBanner.Description, ShouldEqual, respH.EmergencyBanner.Description)
+				So(sp.EmergencyBanner.URI, ShouldEqual, respH.EmergencyBanner.URI)
+				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
 			})
 		})
 	})

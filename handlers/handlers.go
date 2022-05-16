@@ -51,9 +51,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	if err == errs.ErrInvalidQueryString {
 		// avoid making any API calls
 		basePage := rend.NewBasePageModel()
-
 		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.TopicCategory{}, searchResp, departmentResp, lang, homepageResponse, err.Error())
-
 		rend.BuildPage(w, m, "search")
 		return
 	}
@@ -122,9 +120,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	}
 
 	basePage := rend.NewBasePageModel()
-
 	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, departmentResp, lang, homepageResponse, "")
-
 	rend.BuildPage(w, m, "search")
 }
 

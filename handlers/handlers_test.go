@@ -156,7 +156,7 @@ func TestUnitReadSuccess(t *testing.T) {
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 				So(mockedSearchClient.GetSearchCalls()[0].UserAuthToken, ShouldEqual, accessToken)
 				So(mockedSearchClient.GetSearchCalls()[0].CollectionID, ShouldEqual, collectionID)
-				//So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 2)
+				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
 	})
