@@ -56,12 +56,6 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 		Zebedee:  zebedee.NewWithHealthClient(svc.routerHealthClient),
 	}
 
-	// Initialise render client, routes and initialise localisations bundles
-	//Rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
-
-	// Initialise zebedee client
-	//zc := zebedee.NewWithHealthClient(svc.routerHealthClient)
-
 	// Get healthcheck with checkers
 	svc.HealthCheck, err = serviceList.GetHealthCheck(cfg, BuildTime, GitCommit, Version)
 	if err != nil {
