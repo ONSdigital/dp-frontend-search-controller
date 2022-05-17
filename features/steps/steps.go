@@ -85,7 +85,8 @@ func healthCheckStatusHandle(status int) httpfake.Responder {
 }
 
 func (c *Component) iShouldReceiveTheFollowingHealthJSONResponse(expectedResponse *godog.DocString) error {
-	var healthResponse, expectedHealth HealthCheckTest
+	healthResponse := HealthCheckTest{}
+	expectedHealth := HealthCheckTest{}
 
 	responseBody, err := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
 	if err != nil {
@@ -130,7 +131,7 @@ func (c *Component) validateHealthVersion(versionResponse healthcheck.VersionInf
 	assert.Equal(&c.ErrorFeature, expectedVersion.Version, versionResponse.Version)
 }
 
-func (c *Component) validateHealthCheck(checkResponse *Check, expectedCheck *Check) {
+func (c *Component) validateHealthCheck(checkResponse, expectedCheck *Check) {
 	maxExpectedHealthCheckTime := c.StartTime.Add((c.cfg.HealthCheckInterval + c.cfg.HealthCheckCriticalTimeout + 1) * time.Second)
 
 	assert.Equal(&c.ErrorFeature, expectedCheck.Name, checkResponse.Name)
