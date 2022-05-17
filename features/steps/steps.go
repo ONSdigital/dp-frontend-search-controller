@@ -4,11 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"strconv"
+	"net/http"
 	"time"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	"github.com/cucumber/godog"
+	"github.com/maxcnunes/httpfake"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,7 +36,7 @@ type Check struct {
 
 // RegisterSteps registers the specific steps needed to do component tests for the search controller
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
-	ctx.Step(`^I wait "([^"]*)" seconds`, delayTimeBySeconds)
+	ctx.Step(`^I wait (\d+) seconds`, c.delayTimeBySeconds)
 	ctx.Step(`^all of the downstream services are healthy$`, c.allOfTheDownstreamServicesAreHealthy)
 	ctx.Step(`^one of the downstream services is warning`, c.oneOfTheDownstreamServicesIsWarning)
 	ctx.Step(`^one of the downstream services is failing`, c.oneOfTheDownstreamServicesIsFailing)
@@ -43,28 +44,44 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 }
 
 // delayTimeBySeconds pauses the goroutine for the given seconds
-func delayTimeBySeconds(seconds string) error {
-	sec, err := strconv.Atoi(seconds)
-	if err != nil {
-		return err
-	}
-	time.Sleep(time.Duration(sec) * time.Second)
+func (c *Component) delayTimeBySeconds(sec int) error {
+	time.Sleep(time.Duration(int64(sec)) * time.Second)
 	return nil
 }
 
 func (c *Component) allOfTheDownstreamServicesAreHealthy() error {
-	c.FakeAPIRouter.setJSONResponseForGet("/health", 200)
+	c.FakeAPIRouter.healthRequest.Lock()
+	defer c.FakeAPIRouter.healthRequest.Unlock()
+
+	c.FakeAPIRouter.healthRequest.CustomHandle = healthCheckStatusHandle(200)
+
 	return nil
 }
 
 func (c *Component) oneOfTheDownstreamServicesIsWarning() error {
-	c.FakeAPIRouter.setJSONResponseForGet("/health", 429)
+	c.FakeAPIRouter.healthRequest.Lock()
+	defer c.FakeAPIRouter.healthRequest.Unlock()
+
+	c.FakeAPIRouter.healthRequest.CustomHandle = healthCheckStatusHandle(429)
+
 	return nil
 }
 
 func (c *Component) oneOfTheDownstreamServicesIsFailing() error {
-	c.FakeAPIRouter.setJSONResponseForGet("/health", 500)
+	c.FakeAPIRouter.healthRequest.Lock()
+	defer c.FakeAPIRouter.healthRequest.Unlock()
+
+	c.FakeAPIRouter.healthRequest.CustomHandle = healthCheckStatusHandle(500)
+
 	return nil
+}
+
+func healthCheckStatusHandle(status int) httpfake.Responder {
+	return func(w http.ResponseWriter, r *http.Request, rh *httpfake.Request) {
+		rh.Lock()
+		defer rh.Unlock()
+		w.WriteHeader(status)
+	}
 }
 
 func (c *Component) iShouldReceiveTheFollowingHealthJSONResponse(expectedResponse *godog.DocString) error {
@@ -128,7 +145,7 @@ func (c *Component) validateHealthCheck(checkResponse *Check, expectedCheck *Che
 		assert.True(&c.ErrorFeature, checkResponse.LastSuccess.After(c.StartTime))
 		assert.Equal(&c.ErrorFeature, expectedCheck.LastFailure, checkResponse.LastFailure)
 	} else {
-		assert.Equal(&c.ErrorFeature, expectedCheck.LastSuccess, checkResponse.LastSuccess)
+		assert.True(&c.ErrorFeature, checkResponse.LastSuccess.After(c.StartTime))
 		assert.True(&c.ErrorFeature, checkResponse.LastFailure.Before(maxExpectedHealthCheckTime))
 		assert.True(&c.ErrorFeature, checkResponse.LastFailure.After(c.StartTime))
 	}

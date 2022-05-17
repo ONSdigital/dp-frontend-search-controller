@@ -3,14 +3,15 @@ package service
 import (
 	"context"
 	"errors"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	render "github.com/ONSdigital/dp-renderer"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
 	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	"github.com/ONSdigital/dp-frontend-search-controller/assets"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
-	"github.com/ONSdigital/dp-frontend-search-controller/assets"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -51,8 +52,8 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	// Initialise clients
 	clients := routes.Clients{
 		Renderer: render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain),
-		Search: search.NewWithHealthClient(svc.routerHealthClient),
-		Zebedee: zebedee.NewWithHealthClient(svc.routerHealthClient),
+		Search:   search.NewWithHealthClient(svc.routerHealthClient),
+		Zebedee:  zebedee.NewWithHealthClient(svc.routerHealthClient),
 	}
 
 	// Initialise render client, routes and initialise localisations bundles
@@ -144,11 +145,6 @@ func (svc *Service) registerCheckers(ctx context.Context, c routes.Clients) (err
 	if err = svc.HealthCheck.AddCheck("API router", svc.routerHealthClient.Checker); err != nil {
 		hasErrors = true
 		log.Error(ctx, "failed to add API router health checker", err)
-	}
-
-	if err = svc.HealthCheck.AddCheck("Zebedee", svc.routerHealthClient.Checker); err != nil {
-		hasErrors = true
-		log.Error(ctx, "failed to add Zebedee health checker", err)
 	}
 
 	if hasErrors {

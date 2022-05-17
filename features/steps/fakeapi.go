@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"testing"
 
 	"github.com/maxcnunes/httpfake"
 )
@@ -12,14 +11,15 @@ import (
 // FakeAPI contains all the information for a fake component API
 type FakeAPI struct {
 	fakeHTTP                     *httpfake.HTTPFake
+	healthRequest                *httpfake.Request
 	outboundRequests             []string
 	collectOutboundRequestBodies httpfake.CustomAssertor
 }
 
 // NewFakeAPI creates a new fake component API
-func NewFakeAPI(t testing.TB) *FakeAPI {
+func NewFakeAPI() *FakeAPI {
 	fa := &FakeAPI{
-		fakeHTTP: httpfake.New(httpfake.WithTesting(t)),
+		fakeHTTP: httpfake.New(),
 	}
 
 	fa.collectOutboundRequestBodies = func(r *http.Request) error {

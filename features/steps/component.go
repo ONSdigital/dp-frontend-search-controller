@@ -2,6 +2,7 @@ package steps
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -37,13 +38,11 @@ type Component struct {
 }
 
 // NewSearchControllerComponent creates a search controller component
-func NewSearchControllerComponent() (c *Component, err error) {
+func NewSearchControllerComponent(fakeAPIRouter *FakeAPI) (c *Component, err error) {
 	c = &Component{
 		HTTPServer: &http.Server{},
 		svcErrors:  make(chan error),
 	}
-
-	c.FakeAPIRouter = NewFakeAPI(&c.ErrorFeature)
 
 	ctx := context.Background()
 
@@ -54,10 +53,14 @@ func NewSearchControllerComponent() (c *Component, err error) {
 		return nil, err
 	}
 
+	c.FakeAPIRouter = fakeAPIRouter
 	c.cfg.APIRouterURL = c.FakeAPIRouter.fakeHTTP.ResolveURL("")
 
 	c.cfg.HealthCheckInterval = 1 * time.Second
 	c.cfg.HealthCheckCriticalTimeout = 2 * time.Second
+
+	c.FakeAPIRouter.healthRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/health")
+	c.FakeAPIRouter.healthRequest.CustomHandle = healthCheckStatusHandle(200)
 
 	initFunctions := &mocks.InitialiserMock{
 		DoGetHTTPServerFunc:   c.getHTTPServer,
@@ -87,11 +90,17 @@ func (c *Component) InitAPIFeature() *componentTest.APIFeature {
 	return c.APIFeature
 }
 
-// Reset resets the search controller component
-func (c *Component) Reset() *Component {
+// Reset resets the search controller component to its default values
+func (c *Component) Reset() error {
+	if c.cfg == nil {
+		cfg, err := config.Get()
+		if err != nil {
+			return fmt.Errorf("failed to get config: %w", err)
+		}
+		c.cfg = cfg
+	}
 
-	c.FakeAPIRouter.Reset()
-	return c
+	return nil
 }
 
 // Close closes the search controller component
