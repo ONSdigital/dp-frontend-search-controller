@@ -3,10 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	golog "log"
 	"os"
 	"testing"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/features/steps"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
 )
@@ -44,6 +47,13 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 func TestMain(t *testing.T) {
 	if *componentFlag {
+		log.SetDestination(io.Discard, io.Discard)
+		golog.SetOutput(io.Discard)
+		defer func() {
+			log.SetDestination(os.Stdout, os.Stderr)
+			golog.SetOutput(os.Stdout)
+		}()
+
 		status := 0
 
 		var opts = godog.Options{
