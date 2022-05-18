@@ -17,31 +17,18 @@ import (
 var componentFlag = flag.Bool("component", false, "perform component tests")
 
 func InitializeScenario(ctx *godog.ScenarioContext) {
-	fakeAPIRouter := steps.NewFakeAPI()
-
-	controllerComponent, err := steps.NewSearchControllerComponent(fakeAPIRouter)
+	controllerComponent, err := steps.NewSearchControllerComponent()
 	if err != nil {
 		fmt.Printf("failed to create search controller component - error: %v", err)
 		os.Exit(1)
 	}
 	apiFeature := controllerComponent.InitAPIFeature()
 
-	ctx.BeforeScenario(func(*godog.Scenario) {
-		apiFeature.Reset()
-
-		err := controllerComponent.Reset()
-		if err != nil {
-			fmt.Printf("failed to reset controller component - error: %v", err)
-			os.Exit(1)
-		}
-	})
-
 	apiFeature.RegisterSteps(ctx)
 	controllerComponent.RegisterSteps(ctx)
 
 	ctx.AfterScenario(func(*godog.Scenario, error) {
 		controllerComponent.Close()
-		fakeAPIRouter.Close()
 	})
 }
 

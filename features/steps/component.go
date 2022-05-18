@@ -2,7 +2,6 @@ package steps
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -38,7 +37,7 @@ type Component struct {
 }
 
 // NewSearchControllerComponent creates a search controller component
-func NewSearchControllerComponent(fakeAPIRouter *FakeAPI) (c *Component, err error) {
+func NewSearchControllerComponent() (c *Component, err error) {
 	c = &Component{
 		HTTPServer: &http.Server{},
 		svcErrors:  make(chan error),
@@ -53,11 +52,11 @@ func NewSearchControllerComponent(fakeAPIRouter *FakeAPI) (c *Component, err err
 		return nil, err
 	}
 
-	c.FakeAPIRouter = fakeAPIRouter
+	c.FakeAPIRouter = NewFakeAPI()
 	c.cfg.APIRouterURL = c.FakeAPIRouter.fakeHTTP.ResolveURL("")
 
 	c.cfg.HealthCheckInterval = 1 * time.Second
-	c.cfg.HealthCheckCriticalTimeout = 2 * time.Second
+	c.cfg.HealthCheckCriticalTimeout = 3 * time.Second
 
 	c.FakeAPIRouter.healthRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/health")
 	c.FakeAPIRouter.healthRequest.CustomHandle = healthCheckStatusHandle(200)
@@ -88,19 +87,6 @@ func (c *Component) InitAPIFeature() *componentTest.APIFeature {
 	c.APIFeature = componentTest.NewAPIFeature(c.InitialiseService)
 
 	return c.APIFeature
-}
-
-// Reset resets the search controller component to its default values
-func (c *Component) Reset() error {
-	if c.cfg == nil {
-		cfg, err := config.Get()
-		if err != nil {
-			return fmt.Errorf("failed to get config: %w", err)
-		}
-		c.cfg = cfg
-	}
-
-	return nil
 }
 
 // Close closes the search controller component
@@ -138,12 +124,6 @@ func (c *Component) getHealthClient(name string, url string) *health.Client {
 	}
 }
 
-func (c *Component) getHTTPServer(bindAddr string, router http.Handler) service.HTTPServer {
-	c.HTTPServer.Addr = bindAddr
-	c.HTTPServer.Handler = router
-	return c.HTTPServer
-}
-
 // newMock mocks HTTP Client
 func (f *FakeAPI) getMockAPIHTTPClient() *dphttp.ClienterMock {
 	return &dphttp.ClienterMock{
@@ -153,4 +133,10 @@ func (f *FakeAPI) getMockAPIHTTPClient() *dphttp.ClienterMock {
 			return f.fakeHTTP.Server.Client().Do(req)
 		},
 	}
+}
+
+func (c *Component) getHTTPServer(bindAddr string, router http.Handler) service.HTTPServer {
+	c.HTTPServer.Addr = bindAddr
+	c.HTTPServer.Handler = router
+	return c.HTTPServer
 }

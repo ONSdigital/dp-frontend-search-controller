@@ -85,7 +85,7 @@ Feature: Healthcheck endpoint should inform the health of service
         Given one of the downstream services is failing
         And I wait 2 seconds for the healthcheck to be available
         When I GET "/health"
-        And I wait 3 seconds to pass the critical timeout
+        And I wait 4 seconds to pass the critical timeout
         And I GET "/health"
         Then the HTTP status code should be "500"
         And the response header "Content-Type" should be "application/json; charset=utf-8"
