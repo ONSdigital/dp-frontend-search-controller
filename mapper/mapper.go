@@ -16,7 +16,9 @@ import (
 
 // CreateSearchPage maps type searchC.Response to model.Page
 
-func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.TopicCategory, respC searchC.Response, departments searchC.Department, lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string) model.SearchPage {
+func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams,
+	categories []data.Category, topicCategories []data.TopicCategory, respC searchC.Response, departments searchC.Department,
+	lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string) model.SearchPage {
 
 	page := model.SearchPage{
 		Page: basePage,

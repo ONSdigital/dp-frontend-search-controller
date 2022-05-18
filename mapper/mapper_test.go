@@ -57,7 +57,6 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
-
 			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, respD, lang, respH, "")
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
