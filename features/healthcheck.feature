@@ -2,7 +2,7 @@ Feature: Healthcheck endpoint should inform the health of service
 
     Scenario: Returning a OK (200) status when health endpoint called  
         Given all of the downstream services are healthy
-        And I wait "2" seconds for the healthcheck to be available
+        And I wait 2 seconds for the healthcheck to be available
         When I GET "/health"
         Then the HTTP status code should be "200"
         And the response header "Content-Type" should be "application/json; charset=utf-8"
@@ -13,7 +13,7 @@ Feature: Healthcheck endpoint should inform the health of service
                 "version":{
                     "git_commit":"3t7e5s1t4272646ef477f8ed755",
                     "language":"go",
-                    "language_version":"go1.16.5",
+                    "language_version":"go1.17.8",
                     "version":"v1.2.3"
                 },
                 "checks":[
@@ -29,7 +29,7 @@ Feature: Healthcheck endpoint should inform the health of service
 
     Scenario: Returning a WARNING (429) status when one downstream service is warning  
         Given one of the downstream services is warning
-        And I wait "2" seconds for the healthcheck to be available
+        And I wait 2 seconds for the healthcheck to be available
         When I GET "/health"
         Then the HTTP status code should be "429"
         And the response header "Content-Type" should be "application/json; charset=utf-8"
@@ -40,7 +40,7 @@ Feature: Healthcheck endpoint should inform the health of service
                 "version": {
                     "git_commit": "3t7e5s1t4272646ef477f8ed755",
                     "language": "go",
-                    "language_version": "go1.16.5",
+                    "language_version": "go1.17.8",
                     "version": "v1.2.3"
                 },
                 "checks": [
@@ -56,7 +56,7 @@ Feature: Healthcheck endpoint should inform the health of service
 
     Scenario: Returning a WARNING (429) status when one downstream service is critical and critical timeout has not expired  
         Given one of the downstream services is failing
-        And I wait "2" seconds for the healthcheck to be available
+        And I wait 2 seconds for the healthcheck to be available
         When I GET "/health"
         Then the HTTP status code should be "429"
         And the response header "Content-Type" should be "application/json; charset=utf-8"
@@ -67,7 +67,7 @@ Feature: Healthcheck endpoint should inform the health of service
                 "version": {
                     "git_commit": "3t7e5s1t4272646ef477f8ed755",
                     "language": "go",
-                    "language_version": "go1.16.5",
+                    "language_version": "go1.17.8",
                     "version": "v1.2.3"
                 },
                 "checks": [
@@ -83,9 +83,9 @@ Feature: Healthcheck endpoint should inform the health of service
 
     Scenario: Returning a CRITICAL (500) status when health endpoint called
         Given one of the downstream services is failing
-        And I wait "2" seconds for the healthcheck to be available
+        And I wait 2 seconds for the healthcheck to be available
         When I GET "/health"
-        And I wait "3" seconds to pass the critical timeout
+        And I wait 4 seconds to pass the critical timeout
         And I GET "/health"
         Then the HTTP status code should be "500"
         And the response header "Content-Type" should be "application/json; charset=utf-8"
@@ -96,7 +96,7 @@ Feature: Healthcheck endpoint should inform the health of service
                 "version": {
                     "git_commit": "3t7e5s1t4272646ef477f8ed755",
                     "language": "go",
-                    "language_version": "go1.16.5",
+                    "language_version": "go1.17.8",
                     "version": "v1.2.3"
                 },
                 "checks": [
