@@ -9,3 +9,10 @@ CVE-2020-15115
 # Used by github.com/ONSdigital/dp-component-test v0.4.0
 # For more info: https://ossindex.sonatype.org/vulnerability/c16fb56d-9de6-4065-9fca-d2b4cfb13020?component-type=golang&component-name=github.com%2Fdgrijalva%2Fjwt-go&utm_source=nancy-client&utm_medium=integration&utm_content=1.0.17
 CVE-2020-26160
+
+#Skip for indirect dependency golang/github.com/hashicorp/consul/api@v1.12.0
+#No fixed version available
+#For more info:  https://ossindex.sonatype.org/vulnerability/CVE-2022-29153?component-type=golang&component-name=github.com%2Fhashicorp%2Fconsul%2Fapi&utm_source=nancy-client&utm_medium=integration&utm_content=0.0.0-dev
+CVE-2022-29153
+CVE-2022-24687
+
