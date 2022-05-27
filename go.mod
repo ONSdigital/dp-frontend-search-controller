@@ -9,7 +9,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.3.0
 	github.com/ONSdigital/dp-net v1.4.1
 	github.com/ONSdigital/dp-net/v2 v2.4.0
-	github.com/ONSdigital/dp-renderer v1.21.1
+	github.com/ONSdigital/dp-renderer v1.31.0
 	github.com/ONSdigital/log.go/v2 v2.2.0
 	github.com/cucumber/godog v0.11.0
 	github.com/gorilla/mux v1.8.0
