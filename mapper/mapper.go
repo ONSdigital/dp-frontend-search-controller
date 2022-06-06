@@ -2,6 +2,9 @@ package mapper
 
 import (
 	"net/http"
+	"strings"
+
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-cookies/cookies"
@@ -12,7 +15,10 @@ import (
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.TopicCategory, respC searchC.Response, departments searchC.Department, lang string, ErrorMessage string) model.SearchPage {
+
+func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams,
+	categories []data.Category, topicCategories []data.TopicCategory, respC searchC.Response, departments searchC.Department,
+	lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string) model.SearchPage {
 
 	page := model.SearchPage{
 		Page: basePage,
@@ -29,6 +35,8 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	page.URI = req.URL.RequestURI()
 	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath
 	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
+	page.ServiceMessage = homepageResponse.ServiceMessage
+	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC, ErrorMessage)
 
@@ -398,4 +406,18 @@ func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *cor
 		Essential: preferencesCookie.Policy.Essential,
 		Usage:     preferencesCookie.Policy.Usage,
 	}
+}
+
+func mapEmergencyBanner(hpc zebedee.HomepageContent) coreModel.EmergencyBanner {
+	var mappedEmergencyBanner coreModel.EmergencyBanner
+	emptyBannerObj := zebedee.EmergencyBanner{}
+	bannerData := hpc.EmergencyBanner
+	if bannerData != emptyBannerObj {
+		mappedEmergencyBanner.Title = bannerData.Title
+		mappedEmergencyBanner.Type = strings.Replace(bannerData.Type, "_", "-", -1)
+		mappedEmergencyBanner.Description = bannerData.Description
+		mappedEmergencyBanner.URI = bannerData.URI
+		mappedEmergencyBanner.LinkText = bannerData.LinkText
+	}
+	return mappedEmergencyBanner
 }

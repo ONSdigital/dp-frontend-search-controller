@@ -4,12 +4,14 @@ import (
 	"context"
 	"errors"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	render "github.com/ONSdigital/dp-renderer"
+
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
 	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/assets"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
-	render "github.com/ONSdigital/dp-renderer"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -49,11 +51,10 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise clients
 	clients := routes.Clients{
-		Search: search.NewWithHealthClient(svc.routerHealthClient),
+		Renderer: render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain),
+		Search:   search.NewWithHealthClient(svc.routerHealthClient),
+		Zebedee:  zebedee.NewWithHealthClient(svc.routerHealthClient),
 	}
-
-	// Initialise render client, routes and initialise localisations bundles
-	rend := render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain)
 
 	// Get healthcheck with checkers
 	svc.HealthCheck, err = serviceList.GetHealthCheck(cfg, BuildTime, GitCommit, Version)
@@ -69,7 +70,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise router
 	r := mux.NewRouter()
-	routes.Setup(ctx, r, cfg, clients, rend)
+	routes.Setup(ctx, r, cfg, clients)
 	svc.Server = serviceList.GetHTTPServer(cfg.BindAddr, r)
 
 	return nil
