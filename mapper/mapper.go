@@ -44,7 +44,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	mapFilters(&page, categories, validatedQueryParams)
 
-	mapTopicFilters(&page, topicCategories, validatedQueryParams)
+	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
 
 	mapDepartments(&page, departments)
 
@@ -331,7 +331,10 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 	page.Data.Filters = filters
 }
 
-func mapTopicFilters(page *model.SearchPage, topicCategories []data.TopicCategory, queryParams data.SearchURLParams) {
+func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories []data.TopicCategory, queryParams data.SearchURLParams) {
+	if !cfg.EnableCensusTopicFilterOption {
+		return
+	}
 	var topicFilters []model.Filter
 
 	for _, topicCategory := range topicCategories {
