@@ -57,6 +57,9 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateSearchPage is called", func() {
+			// NOTE: temporary measure until topic filter feature flag is removed
+			cfg.EnableCensusTopicFilterOption = true
+
 			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, respD, lang, respH, "")
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
@@ -166,7 +169,7 @@ func TestUnitCreateSearchPageSuccess(t *testing.T) {
 				So(sp.Data.Filters[0].Types[2].NumberOfResults, ShouldEqual, 0)
 				So(len(sp.Data.Filters[2].Types), ShouldEqual, 3)
 
-				// NOTE until the API is built for topics, it seems silly to mock the data, some of the following lines have been removed until a later stage.
+				// NOTE: until the API is built for topics, it seems silly to mock the data, some of the following lines have been removed until a later stage. Please see cfg alteration NOTE above.
 				So(len(sp.Data.TopicFilters[0].FilterKey), ShouldEqual, 8)
 				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, "Census")
 				//So(sp.Data.TopicFilters[0].IsChecked, ShouldBeTrue)
