@@ -44,7 +44,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	mapFilters(&page, categories, validatedQueryParams)
 
-	mapTopicFilters(&page, topicCategories, validatedQueryParams)
+	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
 
 	mapDepartments(&page, departments)
 
@@ -308,7 +308,7 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 		if len(category.ContentTypes) > 0 {
 			for _, contentType := range category.ContentTypes {
 				if !contentType.ShowInWebUI && contentType.Count > 0 {
-					filter.NumberOfResults -= 1
+					filter.NumberOfResults -= contentType.Count
 					continue
 				}
 				var subType model.Filter
@@ -331,7 +331,10 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 	page.Data.Filters = filters
 }
 
-func mapTopicFilters(page *model.SearchPage, topicCategories []data.TopicCategory, queryParams data.SearchURLParams) {
+func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories []data.TopicCategory, queryParams data.SearchURLParams) {
+	if !cfg.EnableCensusTopicFilterOption {
+		return
+	}
 	var topicFilters []model.Filter
 
 	for _, topicCategory := range topicCategories {
@@ -344,7 +347,7 @@ func mapTopicFilters(page *model.SearchPage, topicCategories []data.TopicCategor
 		if len(topicCategory.Topics) > 0 {
 			for _, contentType := range topicCategory.Topics {
 				if !contentType.ShowInWebUI {
-					topicFilter.NumberOfResults -= 1
+					topicFilter.NumberOfResults -= topicCategory.Count
 					continue
 				}
 				var subType model.Filter
