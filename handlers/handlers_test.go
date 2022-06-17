@@ -81,10 +81,10 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 		}
 
 		mockedZebedeeClient := &ZebedeeClientMock{
-			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error){
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
 				fmt.Printf("%+v\n", mockHomepageContent)
 				return mockHomepageContent, nil
-		}}
+			}}
 
 		Convey("When Read is called", func() {
 			w := doTestRequest("/search", req, Read(cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient), nil)
@@ -142,7 +142,7 @@ func TestUnitReadSuccess(t *testing.T) {
 		}
 
 		mockedZebedeeClient := &ZebedeeClientMock{
-			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error){
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
 				return mockHomepageContent, nil
 			}}
 
@@ -204,7 +204,7 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		mockedZebedeeClient := &ZebedeeClientMock{
-			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error){
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
 				return mockHomepageContent, nil
 			}}
 
@@ -245,7 +245,7 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		mockedZebedeeClient := &ZebedeeClientMock{
-			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error){
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
 				return mockHomepageContent, nil
 			}}
 
@@ -287,7 +287,7 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		mockedZebedeeClient := &ZebedeeClientMock{
-			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error){
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
 				return mockHomepageContent, nil
 			}}
 

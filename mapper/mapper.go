@@ -37,6 +37,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
+	page.SearchNoIndexEnabled = cfg.NoIndexEnabled
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC, ErrorMessage)
 
