@@ -35,7 +35,7 @@ No further dependencies other than those defined in `go.mod`
 | GRACEFUL_SHUTDOWN_TIMEOUT         | 5s                           | The graceful shutdown timeout in seconds (`time.Duration` format)
 | HEALTHCHECK_CRITICAL_TIMEOUT      | 90s                          | Time to wait until an unhealthy dependent propagates its state to make this app unhealthy (`time.Duration` format)
 | HEALTHCHECK_INTERVAL              | 30s                          | Time between self-healthchecks (`time.Duration` format)
-| NO_INDEX_ENABLED                  | false                        | If true then prevents the ONS search results from appearing in Google Search
+| NO_INDEX_ENABLED                  | false                        | If true then prevents most search engine web crawlers from indexing the search pages
 | PATTERN_LIBRARY_ASSETS_PATH       | ""                           | Pattern library location
 | SITE_DOMAIN                       | localhost                    |
 | SUPPORTED_LANGUAGES               | [2]string{"en", "cy"}        | Supported languages
