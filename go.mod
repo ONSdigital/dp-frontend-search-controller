@@ -2,6 +2,8 @@ module github.com/ONSdigital/dp-frontend-search-controller
 
 go 1.17
 
+replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
+
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.117.0
 	github.com/ONSdigital/dp-component-test v0.6.3
