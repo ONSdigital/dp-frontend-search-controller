@@ -6,8 +6,8 @@ import (
 	"net/url"
 
 	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
 )
 
 //go:generate moq -out clients_mock.go -pkg handlers . RenderClient SearchClient ZebedeeClient

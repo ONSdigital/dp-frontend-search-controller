@@ -16,3 +16,7 @@ CVE-2020-26160
 CVE-2022-29153
 CVE-2022-24687
 
+#For more info: https://ossindex.sonatype.org/vulnerability/CVE-2022-21698?component-type=golang&component-name=github.com%2Fprometheus%2Fclient_golang&utm_source=nancy-client&utm_medium=integration&utm_content=1.0.29
+CVE-2022-21698
+
+sonatype-2021-1401
