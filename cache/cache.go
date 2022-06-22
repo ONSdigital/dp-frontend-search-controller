@@ -57,7 +57,7 @@ func (dc *Cache) UpdateContent(ctx context.Context) error {
 	for key, updateFunc := range dc.updateFuncs {
 		updatedContent, err := updateFunc()
 		if err != nil {
-			return fmt.Errorf("HOMEPAGE_CACHE_UPDATE_FAILED. failed to update homepage cache for %s. error: %v", key, err)
+			return fmt.Errorf("failed to update search cache for %s. error: %v", key, err)
 		}
 		dc.Set(key, updatedContent)
 	}
