@@ -2,6 +2,8 @@ module github.com/ONSdigital/dp-frontend-search-controller
 
 go 1.18
 
+replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
+
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.142.0
 	github.com/ONSdigital/dp-component-test v0.7.0
@@ -51,6 +53,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/justinas/alice v1.2.0 // indirect
+	github.com/kevinburke/go-bindata v3.23.0+incompatible // indirect
 	github.com/klauspost/compress v1.15.6 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
