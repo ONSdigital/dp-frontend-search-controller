@@ -10,6 +10,7 @@ import (
 type Config struct {
 	APIRouterURL                  string        `envconfig:"API_ROUTER_URL"`
 	BindAddr                      string        `envconfig:"BIND_ADDR"`
+	CacheTopicsUpdateInterval     time.Duration `envconfig:"CACHE_TOPICS_UPDATE_INTERVAL"`
 	Debug                         bool          `envconfig:"DEBUG"`
 	DefaultLimit                  int           `envconfig:"DEFAULT_LIMIT"`
 	DefaultMaximumLimit           int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
@@ -53,6 +54,7 @@ func get() (*Config, error) {
 	cfg := &Config{
 		APIRouterURL:                  "http://localhost:23200/v1",
 		BindAddr:                      "localhost:25000",
+		CacheTopicsUpdateInterval:     30 * time.Minute,
 		Debug:                         false,
 		DefaultLimit:                  10,
 		DefaultMaximumLimit:           50,
