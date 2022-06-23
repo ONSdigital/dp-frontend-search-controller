@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"sync"
 	"time"
@@ -19,9 +20,24 @@ type Cacher interface {
 
 type Cache struct {
 	data           sync.Map
-	updateInterval time.Duration
+	updateInterval *time.Duration
 	close          chan struct{}
 	updateFuncs    map[string]func() (interface{}, error)
+}
+
+func NewCache(updateInterval *time.Duration) (Cacher, error) {
+	if updateInterval != nil {
+		if *updateInterval <= 0 {
+			return nil, errors.New("cache update interval duration is less than or equal to 0")
+		}
+	}
+
+	return &Cache{
+		data:           sync.Map{},
+		updateInterval: updateInterval,
+		close:          make(chan struct{}),
+		updateFuncs:    make(map[string]func() (interface{}, error)),
+	}, nil
 }
 
 func (dc *Cache) Get(key string) (interface{}, bool) {
@@ -33,19 +49,12 @@ func (dc *Cache) Set(key string, data interface{}) {
 }
 
 func (dc *Cache) Close() {
-	dc.close <- struct{}{}
-	for key, _ := range dc.updateFuncs {
-		dc.data.Store(key, "")
-	}
-	dc.updateFuncs = make(map[string]func() (interface{}, error))
-}
-
-func NewCache(updateInterval time.Duration) Cacher {
-	return &Cache{
-		data:           sync.Map{},
-		updateInterval: updateInterval,
-		close:          make(chan struct{}),
-		updateFuncs:    make(map[string]func() (interface{}, error)),
+	if dc.updateInterval != nil {
+		dc.close <- struct{}{}
+		for key, _ := range dc.updateFuncs {
+			dc.data.Store(key, "")
+		}
+		dc.updateFuncs = make(map[string]func() (interface{}, error))
 	}
 }
 
@@ -65,7 +74,6 @@ func (dc *Cache) UpdateContent(ctx context.Context) error {
 }
 
 func (dc *Cache) StartUpdates(ctx context.Context, errorChannel chan error) {
-	ticker := time.NewTicker(dc.updateInterval)
 	if len(dc.updateFuncs) == 0 {
 		return
 	}
@@ -77,18 +85,22 @@ func (dc *Cache) StartUpdates(ctx context.Context, errorChannel chan error) {
 		return
 	}
 
-	for {
-		select {
-		case <-ticker.C:
-			err := dc.UpdateContent(ctx)
-			if err != nil {
-				log.Error(ctx, err.Error(), err)
-			}
+	if dc.updateInterval != nil {
+		ticker := time.NewTicker(*dc.updateInterval)
 
-		case <-dc.close:
-			return
-		case <-ctx.Done():
-			return
+		for {
+			select {
+			case <-ticker.C:
+				err := dc.UpdateContent(ctx)
+				if err != nil {
+					log.Error(ctx, err.Error(), err)
+				}
+
+			case <-dc.close:
+				return
+			case <-ctx.Done():
+				return
+			}
 		}
 	}
 }
