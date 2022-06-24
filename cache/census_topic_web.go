@@ -26,14 +26,12 @@ func UpdateCensusTopicPublic(ctx context.Context, topicClient topicCli.Clienter)
 		}
 
 		//deference root topics items to allow ranging through them
-		var rootTopicItems []models.Topic
-		if rootTopics.PublicItems != nil {
-			rootTopicItems = *rootTopics.PublicItems
-		} else {
+		if rootTopics.PublicItems == nil {
 			err := errors.New("root topic public items is nil")
 			log.Error(ctx, "failed to deference root topics items pointer", err)
 			return nil, err
 		}
+		rootTopicItems := *rootTopics.PublicItems
 
 		var censusTopicCache *Topic
 

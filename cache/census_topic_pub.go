@@ -104,14 +104,12 @@ func getSubtopicsIDsPrivate(ctx context.Context, subtopicsIDChan chan string, to
 	}
 
 	//deference sub topics items to allow ranging through them
-	var subTopicItems []models.TopicResponse
-	if subTopics.PrivateItems != nil {
-		subTopicItems = *subTopics.PrivateItems
-	} else {
-		err := errors.New("sub topics public items is nil")
+	if subTopics.PrivateItems == nil {
+		err := errors.New("sub topics private items is nil")
 		log.Error(ctx, "failed to deference sub topics items pointer", err)
 		return
 	}
+	subTopicItems := *subTopics.PrivateItems
 
 	var wg sync.WaitGroup
 
