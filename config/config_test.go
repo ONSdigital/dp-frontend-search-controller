@@ -23,7 +23,7 @@ func TestConfig(t *testing.T) {
 
 				So(cfg.APIRouterURL, ShouldEqual, "http://localhost:23200/v1")
 				So(cfg.BindAddr, ShouldEqual, "localhost:25000")
-				So(cfg.CacheTopicsUpdateInterval, ShouldEqual, 30*time.Minute)
+				So(cfg.CacheCensusTopicUpdateInterval, ShouldEqual, 30*time.Minute)
 				So(cfg.Debug, ShouldBeFalse)
 				So(cfg.DefaultLimit, ShouldEqual, 10)
 				So(cfg.DefaultMaximumLimit, ShouldEqual, 50)
@@ -35,6 +35,7 @@ func TestConfig(t *testing.T) {
 				So(cfg.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)
 				So(cfg.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
 				So(cfg.HealthCheckInterval, ShouldEqual, 30*time.Second)
+				So(cfg.IsPublishing, ShouldBeFalse)
 				So(cfg.NoIndexEnabled, ShouldBeFalse)
 				So(cfg.SiteDomain, ShouldEqual, "localhost")
 				So(cfg.SupportedLanguages, ShouldResemble, []string{"en", "cy"})

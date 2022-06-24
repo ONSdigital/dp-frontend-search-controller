@@ -31,7 +31,7 @@ lint:
 
 .PHONY: test
 test: generate-prod
-	go test -race -cover -tags 'production' ./...
+	go test -race -cover -count=1 -tags 'production' ./...
 
 .PHONY:	test-component
 test-component: generate-prod

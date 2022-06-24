@@ -9,6 +9,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/handlers"
 	rend "github.com/ONSdigital/dp-renderer"
+	topic "github.com/ONSdigital/dp-topic-api/sdk"
 
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
@@ -19,6 +20,7 @@ type Clients struct {
 	HealthCheckHandler func(w http.ResponseWriter, req *http.Request)
 	Renderer           *rend.Render
 	Search             *search.Client
+	Topic              *topic.Client
 	Zebedee            *zebedee.Client
 }
 
