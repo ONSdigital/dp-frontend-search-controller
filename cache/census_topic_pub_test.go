@@ -84,7 +84,7 @@ func mockGetSubtopicsIDsPrivate(ctx context.Context, subtopicsIDChan chan string
 
 	go func() {
 		defer wg.Done()
-		getSubtopicsIDsPrivate(ctx, subtopicsIDChan, topicClient, topLevelTopicID)
+		getSubtopicsIDsPrivate(ctx, "", subtopicsIDChan, topicClient, topLevelTopicID)
 		close(subtopicsIDChan)
 	}()
 
@@ -124,7 +124,7 @@ func TestUpdateCensusTopicPrivate(t *testing.T) {
 
 	Convey("Given census root topic does exist and has subtopics", t, func() {
 		Convey("When UpdateCensusTopicPrivate is called", func() {
-			respCensusTopicCache, err := UpdateCensusTopicPrivate(ctx, mockedTopicClient)()
+			respCensusTopicCache, err := UpdateCensusTopicPrivate(ctx, "", mockedTopicClient)()
 
 			Convey("Then the census topic cache is returned", func() {
 				So(respCensusTopicCache, ShouldHaveSameTypeAs, expectedCensusTopicCache)
@@ -145,7 +145,7 @@ func TestUpdateCensusTopicPrivate(t *testing.T) {
 		}
 
 		Convey("When UpdateCensusTopicPrivate is called", func() {
-			respCensusTopicCache, err := UpdateCensusTopicPrivate(ctx, failedRootTopicClient)()
+			respCensusTopicCache, err := UpdateCensusTopicPrivate(ctx, "", failedRootTopicClient)()
 
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
@@ -167,7 +167,7 @@ func TestUpdateCensusTopicPrivate(t *testing.T) {
 		}
 
 		Convey("When UpdateCensusTopicPrivate is called", func() {
-			respCensusTopicCache, err := UpdateCensusTopicPrivate(ctx, rootTopicsNilClient)()
+			respCensusTopicCache, err := UpdateCensusTopicPrivate(ctx, "", rootTopicsNilClient)()
 
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
@@ -196,7 +196,7 @@ func TestUpdateCensusTopicPrivate(t *testing.T) {
 		}
 
 		Convey("When UpdateCensusTopicPrivate is called", func() {
-			respCensusTopicCache, err := UpdateCensusTopicPrivate(ctx, censusTopicNotExistClient)()
+			respCensusTopicCache, err := UpdateCensusTopicPrivate(ctx, "", censusTopicNotExistClient)()
 
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
@@ -233,7 +233,7 @@ func TestGetRootTopicCachePrivate(t *testing.T) {
 	Convey("Given topic has subtopics", t, func() {
 
 		Convey("When getRootTopicCachePrivate is called", func() {
-			respCensusTopicCache := getRootTopicCachePrivate(ctx, subtopicsIDChan, mockedTopicClient, testCensusRootTopic)
+			respCensusTopicCache := getRootTopicCachePrivate(ctx, "", subtopicsIDChan, mockedTopicClient, testCensusRootTopic)
 
 			Convey("Then the census topic cache is returned", func() {
 				So(respCensusTopicCache, ShouldResemble, expectedCensusTopicCache)

@@ -25,6 +25,7 @@ type Config struct {
 	IsPublishing                   bool          `envconfig:"IS_PUBLISHING"`
 	NoIndexEnabled                 bool          `envconfig:"NO_INDEX_ENABLED"`
 	PatternLibraryAssetsPath       string        `envconfig:"PATTERN_LIBRARY_ASSETS_PATH"`
+	ServiceAuthToken               string        `envconfig:"SERVICE_AUTH_TOKEN"   json:"-"`
 	SiteDomain                     string        `envconfig:"SITE_DOMAIN"`
 	SupportedLanguages             []string      `envconfig:"SUPPORTED_LANGUAGES"`
 }
@@ -69,6 +70,7 @@ func get() (*Config, error) {
 		HealthCheckInterval:            30 * time.Second,
 		IsPublishing:                   false,
 		NoIndexEnabled:                 false,
+		ServiceAuthToken:               "",
 		SiteDomain:                     "localhost",
 		SupportedLanguages:             []string{"en", "cy"},
 	}

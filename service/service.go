@@ -83,7 +83,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 		return err
 	}
 	if cfg.IsPublishing {
-		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicTitle, cache.UpdateCensusTopicPrivate(ctx, clients.Topic))
+		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicTitle, cache.UpdateCensusTopicPrivate(ctx, cfg.ServiceAuthToken, clients.Topic))
 	} else {
 		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicTitle, cache.UpdateCensusTopicPublic(ctx, clients.Topic))
 	}

@@ -13,10 +13,10 @@ import (
 
 // the model returned from the dp-topic-api is PrivateSubtopics in publishing mode (private)
 
-func UpdateCensusTopicPrivate(ctx context.Context, topicClient topicCli.Clienter) func() (interface{}, error) {
+func UpdateCensusTopicPrivate(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() (interface{}, error) {
 	return func() (interface{}, error) {
 		// get root topics from dp-topic-api
-		rootTopics, err := topicClient.GetRootTopicsPrivate(ctx, topicCli.Headers{})
+		rootTopics, err := topicClient.GetRootTopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken})
 		if err != nil {
 			logData := log.Data{
 				"req_headers": topicCli.Headers{},
@@ -42,7 +42,7 @@ func UpdateCensusTopicPrivate(ctx context.Context, topicClient topicCli.Clienter
 			if rootTopicItems[i].Current.Title == CensusTopicTitle {
 				subtopicsIDChan := make(chan string)
 
-				censusTopicCache = getRootTopicCachePrivate(ctx, subtopicsIDChan, topicClient, *rootTopicItems[i].Current)
+				censusTopicCache = getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsIDChan, topicClient, *rootTopicItems[i].Current)
 				break
 			}
 		}
@@ -57,7 +57,7 @@ func UpdateCensusTopicPrivate(ctx context.Context, topicClient topicCli.Clienter
 	}
 }
 
-func getRootTopicCachePrivate(ctx context.Context, subtopicsIDChan chan string, topicClient topicCli.Clienter, rootTopic models.Topic) *Topic {
+func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subtopicsIDChan chan string, topicClient topicCli.Clienter, rootTopic models.Topic) *Topic {
 	rootTopicCache := &Topic{
 		ID:              rootTopic.ID,
 		LocaliseKeyName: rootTopic.Title,
@@ -70,7 +70,7 @@ func getRootTopicCachePrivate(ctx context.Context, subtopicsIDChan chan string, 
 	// get subtopics ids
 	go func() {
 		defer wg.Done()
-		getSubtopicsIDsPrivate(ctx, subtopicsIDChan, topicClient, rootTopic.ID)
+		getSubtopicsIDsPrivate(ctx, serviceAuthToken, subtopicsIDChan, topicClient, rootTopic.ID)
 		close(subtopicsIDChan)
 	}()
 
@@ -87,9 +87,9 @@ func getRootTopicCachePrivate(ctx context.Context, subtopicsIDChan chan string, 
 	return rootTopicCache
 }
 
-func getSubtopicsIDsPrivate(ctx context.Context, subtopicsIDChan chan string, topicClient topicCli.Clienter, topLevelTopicID string) {
+func getSubtopicsIDsPrivate(ctx context.Context, serviceAuthToken string, subtopicsIDChan chan string, topicClient topicCli.Clienter, topLevelTopicID string) {
 	// get subtopics from dp-topic-api
-	subTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCli.Headers{}, topLevelTopicID)
+	subTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, topLevelTopicID)
 	if err != nil {
 		if err != topicCliErr.ErrNotFound {
 			logData := log.Data{
@@ -122,7 +122,7 @@ func getSubtopicsIDsPrivate(ctx context.Context, subtopicsIDChan chan string, to
 
 		go func(index int) {
 			defer wg.Done()
-			getSubtopicsIDsPrivate(ctx, subtopicsIDChan, topicClient, subTopicItems[index].ID)
+			getSubtopicsIDsPrivate(ctx, serviceAuthToken, subtopicsIDChan, topicClient, subTopicItems[index].ID)
 		}(i)
 	}
 	wg.Wait()
