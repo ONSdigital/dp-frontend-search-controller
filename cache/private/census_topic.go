@@ -1,20 +1,22 @@
-package cache
+package private
 
 import (
 	"context"
 	"errors"
 	"sync"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	topicCliErr "github.com/ONSdigital/dp-topic-api/apierrors"
 	"github.com/ONSdigital/dp-topic-api/models"
 	topicCli "github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-// the model returned from the dp-topic-api is PrivateSubtopics in publishing mode (private)
-
-func UpdateCensusTopicPrivate(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() (interface{}, error) {
-	return func() (interface{}, error) {
+// UpdateCensusTopic is a function to update the census topic cache in publishing (private) mode.
+// This function talks to the dp-topic-api via its private endpoints to retrieve the census topic and its subtopic ids
+// The data returned by the dp-topic-api is of type *models.PrivateSubtopics which is then transformed in this function for the controller
+func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() (*cache.Topic, error) {
+	return func() (*cache.Topic, error) {
 		// get root topics from dp-topic-api
 		rootTopics, err := topicClient.GetRootTopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken})
 		if err != nil {
@@ -35,11 +37,11 @@ func UpdateCensusTopicPrivate(ctx context.Context, serviceAuthToken string, topi
 			return nil, err
 		}
 
-		var censusTopicCache *Topic
+		var censusTopicCache *cache.Topic
 
 		// go through each root topic, find census topic and gets its data for caching which includes subtopic ids
 		for i := range rootTopicItems {
-			if rootTopicItems[i].Current.Title == CensusTopicTitle {
+			if rootTopicItems[i].Current.Title == cache.CensusTopicTitle {
 				subtopicsIDChan := make(chan string)
 
 				censusTopicCache = getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsIDChan, topicClient, *rootTopicItems[i].Current)
@@ -57,12 +59,12 @@ func UpdateCensusTopicPrivate(ctx context.Context, serviceAuthToken string, topi
 	}
 }
 
-func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subtopicsIDChan chan string, topicClient topicCli.Clienter, rootTopic models.Topic) *Topic {
-	rootTopicCache := &Topic{
+func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subtopicsIDChan chan string, topicClient topicCli.Clienter, rootTopic models.Topic) *cache.Topic {
+	rootTopicCache := &cache.Topic{
 		ID:              rootTopic.ID,
 		LocaliseKeyName: rootTopic.Title,
-		SubtopicsIDs:    []string{},
 	}
+	subtopicsIDMap := cache.NewSubTopicsMap()
 
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -78,11 +80,13 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 	go func() {
 		defer wg.Done()
 		for subtopicID := range subtopicsIDChan {
-			rootTopicCache.appendSubtopicID(subtopicID)
+			subtopicsIDMap.AppendSubtopicID(subtopicID)
 		}
 	}()
 
 	wg.Wait()
+
+	rootTopicCache.SubtopicsIDQuery = subtopicsIDMap.GetSubtopicsIDsQuery()
 
 	return rootTopicCache
 }
