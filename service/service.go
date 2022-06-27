@@ -11,6 +11,8 @@ import (
 	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/assets"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
+	cachePrivate "github.com/ONSdigital/dp-frontend-search-controller/cache/private"
+	cachePublic "github.com/ONSdigital/dp-frontend-search-controller/cache/public"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
 	topic "github.com/ONSdigital/dp-topic-api/sdk"
@@ -29,16 +31,12 @@ var (
 
 // Service contains the healthcheck, server and serviceList for the frontend search controller
 type Service struct {
-	Cache              CacheList
+	Cache              cache.CacheList
 	Config             *config.Config
 	HealthCheck        HealthChecker
 	routerHealthClient *health.Client
 	Server             HTTPServer
 	ServiceList        *ExternalServiceList
-}
-
-type CacheList struct {
-	CensusTopic cache.Cacher
 }
 
 // New creates a new service
@@ -77,15 +75,15 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	clients.HealthCheckHandler = svc.HealthCheck.Handler
 
 	// Initialise caching
-	svc.Cache.CensusTopic, err = cache.NewCache(&cfg.CacheCensusTopicUpdateInterval)
+	svc.Cache.CensusTopic, err = cache.NewTopicCache(ctx, &cfg.CacheCensusTopicUpdateInterval)
 	if err != nil {
 		log.Error(ctx, "failed to create topics cache", err)
 		return err
 	}
 	if cfg.IsPublishing {
-		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicTitle, cache.UpdateCensusTopicPrivate(ctx, clients.Topic))
+		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicTitle, cachePrivate.UpdateCensusTopic(ctx, cfg.ServiceAuthToken, clients.Topic))
 	} else {
-		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicTitle, cache.UpdateCensusTopicPublic(ctx, clients.Topic))
+		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicTitle, cachePublic.UpdateCensusTopic(ctx, clients.Topic))
 	}
 
 	// Initialise router

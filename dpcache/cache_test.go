@@ -1,4 +1,4 @@
-package cache
+package dpcache
 
 import (
 	"context"
@@ -15,7 +15,7 @@ func getTestCache(updateInterval *time.Duration) *Cache {
 		data:           sync.Map{},
 		updateInterval: updateInterval,
 		close:          make(chan struct{}),
-		updateFuncs:    make(map[string]func() (interface{}, error)),
+		UpdateFuncs:    make(map[string]func() (interface{}, error)),
 	}
 
 	testCache.data.Store("string", "test")
@@ -23,7 +23,7 @@ func getTestCache(updateInterval *time.Duration) *Cache {
 	testCache.data.Store("bool", false)
 	testCache.data.Store("float", 1.1)
 
-	testCache.updateFuncs["string"] = func() (interface{}, error) {
+	testCache.UpdateFuncs["string"] = func() (interface{}, error) {
 		val, ok := testCache.Get("string")
 
 		// the first update
@@ -34,21 +34,21 @@ func getTestCache(updateInterval *time.Duration) *Cache {
 		// the second update or more
 		return "test3", nil
 	}
-	testCache.updateFuncs["int"] = func() (interface{}, error) {
+	testCache.UpdateFuncs["int"] = func() (interface{}, error) {
 		val, ok := testCache.Get("int")
 		if ok && val == 1 {
 			return 2, nil
 		}
 		return 3, nil
 	}
-	testCache.updateFuncs["bool"] = func() (interface{}, error) {
+	testCache.UpdateFuncs["bool"] = func() (interface{}, error) {
 		val, ok := testCache.Get("bool")
 		if ok && val == false {
 			return true, nil
 		}
 		return false, nil
 	}
-	testCache.updateFuncs["float"] = func() (interface{}, error) {
+	testCache.UpdateFuncs["float"] = func() (interface{}, error) {
 		val, ok := testCache.Get("float")
 		if ok && val == 1.1 {
 			return 2.2, nil
@@ -61,12 +61,13 @@ func getTestCache(updateInterval *time.Duration) *Cache {
 
 func TestNewCache(t *testing.T) {
 	t.Parallel()
+	ctx := context.Background()
 
 	Convey("Given a valid cache update interval which is greater than 0", t, func() {
-		updateCacheInterval := 1 * time.Second
+		updateCacheInterval := 1 * time.Millisecond
 
 		Convey("When NewCache is called", func() {
-			testCache, err := NewCache(&updateCacheInterval)
+			testCache, err := NewCache(ctx, &updateCacheInterval)
 
 			Convey("Then a cache object should be successfully returned", func() {
 				So(testCache, ShouldNotBeEmpty)
@@ -80,7 +81,7 @@ func TestNewCache(t *testing.T) {
 
 	Convey("Given no cache update interval (nil)", t, func() {
 		Convey("When NewCache is called", func() {
-			testCache, err := NewCache(nil)
+			testCache, err := NewCache(ctx, nil)
 
 			Convey("Then a cache object should be successfully returned", func() {
 				So(testCache, ShouldNotBeEmpty)
@@ -96,7 +97,7 @@ func TestNewCache(t *testing.T) {
 		updateCacheInterval := 0 * time.Second
 
 		Convey("When NewCache is called", func() {
-			testCache, err := NewCache(&updateCacheInterval)
+			testCache, err := NewCache(ctx, &updateCacheInterval)
 
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
@@ -117,7 +118,7 @@ func TestClose(t *testing.T) {
 	errorChan := make(chan error, 1)
 
 	Convey("Given cache is already updating", t, func() {
-		updateCacheInterval := 1 * time.Second
+		updateCacheInterval := 1 * time.Millisecond
 		testCache := getTestCache(&updateCacheInterval)
 
 		go testCache.StartUpdates(ctx, errorChan)
@@ -143,7 +144,7 @@ func TestClose(t *testing.T) {
 				So(ok, ShouldBeTrue)
 
 				Convey("And update functions in cache should be emptied", func() {
-					So(testCache.updateFuncs, ShouldBeEmpty)
+					So(testCache.UpdateFuncs, ShouldBeEmpty)
 				})
 			})
 		})
@@ -162,13 +163,33 @@ func TestClose(t *testing.T) {
 	})
 }
 
+func TestAddUpdateFunc(t *testing.T) {
+	t.Parallel()
+
+	Convey("Given an update function", t, func() {
+		testCache := getTestCache(nil)
+		updateFunc := func() (interface{}, error) {
+			return "test", nil
+		}
+
+		Convey("When AddUpdateFunc is called", func() {
+			testCache.AddUpdateFunc("test", updateFunc)
+
+			Convey("Then the update function is added to the cache", func() {
+				So(testCache.UpdateFuncs["test"], ShouldNotBeEmpty)
+				So(testCache.UpdateFuncs["test"], ShouldEqual, updateFunc)
+			})
+		})
+	})
+}
+
 func TestUpdateContent(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
 
 	Convey("Given a cache", t, func() {
-		updateCacheInterval := 1 * time.Second
+		updateCacheInterval := 1 * time.Millisecond
 		testCache := getTestCache(&updateCacheInterval)
 
 		Convey("When UpdateContent is called", func() {
@@ -199,11 +220,11 @@ func TestUpdateContent(t *testing.T) {
 	})
 
 	Convey("Given an update function which causes an error for cache", t, func() {
-		updateCacheInterval := 1 * time.Second
+		updateCacheInterval := 1 * time.Millisecond
 		testCache := getTestCache(&updateCacheInterval)
 
-		testCache.updateFuncs = make(map[string]func() (interface{}, error))
-		testCache.updateFuncs["error_update_func"] = func() (interface{}, error) {
+		testCache.UpdateFuncs = make(map[string]func() (interface{}, error))
+		testCache.UpdateFuncs["error_update_func"] = func() (interface{}, error) {
 			return nil, errors.New("unexpected error")
 		}
 
@@ -216,7 +237,6 @@ func TestUpdateContent(t *testing.T) {
 			})
 		})
 	})
-
 }
 
 func TestStartUpdates(t *testing.T) {
@@ -226,15 +246,15 @@ func TestStartUpdates(t *testing.T) {
 	errorChan := make(chan error, 1)
 
 	Convey("Given at initial cache setup with update interval set", t, func() {
-		updateCacheInterval := 2 * time.Second
+		updateCacheInterval := 20 * time.Millisecond
 		testCache := getTestCache(&updateCacheInterval)
 
 		Convey("When StartUpdates is called", func() {
 			go testCache.StartUpdates(ctx, errorChan)
 
 			Convey("Then cache data should be updated immediately", func() {
-				// give time for go-routine to update but this time is less than the update interval
-				time.Sleep(1 * time.Second)
+				// give time for go-routine to update in test but this time is less than the update interval
+				time.Sleep(1 * time.Millisecond)
 
 				cacheStringValue, ok := testCache.Get("string")
 				So(cacheStringValue, ShouldEqual, "test2")
@@ -260,13 +280,15 @@ func TestStartUpdates(t *testing.T) {
 	})
 
 	Convey("Given cache is already set up with update interval set", t, func() {
-		updateCacheInterval := 2 * time.Second
+		updateCacheInterval := 20 * time.Millisecond
 		testCache := getTestCache(&updateCacheInterval)
 
 		go testCache.StartUpdates(ctx, errorChan)
 
 		Convey("When the updateInterval time has passed", func() {
 			time.Sleep(updateCacheInterval)
+			// give extra time for go-routine in test to update and this ensures the expected values to match
+			time.Sleep(1 * time.Millisecond)
 
 			Convey("Then cache data should be updated for the second time or more", func() {
 				cacheStringValue, ok := testCache.Get("string")
@@ -293,10 +315,10 @@ func TestStartUpdates(t *testing.T) {
 	})
 
 	Convey("Given no update functions for cache", t, func() {
-		updateCacheInterval := 1 * time.Second
+		updateCacheInterval := 1 * time.Millisecond
 		testCache := getTestCache(&updateCacheInterval)
 
-		testCache.updateFuncs = make(map[string]func() (interface{}, error), 0)
+		testCache.UpdateFuncs = make(map[string]func() (interface{}, error), 0)
 
 		Convey("When StartUpdates is called", func() {
 			testCache.StartUpdates(ctx, errorChan)
@@ -327,7 +349,7 @@ func TestStartUpdates(t *testing.T) {
 		Convey("When StartUpdates is called", func() {
 			testCache.StartUpdates(ctx, errorChan)
 
-			Convey("Then cache data should be updated once", func() {
+			Convey("Then cache data should be updated/loaded once", func() {
 				cacheStringValue, ok := testCache.Get("string")
 				So(cacheStringValue, ShouldEqual, "test2")
 				So(ok, ShouldBeTrue)

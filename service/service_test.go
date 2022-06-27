@@ -86,13 +86,13 @@ var (
 		}
 	}
 
-	funcDoGetCensusTopicCache = func() (service.CacheList, error) {
-		testCensusTopicCache, err := cache.NewCache(nil)
+	funcDoGetCensusTopicCache = func(ctx context.Context) (cache.CacheList, error) {
+		testCensusTopicCache, err := cache.NewTopicCache(ctx, nil)
 		if err != nil {
-			return service.CacheList{}, err
+			return cache.CacheList{}, err
 		}
 
-		cacheList := service.CacheList{
+		cacheList := cache.CacheList{
 			CensusTopic: testCensusTopicCache,
 		}
 
@@ -247,7 +247,7 @@ func TestStart(t *testing.T) {
 
 		svcErrors := make(chan error, 1)
 
-		cacheList, err := funcDoGetCensusTopicCache()
+		cacheList, err := funcDoGetCensusTopicCache(ctx)
 		So(err, ShouldBeNil)
 
 		cfg, err := config.Get()
@@ -288,7 +288,7 @@ func TestStart(t *testing.T) {
 
 			svcErrors := make(chan error, 1)
 
-			cacheList, err := funcDoGetCensusTopicCache()
+			cacheList, err := funcDoGetCensusTopicCache(ctx)
 			So(err, ShouldBeNil)
 
 			cfg, err := config.Get()
@@ -343,7 +343,7 @@ func TestCloseSuccess(t *testing.T) {
 			},
 		}
 
-		cacheList, err := funcDoGetCensusTopicCache()
+		cacheList, err := funcDoGetCensusTopicCache(ctx)
 		So(err, ShouldBeNil)
 
 		serviceList := service.NewServiceList(nil)
@@ -380,7 +380,7 @@ func TestCloseFailure(t *testing.T) {
 		Convey("And given a correctly initialised service", func() {
 			ctx := context.Background()
 
-			cacheList, err := funcDoGetCensusTopicCache()
+			cacheList, err := funcDoGetCensusTopicCache(ctx)
 			So(err, ShouldBeNil)
 
 			cfg, err := config.Get()
@@ -435,7 +435,7 @@ func TestCloseFailure(t *testing.T) {
 			return nil
 		}
 
-		cacheList, err := funcDoGetCensusTopicCache()
+		cacheList, err := funcDoGetCensusTopicCache(ctx)
 		So(err, ShouldBeNil)
 
 		cfg, err := config.Get()
