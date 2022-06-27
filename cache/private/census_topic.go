@@ -92,12 +92,14 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 }
 
 func getSubtopicsIDsPrivate(ctx context.Context, serviceAuthToken string, subtopicsIDChan chan string, topicClient topicCli.Clienter, topLevelTopicID string) {
+	topicCliReqHeaders := topicCli.Headers{ServiceAuthToken: serviceAuthToken}
+
 	// get subtopics from dp-topic-api
-	subTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, topLevelTopicID)
+	subTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCliReqHeaders, topLevelTopicID)
 	if err != nil {
 		if err != topicCliErr.ErrNotFound {
 			logData := log.Data{
-				"req_headers":        topicCli.Headers{},
+				"req_headers":        topicCliReqHeaders,
 				"top_level_topic_id": topLevelTopicID,
 			}
 			log.Error(ctx, "failed to get subtopics from topic-api", err, logData)
@@ -122,7 +124,7 @@ func getSubtopicsIDsPrivate(ctx context.Context, serviceAuthToken string, subtop
 		wg.Add(1)
 
 		// send subtopic id to channel
-		subtopicsIDChan <- subTopicItems[i].Current.ID
+		subtopicsIDChan <- subTopicItems[i].ID
 
 		go func(index int) {
 			defer wg.Done()
