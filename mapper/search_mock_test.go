@@ -23,7 +23,7 @@ func TestUnitGetMockSearchResponseSuccess(t *testing.T) {
 
 		Convey("Then successfully get mock search response", func() {
 
-			mockSearchContentTypes := []searchC.ContentType{
+			mockSearchContentTypes := []searchC.FilterCount{
 				{
 					Type:  "article",
 					Count: 1,
