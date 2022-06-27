@@ -88,7 +88,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise router
 	r := mux.NewRouter()
-	routes.Setup(ctx, r, cfg, clients)
+	routes.Setup(ctx, r, cfg, clients, svc.Cache)
 	svc.Server = serviceList.GetHTTPServer(cfg.BindAddr, r)
 
 	return nil

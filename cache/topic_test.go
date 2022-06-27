@@ -59,6 +59,130 @@ func TestNewTopicCache(t *testing.T) {
 	})
 }
 
+func TestGetData(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	mockCacheList, err := GetMockCensusTopicCacheList(ctx)
+	if err != nil {
+		t.Error("failed to get mock census topic cache list")
+	}
+
+	Convey("Given a valid topic id which exists", t, func() {
+		id := CensusTopicTitle
+
+		Convey("When GetData is called", func() {
+			testCacheData, err := mockCacheList.CensusTopic.GetData(ctx, id)
+
+			Convey("Then a topic cache data should be successfully returned", func() {
+				So(testCacheData, ShouldNotBeNil)
+
+				Convey("And no error should be returned", func() {
+					So(err, ShouldBeNil)
+				})
+			})
+		})
+	})
+
+	Convey("Given an invalid topic id which also does not exist", t, func() {
+		id := "invalid"
+
+		Convey("When GetData is called", func() {
+			testCacheData, err := mockCacheList.CensusTopic.GetData(ctx, id)
+
+			Convey("Then an error should be returned", func() {
+				So(err, ShouldNotBeNil)
+
+				Convey("And the cache data returned should be nil", func() {
+					So(testCacheData, ShouldBeNil)
+				})
+			})
+		})
+	})
+
+	Convey("Given cached data is not type of *Topic", t, func() {
+		id := "1234"
+
+		mockCacheTopic, err := NewTopicCache(ctx, nil)
+		So(err, ShouldBeNil)
+		mockCacheTopic.Set(id, "test")
+
+		Convey("When GetData is called", func() {
+			testCacheData, err := mockCacheTopic.GetData(ctx, id)
+
+			Convey("Then an error should be returned", func() {
+				So(err, ShouldNotBeNil)
+
+				Convey("And the cache data returned should be nil", func() {
+					So(testCacheData, ShouldBeNil)
+				})
+			})
+		})
+	})
+
+	Convey("Given cached data is not type of *Topic", t, func() {
+		id := "1234"
+
+		mockCacheTopic, err := NewTopicCache(ctx, nil)
+		So(err, ShouldBeNil)
+		mockCacheTopic.Set(id, nil)
+
+		Convey("When GetData is called", func() {
+			testCacheData, err := mockCacheTopic.GetData(ctx, id)
+
+			Convey("Then an error should be returned", func() {
+				So(err, ShouldNotBeNil)
+
+				Convey("And the cache data returned should be nil", func() {
+					So(testCacheData, ShouldBeNil)
+				})
+			})
+		})
+	})
+}
+
+func TestGetCensusData(t *testing.T) {
+	t.Parallel()
+	ctx := context.Background()
+
+	mockCacheList, err := GetMockCensusTopicCacheList(ctx)
+	if err != nil {
+		t.Error("failed to get mock census topic cache list")
+	}
+
+	Convey("Given the census data exists in cache", t, func() {
+
+		Convey("When GetCensusData is called", func() {
+			censusData, err := mockCacheList.CensusTopic.GetCensusData(ctx)
+
+			Convey("Then census topic cache data should be successfully returned", func() {
+				So(censusData, ShouldNotBeNil)
+
+				Convey("And no error should be returned", func() {
+					So(err, ShouldBeNil)
+				})
+			})
+		})
+	})
+
+	Convey("Given the census data does not exist in cache", t, func() {
+		mockCacheTopic, err := NewTopicCache(ctx, nil)
+		So(err, ShouldBeNil)
+
+		Convey("When GetCensusData is called", func() {
+			censusData, err := mockCacheTopic.GetCensusData(ctx)
+
+			Convey("Then an error should be returned", func() {
+				So(err, ShouldNotBeNil)
+
+				Convey("And the census cache data returned should be nil", func() {
+					So(censusData, ShouldBeNil)
+				})
+			})
+		})
+	})
+}
+
 func TestAddUpdateFunc(t *testing.T) {
 	t.Parallel()
 
@@ -70,9 +194,9 @@ func TestAddUpdateFunc(t *testing.T) {
 
 		topicUpdateFunc := func() (*Topic, error) {
 			return &Topic{
-				ID:               "test",
-				LocaliseKeyName:  "Test",
-				SubtopicsIDQuery: "2453,1232",
+				ID:              "test",
+				LocaliseKeyName: "Test",
+				Query:           "2453,1232",
 			}, nil
 		}
 

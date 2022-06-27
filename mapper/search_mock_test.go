@@ -23,9 +23,16 @@ func TestUnitGetMockSearchResponseSuccess(t *testing.T) {
 
 		Convey("Then successfully get mock search response", func() {
 
-			mockSearchContentTypes := []searchC.ContentType{
+			mockSearchContentTypes := []searchC.FilterCount{
 				{
 					Type:  "article",
+					Count: 1,
+				},
+			}
+
+			mockSearchTopics := []searchC.FilterCount{
+				{
+					Type:  "1234",
 					Count: 1,
 				},
 			}
@@ -33,6 +40,7 @@ func TestUnitGetMockSearchResponseSuccess(t *testing.T) {
 			mockSearchItems := []searchC.ContentItem{
 				{
 					Description: searchC.Description{
+						CanonicalTopic: "1234",
 						Contact: &searchC.Contact{
 							Name:      "Name",
 							Telephone: "123",
@@ -114,6 +122,7 @@ func TestUnitGetMockSearchResponseSuccess(t *testing.T) {
 				Count:        1,
 				ContentTypes: mockSearchContentTypes,
 				Items:        mockSearchItems,
+				Topics:       mockSearchTopics,
 			})
 
 		})

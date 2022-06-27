@@ -12,6 +12,7 @@ import (
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
@@ -36,12 +37,22 @@ func doTestRequest(target string, req *http.Request, handlerFunc http.HandlerFun
 	return w
 }
 
-var accessToken string
-var collectionID string
-var lang string
+var (
+	accessToken  string
+	collectionID string
+	lang         string
+
+	mockCensusTopic = &cache.Topic{
+		ID:              "1234",
+		LocaliseKeyName: "Census",
+		Query:           "1234,5678",
+	}
+)
 
 func TestUnitReadHandlerSuccess(t *testing.T) {
 	t.Parallel()
+
+	ctx := context.Background()
 
 	mockSearchResponse, err := mapper.GetMockSearchResponse()
 	if err != nil {
@@ -86,8 +97,11 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
+		mockCacheList, err := cache.GetMockCensusTopicCacheList(ctx)
+		So(err, ShouldBeNil)
+
 		Convey("When Read is called", func() {
-			w := doTestRequest("/search", req, Read(cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient), nil)
+			w := doTestRequest("/search", req, Read(cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, *mockCacheList), nil)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -102,6 +116,8 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 
 func TestUnitReadSuccess(t *testing.T) {
 	t.Parallel()
+
+	ctx := context.Background()
 
 	mockSearchResponse, err := mapper.GetMockSearchResponse()
 	if err != nil {
@@ -146,8 +162,11 @@ func TestUnitReadSuccess(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
+		mockCacheList, err := cache.GetMockCensusTopicCacheList(ctx)
+		So(err, ShouldBeNil)
+
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang, *mockCacheList)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -164,6 +183,8 @@ func TestUnitReadSuccess(t *testing.T) {
 
 func TestUnitReadFailure(t *testing.T) {
 	t.Parallel()
+
+	ctx := context.Background()
 
 	mockSearchResponse, err := mapper.GetMockSearchResponse()
 	if err != nil {
@@ -208,8 +229,11 @@ func TestUnitReadFailure(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
+		mockCacheList, err := cache.GetMockCensusTopicCacheList(ctx)
+		So(err, ShouldBeNil)
+
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang, *mockCacheList)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
@@ -249,8 +273,11 @@ func TestUnitReadFailure(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
+		mockCacheList, err := cache.GetMockCensusTopicCacheList(ctx)
+		So(err, ShouldBeNil)
+
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang, *mockCacheList)
 
 			Convey("Then a 500 internal server error status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -291,8 +318,11 @@ func TestUnitReadFailure(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
+		mockCacheList, err := cache.GetMockCensusTopicCacheList(ctx)
+		So(err, ShouldBeNil)
+
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang)
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang, *mockCacheList)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
@@ -392,6 +422,7 @@ func TestUnitGetCategoriesTypesCountSuccess(t *testing.T) {
 		apiQuery := url.Values{
 			"q":            []string{"housing"},
 			"content_type": []string{"bulletin"},
+			"topics":       []string{"1234"},
 			"sort":         []string{"relevance"},
 			"limit":        []string{"10"},
 			"offset":       []string{"0"},
@@ -404,11 +435,14 @@ func TestUnitGetCategoriesTypesCountSuccess(t *testing.T) {
 		}
 
 		Convey("When getCategoriesTypesCount is called", func() {
-			categories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient)
+			categories, topicCategories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient, mockCensusTopic)
 
 			Convey("Then return all categories and types with its count", func() {
 				So(categories[0].Count, ShouldEqual, 1)
 				So(categories[0].ContentTypes[1].Count, ShouldEqual, 1)
+				So(topicCategories[0].Count, ShouldEqual, 1)
+				So(topicCategories[0].LocaliseKeyName, ShouldEqual, mockCensusTopic.LocaliseKeyName)
+				So(topicCategories[0].Query, ShouldEqual, mockCensusTopic.Query)
 			})
 
 			Convey("And return no error", func() {
@@ -441,7 +475,7 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 		}
 
 		Convey("When getCategoriesTypesCount is called", func() {
-			categories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient)
+			categories, topicCategories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient, mockCensusTopic)
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
@@ -449,6 +483,7 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 
 			Convey("And return nil categories", func() {
 				So(categories, ShouldBeNil)
+				So(topicCategories, ShouldBeNil)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
 				So(mockedSearchClient.GetSearchCalls()[0].UserAuthToken, ShouldEqual, accessToken)
 				So(mockedSearchClient.GetSearchCalls()[0].CollectionID, ShouldEqual, collectionID)
@@ -483,7 +518,7 @@ func TestUnitSetCountToCategoriesSuccess(t *testing.T) {
 	Convey("Given unrecognised filter type returned from api", t, func() {
 		mockCountSearchResponse := searchC.Response{
 			Count: 1,
-			ContentTypes: []searchC.ContentType{
+			ContentTypes: []searchC.FilterCount{
 				{
 					Type:  "article",
 					Count: 1,
