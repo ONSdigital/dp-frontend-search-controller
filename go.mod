@@ -11,7 +11,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.3.0
 	github.com/ONSdigital/dp-net v1.4.1
 	github.com/ONSdigital/dp-net/v2 v2.4.0
-	github.com/ONSdigital/dp-renderer v1.35.0
+	github.com/ONSdigital/dp-renderer v1.36.0
 	github.com/ONSdigital/log.go/v2 v2.2.0
 	github.com/cucumber/godog v0.12.5
 	github.com/gorilla/mux v1.8.0
