@@ -483,7 +483,7 @@ func TestUnitSetCountToCategoriesSuccess(t *testing.T) {
 	Convey("Given unrecognised filter type returned from api", t, func() {
 		mockCountSearchResponse := searchC.Response{
 			Count: 1,
-			ContentTypes: []searchC.ContentType{
+			ContentTypes: []searchC.FilterCount{
 				{
 					Type:  "article",
 					Count: 1,
