@@ -8,7 +8,24 @@ import (
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 )
 
-// GetMockSearchResponse get a mock search response in searchC.Response type
+// GetMockLegacySearchResponse get a mock search response in searchC.Response type from dp-search-api using ES 2.2
+func GetMockLegacySearchResponse() (searchC.Response, error) {
+	var respC searchC.Response
+
+	sampleResponse, err := ioutil.ReadFile("../mapper/data/mock_legacy_search_response.json")
+	if err != nil {
+		return searchC.Response{}, err
+	}
+
+	err = json.Unmarshal(sampleResponse, &respC)
+	if err != nil {
+		return searchC.Response{}, err
+	}
+
+	return respC, nil
+}
+
+// GetMockSearchResponse get a mock search response in searchC.Response type from dp-search-api using ES 7.10
 func GetMockSearchResponse() (searchC.Response, error) {
 	var respC searchC.Response
 
