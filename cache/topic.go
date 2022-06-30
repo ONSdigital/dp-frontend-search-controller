@@ -71,6 +71,15 @@ func (dc *TopicCache) GetData(ctx context.Context, key string) (*Topic, error) {
 	return topicCacheData, nil
 }
 
+// AddUpdateFunc adds an update function to the topic cache for a topic with the `title` passed to the function
+// This update function will then be triggered once or at every fixed interval as per the prior setup of the TopicCache
+func (dc *TopicCache) AddUpdateFunc(title string, updateFunc func() *Topic) {
+	dc.UpdateFuncs[title] = func() (interface{}, error) {
+		// error handling is done within the updateFunc
+		return updateFunc(), nil
+	}
+}
+
 func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 	censusTopicCache, err := dc.GetData(ctx, CensusTopicTitle)
 	if err != nil {
@@ -84,11 +93,10 @@ func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 	return censusTopicCache, nil
 }
 
-// AddUpdateFunc adds an update function to the topic cache for a topic with the `title` passed to the function
-// This update function will then be triggered once or at every fixed interval as per the prior setup of the TopicCache
-func (dc *TopicCache) AddUpdateFunc(title string, updateFunc func() *Topic) {
-	dc.UpdateFuncs[title] = func() (interface{}, error) {
-		// error handling is done within the updateFunc
-		return updateFunc(), nil
+// GetEmptyCensusTopic returns an empty census topic cache in the event when updating the cache of the census topic fails
+func GetEmptyCensusTopic() *Topic {
+	return &Topic{
+		LocaliseKeyName: "Census",
+		List:            NewSubTopicsMap(),
 	}
 }

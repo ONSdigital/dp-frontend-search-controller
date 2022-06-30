@@ -209,3 +209,18 @@ func TestAddUpdateFunc(t *testing.T) {
 		})
 	})
 }
+
+func TestGetEmptyCensusTopic(t *testing.T) {
+	t.Parallel()
+
+	Convey("When GetEmptyCensusTopic is called", t, func() {
+		emptyCensusTopic := GetEmptyCensusTopic()
+
+		Convey("Then an empty census topic should be returned", func() {
+			So(emptyCensusTopic.ID, ShouldEqual, "")
+			So(emptyCensusTopic.LocaliseKeyName, ShouldEqual, CensusTopicTitle)
+			So(emptyCensusTopic.Query, ShouldEqual, "")
+			So(emptyCensusTopic.List, ShouldNotBeNil)
+		})
+	})
+}
