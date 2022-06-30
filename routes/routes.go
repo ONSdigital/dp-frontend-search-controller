@@ -6,6 +6,7 @@ import (
 
 	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	zebedee "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/handlers"
 	rend "github.com/ONSdigital/dp-renderer"
@@ -25,8 +26,8 @@ type Clients struct {
 }
 
 // Setup registers routes for the service
-func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients) {
+func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, cacheList cache.CacheList) {
 	log.Info(ctx, "adding routes")
 	r.StrictSlash(true).Path("/health").HandlerFunc(c.HealthCheckHandler)
-	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, c.Zebedee, c.Renderer, c.Search))
+	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, c.Zebedee, c.Renderer, c.Search, cacheList))
 }

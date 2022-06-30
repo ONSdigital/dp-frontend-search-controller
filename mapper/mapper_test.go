@@ -5,10 +5,22 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-renderer/model"
 	. "github.com/smartystreets/goconvey/convey"
+)
+
+var (
+	mockTopicCategories = []data.Topic{
+		{
+			LocaliseKeyName: cache.CensusTopicTitle,
+			Count:           1,
+			Query:           "1234",
+			ShowInWebUI:     true,
+		},
+	}
 )
 
 func TestUnitCreateSearchPage(t *testing.T) {
@@ -37,15 +49,14 @@ func TestUnitCreateSearchPage(t *testing.T) {
 
 			Limit:       10,
 			CurrentPage: 1,
+			TopicFilter: "1234",
 		}
 
 		categories := data.GetCategories()
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
 
-		topicCategories := data.GetTopicCategories()
-		categories[0].Count = 1
-		categories[0].ContentTypes[1].Count = 1
+		topicCategories := mockTopicCategories
 
 		respH, err := GetMockHomepageContent()
 		So(err, ShouldBeNil)
@@ -169,23 +180,12 @@ func TestUnitCreateSearchPage(t *testing.T) {
 				So(sp.Data.Filters[0].Types[2].NumberOfResults, ShouldEqual, 0)
 				So(len(sp.Data.Filters[2].Types), ShouldEqual, 3)
 
-				// NOTE: until the API is built for topics, it seems silly to mock the data, some of the following lines have been removed until a later stage. Please see cfg alteration NOTE above.
-				So(len(sp.Data.TopicFilters[0].FilterKey), ShouldEqual, 8)
-				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, "Census")
-				//So(sp.Data.TopicFilters[0].IsChecked, ShouldBeTrue)
-				//So(sp.Data.TopicFilters[0].NumberOfResults, ShouldEqual, 1)
-				So(len(sp.Data.TopicFilters[0].Types[0].FilterKey), ShouldEqual, 1)
-				So(sp.Data.TopicFilters[0].Types[0].LocaliseKeyName, ShouldEqual, "DemographyAndMigration")
-				So(sp.Data.TopicFilters[0].Types[0].IsChecked, ShouldBeFalse)
-				So(sp.Data.TopicFilters[0].Types[0].NumberOfResults, ShouldEqual, 0)
-				So(len(sp.Data.TopicFilters[0].Types[1].FilterKey), ShouldEqual, 1)
-				So(sp.Data.TopicFilters[0].Types[1].LocaliseKeyName, ShouldEqual, "Education")
-				//So(sp.Data.TopicFilters[0].Types[1].IsChecked, ShouldBeTrue)
-				//So(sp.Data.TopicFilters[0].Types[1].NumberOfResults, ShouldEqual, 1)
-				So(len(sp.Data.TopicFilters[0].Types[2].FilterKey), ShouldEqual, 1)
-				So(sp.Data.TopicFilters[0].Types[2].LocaliseKeyName, ShouldEqual, "EthnicGroupNationalIdentityAndReligion")
-				//So(sp.Data.TopicFilters[0].Types[2].IsChecked, ShouldBeFalse)
-				So(sp.Data.TopicFilters[0].Types[2].NumberOfResults, ShouldEqual, 0)
+				So(sp.Data.TopicFilters, ShouldNotBeEmpty)
+				So(sp.Data.TopicFilters[0], ShouldNotBeEmpty)
+				So(sp.Data.TopicFilters[0].IsChecked, ShouldBeTrue)
+				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, cache.CensusTopicTitle)
+				So(sp.Data.TopicFilters[0].NumberOfResults, ShouldEqual, 1)
+				So(sp.Data.TopicFilters[0].Query, ShouldEqual, "1234")
 
 				So(sp.Department.Code, ShouldEqual, "dept-code")
 				So(sp.Department.URL, ShouldEqual, "www.dept.com")
@@ -232,15 +232,14 @@ func TestUnitCreateSearchPageES710(t *testing.T) {
 
 			Limit:       10,
 			CurrentPage: 1,
+			TopicFilter: "1234",
 		}
 
 		categories := data.GetCategories()
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
 
-		topicCategories := data.GetTopicCategories()
-		categories[0].Count = 1
-		categories[0].ContentTypes[1].Count = 1
+		topicCategories := mockTopicCategories
 
 		respH, err := GetMockHomepageContent()
 		So(err, ShouldBeNil)
@@ -322,23 +321,12 @@ func TestUnitCreateSearchPageES710(t *testing.T) {
 				So(sp.Data.Filters[0].Types[2].NumberOfResults, ShouldEqual, 0)
 				So(len(sp.Data.Filters[2].Types), ShouldEqual, 3)
 
-				// NOTE: until the API is built for topics, it seems silly to mock the data, some of the following lines have been removed until a later stage. Please see cfg alteration NOTE above.
-				So(len(sp.Data.TopicFilters[0].FilterKey), ShouldEqual, 8)
-				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, "Census")
-				//So(sp.Data.TopicFilters[0].IsChecked, ShouldBeTrue)
-				//So(sp.Data.TopicFilters[0].NumberOfResults, ShouldEqual, 1)
-				So(len(sp.Data.TopicFilters[0].Types[0].FilterKey), ShouldEqual, 1)
-				So(sp.Data.TopicFilters[0].Types[0].LocaliseKeyName, ShouldEqual, "DemographyAndMigration")
-				So(sp.Data.TopicFilters[0].Types[0].IsChecked, ShouldBeFalse)
-				So(sp.Data.TopicFilters[0].Types[0].NumberOfResults, ShouldEqual, 0)
-				So(len(sp.Data.TopicFilters[0].Types[1].FilterKey), ShouldEqual, 1)
-				So(sp.Data.TopicFilters[0].Types[1].LocaliseKeyName, ShouldEqual, "Education")
-				//So(sp.Data.TopicFilters[0].Types[1].IsChecked, ShouldBeTrue)
-				//So(sp.Data.TopicFilters[0].Types[1].NumberOfResults, ShouldEqual, 1)
-				So(len(sp.Data.TopicFilters[0].Types[2].FilterKey), ShouldEqual, 1)
-				So(sp.Data.TopicFilters[0].Types[2].LocaliseKeyName, ShouldEqual, "EthnicGroupNationalIdentityAndReligion")
-				//So(sp.Data.TopicFilters[0].Types[2].IsChecked, ShouldBeFalse)
-				So(sp.Data.TopicFilters[0].Types[2].NumberOfResults, ShouldEqual, 0)
+				So(sp.Data.TopicFilters, ShouldNotBeEmpty)
+				So(sp.Data.TopicFilters[0], ShouldNotBeEmpty)
+				So(sp.Data.TopicFilters[0].IsChecked, ShouldBeTrue)
+				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, cache.CensusTopicTitle)
+				So(sp.Data.TopicFilters[0].NumberOfResults, ShouldEqual, 1)
+				So(sp.Data.TopicFilters[0].Query, ShouldEqual, "1234")
 
 				So(sp.Department.Code, ShouldEqual, "dept-code")
 				So(sp.Department.URL, ShouldEqual, "www.dept.com")

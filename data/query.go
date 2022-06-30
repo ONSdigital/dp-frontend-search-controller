@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -13,7 +14,7 @@ import (
 type SearchURLParams struct {
 	Query       string
 	Filter      Filter
-	TopicFilter TopicFilter
+	TopicFilter string
 	Sort        Sort
 	Limit       int
 	CurrentPage int
@@ -21,7 +22,7 @@ type SearchURLParams struct {
 }
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
-func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values) (SearchURLParams, error) {
+func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
 
@@ -39,7 +40,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values) (
 		return validatedQueryParams, err
 	}
 
-	err = reviewTopicFilters(ctx, urlQuery, &validatedQueryParams)
+	err = reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
 	if err != nil {
 		log.Error(ctx, "unable to review topic filters", err)
 		return validatedQueryParams, err
@@ -75,6 +76,7 @@ func createSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
 		"sort":         []string{validatedQueryParams.Sort.Query},
 		"limit":        []string{strconv.Itoa(validatedQueryParams.Limit)},
 		"offset":       []string{strconv.Itoa(validatedQueryParams.Offset)},
+		"topics":       []string{validatedQueryParams.TopicFilter},
 	}
 }
 

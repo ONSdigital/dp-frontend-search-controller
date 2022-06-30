@@ -8,8 +8,16 @@
             "count": 1
         }
     ],
+    "topics": [
+        {
+            "_comment": "type value represents topic id",
+            "type": "1234", 
+            "count": 1
+        }
+    ],
     "items": [
         {
+            "canonical_topic": "1234",
             "keywords": [
                 "regional house prices",
                 "property prices",

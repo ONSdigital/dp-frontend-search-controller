@@ -254,7 +254,7 @@ func TestStartUpdates(t *testing.T) {
 
 			Convey("Then cache data should be updated immediately", func() {
 				// give time for go-routine to update in test but this time is less than the update interval
-				time.Sleep(1 * time.Millisecond)
+				time.Sleep(10 * time.Millisecond)
 
 				cacheStringValue, ok := testCache.Get("string")
 				So(cacheStringValue, ShouldEqual, "test2")
@@ -288,7 +288,7 @@ func TestStartUpdates(t *testing.T) {
 		Convey("When the updateInterval time has passed", func() {
 			time.Sleep(updateCacheInterval)
 			// give extra time for go-routine in test to update and this ensures the expected values to match
-			time.Sleep(1 * time.Millisecond)
+			time.Sleep(10 * time.Millisecond)
 
 			Convey("Then cache data should be updated for the second time or more", func() {
 				cacheStringValue, ok := testCache.Get("string")

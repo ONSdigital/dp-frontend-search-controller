@@ -9,6 +9,7 @@ import (
 	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
@@ -22,19 +23,29 @@ const (
 )
 
 // Read Handler
-func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient) http.HandlerFunc {
+func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.CacheList) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		read(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang)
+		read(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList)
 	})
 }
 
-func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, accessToken, collectionID, lang string) {
+func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
+	accessToken, collectionID, lang string, cacheList cache.CacheList) {
+
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
 
 	urlQuery := req.URL.Query()
 
-	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery)
+	// get cached census topic and its subtopics
+	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
+	if err != nil {
+		log.Error(ctx, "failed to get census topic cache", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
 	if err != nil && err != errs.ErrInvalidQueryString {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
@@ -51,7 +62,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	if err == errs.ErrInvalidQueryString {
 		// avoid making any API calls
 		basePage := rend.NewBasePageModel()
-		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.TopicCategory{}, searchResp, departmentResp, lang, homepageResponse, err.Error())
+		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.Topic{}, searchResp, departmentResp, lang, homepageResponse, err.Error())
 		rend.BuildPage(w, m, "search")
 		return
 	}
@@ -105,14 +116,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
-	categories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, searchC)
-	if err != nil {
-		log.Error(ctx, "getting categories, types and its counts failed", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
-	topicCategories, err := getTopicCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, searchC)
+	categories, topicCategories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, searchC, censusTopicCache)
 	if err != nil {
 		log.Error(ctx, "getting categories, types and its counts failed", err)
 		setStatusCode(w, req, err)
@@ -142,45 +146,24 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 }
 
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
-func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, apiQuery url.Values, searchC SearchClient) ([]data.Category, error) {
+func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, apiQuery url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
 	//Remove filter to get count of all types for the query from the client
 	apiQuery.Del("content_type")
+	apiQuery.Del("topics")
 
 	countResp, err := searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
 	if err != nil {
 		logData := log.Data{"api query passed to search-api": apiQuery}
 		log.Error(ctx, "getting search query count from client failed", err, logData)
-		return nil, err
+		return nil, nil, err
 	}
 
 	categories := data.GetCategories()
+	topicCategories := data.GetTopicCategories(censusTopicCache, countResp)
 
 	setCountToCategories(ctx, countResp, categories)
 
-	return categories, nil
-}
-
-// getTopicCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
-func getTopicCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, apiQuery url.Values, searchC SearchClient) ([]data.TopicCategory, error) {
-
-	// NOTE: for now the API does not return any data for Topics, so here it is mocked until further notice.
-	mockTopicCategories := []data.TopicCategory{
-		{
-			LocaliseKeyName: "Census",
-			Count:           0,
-			Topics: []data.Topic{
-				data.DemographyAndMigration,
-				data.Education,
-				data.EthnicGroupNationalIdentityAndReligion,
-				data.HealthDisabilityAndUnpaidCare,
-				data.Housing,
-				data.LabourMarketAndTravelToWork,
-				data.SexualOrientationAndGenderIdentity,
-				data.Veterans,
-			},
-		},
-	}
-	return mockTopicCategories, nil
+	return categories, topicCategories, nil
 }
 
 func setCountToCategories(ctx context.Context, countResp searchCli.Response, categories []data.Category) {

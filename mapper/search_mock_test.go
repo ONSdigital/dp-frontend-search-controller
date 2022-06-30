@@ -30,9 +30,17 @@ func TestUnitGetMockLegacySearchResponse(t *testing.T) {
 				},
 			}
 
+			mockSearchTopics := []searchC.FilterCount{
+				{
+					Type:  "1234",
+					Count: 1,
+				},
+			}
+
 			mockSearchItems := []searchC.ContentItem{
 				{
 					LegacyDescription: searchC.LegacyDescription{
+						CanonicalTopic: "1234",
 						Contact: &searchC.Contact{
 							Name:      "Name",
 							Telephone: "123",
@@ -114,6 +122,7 @@ func TestUnitGetMockLegacySearchResponse(t *testing.T) {
 				Count:        1,
 				ContentTypes: mockSearchContentTypes,
 				Items:        mockSearchItems,
+				Topics:       mockSearchTopics,
 			})
 
 		})
@@ -135,6 +144,13 @@ func TestUnitGetMockSearchResponse(t *testing.T) {
 			mockSearchContentTypes := []searchC.FilterCount{
 				{
 					Type:  "article",
+					Count: 1,
+				},
+			}
+
+			mockSearchTopics := []searchC.FilterCount{
+				{
+					Type:  "1234",
 					Count: 1,
 				},
 			}
@@ -164,6 +180,7 @@ func TestUnitGetMockSearchResponse(t *testing.T) {
 				ES_710:       true,
 				Count:        1,
 				ContentTypes: mockSearchContentTypes,
+				Topics:       mockSearchTopics,
 				Items:        mockSearchItems,
 			})
 

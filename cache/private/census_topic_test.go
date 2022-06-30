@@ -113,9 +113,9 @@ var (
 	}
 
 	expectedCensusTopicCache = &cache.Topic{
-		ID:               testCensusTopicID,
-		LocaliseKeyName:  testCensusTitle,
-		SubtopicsIDQuery: fmt.Sprintf("%s,%s,%s", testCensusSubTopicID1, testCensusSubTopicID2, testCensusSubSubTopicID),
+		ID:              testCensusTopicID,
+		LocaliseKeyName: testCensusTitle,
+		Query:           fmt.Sprintf("%s,%s,%s", testCensusSubTopicID1, testCensusSubTopicID2, testCensusSubSubTopicID),
 	}
 )
 
@@ -131,7 +131,7 @@ func mockGetSubtopicsIDsPrivate(ctx context.Context, subtopicsIDChan chan string
 
 	testTopicCache := getRootTopicCachePrivate(ctx, "", subtopicsIDChan, topicClient, rootTopic)
 
-	return testTopicCache.SubtopicsIDQuery
+	return testTopicCache.Query
 }
 
 func TestUpdateCensusTopic(t *testing.T) {
@@ -166,9 +166,9 @@ func TestUpdateCensusTopic(t *testing.T) {
 				So(respCensusTopicCache.ID, ShouldEqual, expectedCensusTopicCache.ID)
 				So(respCensusTopicCache.LocaliseKeyName, ShouldEqual, expectedCensusTopicCache.LocaliseKeyName)
 
-				So(respCensusTopicCache.SubtopicsIDQuery, ShouldContainSubstring, testCensusSubTopicID1)
-				So(respCensusTopicCache.SubtopicsIDQuery, ShouldContainSubstring, testCensusSubTopicID2)
-				So(respCensusTopicCache.SubtopicsIDQuery, ShouldContainSubstring, testCensusSubSubTopicID)
+				So(respCensusTopicCache.Query, ShouldContainSubstring, testCensusSubTopicID1)
+				So(respCensusTopicCache.Query, ShouldContainSubstring, testCensusSubTopicID2)
+				So(respCensusTopicCache.Query, ShouldContainSubstring, testCensusSubSubTopicID)
 			})
 		})
 	})
@@ -262,9 +262,9 @@ func TestGetRootTopicCachePrivate(t *testing.T) {
 				So(respCensusTopicCache.ID, ShouldEqual, expectedCensusTopicCache.ID)
 				So(respCensusTopicCache.LocaliseKeyName, ShouldEqual, expectedCensusTopicCache.LocaliseKeyName)
 
-				So(respCensusTopicCache.SubtopicsIDQuery, ShouldContainSubstring, testCensusSubTopicID1)
-				So(respCensusTopicCache.SubtopicsIDQuery, ShouldContainSubstring, testCensusSubTopicID2)
-				So(respCensusTopicCache.SubtopicsIDQuery, ShouldContainSubstring, testCensusSubSubTopicID)
+				So(respCensusTopicCache.Query, ShouldContainSubstring, testCensusSubTopicID1)
+				So(respCensusTopicCache.Query, ShouldContainSubstring, testCensusSubTopicID2)
+				So(respCensusTopicCache.Query, ShouldContainSubstring, testCensusSubSubTopicID)
 			})
 		})
 	})
@@ -312,7 +312,8 @@ func TestGetSubtopicsIDsPrivate(t *testing.T) {
 			subTopicsIDQuery := mockGetSubtopicsIDsPrivate(ctx, subtopicsIDChan, mockedTopicClient, testCensusSubTopicID2)
 
 			Convey("Then no subtopic ids should be sent to subtopicsIDChan channel", func() {
-				So(subTopicsIDQuery, ShouldBeEmpty)
+				// the query only contains the root topic id and no subtopic ids
+				So(subTopicsIDQuery, ShouldEqual, testCensusSubTopicID2)
 			})
 		})
 	})
@@ -330,7 +331,8 @@ func TestGetSubtopicsIDsPrivate(t *testing.T) {
 			subTopicsIDQuery := mockGetSubtopicsIDsPrivate(ctx, subtopicsIDChan, failedGetSubtopicClient, testCensusTopicID)
 
 			Convey("Then no subtopic ids should be sent to subtopicsIDChan channel", func() {
-				So(subTopicsIDQuery, ShouldBeEmpty)
+				// the query only contains the root topic id and no subtopic ids
+				So(subTopicsIDQuery, ShouldEqual, testCensusTopicID)
 			})
 		})
 	})
@@ -350,7 +352,8 @@ func TestGetSubtopicsIDsPrivate(t *testing.T) {
 			subTopicsIDQuery := mockGetSubtopicsIDsPrivate(ctx, subtopicsIDChan, subtopicItemsNilClient, testCensusTopicID)
 
 			Convey("Then no subtopic ids should be sent to subtopicsIDChan channel", func() {
-				So(subTopicsIDQuery, ShouldBeEmpty)
+				// the query only contains the root topic id and no subtopic ids
+				So(subTopicsIDQuery, ShouldEqual, testCensusTopicID)
 			})
 		})
 	})

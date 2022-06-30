@@ -65,6 +65,7 @@ func getRootTopicCachePublic(ctx context.Context, subtopicsIDChan chan string, t
 	}
 
 	subtopicsIDMap := cache.NewSubTopicsMap()
+	subtopicsIDMap.AppendSubtopicID(rootTopic.ID)
 
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -86,8 +87,8 @@ func getRootTopicCachePublic(ctx context.Context, subtopicsIDChan chan string, t
 
 	wg.Wait()
 
-	rootTopicCache.SubtopicsList = subtopicsIDMap
-	rootTopicCache.SubtopicsIDQuery = subtopicsIDMap.GetSubtopicsIDsQuery()
+	rootTopicCache.List = subtopicsIDMap
+	rootTopicCache.Query = subtopicsIDMap.GetSubtopicsIDsQuery()
 
 	return rootTopicCache
 }

@@ -65,7 +65,9 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 		ID:              rootTopic.ID,
 		LocaliseKeyName: rootTopic.Title,
 	}
+
 	subtopicsIDMap := cache.NewSubTopicsMap()
+	subtopicsIDMap.AppendSubtopicID(rootTopic.ID)
 
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -87,7 +89,8 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 
 	wg.Wait()
 
-	rootTopicCache.SubtopicsIDQuery = subtopicsIDMap.GetSubtopicsIDsQuery()
+	rootTopicCache.List = subtopicsIDMap
+	rootTopicCache.Query = subtopicsIDMap.GetSubtopicsIDsQuery()
 
 	return rootTopicCache
 }
