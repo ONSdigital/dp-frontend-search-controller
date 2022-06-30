@@ -232,6 +232,7 @@ func TestUnitCreateSearchPageES710(t *testing.T) {
 
 			Limit:       10,
 			CurrentPage: 1,
+			TopicFilter: "1234",
 		}
 
 		categories := data.GetCategories()

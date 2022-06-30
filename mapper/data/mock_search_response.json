@@ -17,6 +17,7 @@
     ],
     "items": [
         {
+            "canonical_topic": "1234",
             "keywords": [
                 "regional house prices",
                 "property prices",

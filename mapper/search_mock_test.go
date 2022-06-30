@@ -40,6 +40,7 @@ func TestUnitGetMockLegacySearchResponse(t *testing.T) {
 			mockSearchItems := []searchC.ContentItem{
 				{
 					LegacyDescription: searchC.LegacyDescription{
+						CanonicalTopic: "1234",
 						Contact: &searchC.Contact{
 							Name:      "Name",
 							Telephone: "123",
@@ -147,6 +148,13 @@ func TestUnitGetMockSearchResponse(t *testing.T) {
 				},
 			}
 
+			mockSearchTopics := []searchC.FilterCount{
+				{
+					Type:  "1234",
+					Count: 1,
+				},
+			}
+
 			mockSearchDescription := searchC.Description{
 				Keywords:        []string{"regional house prices", "property prices", "area with cheapest houses", "area with most expensive houses"},
 				MetaDescription: "Test Meta Description",
@@ -172,6 +180,7 @@ func TestUnitGetMockSearchResponse(t *testing.T) {
 				ES_710:       true,
 				Count:        1,
 				ContentTypes: mockSearchContentTypes,
+				Topics:       mockSearchTopics,
 				Items:        mockSearchItems,
 			})
 
