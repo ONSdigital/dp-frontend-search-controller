@@ -9,7 +9,7 @@ import (
 // The subtopicsMap is used to keep a record of subtopics to be later used to generate the subtopics id `query` for a topic
 // and to check if the subtopic id given by a user exists
 type SubtopicsIDs struct {
-	sync.Mutex
+	sync.RWMutex
 	subtopicsMap map[string]bool
 }
 
@@ -22,16 +22,16 @@ func NewSubTopicsMap() *SubtopicsIDs {
 
 // Get returns a bool value for the given key (id) to inform that the subtopic id exists
 func (t *SubtopicsIDs) Get(key string) bool {
-	t.Lock()
-	defer t.Unlock()
+	t.RLock()
+	defer t.RUnlock()
 
 	return t.subtopicsMap[key]
 }
 
 // GetSubtopicsIDsQuery gets the subtopics ID query for a topic
 func (t *SubtopicsIDs) GetSubtopicsIDsQuery() string {
-	t.Lock()
-	defer t.Unlock()
+	t.RLock()
+	defer t.RUnlock()
 
 	ids := make([]string, 0, len(t.subtopicsMap))
 

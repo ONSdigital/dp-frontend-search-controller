@@ -1,4 +1,5 @@
 {
+    "es_710": true,
     "count": 1,
     "took": 96,
     "content_types": [
@@ -16,86 +17,25 @@
     ],
     "items": [
         {
-            "description": {
-                "canonical_topic": "1234",
-                "contact": {
-                    "email": "test@ons.gov.uk",
-                    "name": "Name",
-                    "telephone": "123"
-                },
-                "edition": "1995 to 2013",
+            "keywords": [
+                "regional house prices",
+                "property prices",
+                "area with cheapest houses",
+                "area with most expensive houses"
+            ],
+            "meta_description": "Test Meta Description",
+            "release_date": "2015-02-17T00:00:00.000Z",
+            "summary": "Test Summary",
+            "title": "Title Title",
+            "highlight": {
+                "summary": "Test Summary",
+                "title": "Title Title",
                 "keywords": [
                     "regional house prices",
                     "property prices",
                     "area with cheapest houses",
                     "area with most expensive houses"
-                ],
-                "latest_release": true,
-                "meta_description": "Test Meta Description",
-                "national_statistic": false,
-                "release_date": "2015-02-17T00:00:00.000Z",
-                "source": "",
-                "summary": "Test Summary",
-                "title": "Title Title",
-                "unit": "",
-                "highlight": {
-                    "summary": "Test Summary",
-                    "title": "Title Title",
-                    "keywords": [
-                        "regional house prices",
-                        "property prices",
-                        "area with cheapest houses",
-                        "area with most expensive houses"
-                    ],
-                    "edition": "1995 to 2013"
-                }
-            },
-            "matches": {
-                "description": {
-                    "summary": [
-                        {
-                            "value": "summary",
-                            "start": 1,
-                            "end": 5
-                        }
-
-                    ],
-                    "title": [
-                        {
-                            "value": "title",
-                            "start": 6,
-                            "end": 10
-                        }
-                    ],
-                    "edition": [
-                        {
-                            "value": "edition",
-                            "start": 11,
-                            "end": 15
-                        }
-                    ],
-                    "meta_description": [
-                        {
-                            "value": "meta_description",
-                            "start": 16,
-                            "end": 20
-                        }
-                    ],
-                    "keywords": [
-                        {
-                            "value": "keywords",
-                            "start": 21,
-                            "end": 25
-                        }
-                    ],
-                    "dataset_id": [
-                        {
-                            "value": "dataset_id",
-                            "start": 26,
-                            "end": 30
-                        }
-                    ]
-                }
+                ]
             },
             "type": "article",
             "uri": "/uri1/housing/articles/uri2/2015-02-17"

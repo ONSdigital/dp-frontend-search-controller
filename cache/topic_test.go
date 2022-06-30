@@ -192,12 +192,12 @@ func TestAddUpdateFunc(t *testing.T) {
 		mockTopicCache, err := NewTopicCache(ctx, nil)
 		So(err, ShouldBeNil)
 
-		topicUpdateFunc := func() (*Topic, error) {
+		topicUpdateFunc := func() *Topic {
 			return &Topic{
 				ID:              "test",
 				LocaliseKeyName: "Test",
 				Query:           "2453,1232",
-			}, nil
+			}
 		}
 
 		Convey("When AddUpdateFunc is called", func() {

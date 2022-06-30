@@ -126,7 +126,7 @@ func TestUpdateCensusTopic(t *testing.T) {
 
 	Convey("Given census root topic does exist and has subtopics", t, func() {
 		Convey("When UpdateCensusTopic is called", func() {
-			respCensusTopicCache, err := UpdateCensusTopic(ctx, mockedTopicClient)()
+			respCensusTopicCache := UpdateCensusTopic(ctx, mockedTopicClient)()
 
 			Convey("Then the census topic cache is returned", func() {
 				So(respCensusTopicCache, ShouldNotBeNil)
@@ -137,10 +137,6 @@ func TestUpdateCensusTopic(t *testing.T) {
 				So(respCensusTopicCache.Query, ShouldContainSubstring, testCensusSubTopicID1)
 				So(respCensusTopicCache.Query, ShouldContainSubstring, testCensusSubTopicID2)
 				So(respCensusTopicCache.Query, ShouldContainSubstring, testCensusSubSubTopicID)
-
-				Convey("And no error should be returned", func() {
-					So(err, ShouldBeNil)
-				})
 			})
 		})
 	})
@@ -153,14 +149,10 @@ func TestUpdateCensusTopic(t *testing.T) {
 		}
 
 		Convey("When UpdateCensusTopic is called", func() {
-			respCensusTopicCache, err := UpdateCensusTopic(ctx, failedRootTopicClient)()
+			respCensusTopicCache := UpdateCensusTopic(ctx, failedRootTopicClient)()
 
-			Convey("Then an error should be returned", func() {
-				So(err, ShouldNotBeNil)
-
-				Convey("And the census topic cache returned is nil", func() {
-					So(respCensusTopicCache, ShouldBeNil)
-				})
+			Convey("Then the census topic cache returned is nil", func() {
+				So(respCensusTopicCache, ShouldBeNil)
 			})
 		})
 	})
@@ -175,15 +167,10 @@ func TestUpdateCensusTopic(t *testing.T) {
 		}
 
 		Convey("When UpdateCensusTopic is called", func() {
-			respCensusTopicCache, err := UpdateCensusTopic(ctx, rootTopicsNilClient)()
+			respCensusTopicCache := UpdateCensusTopic(ctx, rootTopicsNilClient)()
 
-			Convey("Then an error should be returned", func() {
-				So(err, ShouldNotBeNil)
-				So(err.Error(), ShouldEqual, "root topic public items is nil")
-
-				Convey("And the census topic cache returned is nil", func() {
-					So(respCensusTopicCache, ShouldBeNil)
-				})
+			Convey("Then the census topic cache returned is nil", func() {
+				So(respCensusTopicCache, ShouldBeNil)
 			})
 		})
 	})
@@ -204,15 +191,10 @@ func TestUpdateCensusTopic(t *testing.T) {
 		}
 
 		Convey("When UpdateCensusTopic is called", func() {
-			respCensusTopicCache, err := UpdateCensusTopic(ctx, censusTopicNotExistClient)()
+			respCensusTopicCache := UpdateCensusTopic(ctx, censusTopicNotExistClient)()
 
-			Convey("Then an error should be returned", func() {
-				So(err, ShouldNotBeNil)
-				So(err.Error(), ShouldEqual, "census root topic not found")
-
-				Convey("And the census topic cache returned is nil", func() {
-					So(respCensusTopicCache, ShouldBeNil)
-				})
+			Convey("Then the census topic cache returned is nil", func() {
+				So(respCensusTopicCache, ShouldBeNil)
 			})
 		})
 	})

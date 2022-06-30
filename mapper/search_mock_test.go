@@ -15,11 +15,11 @@ var (
 	falsePointer = &falseValue
 )
 
-func TestUnitGetMockSearchResponseSuccess(t *testing.T) {
+func TestUnitGetMockLegacySearchResponse(t *testing.T) {
 	t.Parallel()
 
-	Convey("When GetMockSearchResponse is called", t, func() {
-		mockSearchResponse, err := GetMockSearchResponse()
+	Convey("When GetMockLegacySearchResponse is called", t, func() {
+		mockSearchResponse, err := GetMockLegacySearchResponse()
 
 		Convey("Then successfully get mock search response", func() {
 
@@ -39,8 +39,7 @@ func TestUnitGetMockSearchResponseSuccess(t *testing.T) {
 
 			mockSearchItems := []searchC.ContentItem{
 				{
-					Description: searchC.Description{
-						CanonicalTopic: "1234",
+					LegacyDescription: searchC.LegacyDescription{
 						Contact: &searchC.Contact{
 							Name:      "Name",
 							Telephone: "123",
@@ -123,6 +122,57 @@ func TestUnitGetMockSearchResponseSuccess(t *testing.T) {
 				ContentTypes: mockSearchContentTypes,
 				Items:        mockSearchItems,
 				Topics:       mockSearchTopics,
+			})
+
+		})
+
+		Convey("And return no error", func() {
+			So(err, ShouldBeNil)
+		})
+	})
+}
+
+func TestUnitGetMockSearchResponse(t *testing.T) {
+	t.Parallel()
+
+	Convey("When GetMockSearchResponse is called", t, func() {
+		mockSearchResponse, err := GetMockSearchResponse()
+
+		Convey("Then successfully get mock search response", func() {
+
+			mockSearchContentTypes := []searchC.FilterCount{
+				{
+					Type:  "article",
+					Count: 1,
+				},
+			}
+
+			mockSearchDescription := searchC.Description{
+				Keywords:        []string{"regional house prices", "property prices", "area with cheapest houses", "area with most expensive houses"},
+				MetaDescription: "Test Meta Description",
+				ReleaseDate:     "2015-02-17T00:00:00.000Z",
+				Summary:         "Test Summary",
+				Title:           "Title Title",
+				Highlight: &searchC.Highlight{
+					Summary:  "Test Summary",
+					Title:    "Title Title",
+					Keywords: &[]string{"regional house prices", "property prices", "area with cheapest houses", "area with most expensive houses"},
+				},
+			}
+
+			mockSearchItems := []searchC.ContentItem{
+				{
+					Description: mockSearchDescription,
+					Type:        "article",
+					URI:         "/uri1/housing/articles/uri2/2015-02-17",
+				},
+			}
+
+			So(mockSearchResponse, ShouldResemble, searchC.Response{
+				ES_710:       true,
+				Count:        1,
+				ContentTypes: mockSearchContentTypes,
+				Items:        mockSearchItems,
 			})
 
 		})
