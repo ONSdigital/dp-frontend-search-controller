@@ -96,7 +96,7 @@ func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 // GetEmptyCensusTopic returns an empty census topic cache in the event when updating the cache of the census topic fails
 func GetEmptyCensusTopic() *Topic {
 	return &Topic{
-		LocaliseKeyName: "Census",
+		LocaliseKeyName: CensusTopicTitle,
 		List:            NewSubTopicsMap(),
 	}
 }
