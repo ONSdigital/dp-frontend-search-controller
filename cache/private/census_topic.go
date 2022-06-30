@@ -15,7 +15,7 @@ import (
 // UpdateCensusTopic is a function to update the census topic cache in publishing (private) mode.
 // This function talks to the dp-topic-api via its private endpoints to retrieve the census topic and its subtopic ids
 // The data returned by the dp-topic-api is of type *models.PrivateSubtopics which is then transformed in this function for the controller
-// If an error has occurred, this is captured in log.Error and then a nil *cache.Topic is returned
+// If an error has occurred, this is captured in log.Error and then an empty census topic is returned
 func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() *cache.Topic {
 	return func() *cache.Topic {
 		// get root topics from dp-topic-api
@@ -25,7 +25,7 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 				"req_headers": topicCli.Headers{},
 			}
 			log.Error(ctx, "failed to get root topics from topic-api", err, logData)
-			return nil
+			return cache.GetEmptyCensusTopic()
 		}
 
 		//deference root topics items to allow ranging through them
@@ -35,7 +35,7 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 		} else {
 			err := errors.New("root topic public items is nil")
 			log.Error(ctx, "failed to deference root topics items pointer", err)
-			return nil
+			return cache.GetEmptyCensusTopic()
 		}
 
 		var censusTopicCache *cache.Topic
@@ -53,7 +53,7 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 		if censusTopicCache == nil {
 			err := errors.New("census root topic not found")
 			log.Error(ctx, "failed to get census topic to cache", err)
-			return nil
+			return cache.GetEmptyCensusTopic()
 		}
 
 		return censusTopicCache

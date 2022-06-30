@@ -151,8 +151,8 @@ func TestUpdateCensusTopic(t *testing.T) {
 		Convey("When UpdateCensusTopic is called", func() {
 			respCensusTopicCache := UpdateCensusTopic(ctx, failedRootTopicClient)()
 
-			Convey("Then the census topic cache returned is nil", func() {
-				So(respCensusTopicCache, ShouldBeNil)
+			Convey("Then an empty census topic cache should be returned", func() {
+				So(respCensusTopicCache, ShouldResemble, cache.GetEmptyCensusTopic())
 			})
 		})
 	})
@@ -169,8 +169,8 @@ func TestUpdateCensusTopic(t *testing.T) {
 		Convey("When UpdateCensusTopic is called", func() {
 			respCensusTopicCache := UpdateCensusTopic(ctx, rootTopicsNilClient)()
 
-			Convey("Then the census topic cache returned is nil", func() {
-				So(respCensusTopicCache, ShouldBeNil)
+			Convey("Then an empty census topic cache should be returned", func() {
+				So(respCensusTopicCache, ShouldResemble, cache.GetEmptyCensusTopic())
 			})
 		})
 	})
@@ -193,8 +193,8 @@ func TestUpdateCensusTopic(t *testing.T) {
 		Convey("When UpdateCensusTopic is called", func() {
 			respCensusTopicCache := UpdateCensusTopic(ctx, censusTopicNotExistClient)()
 
-			Convey("Then the census topic cache returned is nil", func() {
-				So(respCensusTopicCache, ShouldBeNil)
+			Convey("Then an empty census topic cache should be returned", func() {
+				So(respCensusTopicCache, ShouldResemble, cache.GetEmptyCensusTopic())
 			})
 		})
 	})
