@@ -207,7 +207,7 @@ func TestReviewTopicFilters(t *testing.T) {
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
-				So(err, ShouldResemble, errs.ErrFilterNotFound)
+				So(err, ShouldResemble, errs.ErrTopicNotFound)
 			})
 		})
 	})
@@ -224,7 +224,7 @@ func TestReviewTopicFilters(t *testing.T) {
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
-				So(err, ShouldResemble, errs.ErrFilterNotFound)
+				So(err, ShouldResemble, errs.ErrTopicNotFound)
 			})
 		})
 	})
@@ -241,7 +241,7 @@ func TestReviewTopicFilters(t *testing.T) {
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
-				So(err, ShouldResemble, errs.ErrFilterNotFound)
+				So(err, ShouldResemble, errs.ErrTopicNotFound)
 			})
 		})
 	})

@@ -61,13 +61,15 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 			continue
 		}
 
-		// checks if topic id is a subtopic id of the census topic
-		found := censusTopicCache.List.Get(topicFilterQuery)
-		if !found {
-			err := errs.ErrFilterNotFound
-			logData := log.Data{"subtopic id not found": topicFilterQuery}
-			log.Error(ctx, "failed to find subtopic id in census topic data", err, logData)
-			return err
+		if topicFilterQuery != censusTopicCache.ID {
+			// checks if topic id is a subtopic id of the census topic
+			found := censusTopicCache.List.Get(topicFilterQuery)
+			if !found {
+				err := errs.ErrTopicNotFound
+				logData := log.Data{"subtopic id not found": topicFilterQuery}
+				log.Error(ctx, "failed to find subtopic id in census topic data", err, logData)
+				return err
+			}
 		}
 
 		validatedTopicFilters = append(validatedTopicFilters, topicIDs[i])

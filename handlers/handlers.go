@@ -8,6 +8,7 @@ import (
 
 	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
@@ -46,7 +47,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	}
 
 	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && err != errs.ErrInvalidQueryString {
+	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
 		return
@@ -59,7 +60,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	var respErr error
 	var departmentResp searchCli.Department
 
-	if err == errs.ErrInvalidQueryString {
+	if apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		// avoid making any API calls
 		basePage := rend.NewBasePageModel()
 		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.Topic{}, searchResp, departmentResp, lang, homepageResponse, err.Error())
