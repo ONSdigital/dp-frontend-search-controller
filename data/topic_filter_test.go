@@ -205,7 +205,7 @@ func TestReviewTopicFilters(t *testing.T) {
 		Convey("When reviewTopicFilters is called", func() {
 			err := reviewTopicFilters(ctx, urlQuery, validatedQueryParams, mockCensusTopic)
 
-			Convey("Then return no error", func() {
+			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
 				So(err, ShouldResemble, errs.ErrFilterNotFound)
 			})
