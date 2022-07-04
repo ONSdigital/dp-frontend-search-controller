@@ -169,15 +169,15 @@ func TestReviewTopicFilters(t *testing.T) {
 				So(err, ShouldBeNil)
 			})
 
-			Convey("And update validatedQueryParams for topics", func() {
-				So(validatedQueryParams.TopicFilter, ShouldEqual, "1234,5678")
+			Convey("And update validatedQueryParams for the first given topic", func() {
+				So(validatedQueryParams.TopicFilter, ShouldEqual, "1234")
 			})
 		})
 	})
 
 	Convey("Given a mix of empty and valid topics", t, func() {
 		urlQuery := url.Values{
-			"topics": []string{"", "1234"},
+			"topics": []string{"1234", ""},
 		}
 
 		validatedQueryParams := &SearchURLParams{}
@@ -214,7 +214,7 @@ func TestReviewTopicFilters(t *testing.T) {
 
 	Convey("Given a mix of valid and invalid topics", t, func() {
 		urlQuery := url.Values{
-			"topics": []string{"1234", "invalid"},
+			"topics": []string{"1234,invalid"},
 		}
 
 		validatedQueryParams := &SearchURLParams{}
@@ -231,7 +231,7 @@ func TestReviewTopicFilters(t *testing.T) {
 
 	Convey("Given a mix of empty, valid and invalid topics", t, func() {
 		urlQuery := url.Values{
-			"topics": []string{"1234", "invalid", ""},
+			"topics": []string{"1234,invalid,"},
 		}
 
 		validatedQueryParams := &SearchURLParams{}

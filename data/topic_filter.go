@@ -48,12 +48,10 @@ var defaultTopics = ""
 
 // reviewTopicFilters retrieves subtopic ids from query, checks if they are one of the census subtopics, and updates validatedQueryParams
 func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams, censusTopicCache *cache.Topic) error {
-	// handles if more than one instance of topics query is given in the url
-	topicFiltersQuery := urlQuery["topics"]
-	topicFilterQueryString := strings.Join(topicFiltersQuery, ",")
+	topicFilters := urlQuery.Get("topics")
+	topicIDs := strings.Split(topicFilters, ",")
 
 	validatedTopicFilters := []string{}
-	topicIDs := strings.Split(topicFilterQueryString, ",")
 
 	for i := range topicIDs {
 
