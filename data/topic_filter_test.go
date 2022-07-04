@@ -18,7 +18,7 @@ func TestGetTopicCategories(t *testing.T) {
 		mockSearchCliResponse := searchCli.Response{
 			Topics: []searchCli.FilterCount{
 				{
-					Type:  "1234",
+					Type:  cache.CensusTopicID,
 					Count: 1,
 				},
 			},

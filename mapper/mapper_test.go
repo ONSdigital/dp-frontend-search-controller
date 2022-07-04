@@ -5,7 +5,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-renderer/model"
@@ -15,7 +14,7 @@ import (
 var (
 	mockTopicCategories = []data.Topic{
 		{
-			LocaliseKeyName: cache.CensusTopicTitle,
+			LocaliseKeyName: "Census",
 			Count:           1,
 			Query:           "1234",
 			ShowInWebUI:     true,
@@ -183,7 +182,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 				So(sp.Data.TopicFilters, ShouldNotBeEmpty)
 				So(sp.Data.TopicFilters[0], ShouldNotBeEmpty)
 				So(sp.Data.TopicFilters[0].IsChecked, ShouldBeTrue)
-				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, cache.CensusTopicTitle)
+				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, "Census")
 				So(sp.Data.TopicFilters[0].NumberOfResults, ShouldEqual, 1)
 				So(sp.Data.TopicFilters[0].Query, ShouldEqual, "1234")
 
@@ -324,7 +323,7 @@ func TestUnitCreateSearchPageES710(t *testing.T) {
 				So(sp.Data.TopicFilters, ShouldNotBeEmpty)
 				So(sp.Data.TopicFilters[0], ShouldNotBeEmpty)
 				So(sp.Data.TopicFilters[0].IsChecked, ShouldBeTrue)
-				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, cache.CensusTopicTitle)
+				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, "Census")
 				So(sp.Data.TopicFilters[0].NumberOfResults, ShouldEqual, 1)
 				So(sp.Data.TopicFilters[0].Query, ShouldEqual, "1234")
 

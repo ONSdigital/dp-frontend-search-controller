@@ -69,7 +69,7 @@ func TestGetData(t *testing.T) {
 	}
 
 	Convey("Given a valid topic id which exists", t, func() {
-		id := CensusTopicTitle
+		id := CensusTopicID
 
 		Convey("When GetData is called", func() {
 			testCacheData, err := mockCacheList.CensusTopic.GetData(ctx, id)
@@ -217,8 +217,8 @@ func TestGetEmptyCensusTopic(t *testing.T) {
 		emptyCensusTopic := GetEmptyCensusTopic()
 
 		Convey("Then an empty census topic should be returned", func() {
-			So(emptyCensusTopic.ID, ShouldEqual, "")
-			So(emptyCensusTopic.LocaliseKeyName, ShouldEqual, CensusTopicTitle)
+			So(emptyCensusTopic.ID, ShouldEqual, CensusTopicID)
+			So(emptyCensusTopic.LocaliseKeyName, ShouldEqual, "")
 			So(emptyCensusTopic.Query, ShouldEqual, "")
 			So(emptyCensusTopic.List, ShouldNotBeNil)
 		})

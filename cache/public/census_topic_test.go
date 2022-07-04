@@ -15,7 +15,6 @@ import (
 )
 
 const (
-	testCensusTopicID       = "1234"
 	testCensusTitle         = "Census"
 	testCensusSubTopicID1   = "5678"
 	testCensusSubTopicID2   = "1235"
@@ -33,7 +32,7 @@ var (
 	}
 
 	testCensusRootTopic = models.Topic{
-		ID:          testCensusTopicID,
+		ID:          cache.CensusTopicID,
 		Title:       testCensusTitle,
 		SubtopicIds: []string{"5678", "1235"},
 	}
@@ -81,7 +80,7 @@ var (
 	}
 
 	expectedCensusTopicCache = &cache.Topic{
-		ID:              testCensusTopicID,
+		ID:              cache.CensusTopicID,
 		LocaliseKeyName: testCensusTitle,
 		Query:           fmt.Sprintf("%s,%s,%s", testCensusSubTopicID1, testCensusSubTopicID2, testCensusSubSubTopicID),
 	}
@@ -114,7 +113,7 @@ func TestUpdateCensusTopic(t *testing.T) {
 
 		GetSubtopicsPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PublicSubtopics, error) {
 			switch id {
-			case testCensusTopicID:
+			case cache.CensusTopicID:
 				return testCensusSubTopics, nil
 			case testCensusSubTopicID1:
 				return testCensusSubTopic1SubTopics, nil
@@ -210,7 +209,7 @@ func TestGetRootTopicCachePublic(t *testing.T) {
 	mockedTopicClient := &mockTopicCli.ClienterMock{
 		GetSubtopicsPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PublicSubtopics, error) {
 			switch id {
-			case testCensusTopicID:
+			case cache.CensusTopicID:
 				return testCensusSubTopics, nil
 			case testCensusSubTopicID1:
 				return testCensusSubTopic1SubTopics, nil
@@ -246,7 +245,7 @@ func TestGetSubtopicsIDsPublic(t *testing.T) {
 	mockedTopicClient := &mockTopicCli.ClienterMock{
 		GetSubtopicsPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PublicSubtopics, error) {
 			switch id {
-			case testCensusTopicID:
+			case cache.CensusTopicID:
 				return testCensusSubTopics, nil
 			case testCensusSubTopicID1:
 				return testCensusSubTopic1SubTopics, nil
@@ -262,7 +261,7 @@ func TestGetSubtopicsIDsPublic(t *testing.T) {
 		subtopicsIDChan := make(chan string)
 
 		Convey("When getSubtopicsIDsPublic is called", func() {
-			subTopicsIDQuery := mockGetSubtopicsIDsPublic(ctx, subtopicsIDChan, mockedTopicClient, testCensusTopicID)
+			subTopicsIDQuery := mockGetSubtopicsIDsPublic(ctx, subtopicsIDChan, mockedTopicClient, cache.CensusTopicID)
 
 			Convey("Then subtopic ids should be sent to subtopicsIDChan channel", func() {
 				So(subTopicsIDQuery, ShouldNotBeEmpty)
@@ -296,11 +295,11 @@ func TestGetSubtopicsIDsPublic(t *testing.T) {
 		}
 
 		Convey("When getSubtopicsIDsPublic is called", func() {
-			subTopicsIDQuery := mockGetSubtopicsIDsPublic(ctx, subtopicsIDChan, failedGetSubtopicClient, testCensusTopicID)
+			subTopicsIDQuery := mockGetSubtopicsIDsPublic(ctx, subtopicsIDChan, failedGetSubtopicClient, cache.CensusTopicID)
 
 			Convey("Then no subtopic ids should be sent to subtopicsIDChan channel", func() {
 				// the query only contains the root topic id and no subtopic ids
-				So(subTopicsIDQuery, ShouldEqual, testCensusTopicID)
+				So(subTopicsIDQuery, ShouldEqual, cache.CensusTopicID)
 			})
 		})
 	})
@@ -317,11 +316,11 @@ func TestGetSubtopicsIDsPublic(t *testing.T) {
 		}
 
 		Convey("When getSubtopicsIDsPublic is called", func() {
-			subTopicsIDQuery := mockGetSubtopicsIDsPublic(ctx, subtopicsIDChan, subtopicItemsNilClient, testCensusTopicID)
+			subTopicsIDQuery := mockGetSubtopicsIDsPublic(ctx, subtopicsIDChan, subtopicItemsNilClient, cache.CensusTopicID)
 
 			Convey("Then no subtopic ids should be sent to subtopicsIDChan channel", func() {
 				// the query only contains the root topic id and no subtopic ids
-				So(subTopicsIDQuery, ShouldEqual, testCensusTopicID)
+				So(subTopicsIDQuery, ShouldEqual, cache.CensusTopicID)
 			})
 		})
 	})

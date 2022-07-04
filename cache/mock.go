@@ -10,7 +10,7 @@ func GetMockCensusTopicCacheList(ctx context.Context) (*CacheList, error) {
 		return nil, err
 	}
 
-	testCensusTopicCache.Set("Census", GetMockCensusTopic())
+	testCensusTopicCache.Set(CensusTopicID, GetMockCensusTopic())
 
 	cacheList := CacheList{
 		CensusTopic: testCensusTopicCache,
@@ -22,8 +22,8 @@ func GetMockCensusTopicCacheList(ctx context.Context) (*CacheList, error) {
 // GetMockCensusTopic returns a mocked Cenus topic which contains all the information for the mock census topic
 func GetMockCensusTopic() *Topic {
 	mockCensusTopic := &Topic{
-		ID:              "1234",
-		LocaliseKeyName: CensusTopicTitle,
+		ID:              CensusTopicID,
+		LocaliseKeyName: "Census",
 		Query:           "1234,5678",
 	}
 
