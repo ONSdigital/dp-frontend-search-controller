@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"net/url"
+	"sort"
 	"strings"
 
 	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
@@ -49,11 +50,10 @@ var defaultTopics = ""
 // reviewTopicFilters retrieves subtopic ids from query, checks if they are one of the census subtopics, and updates validatedQueryParams
 func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams, censusTopicCache *cache.Topic) error {
 	// handles if more than one instance of topics query is given in the url
-	topicFiltersQuery := urlQuery["topics"]
-	topicFilterQueryString := strings.Join(topicFiltersQuery, ",")
+	topicFilters := urlQuery.Get("topics")
 
 	validatedTopicFilters := []string{}
-	topicIDs := strings.Split(topicFilterQueryString, ",")
+	topicIDs := strings.Split(topicFilters, ",")
 
 	for i := range topicIDs {
 
@@ -75,6 +75,7 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 		validatedTopicFilters = append(validatedTopicFilters, topicIDs[i])
 	}
 
+	sort.Strings(validatedTopicFilters)
 	validatedQueryParams.TopicFilter = strings.Join(validatedTopicFilters, ",")
 
 	return nil

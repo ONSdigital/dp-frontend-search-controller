@@ -9,22 +9,22 @@
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sort" value="{{$sort}}"/>
     <fieldset class="ons-fieldset">
-        {{ range $index, $topFilter := $topicFilters }}
+        {{ range $index, $topicFilter := $topicFilters }}
             <div class="ons-checkboxes__items">
                 <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                    <span class="ons-checkbox ons-checkbox--no-border category-filter">
+                    <span class="ons-checkbox ons-checkbox--no-border topic-filter">
                         <input type="checkbox" id="topic-group-{{ $index }}"
                             class="ons-checkbox__input ons-js-checkbox"
-                            value="{{ print $topFilter.Query }}"
-                            aria-haspopup="true"
-                            data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
-                            {{ if $topFilter.IsChecked }}
+                            name="topics"
+                            value="{{ print $topicFilter.Query }}"
+                            data-gtm-label="{{ $topicFilter.LocaliseKeyName }}"
+                            {{ if $topicFilter.IsChecked }}
                                 checked
                             {{ end }}
-                            {{ if eq $topFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
+                            {{ if eq $topicFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
                         >
                         <label class="ons-checkbox__label" for="topic-group-{{ $index }}" id="topic-group-{{ $index }}-label">
-                            {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
+                            {{ localise $topicFilter.LocaliseKeyName $lang 4 }} ({{ $topicFilter.NumberOfResults }})
                         </label>
                     </span>
                 </span>
@@ -61,7 +61,7 @@
             {{ range $index, $topFilter := $filters}}
                 <div class="ons-checkboxes__items">
                     <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                        <span class="ons-checkbox ons-checkbox--no-border category-filter">
+                        <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
                             <input type="checkbox" id="group-{{ $index }}"
                                 class="ons-checkbox__input ons-js-checkbox"
                                 value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"

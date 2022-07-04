@@ -195,6 +195,26 @@ func TestReviewTopicFilters(t *testing.T) {
 		})
 	})
 
+	Convey("Given unsorted topics query", t, func() {
+		urlQuery := url.Values{
+			"topics": []string{"5678", "1234"},
+		}
+
+		validatedQueryParams := &SearchURLParams{}
+
+		Convey("When reviewTopicFilters is called", func() {
+			err := reviewTopicFilters(ctx, urlQuery, validatedQueryParams, mockCensusTopic)
+
+			Convey("Then return no error", func() {
+				So(err, ShouldBeNil)
+			})
+
+			Convey("And update validatedQueryParams for topics sorted in increasing order", func() {
+				So(validatedQueryParams.TopicFilter, ShouldEqual, "1234,5678")
+			})
+		})
+	})
+
 	Convey("Given an invalid topic", t, func() {
 		urlQuery := url.Values{
 			"topics": []string{"invalid"},
@@ -205,7 +225,7 @@ func TestReviewTopicFilters(t *testing.T) {
 		Convey("When reviewTopicFilters is called", func() {
 			err := reviewTopicFilters(ctx, urlQuery, validatedQueryParams, mockCensusTopic)
 
-			Convey("Then return no error", func() {
+			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
 				So(err, ShouldResemble, errs.ErrFilterNotFound)
 			})

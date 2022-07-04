@@ -94,9 +94,8 @@ func TestGetSubtopicsIDsQuery(t *testing.T) {
 		Convey("When GetSubtopicsIDsQuery is called", func() {
 			subtopicsIDQuery := subtopicIDsStore.GetSubtopicsIDsQuery()
 
-			Convey("Then subtopic ids query should be returned successfully", func() {
-				So(subtopicsIDQuery, ShouldContainSubstring, "1234")
-				So(subtopicsIDQuery, ShouldContainSubstring, "5678")
+			Convey("Then subtopic ids query should be returned successfully in increasing order", func() {
+				So(subtopicsIDQuery, ShouldEqual, "1234,5678")
 			})
 		})
 	})

@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"sort"
 	"strings"
 	"sync"
 )
@@ -38,6 +39,8 @@ func (t *SubtopicsIDs) GetSubtopicsIDsQuery() string {
 	for id := range t.subtopicsMap {
 		ids = append(ids, id)
 	}
+
+	sort.Strings(ids)
 
 	return strings.Join(ids, ",")
 }
