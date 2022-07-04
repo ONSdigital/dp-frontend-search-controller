@@ -93,8 +93,8 @@ func TestGetData(t *testing.T) {
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
 
-				Convey("And the cache data returned should be nil", func() {
-					So(testCacheData, ShouldBeNil)
+				Convey("And the cache data returned should be empty", func() {
+					So(testCacheData, ShouldResemble, getEmptyTopic())
 				})
 			})
 		})
@@ -113,8 +113,8 @@ func TestGetData(t *testing.T) {
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
 
-				Convey("And the cache data returned should be nil", func() {
-					So(testCacheData, ShouldBeNil)
+				Convey("And the cache data returned should be empty", func() {
+					So(testCacheData, ShouldResemble, getEmptyTopic())
 				})
 			})
 		})
@@ -133,8 +133,8 @@ func TestGetData(t *testing.T) {
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
 
-				Convey("And the cache data returned should be nil", func() {
-					So(testCacheData, ShouldBeNil)
+				Convey("And the cache data returned should be empty", func() {
+					So(testCacheData, ShouldResemble, getEmptyTopic())
 				})
 			})
 		})
@@ -175,8 +175,8 @@ func TestGetCensusData(t *testing.T) {
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
 
-				Convey("And the census cache data returned should be nil", func() {
-					So(censusData, ShouldBeNil)
+				Convey("And the census cache data returned should be empty", func() {
+					So(censusData, ShouldResemble, GetEmptyCensusTopic())
 				})
 			})
 		})
