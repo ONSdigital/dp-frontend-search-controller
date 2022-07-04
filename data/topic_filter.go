@@ -24,7 +24,7 @@ type Topic struct {
 func GetTopicCategories(censusTopicCache *cache.Topic, countResp searchCli.Response) []Topic {
 	censusTopic := Topic{
 		LocaliseKeyName: censusTopicCache.LocaliseKeyName,
-		Query:           censusTopicCache.Query,
+		Query:           censusTopicCache.ID,
 		ShowInWebUI:     true,
 	}
 
@@ -43,9 +43,6 @@ func getCensusTopicCount(censusTopicCache *cache.Topic, countResp searchCli.Resp
 	return
 }
 
-// TODO extend default topics with list of topics
-var defaultTopics = ""
-
 // reviewTopicFilters retrieves subtopic ids from query, checks if they are one of the census subtopics, and updates validatedQueryParams
 func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams, censusTopicCache *cache.Topic) error {
 	topicFilters := urlQuery.Get("topics")
@@ -61,15 +58,20 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 			continue
 		}
 
-		if topicFilterQuery != censusTopicCache.ID {
-			// checks if topic id is a subtopic id of the census topic
-			found := censusTopicCache.List.Get(topicFilterQuery)
-			if !found {
-				err := errs.ErrTopicNotFound
-				logData := log.Data{"subtopic id not found": topicFilterQuery}
-				log.Error(ctx, "failed to find subtopic id in census topic data", err, logData)
-				return err
-			}
+		// if topic id is root id of the census topic
+		if topicFilterQuery == censusTopicCache.ID {
+			// append topic root id and its subtopic ids
+			validatedTopicFilters = append(validatedTopicFilters, censusTopicCache.Query)
+			continue
+		}
+
+		// else check if topic id is a subtopic id of the census topic
+		found := censusTopicCache.List.Get(topicFilterQuery)
+		if !found {
+			err := errs.ErrTopicNotFound
+			logData := log.Data{"subtopic id not found": topicFilterQuery}
+			log.Error(ctx, "failed to find subtopic id in census topic data", err, logData)
+			return err
 		}
 
 		validatedTopicFilters = append(validatedTopicFilters, topicIDs[i])
@@ -78,16 +80,4 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 	validatedQueryParams.TopicFilter = strings.Join(validatedTopicFilters, ",")
 
 	return nil
-}
-
-// updateQueryWithAPITopics retrieves and adds all available subtopics which is related to the search filter given by the user
-func updateQueryWithAPITopics(apiQuery url.Values) {
-	topics := apiQuery["topics"]
-
-	if len(topics) > 0 {
-		// subTopics := getListOfSubTopics(topics)
-		apiQuery.Set("topics", strings.Join(topics, ","))
-	} else {
-		apiQuery.Set("topics", defaultTopics)
-	}
 }

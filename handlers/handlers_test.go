@@ -45,7 +45,7 @@ var (
 	mockCensusTopic = &cache.Topic{
 		ID:              "1234",
 		LocaliseKeyName: "Census",
-		Query:           "1234,5678",
+		Query:           "1234",
 	}
 )
 
