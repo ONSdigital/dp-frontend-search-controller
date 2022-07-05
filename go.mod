@@ -22,12 +22,8 @@ require (
 )
 
 require (
-	github.com/ONSdigital/dp-authorisation v0.2.0 // indirect
-	github.com/ONSdigital/dp-mongodb/v3 v3.0.2 // indirect
-	github.com/ONSdigital/dp-rchttp v1.0.0 // indirect
-	github.com/ONSdigital/go-ns v0.0.0-20210916104633-ac1c1c52327e // indirect
 	github.com/kevinburke/go-bindata v3.23.0+incompatible // indirect
-	github.com/square/mongo-lock v0.0.0-20220601164918-701ecf357cd7 // indirect
+	github.com/rogpeppe/go-internal v1.8.1 // indirect
 )
 
 require (
