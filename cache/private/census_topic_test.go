@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"net/http"
 	"testing"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
-	topicCliErr "github.com/ONSdigital/dp-topic-api/apierrors"
 	"github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/dp-topic-api/sdk"
+	topicCliSdkErr "github.com/ONSdigital/dp-topic-api/sdk/errors"
 	mockTopic "github.com/ONSdigital/dp-topic-api/sdk/mocks"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -139,18 +140,20 @@ func TestUpdateCensusTopic(t *testing.T) {
 	ctx := context.Background()
 
 	mockedTopicClient := &mockTopic.ClienterMock{
-		GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, error) {
+		GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, topicCliSdkErr.Error) {
 			return testRootTopicsPrivate, nil
 		},
 
-		GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PrivateSubtopics, error) {
+		GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PrivateSubtopics, topicCliSdkErr.Error) {
 			switch id {
 			case cache.CensusTopicID:
 				return testCensusSubTopicsPrivate, nil
 			case testCensusSubTopicID1:
 				return testCensusSubTopic1SubTopicsPrivate, nil
 			default:
-				return nil, errors.New("unexpected error")
+				return nil, topicCliSdkErr.StatusError{
+					Err: errors.New("unexpected error"),
+				}
 			}
 		},
 	}
@@ -174,8 +177,10 @@ func TestUpdateCensusTopic(t *testing.T) {
 
 	Convey("Given an error in getting root topics from topic-api", t, func() {
 		failedRootTopicClient := &mockTopic.ClienterMock{
-			GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, error) {
-				return nil, errors.New("unexpected error")
+			GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, topicCliSdkErr.Error) {
+				return nil, topicCliSdkErr.StatusError{
+					Err: errors.New("unexpected error"),
+				}
 			},
 		}
 
@@ -190,7 +195,7 @@ func TestUpdateCensusTopic(t *testing.T) {
 
 	Convey("Given root topics private items is nil", t, func() {
 		rootTopicsNilClient := &mockTopic.ClienterMock{
-			GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, error) {
+			GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, topicCliSdkErr.Error) {
 				rootTopicPrivateItemsNil := *testRootTopicsPrivate
 				rootTopicPrivateItemsNil.PrivateItems = nil
 				return &rootTopicPrivateItemsNil, nil
@@ -216,7 +221,7 @@ func TestUpdateCensusTopic(t *testing.T) {
 		}
 
 		censusTopicNotExistClient := &mockTopic.ClienterMock{
-			GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, error) {
+			GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, topicCliSdkErr.Error) {
 				return NonCensusRootTopics, nil
 			},
 		}
@@ -239,14 +244,16 @@ func TestGetRootTopicCachePrivate(t *testing.T) {
 	subtopicsIDChan := make(chan string)
 
 	mockedTopicClient := &mockTopic.ClienterMock{
-		GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PrivateSubtopics, error) {
+		GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PrivateSubtopics, topicCliSdkErr.Error) {
 			switch id {
 			case cache.CensusTopicID:
 				return testCensusSubTopicsPrivate, nil
 			case testCensusSubTopicID1:
 				return testCensusSubTopic1SubTopicsPrivate, nil
 			default:
-				return nil, errors.New("unexpected error")
+				return nil, topicCliSdkErr.StatusError{
+					Err: errors.New("unexpected error"),
+				}
 			}
 		},
 	}
@@ -275,16 +282,21 @@ func TestGetSubtopicsIDsPrivate(t *testing.T) {
 	ctx := context.Background()
 
 	mockedTopicClient := &mockTopic.ClienterMock{
-		GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PrivateSubtopics, error) {
+		GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PrivateSubtopics, topicCliSdkErr.Error) {
 			switch id {
 			case cache.CensusTopicID:
 				return testCensusSubTopicsPrivate, nil
 			case testCensusSubTopicID1:
 				return testCensusSubTopic1SubTopicsPrivate, nil
 			case testCensusSubTopicID2:
-				return nil, topicCliErr.ErrNotFound
+				return nil, topicCliSdkErr.StatusError{
+					Err:  errors.New("topic not found"),
+					Code: http.StatusNotFound,
+				}
 			default:
-				return nil, errors.New("unexpected error")
+				return nil, topicCliSdkErr.StatusError{
+					Err: errors.New("unexpected error"),
+				}
 			}
 		},
 	}
@@ -321,8 +333,10 @@ func TestGetSubtopicsIDsPrivate(t *testing.T) {
 		subtopicsIDChan := make(chan string)
 
 		failedGetSubtopicClient := &mockTopic.ClienterMock{
-			GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PrivateSubtopics, error) {
-				return nil, errors.New("unexpected error")
+			GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PrivateSubtopics, topicCliSdkErr.Error) {
+				return nil, topicCliSdkErr.StatusError{
+					Err: errors.New("unexpected error"),
+				}
 			},
 		}
 
@@ -340,7 +354,7 @@ func TestGetSubtopicsIDsPrivate(t *testing.T) {
 		subtopicsIDChan := make(chan string)
 
 		subtopicItemsNilClient := &mockTopic.ClienterMock{
-			GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PrivateSubtopics, error) {
+			GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, id string) (*models.PrivateSubtopics, topicCliSdkErr.Error) {
 				topicItemsNil := *testCensusSubTopicsPrivate
 				topicItemsNil.PrivateItems = nil
 				return &topicItemsNil, nil
