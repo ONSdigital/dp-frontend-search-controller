@@ -36,8 +36,8 @@ func TestGetMockCensusTopic(t *testing.T) {
 
 		Convey("Then the mock census topic is returned", func() {
 			So(mockCensusTopic, ShouldNotBeNil)
-			So(mockCensusTopic.ID, ShouldEqual, "1234")
-			So(mockCensusTopic.LocaliseKeyName, ShouldEqual, CensusTopicTitle)
+			So(mockCensusTopic.ID, ShouldEqual, CensusTopicID)
+			So(mockCensusTopic.LocaliseKeyName, ShouldEqual, "Census")
 			So(mockCensusTopic.Query, ShouldEqual, "1234,5678")
 			So(mockCensusTopic.List.Get("1234"), ShouldBeTrue)
 			So(mockCensusTopic.List.Get("5678"), ShouldBeTrue)

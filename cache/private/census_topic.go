@@ -42,7 +42,7 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 
 		// go through each root topic, find census topic and gets its data for caching which includes subtopic ids
 		for i := range rootTopicItems {
-			if rootTopicItems[i].Current.Title == cache.CensusTopicTitle {
+			if rootTopicItems[i].Current.ID == cache.CensusTopicID {
 				subtopicsIDChan := make(chan string)
 
 				censusTopicCache = getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsIDChan, topicClient, *rootTopicItems[i].Current)

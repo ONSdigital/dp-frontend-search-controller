@@ -69,7 +69,7 @@ func TestGetData(t *testing.T) {
 	}
 
 	Convey("Given a valid topic id which exists", t, func() {
-		id := CensusTopicTitle
+		id := CensusTopicID
 
 		Convey("When GetData is called", func() {
 			testCacheData, err := mockCacheList.CensusTopic.GetData(ctx, id)
@@ -93,8 +93,8 @@ func TestGetData(t *testing.T) {
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
 
-				Convey("And the cache data returned should be nil", func() {
-					So(testCacheData, ShouldBeNil)
+				Convey("And the cache data returned should be empty", func() {
+					So(testCacheData, ShouldResemble, getEmptyTopic())
 				})
 			})
 		})
@@ -113,8 +113,8 @@ func TestGetData(t *testing.T) {
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
 
-				Convey("And the cache data returned should be nil", func() {
-					So(testCacheData, ShouldBeNil)
+				Convey("And the cache data returned should be empty", func() {
+					So(testCacheData, ShouldResemble, getEmptyTopic())
 				})
 			})
 		})
@@ -133,8 +133,8 @@ func TestGetData(t *testing.T) {
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
 
-				Convey("And the cache data returned should be nil", func() {
-					So(testCacheData, ShouldBeNil)
+				Convey("And the cache data returned should be empty", func() {
+					So(testCacheData, ShouldResemble, getEmptyTopic())
 				})
 			})
 		})
@@ -175,8 +175,8 @@ func TestGetCensusData(t *testing.T) {
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
 
-				Convey("And the census cache data returned should be nil", func() {
-					So(censusData, ShouldBeNil)
+				Convey("And the census cache data returned should be empty", func() {
+					So(censusData, ShouldResemble, GetEmptyCensusTopic())
 				})
 			})
 		})
@@ -217,8 +217,8 @@ func TestGetEmptyCensusTopic(t *testing.T) {
 		emptyCensusTopic := GetEmptyCensusTopic()
 
 		Convey("Then an empty census topic should be returned", func() {
-			So(emptyCensusTopic.ID, ShouldEqual, "")
-			So(emptyCensusTopic.LocaliseKeyName, ShouldEqual, CensusTopicTitle)
+			So(emptyCensusTopic.ID, ShouldEqual, CensusTopicID)
+			So(emptyCensusTopic.LocaliseKeyName, ShouldEqual, "")
 			So(emptyCensusTopic.Query, ShouldEqual, "")
 			So(emptyCensusTopic.List, ShouldNotBeNil)
 		})

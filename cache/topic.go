@@ -11,8 +11,8 @@ import (
 )
 
 const (
-	// CensusTopicTitle is the title of the Census topic stored in mongodb which is accessible by using dp-topic-api
-	CensusTopicTitle = "Census"
+	// CensusTopicTitle is the id of the Census topic stored in mongodb which is accessible by using dp-topic-api
+	CensusTopicID = "4445"
 )
 
 // TopicCache is a wrapper to dpcache.Cache which has additional fields and methods specifically for caching topics
@@ -52,20 +52,20 @@ func (dc *TopicCache) GetData(ctx context.Context, key string) (*Topic, error) {
 	if !ok {
 		err := fmt.Errorf("cached topic data with key %s not found", key)
 		log.Error(ctx, "failed to get cached topic data", err)
-		return nil, err
+		return getEmptyTopic(), err
 	}
 
 	topicCacheData, ok := topicCacheInterface.(*Topic)
 	if !ok {
 		err := errors.New("topicCacheInterface is not type *Topic")
 		log.Error(ctx, "failed type assertion on topicCacheInterface", err)
-		return nil, err
+		return getEmptyTopic(), err
 	}
 
 	if topicCacheData == nil {
 		err := errors.New("topicCacheData is nil")
 		log.Error(ctx, "cached topic data is nil", err)
-		return nil, err
+		return getEmptyTopic(), err
 	}
 
 	return topicCacheData, nil
@@ -81,13 +81,13 @@ func (dc *TopicCache) AddUpdateFunc(title string, updateFunc func() *Topic) {
 }
 
 func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
-	censusTopicCache, err := dc.GetData(ctx, CensusTopicTitle)
+	censusTopicCache, err := dc.GetData(ctx, CensusTopicID)
 	if err != nil {
 		logData := log.Data{
-			"key": CensusTopicTitle,
+			"key": CensusTopicID,
 		}
 		log.Error(ctx, "failed to get cached census topic data", err, logData)
-		return nil, err
+		return GetEmptyCensusTopic(), err
 	}
 
 	return censusTopicCache, nil
@@ -96,7 +96,14 @@ func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 // GetEmptyCensusTopic returns an empty census topic cache in the event when updating the cache of the census topic fails
 func GetEmptyCensusTopic() *Topic {
 	return &Topic{
-		LocaliseKeyName: CensusTopicTitle,
-		List:            NewSubTopicsMap(),
+		ID:   CensusTopicID,
+		List: NewSubTopicsMap(),
+	}
+}
+
+// GetEmptyTopic returns an empty topic cache in the event when updating the cache of the topic fails
+func getEmptyTopic() *Topic {
+	return &Topic{
+		List: NewSubTopicsMap(),
 	}
 }

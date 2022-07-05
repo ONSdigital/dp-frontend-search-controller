@@ -81,9 +81,9 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 		return err
 	}
 	if cfg.IsPublishing {
-		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicTitle, cachePrivate.UpdateCensusTopic(ctx, cfg.ServiceAuthToken, clients.Topic))
+		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePrivate.UpdateCensusTopic(ctx, cfg.ServiceAuthToken, clients.Topic))
 	} else {
-		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicTitle, cachePublic.UpdateCensusTopic(ctx, clients.Topic))
+		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePublic.UpdateCensusTopic(ctx, clients.Topic))
 	}
 
 	// Initialise router

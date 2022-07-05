@@ -18,7 +18,7 @@ func TestGetTopicCategories(t *testing.T) {
 		mockSearchCliResponse := searchCli.Response{
 			Topics: []searchCli.FilterCount{
 				{
-					Type:  "1234",
+					Type:  cache.CensusTopicID,
 					Count: 1,
 				},
 			},
@@ -169,15 +169,15 @@ func TestReviewTopicFilters(t *testing.T) {
 				So(err, ShouldBeNil)
 			})
 
-			Convey("And update validatedQueryParams for topics", func() {
-				So(validatedQueryParams.TopicFilter, ShouldEqual, "1234,5678")
+			Convey("And update validatedQueryParams for the first given topic", func() {
+				So(validatedQueryParams.TopicFilter, ShouldEqual, "1234")
 			})
 		})
 	})
 
 	Convey("Given a mix of empty and valid topics", t, func() {
 		urlQuery := url.Values{
-			"topics": []string{"", "1234"},
+			"topics": []string{"1234", ""},
 		}
 
 		validatedQueryParams := &SearchURLParams{}
@@ -205,16 +205,16 @@ func TestReviewTopicFilters(t *testing.T) {
 		Convey("When reviewTopicFilters is called", func() {
 			err := reviewTopicFilters(ctx, urlQuery, validatedQueryParams, mockCensusTopic)
 
-			Convey("Then return no error", func() {
+			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
-				So(err, ShouldResemble, errs.ErrFilterNotFound)
+				So(err, ShouldResemble, errs.ErrTopicNotFound)
 			})
 		})
 	})
 
 	Convey("Given a mix of valid and invalid topics", t, func() {
 		urlQuery := url.Values{
-			"topics": []string{"1234", "invalid"},
+			"topics": []string{"1234,invalid"},
 		}
 
 		validatedQueryParams := &SearchURLParams{}
@@ -224,14 +224,14 @@ func TestReviewTopicFilters(t *testing.T) {
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
-				So(err, ShouldResemble, errs.ErrFilterNotFound)
+				So(err, ShouldResemble, errs.ErrTopicNotFound)
 			})
 		})
 	})
 
 	Convey("Given a mix of empty, valid and invalid topics", t, func() {
 		urlQuery := url.Values{
-			"topics": []string{"1234", "invalid", ""},
+			"topics": []string{"1234,invalid,"},
 		}
 
 		validatedQueryParams := &SearchURLParams{}
@@ -241,7 +241,7 @@ func TestReviewTopicFilters(t *testing.T) {
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
-				So(err, ShouldResemble, errs.ErrFilterNotFound)
+				So(err, ShouldResemble, errs.ErrTopicNotFound)
 			})
 		})
 	})
