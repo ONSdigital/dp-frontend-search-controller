@@ -1,6 +1,9 @@
 package cache
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 // GetMockCensusTopicCacheList returns a mocked list of cache which contains the census topic cache and the census topic cache itself
 // should have census topic data
@@ -24,12 +27,13 @@ func GetMockCensusTopic() *Topic {
 	mockCensusTopic := &Topic{
 		ID:              CensusTopicID,
 		LocaliseKeyName: "Census",
-		Query:           "1234,5678",
+		Query:           fmt.Sprintf("1234,5678,%s", CensusTopicID),
 	}
 
 	mockCensusTopic.List = NewSubTopicsMap()
 	mockCensusTopic.List.AppendSubtopicID("1234")
 	mockCensusTopic.List.AppendSubtopicID("5678")
+	mockCensusTopic.List.AppendSubtopicID(CensusTopicID)
 
 	return mockCensusTopic
 }

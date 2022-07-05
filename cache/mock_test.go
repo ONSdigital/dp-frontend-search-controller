@@ -38,9 +38,10 @@ func TestGetMockCensusTopic(t *testing.T) {
 			So(mockCensusTopic, ShouldNotBeNil)
 			So(mockCensusTopic.ID, ShouldEqual, CensusTopicID)
 			So(mockCensusTopic.LocaliseKeyName, ShouldEqual, "Census")
-			So(mockCensusTopic.Query, ShouldEqual, "1234,5678")
+			So(mockCensusTopic.Query, ShouldEqual, "1234,5678,4445")
 			So(mockCensusTopic.List.Get("1234"), ShouldBeTrue)
 			So(mockCensusTopic.List.Get("5678"), ShouldBeTrue)
+			So(mockCensusTopic.List.Get("4445"), ShouldBeTrue)
 		})
 	})
 }

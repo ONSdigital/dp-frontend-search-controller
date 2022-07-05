@@ -56,11 +56,14 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 }
 
 // GetSearchAPIQuery gets the query that needs to be passed to the search-api to get search results
-func GetSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
+func GetSearchAPIQuery(validatedQueryParams SearchURLParams, censusTopicCache *cache.Topic) url.Values {
 	apiQuery := createSearchAPIQuery(validatedQueryParams)
 
 	// update content_type query (filters) with sub filters
 	updateQueryWithAPIFilters(apiQuery)
+
+	// update topics query with sub topics for dp-search-api
+	updateTopicsQueryForSearchAPI(apiQuery, censusTopicCache)
 
 	return apiQuery
 }
