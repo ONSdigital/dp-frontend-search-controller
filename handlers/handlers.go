@@ -52,7 +52,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
-	apiQuery := data.GetSearchAPIQuery(validatedQueryParams)
+	apiQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
 
 	var homepageResponse zebedeeCli.HomepageContent
 	var searchResp searchCli.Response

@@ -58,14 +58,6 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 			continue
 		}
 
-		// if topic id is root id of the census topic
-		if topicFilterQuery == censusTopicCache.ID {
-			// append topic root id and its subtopic ids
-			validatedTopicFilters = append(validatedTopicFilters, censusTopicCache.Query)
-			continue
-		}
-
-		// else check if topic id is a subtopic id of the census topic
 		found := censusTopicCache.List.Get(topicFilterQuery)
 		if !found {
 			err := errs.ErrTopicNotFound
@@ -80,4 +72,25 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 	validatedQueryParams.TopicFilter = strings.Join(validatedTopicFilters, ",")
 
 	return nil
+}
+
+// updateTopicsQueryForSearchAPI updates the topics query with subtopic ids if one of the topic is a root id
+func updateTopicsQueryForSearchAPI(apiQuery url.Values, censusTopicCache *cache.Topic) {
+	topicFilters := apiQuery.Get("topics")
+	topicIDs := strings.Split(topicFilters, ",")
+
+	rootAndSubtopics := []string{}
+
+	for i := range topicIDs {
+		// if topic id is root id of the census topic
+		if topicIDs[i] == censusTopicCache.ID {
+			// append topic root id and its subtopic ids
+			rootAndSubtopics = append(rootAndSubtopics, censusTopicCache.Query)
+			continue
+		}
+
+		rootAndSubtopics = append(rootAndSubtopics, topicIDs[i])
+	}
+
+	apiQuery.Set("topics", strings.Join(rootAndSubtopics, ","))
 }

@@ -246,3 +246,51 @@ func TestReviewTopicFilters(t *testing.T) {
 		})
 	})
 }
+
+func TestUpdateTopicsQueryForSearchAPI(t *testing.T) {
+	t.Parallel()
+
+	mockCensusTopic := cache.GetMockCensusTopic()
+
+	Convey("Given the topics query is a root topic id", t, func() {
+		apiQuery := url.Values{
+			"topics": []string{"4445"},
+		}
+
+		Convey("When updateTopicsQueryForSearchAPI is called", func() {
+			updateTopicsQueryForSearchAPI(apiQuery, mockCensusTopic)
+
+			Convey("Then topics is updated with subtopics in apiQuery", func() {
+				So(apiQuery.Get("topics"), ShouldEqual, mockCensusTopic.Query)
+			})
+		})
+	})
+
+	Convey("Given the topics query is not a root topic id", t, func() {
+		apiQuery := url.Values{
+			"topics": []string{"1234"},
+		}
+
+		Convey("When updateTopicsQueryForSearchAPI is called", func() {
+			updateTopicsQueryForSearchAPI(apiQuery, mockCensusTopic)
+
+			Convey("Then topics should not be updated in apiQuery", func() {
+				So(apiQuery.Get("topics"), ShouldEqual, "1234")
+			})
+		})
+	})
+
+	Convey("Given the topics query is a mix of root topic id and subtopic id", t, func() {
+		apiQuery := url.Values{
+			"topics": []string{"4445,6345"},
+		}
+
+		Convey("When updateTopicsQueryForSearchAPI is called", func() {
+			updateTopicsQueryForSearchAPI(apiQuery, mockCensusTopic)
+
+			Convey("Then topics is updated with subtopics for the root topic id in apiQuery", func() {
+				So(apiQuery.Get("topics"), ShouldEqual, "1234,5678,4445,6345")
+			})
+		})
+	})
+}

@@ -111,6 +111,8 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 func TestUnitGetSearchAPIQuerySuccess(t *testing.T) {
 	t.Parallel()
 
+	mockCensusTopic := cache.GetMockCensusTopic()
+
 	Convey("Given validated query parameters", t, func() {
 		validatedQueryParams := SearchURLParams{
 			Query: "housing",
@@ -128,7 +130,7 @@ func TestUnitGetSearchAPIQuerySuccess(t *testing.T) {
 		}
 
 		Convey("When GetSearchAPIQuery is called", func() {
-			apiQuery := GetSearchAPIQuery(validatedQueryParams)
+			apiQuery := GetSearchAPIQuery(validatedQueryParams, mockCensusTopic)
 
 			Convey("Then successfully return apiQuery for dp-search-api", func() {
 				So(apiQuery["q"], ShouldResemble, []string{"housing"})
