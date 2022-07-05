@@ -3,7 +3,7 @@ package private
 import (
 	"context"
 	"errors"
-	"strings"
+	"net/http"
 	"sync"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
@@ -101,7 +101,7 @@ func getSubtopicsIDsPrivate(ctx context.Context, serviceAuthToken string, subtop
 	// get subtopics from dp-topic-api
 	subTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCliReqHeaders, topLevelTopicID)
 	if err != nil {
-		if !strings.Contains(err.Error(), "404") {
+		if err.Status() != http.StatusNotFound {
 			logData := log.Data{
 				"req_headers":        topicCliReqHeaders,
 				"top_level_topic_id": topLevelTopicID,
