@@ -28,7 +28,12 @@ func GetTopicCategories(censusTopicCache *cache.Topic, countResp searchCli.Respo
 		ShowInWebUI:     true,
 	}
 
-	censusTopic.Count = getCensusTopicCount(censusTopicCache, countResp)
+	// if censusTopicCache has not been updated, don't show census topic filter in web UI
+	if censusTopicCache.LocaliseKeyName != "" {
+		censusTopic.Count = getCensusTopicCount(censusTopicCache, countResp)
+	} else {
+		censusTopic.ShowInWebUI = false
+	}
 
 	return []Topic{censusTopic}
 }
