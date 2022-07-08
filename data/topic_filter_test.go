@@ -52,6 +52,28 @@ func TestGetTopicCategories(t *testing.T) {
 			})
 		})
 	})
+
+	Convey("Given census topic cache has not updated correctly or has no data", t, func() {
+		mockCensusTopic := cache.GetEmptyCensusTopic()
+
+		mockSearchCliResponse := searchCli.Response{
+			Topics: []searchCli.FilterCount{
+				{
+					Type:  cache.CensusTopicID,
+					Count: 1,
+				},
+			},
+		}
+
+		Convey("When GetTopicCategories is called", func() {
+			topicCategories := GetTopicCategories(mockCensusTopic, mockSearchCliResponse)
+
+			Convey("Then we hide the census topic filter in web UI", func() {
+				So(topicCategories, ShouldNotBeEmpty)
+				So(topicCategories[0].ShowInWebUI, ShouldBeFalse)
+			})
+		})
+	})
 }
 
 func TestReviewTopicFilters(t *testing.T) {
