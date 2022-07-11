@@ -10,8 +10,12 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
 	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-frontend-search-controller/assets"
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
+	cachePrivate "github.com/ONSdigital/dp-frontend-search-controller/cache/private"
+	cachePublic "github.com/ONSdigital/dp-frontend-search-controller/cache/public"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
+	topic "github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -27,6 +31,7 @@ var (
 
 // Service contains the healthcheck, server and serviceList for the frontend search controller
 type Service struct {
+	Cache              cache.CacheList
 	Config             *config.Config
 	HealthCheck        HealthChecker
 	routerHealthClient *health.Client
@@ -53,6 +58,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	clients := routes.Clients{
 		Renderer: render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain),
 		Search:   search.NewWithHealthClient(svc.routerHealthClient),
+		Topic:    topic.NewWithHealthClient(svc.routerHealthClient),
 		Zebedee:  zebedee.NewWithHealthClient(svc.routerHealthClient),
 	}
 
@@ -68,9 +74,21 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	}
 	clients.HealthCheckHandler = svc.HealthCheck.Handler
 
+	// Initialise caching
+	svc.Cache.CensusTopic, err = cache.NewTopicCache(ctx, &cfg.CacheCensusTopicUpdateInterval)
+	if err != nil {
+		log.Error(ctx, "failed to create topics cache", err)
+		return err
+	}
+	if cfg.IsPublishing {
+		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePrivate.UpdateCensusTopic(ctx, cfg.ServiceAuthToken, clients.Topic))
+	} else {
+		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePublic.UpdateCensusTopic(ctx, clients.Topic))
+	}
+
 	// Initialise router
 	r := mux.NewRouter()
-	routes.Setup(ctx, r, cfg, clients)
+	routes.Setup(ctx, r, cfg, clients, svc.Cache)
 	svc.Server = serviceList.GetHTTPServer(cfg.BindAddr, r)
 
 	return nil
@@ -82,6 +100,9 @@ func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
 
 	// Start healthcheck
 	svc.HealthCheck.Start(ctx)
+
+	// Start caching
+	go svc.Cache.CensusTopic.StartUpdates(ctx, svcErrors)
 
 	// Start HTTP server
 	log.Info(ctx, "Starting server")
@@ -105,6 +126,9 @@ func (svc *Service) Close(ctx context.Context) error {
 		// stop healthcheck, as it depends on everything else
 		log.Info(ctx, "stop health checkers")
 		svc.HealthCheck.Stop()
+
+		// stop caching
+		svc.Cache.CensusTopic.Close()
 
 		// stop any incoming requests
 		if err := svc.Server.Shutdown(ctx); err != nil {

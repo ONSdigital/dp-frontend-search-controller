@@ -5,6 +5,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -21,13 +22,14 @@ func TestUnitReviewQuerySuccess(t *testing.T) {
 		urlQuery := url.Values{
 			"q":      []string{"housing"},
 			"filter": []string{"article"},
+			"topics": []string{"1234,5678"},
 			"sort":   []string{"relevance"},
 			"limit":  []string{"10"},
 			"page":   []string{"1"},
 		}
 
 		Convey("When ReviewQuery is called", func() {
-			validatedQueryParams, err := ReviewQuery(ctx, cfg, urlQuery)
+			validatedQueryParams, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
 
 			Convey("Then successfully review and return validated query parameters", func() {
 				So(validatedQueryParams, ShouldResemble, SearchURLParams{
@@ -42,6 +44,7 @@ func TestUnitReviewQuerySuccess(t *testing.T) {
 					},
 					Limit:       10,
 					CurrentPage: 1,
+					TopicFilter: "1234,5678",
 				})
 			})
 
@@ -68,13 +71,14 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 		urlQuery := url.Values{
 			"q":      []string{"housing"},
 			"filter": []string{"article"},
+			"topics": []string{"1234,5678"},
 			"sort":   []string{"relevance"},
 			"limit":  []string{"10"},
 			"page":   []string{"10000000"},
 		}
 
 		Convey("When ReviewQuery is called", func() {
-			_, err := ReviewQuery(ctx, cfg, urlQuery)
+			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
@@ -95,7 +99,7 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 		}
 
 		Convey("When ReviewQuery is called", func() {
-			_, err := ReviewQuery(ctx, cfg, urlQuery)
+			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
@@ -106,6 +110,8 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 
 func TestUnitGetSearchAPIQuerySuccess(t *testing.T) {
 	t.Parallel()
+
+	mockCensusTopic := cache.GetMockCensusTopic()
 
 	Convey("Given validated query parameters", t, func() {
 		validatedQueryParams := SearchURLParams{
@@ -118,19 +124,20 @@ func TestUnitGetSearchAPIQuerySuccess(t *testing.T) {
 				Query:           "relevance",
 				LocaliseKeyName: "Relevance",
 			},
-			Limit:  10,
-			Offset: 0,
+			Limit:       10,
+			Offset:      0,
+			TopicFilter: "1234,5678",
 		}
 
 		Convey("When GetSearchAPIQuery is called", func() {
-			apiQuery := GetSearchAPIQuery(validatedQueryParams)
+			apiQuery := GetSearchAPIQuery(validatedQueryParams, mockCensusTopic)
 
 			Convey("Then successfully return apiQuery for dp-search-api", func() {
 				So(apiQuery["q"], ShouldResemble, []string{"housing"})
 				So(apiQuery["sort"], ShouldResemble, []string{"relevance"})
 				So(apiQuery["limit"], ShouldResemble, []string{"10"})
 				So(apiQuery["offset"], ShouldResemble, []string{"0"})
-
+				So(apiQuery["topics"], ShouldResemble, []string{"1234,5678"})
 			})
 
 			Convey("And update content_type (filter) query with sub filters", func() {
@@ -155,8 +162,9 @@ func TestUnitCreateSearchAPIQuerySuccess(t *testing.T) {
 				Query:           "relevance",
 				LocaliseKeyName: "Relevance",
 			},
-			Limit:  10,
-			Offset: 0,
+			Limit:       10,
+			Offset:      0,
+			TopicFilter: "1234,5678",
 		}
 
 		Convey("When createSearchAPIQuery is called", func() {
@@ -169,6 +177,7 @@ func TestUnitCreateSearchAPIQuerySuccess(t *testing.T) {
 					"sort":         []string{"relevance"},
 					"limit":        []string{"10"},
 					"offset":       []string{"0"},
+					"topics":       []string{"1234,5678"},
 				})
 			})
 		})

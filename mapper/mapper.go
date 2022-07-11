@@ -17,7 +17,7 @@ import (
 // CreateSearchPage maps type searchC.Response to model.Page
 
 func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams,
-	categories []data.Category, topicCategories []data.TopicCategory, respC searchC.Response, departments searchC.Department,
+	categories []data.Category, topicCategories []data.Topic, respC searchC.Response, departments searchC.Department,
 	lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string) model.SearchPage {
 
 	page := model.SearchPage{
@@ -41,7 +41,11 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC, ErrorMessage)
 
-	mapResponse(&page, respC, categories)
+	if respC.ES_710 {
+		mapResponse(&page, respC, categories)
+	} else {
+		mapLegacyResponse(&page, respC, categories)
+	}
 
 	mapFilters(&page, categories, validatedQueryParams)
 
@@ -91,12 +95,12 @@ func mapPagination(cfg *config.Config, page *model.SearchPage, validatedQueryPar
 	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
 }
 
-func mapResponse(page *model.SearchPage, respC searchC.Response, categories []data.Category) {
+func mapLegacyResponse(page *model.SearchPage, respC searchC.Response, categories []data.Category) {
 	page.Data.Response.Count = respC.Count
 
 	mapResponseCategories(page, categories)
 
-	mapResponseItems(page, respC)
+	mapLegacyResponseItems(page, respC)
 
 	page.Data.Response.Suggestions = respC.Suggestions
 	page.Data.Response.AdditionalSuggestions = respC.AdditionalSuggestions
@@ -127,15 +131,15 @@ func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
 	page.Data.Response.Categories = pageCategories
 }
 
-func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
+func mapLegacyResponseItems(page *model.SearchPage, respC searchC.Response) {
 	itemPage := []model.ContentItem{}
 
 	for _, itemC := range respC.Items {
 		item := model.ContentItem{}
 
-		mapItemDescription(&item, itemC)
+		mapItemLegacyDescription(&item, itemC)
 
-		mapItemHighlight(&item, itemC)
+		mapLegacyItemHighlight(&item, itemC)
 
 		item.Type.Type = itemC.Type
 		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(itemC.Type)
@@ -150,8 +154,8 @@ func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
 	page.Data.Response.Items = itemPage
 }
 
-func mapItemDescription(item *model.ContentItem, itemC searchC.ContentItem) {
-	descriptionC := itemC.Description
+func mapItemLegacyDescription(item *model.ContentItem, itemC searchC.ContentItem) {
+	descriptionC := itemC.LegacyDescription
 
 	item.Description = model.Description{
 		DatasetID:         descriptionC.DatasetID,
@@ -182,8 +186,8 @@ func mapItemDescription(item *model.ContentItem, itemC searchC.ContentItem) {
 	}
 }
 
-func mapItemHighlight(item *model.ContentItem, itemC searchC.ContentItem) {
-	highlightC := itemC.Description.Highlight
+func mapLegacyItemHighlight(item *model.ContentItem, itemC searchC.ContentItem) {
+	highlightC := itemC.LegacyDescription.Highlight
 
 	item.Description.Highlight = model.Highlight{
 		DatasetID:       highlightC.DatasetID,
@@ -332,42 +336,28 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 	page.Data.Filters = filters
 }
 
-func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories []data.TopicCategory, queryParams data.SearchURLParams) {
+func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories []data.Topic, queryParams data.SearchURLParams) {
 	if !cfg.EnableCensusTopicFilterOption {
 		return
 	}
-	var topicFilters []model.Filter
+	var topicFilters []model.TopicFilter
 
 	for _, topicCategory := range topicCategories {
-		var topicFilter model.Filter
-		topicFilter.LocaliseKeyName = topicCategory.LocaliseKeyName
-		topicFilter.NumberOfResults = topicCategory.Count
+		if topicCategory.ShowInWebUI {
+			var topicFilter model.TopicFilter
 
-		var keys []string
-		var subTypes []model.Filter
-		if len(topicCategory.Topics) > 0 {
-			for _, contentType := range topicCategory.Topics {
-				if !contentType.ShowInWebUI {
-					topicFilter.NumberOfResults -= topicCategory.Count
-					continue
-				}
-				var subType model.Filter
-				subType.LocaliseKeyName = contentType.LocaliseKeyName
-				subType.NumberOfResults = contentType.Count
-				subType.FilterKey = []string{contentType.Group}
+			topicFilter.LocaliseKeyName = topicCategory.LocaliseKeyName
+			topicFilter.NumberOfResults = topicCategory.Count
+			topicFilter.Query = topicCategory.Query
 
-				isChecked := mapIsChecked(subType.FilterKey, queryParams)
-				subType.IsChecked = isChecked
-				subTypes = append(subTypes, subType)
-
-				keys = append(keys, contentType.Group)
+			if topicCategory.Query == queryParams.TopicFilter {
+				topicFilter.IsChecked = true
 			}
+
+			topicFilters = append(topicFilters, topicFilter)
 		}
-		topicFilter.Types = subTypes
-		topicFilter.FilterKey = keys
-		topicFilter.IsChecked = mapIsChecked(topicFilter.FilterKey, queryParams)
-		topicFilters = append(topicFilters, topicFilter)
 	}
+
 	page.Data.TopicFilters = topicFilters
 }
 
@@ -399,7 +389,6 @@ func mapDepartments(page *model.SearchPage, departments searchC.Department) {
 		terms := (*matches.Terms)[0]
 		page.Department.Match = terms.Value
 	}
-
 }
 
 // MapCookiePreferences reads cookie policy and preferences cookies and then maps the values to the page model

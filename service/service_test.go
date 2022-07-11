@@ -10,6 +10,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
 	"github.com/ONSdigital/dp-api-clients-go/v2/renderer"
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
@@ -83,6 +84,19 @@ var (
 				Client: service.NewMockHTTPClient(&http.Response{}, nil),
 			},
 		}
+	}
+
+	funcDoGetCensusTopicCache = func(ctx context.Context) (cache.CacheList, error) {
+		testCensusTopicCache, err := cache.NewTopicCache(ctx, nil)
+		if err != nil {
+			return cache.CacheList{}, err
+		}
+
+		cacheList := cache.CacheList{
+			CensusTopic: testCensusTopicCache,
+		}
+
+		return cacheList, nil
 	}
 )
 
@@ -233,10 +247,14 @@ func TestStart(t *testing.T) {
 
 		svcErrors := make(chan error, 1)
 
+		cacheList, err := funcDoGetCensusTopicCache(ctx)
+		So(err, ShouldBeNil)
+
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
 		svc := &service.Service{
+			Cache:       cacheList,
 			Config:      cfg,
 			HealthCheck: hcMock,
 			Server:      serverMock,
@@ -270,10 +288,14 @@ func TestStart(t *testing.T) {
 
 			svcErrors := make(chan error, 1)
 
+			cacheList, err := funcDoGetCensusTopicCache(ctx)
+			So(err, ShouldBeNil)
+
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
 
 			svc := &service.Service{
+				Cache:       cacheList,
 				Config:      cfg,
 				HealthCheck: hcMock,
 				Server:      failingServerMock,
@@ -321,9 +343,13 @@ func TestCloseSuccess(t *testing.T) {
 			},
 		}
 
+		cacheList, err := funcDoGetCensusTopicCache(ctx)
+		So(err, ShouldBeNil)
+
 		serviceList := service.NewServiceList(nil)
 		serviceList.HealthCheck = true
 		svc := service.Service{
+			Cache:       cacheList,
 			Config:      cfg,
 			HealthCheck: hcCloseMock,
 			Server:      serverCloseMock,
@@ -354,12 +380,16 @@ func TestCloseFailure(t *testing.T) {
 		Convey("And given a correctly initialised service", func() {
 			ctx := context.Background()
 
+			cacheList, err := funcDoGetCensusTopicCache(ctx)
+			So(err, ShouldBeNil)
+
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
 
 			serviceList := service.NewServiceList(nil)
 			serviceList.HealthCheck = true
 			svc := service.Service{
+				Cache:       cacheList,
 				Config:      cfg,
 				HealthCheck: hcMock,
 				Server:      failingServerCloseMock,
@@ -405,6 +435,9 @@ func TestCloseFailure(t *testing.T) {
 			return nil
 		}
 
+		cacheList, err := funcDoGetCensusTopicCache(ctx)
+		So(err, ShouldBeNil)
+
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 		cfg.GracefulShutdownTimeout = 1 * time.Millisecond
@@ -415,6 +448,7 @@ func TestCloseFailure(t *testing.T) {
 			serviceList := service.NewServiceList(nil)
 			serviceList.HealthCheck = true
 			svc := service.Service{
+				Cache:       cacheList,
 				Config:      cfg,
 				HealthCheck: hcShutdownCloseMock,
 				Server:      serverShutdownCloseMock,
