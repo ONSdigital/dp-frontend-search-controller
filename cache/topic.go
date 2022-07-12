@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	// CensusTopicTitle is the id of the Census topic stored in mongodb which is accessible by using dp-topic-api
+	// CensusTopicID is the id of the Census topic stored in mongodb which is accessible by using dp-topic-api
 	CensusTopicID string
 )
 
