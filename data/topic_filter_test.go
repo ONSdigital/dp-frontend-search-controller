@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"testing"
 
@@ -276,7 +277,7 @@ func TestUpdateTopicsQueryForSearchAPI(t *testing.T) {
 
 	Convey("Given the topics query is a root topic id", t, func() {
 		apiQuery := url.Values{
-			"topics": []string{"4445"},
+			"topics": []string{cache.CensusTopicID},
 		}
 
 		Convey("When updateTopicsQueryForSearchAPI is called", func() {
@@ -303,15 +304,16 @@ func TestUpdateTopicsQueryForSearchAPI(t *testing.T) {
 	})
 
 	Convey("Given the topics query is a mix of root topic id and subtopic id", t, func() {
+		topicQuery := fmt.Sprintf("%s,6345", cache.CensusTopicID)
 		apiQuery := url.Values{
-			"topics": []string{"4445,6345"},
+			"topics": []string{topicQuery},
 		}
 
 		Convey("When updateTopicsQueryForSearchAPI is called", func() {
 			updateTopicsQueryForSearchAPI(apiQuery, mockCensusTopic)
 
 			Convey("Then topics is updated with subtopics for the root topic id in apiQuery", func() {
-				So(apiQuery.Get("topics"), ShouldEqual, "1234,5678,4445,6345")
+				So(apiQuery.Get("topics"), ShouldEqual, fmt.Sprintf("1234,5678,%s,6345", cache.CensusTopicID))
 			})
 		})
 	})

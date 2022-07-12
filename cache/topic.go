@@ -6,13 +6,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ONSdigital/dp-frontend-search-controller/dpcache"
+	dpcache "github.com/ONSdigital/dp-cache"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-const (
+var (
 	// CensusTopicTitle is the id of the Census topic stored in mongodb which is accessible by using dp-topic-api
-	CensusTopicID = "4445"
+	CensusTopicID string
 )
 
 // TopicCache is a wrapper to dpcache.Cache which has additional fields and methods specifically for caching topics
@@ -33,7 +33,11 @@ type Topic struct {
 // NewTopicCache create a topic cache object to be used in the service which will update at every updateInterval
 // If updateInterval is nil, this means that the cache will only be updated once at the start of the service
 func NewTopicCache(ctx context.Context, updateInterval *time.Duration) (*TopicCache, error) {
-	cache, err := dpcache.NewCache(ctx, updateInterval)
+	config := dpcache.Config{
+		UpdateInterval: updateInterval,
+	}
+
+	cache, err := dpcache.NewCache(ctx, config)
 	if err != nil {
 		logData := log.Data{
 			"update_interval": updateInterval,

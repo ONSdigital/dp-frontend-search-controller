@@ -75,6 +75,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	clients.HealthCheckHandler = svc.HealthCheck.Handler
 
 	// Initialise caching
+	cache.CensusTopicID = cfg.CensusTopicID
 	svc.Cache.CensusTopic, err = cache.NewTopicCache(ctx, &cfg.CacheCensusTopicUpdateInterval)
 	if err != nil {
 		log.Error(ctx, "failed to create topics cache", err)
