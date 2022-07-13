@@ -11,6 +11,7 @@ type Config struct {
 	APIRouterURL                   string        `envconfig:"API_ROUTER_URL"`
 	BindAddr                       string        `envconfig:"BIND_ADDR"`
 	CacheCensusTopicUpdateInterval time.Duration `envconfig:"CACHE_CENSUS_TOPICS_UPDATE_INTERVAL"`
+	CensusTopicID                  string        `envconfig:"CENSUS_TOPIC_ID"`
 	Debug                          bool          `envconfig:"DEBUG"`
 	DefaultLimit                   int           `envconfig:"DEFAULT_LIMIT"`
 	DefaultMaximumLimit            int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
@@ -57,6 +58,7 @@ func get() (*Config, error) {
 		APIRouterURL:                   "http://localhost:23200/v1",
 		BindAddr:                       "localhost:25000",
 		CacheCensusTopicUpdateInterval: 30 * time.Minute,
+		CensusTopicID:                  "4445",
 		Debug:                          false,
 		DefaultLimit:                   10,
 		DefaultMaximumLimit:            50,
