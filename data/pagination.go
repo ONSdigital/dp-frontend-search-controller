@@ -159,7 +159,7 @@ func getStartPage(cfg *config.Config, currentPage int, totalPages int) int {
 
 	startPage := currentPage - pageOffset
 
-	if currentPage <= pageOffset {
+	if (currentPage <= pageOffset) || (totalPages < noOfPagesToDisplay) {
 		startPage = cfg.DefaultPage
 	} else if (currentPage == totalPages-1) || (currentPage == totalPages) {
 		startPage = totalPages - noOfPagesToDisplay + 1
