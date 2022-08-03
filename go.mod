@@ -11,7 +11,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.4.0-beta
 	github.com/ONSdigital/dp-net v1.4.1
 	github.com/ONSdigital/dp-net/v2 v2.5.0-beta
-	github.com/ONSdigital/dp-renderer v1.37.0
+	github.com/ONSdigital/dp-renderer v1.41.0
 	github.com/ONSdigital/log.go/v2 v2.3.0-beta
 	github.com/cucumber/godog v0.12.5
 	github.com/gorilla/mux v1.8.0
@@ -31,7 +31,7 @@ require (
 	github.com/ONSdigital/dp-api-clients-go v1.43.0 // indirect
 	github.com/ONSdigital/dp-cache v0.1.0
 	github.com/ONSdigital/dp-mongodb-in-memory v1.3.1 // indirect
-	github.com/ONSdigital/dp-topic-api v0.13.0
+	github.com/ONSdigital/dp-topic-api v0.13.1
 	github.com/aws/aws-sdk-go v1.44.52 // indirect
 	github.com/c2h5oh/datasize v0.0.0-20220606134207-859f65c6625b // indirect
 	github.com/chromedp/cdproto v0.0.0-20220629234738-4cfc9cdeeb92 // indirect

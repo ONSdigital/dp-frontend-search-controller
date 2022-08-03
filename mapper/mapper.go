@@ -12,13 +12,14 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	model "github.com/ONSdigital/dp-frontend-search-controller/model"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
+	topicModel "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
 
 func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams,
 	categories []data.Category, topicCategories []data.Topic, respC searchC.Response, departments searchC.Department,
-	lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string) model.SearchPage {
+	lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string, navigationContent *topicModel.Navigation) model.SearchPage {
 
 	page := model.SearchPage{
 		Page: basePage,
@@ -38,6 +39,9 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
 	page.SearchNoIndexEnabled = cfg.NoIndexEnabled
+	if navigationContent != nil {
+		page.NavigationContent = mapNavigationContent(*navigationContent)
+	}
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC, ErrorMessage)
 
@@ -413,4 +417,28 @@ func mapEmergencyBanner(hpc zebedee.HomepageContent) coreModel.EmergencyBanner {
 		mappedEmergencyBanner.LinkText = bannerData.LinkText
 	}
 	return mappedEmergencyBanner
+}
+
+// mapNavigationContent takes navigationContent as returned from the client and returns information needed for the navigation bar
+func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.NavigationItem {
+	var mappedNavigationContent []coreModel.NavigationItem
+	if navigationContent.Items != nil {
+		for _, rootContent := range *navigationContent.Items {
+			var subItems []coreModel.NavigationItem
+			if rootContent.SubtopicItems != nil {
+				for _, subtopicContent := range *rootContent.SubtopicItems {
+					subItems = append(subItems, coreModel.NavigationItem{
+						Uri:   subtopicContent.Uri,
+						Label: subtopicContent.Label,
+					})
+				}
+			}
+			mappedNavigationContent = append(mappedNavigationContent, coreModel.NavigationItem{
+				Uri:      rootContent.Uri,
+				Label:    rootContent.Label,
+				SubItems: subItems,
+			})
+		}
+	}
+	return mappedNavigationContent
 }
