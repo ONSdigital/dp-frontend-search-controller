@@ -3,7 +3,6 @@ package service
 import (
 	"context"
 	"errors"
-	"fmt"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	render "github.com/ONSdigital/dp-renderer"
@@ -118,13 +117,6 @@ func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
 	// Start caching
 	go svc.Cache.CensusTopic.StartUpdates(ctx, svcErrors)
 	go svc.Cache.Navigation.StartUpdates(ctx, svcErrors)
-	fmt.Println("• • • • • • in RUN • • • • ")
-
-	blah, err := svc.Cache.Navigation.Get("navigation-cache___en")
-	if err {
-		fmt.Println("• • • • • • in RUN • • • • ", err)
-	}
-	fmt.Println("• • • • • • in RUN • • • • ", blah, err)
 
 	// Start HTTP server
 	log.Info(ctx, "Starting server")
