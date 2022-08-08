@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	dpcache "github.com/ONSdigital/dp-cache"
@@ -41,4 +42,22 @@ func (nc *NavigationCache) AddUpdateFunc(key string, updateFunc func() *models.N
 		// error handled in updateFunc
 		return updateFunc(), nil
 	}
+}
+
+func (nc *NavigationCache) GetCachingKeyForNavigationLanguage(lang string) string {
+	return fmt.Sprintf("%s___%s", NavigationCacheKey, lang)
+}
+
+func (nc *NavigationCache) GetNavigationData(ctx context.Context, lang string) (*models.Navigation, error) {
+	key := nc.GetCachingKeyForNavigationLanguage(lang)
+	topicCacheInterface, ok := nc.Get(key)
+	if !ok {
+		err := fmt.Errorf("cached navigation data with key %s not found", key)
+		log.Error(ctx, "failed to get cached navigation data", err)
+		return &models.Navigation{}, err
+	}
+
+	censusTopicCache, ok := topicCacheInterface.(*models.Navigation)
+
+	return censusTopicCache, nil
 }

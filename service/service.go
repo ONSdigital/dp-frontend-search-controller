@@ -94,7 +94,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePublic.UpdateCensusTopic(ctx, clients.Topic))
 
 		for _, lang := range cfg.SupportedLanguages {
-			navigationlangKey := fmt.Sprintf("%s___%s", "navigation-cache", lang)
+			navigationlangKey := svc.Cache.Navigation.GetCachingKeyForNavigationLanguage(lang)
 			svc.Cache.Navigation.AddUpdateFunc(navigationlangKey, cachePublic.UpdateNavigationData(ctx, lang, clients.Topic))
 		}
 
@@ -118,6 +118,13 @@ func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
 	// Start caching
 	go svc.Cache.CensusTopic.StartUpdates(ctx, svcErrors)
 	go svc.Cache.Navigation.StartUpdates(ctx, svcErrors)
+	fmt.Println("• • • • • • in RUN • • • • ")
+
+	blah, err := svc.Cache.Navigation.Get("navigation-cache___en")
+	if err {
+		fmt.Println("• • • • • • in RUN • • • • ", err)
+	}
+	fmt.Println("• • • • • • in RUN • • • • ", blah, err)
 
 	// Start HTTP server
 	log.Info(ctx, "Starting server")
@@ -144,6 +151,7 @@ func (svc *Service) Close(ctx context.Context) error {
 
 		// stop caching
 		svc.Cache.CensusTopic.Close()
+		svc.Cache.Navigation.Close()
 
 		// stop any incoming requests
 		if err := svc.Server.Shutdown(ctx); err != nil {
