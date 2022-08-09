@@ -21,10 +21,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 )
 
-require (
-	github.com/kevinburke/go-bindata v3.23.0+incompatible // indirect
-	github.com/rogpeppe/go-internal v1.8.1 // indirect
-)
+require github.com/rogpeppe/go-internal v1.8.1 // indirect
 
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
