@@ -3,6 +3,8 @@ package cache
 import (
 	"context"
 	"fmt"
+
+	"github.com/ONSdigital/dp-topic-api/models"
 )
 
 // GetMockCensusTopicCacheList returns a mocked list of cache which contains the census topic cache and the census topic cache itself
@@ -36,4 +38,27 @@ func GetMockCensusTopic() *Topic {
 	mockCensusTopic.List.AppendSubtopicID(CensusTopicID)
 
 	return mockCensusTopic
+}
+
+// GetMockNavigationCacheList returns a mocked list of cache which contains the navigation cache and the navigation cache itself
+// should have navigation data
+func GetMockNavigationCacheList(ctx context.Context, lang string) (*CacheList, error) {
+	testNavigationCache, err := NewNavigationCache(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	mockNavigationData := &models.Navigation{
+		Description: "this is a test description",
+	}
+
+	navigationlangKey := testNavigationCache.GetCachingKeyForNavigationLanguage(lang)
+
+	testNavigationCache.Set(navigationlangKey, mockNavigationData)
+
+	cacheList := CacheList{
+		Navigation: testNavigationCache,
+	}
+
+	return &cacheList, nil
 }

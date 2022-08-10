@@ -50,14 +50,14 @@ func (nc *NavigationCache) GetCachingKeyForNavigationLanguage(lang string) strin
 
 func (nc *NavigationCache) GetNavigationData(ctx context.Context, lang string) (*models.Navigation, error) {
 	key := nc.GetCachingKeyForNavigationLanguage(lang)
-	topicCacheInterface, ok := nc.Get(key)
+	navigationCacheInterface, ok := nc.Get(key)
 	if !ok {
 		err := fmt.Errorf("cached navigation data with key %s not found", key)
 		log.Error(ctx, "failed to get cached navigation data", err)
 		return &models.Navigation{}, err
 	}
 
-	censusTopicCache, ok := topicCacheInterface.(*models.Navigation)
+	navigationCache, ok := navigationCacheInterface.(*models.Navigation)
 
-	return censusTopicCache, nil
+	return navigationCache, nil
 }
