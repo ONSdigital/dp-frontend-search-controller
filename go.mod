@@ -5,14 +5,14 @@ go 1.18
 replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.153.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.159.1
 	github.com/ONSdigital/dp-component-test v0.7.0
 	github.com/ONSdigital/dp-cookies v0.3.3
-	github.com/ONSdigital/dp-healthcheck v1.4.0-beta
+	github.com/ONSdigital/dp-healthcheck v1.3.0
 	github.com/ONSdigital/dp-net v1.4.1
-	github.com/ONSdigital/dp-net/v2 v2.5.0-beta
+	github.com/ONSdigital/dp-net/v2 v2.4.0
 	github.com/ONSdigital/dp-renderer v1.45.0
-	github.com/ONSdigital/log.go/v2 v2.3.0-beta
+	github.com/ONSdigital/log.go/v2 v2.2.0
 	github.com/cucumber/godog v0.12.5
 	github.com/gorilla/mux v1.8.0
 	github.com/kelseyhightower/envconfig v1.4.0
@@ -21,10 +21,7 @@ require (
 	github.com/stretchr/testify v1.8.0
 )
 
-require (
-	github.com/kevinburke/go-bindata v3.23.0+incompatible // indirect
-	github.com/rogpeppe/go-internal v1.8.1 // indirect
-)
+require github.com/kevinburke/go-bindata v3.23.0+incompatible // indirect
 
 require (
 	github.com/BurntSushi/toml v1.1.0 // indirect
