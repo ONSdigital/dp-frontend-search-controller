@@ -7,9 +7,28 @@ import (
 	"github.com/ONSdigital/dp-topic-api/models"
 )
 
-// GetMockCensusTopicCacheList returns a mocked list of cache which contains the census topic cache and the census topic cache itself
-// should have census topic data
-func GetMockCensusTopicCacheList(ctx context.Context) (*CacheList, error) {
+// GetMockCacheList returns a mocked list of cache which contains the census topic cache and navigation cache
+func GetMockCacheList(ctx context.Context, lang string) (*CacheList, error) {
+	testCensusTopicCache, err := getMockCensusTopicCache(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	testNavigationCache, err := getMockNavigationCache(ctx, lang)
+	if err != nil {
+		return nil, err
+	}
+
+	cacheList := CacheList{
+		CensusTopic: testCensusTopicCache,
+		Navigation:  testNavigationCache,
+	}
+
+	return &cacheList, nil
+}
+
+// getMockCensusTopicCache returns a mocked Cenus topic which contains all the information for the mock census topic
+func getMockCensusTopicCache(ctx context.Context) (*TopicCache, error) {
 	testCensusTopicCache, err := NewTopicCache(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -17,11 +36,7 @@ func GetMockCensusTopicCacheList(ctx context.Context) (*CacheList, error) {
 
 	testCensusTopicCache.Set(CensusTopicID, GetMockCensusTopic())
 
-	cacheList := CacheList{
-		CensusTopic: testCensusTopicCache,
-	}
-
-	return &cacheList, nil
+	return testCensusTopicCache, nil
 }
 
 // GetMockCensusTopic returns a mocked Cenus topic which contains all the information for the mock census topic
@@ -40,9 +55,8 @@ func GetMockCensusTopic() *Topic {
 	return mockCensusTopic
 }
 
-// GetMockNavigationCacheList returns a mocked list of cache which contains the navigation cache and the navigation cache itself
-// should have navigation data
-func GetMockNavigationCacheList(ctx context.Context, lang string) (*CacheList, error) {
+// getMockNavigationCache returns a mocked navigation cache which should have navigation data
+func getMockNavigationCache(ctx context.Context, lang string) (*NavigationCache, error) {
 	testNavigationCache, err := NewNavigationCache(ctx, nil)
 	if err != nil {
 		return nil, err
@@ -56,9 +70,5 @@ func GetMockNavigationCacheList(ctx context.Context, lang string) (*CacheList, e
 
 	testNavigationCache.Set(navigationlangKey, mockNavigationData)
 
-	cacheList := CacheList{
-		Navigation: testNavigationCache,
-	}
-
-	return &cacheList, nil
+	return testNavigationCache, nil
 }
