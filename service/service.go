@@ -54,7 +54,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	// Get health client for api router
 	svc.routerHealthClient = serviceList.GetHealthClient("api-router", cfg.APIRouterURL)
 
-	// Initialise clients
+	// Initialise clients - why is this assets stuff causing an issue?
 	clients := routes.Clients{
 		Renderer: render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain),
 		Search:   search.NewWithHealthClient(svc.routerHealthClient),
