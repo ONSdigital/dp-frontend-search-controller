@@ -9,6 +9,7 @@ import (
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
 	search "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	"github.com/ONSdigital/dp-frontend-search-controller/assets"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	cachePrivate "github.com/ONSdigital/dp-frontend-search-controller/cache/private"
 	cachePublic "github.com/ONSdigital/dp-frontend-search-controller/cache/public"
