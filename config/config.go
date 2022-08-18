@@ -21,6 +21,7 @@ type Config struct {
 	DefaultPage                    int           `envconfig:"DEFAULT_PAGE"`
 	DefaultSort                    string        `envconfig:"DEFAULT_SORT"`
 	EnableCensusTopicFilterOption  bool          `envconfig:"ENABLE_CENSUS_TOPIC_FILTER_OPTION"`
+	EnableNewNavBar                bool          `envconfig:"ENABLE_NEW_NAV_BAR"`
 	GracefulShutdownTimeout        time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckCriticalTimeout     time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	HealthCheckInterval            time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
@@ -69,6 +70,7 @@ func get() (*Config, error) {
 		DefaultPage:                    1,
 		DefaultSort:                    "relevance",
 		EnableCensusTopicFilterOption:  false,
+		EnableNewNavBar:                false,
 		GracefulShutdownTimeout:        5 * time.Second,
 		HealthCheckCriticalTimeout:     90 * time.Second,
 		HealthCheckInterval:            30 * time.Second,
