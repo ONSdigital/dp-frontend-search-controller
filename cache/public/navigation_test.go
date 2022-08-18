@@ -46,14 +46,17 @@ var (
 			Uri:         "Item URI.",
 		},
 	}
-	cfg, _ = config.Get()
 )
 
 func TestUpdateNavigationData(t *testing.T) {
-	cfg.EnableNewNavBar = true
 	t.Parallel()
 
 	ctx := context.Background()
+	cfg, err := config.Get()
+	if err != nil {
+		t.Errorf("failed to get config")
+	}
+	cfg.EnableNewNavBar = true
 
 	mockedNavigationClient := &mockTopicCli.ClienterMock{
 		GetNavigationPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers, options sdk.Options) (*models.Navigation, apiError.Error) {
