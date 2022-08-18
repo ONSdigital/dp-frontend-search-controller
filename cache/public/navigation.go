@@ -9,11 +9,7 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-func UpdateNavigationData(ctx context.Context, lang string, topicClient topicCli.Clienter) func() *topicModel.Navigation {
-	cfg, err := config.Get()
-	if err != nil {
-		log.Error(ctx, "unable to retrieve configuration", err)
-	}
+func UpdateNavigationData(ctx context.Context, cfg *config.Config, lang string, topicClient topicCli.Clienter) func() *topicModel.Navigation {
 	if cfg.EnableNewNavBar == false {
 		return func() *topicModel.Navigation {
 			return &topicModel.Navigation{}

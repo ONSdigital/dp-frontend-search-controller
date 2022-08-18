@@ -4,6 +4,7 @@ import (
 	"context"
 	"testing"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/dp-topic-api/sdk"
 	apiError "github.com/ONSdigital/dp-topic-api/sdk/errors"
@@ -45,9 +46,11 @@ var (
 			Uri:         "Item URI.",
 		},
 	}
+	cfg, _ = config.Get()
 )
 
 func TestUpdateNavigationData(t *testing.T) {
+	cfg.EnableNewNavBar = true
 	t.Parallel()
 
 	ctx := context.Background()
@@ -64,7 +67,7 @@ func TestUpdateNavigationData(t *testing.T) {
 	Convey("Given navigation data is being served by the topic API", t, func() {
 
 		Convey("When UpdateNavigationData is called", func() {
-			respNavigationCache := UpdateNavigationData(ctx, "en", mockedNavigationClient)()
+			respNavigationCache := UpdateNavigationData(ctx, cfg, "en", mockedNavigationClient)()
 
 			Convey("Then the navigation data is returned", func() {
 				So(respNavigationCache, ShouldNotBeNil)
@@ -76,7 +79,7 @@ func TestUpdateNavigationData(t *testing.T) {
 		})
 
 		Convey("When UpdateNavigationData is called with Welsh specified", func() {
-			respNavigationCache := UpdateNavigationData(ctx, "cy", mockedNavigationClient)()
+			respNavigationCache := UpdateNavigationData(ctx, cfg, "cy", mockedNavigationClient)()
 
 			Convey("Then the navigation data is returned", func() {
 				So(respNavigationCache, ShouldNotBeNil)
