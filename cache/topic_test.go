@@ -62,8 +62,9 @@ func TestNewTopicCache(t *testing.T) {
 func TestGetData(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
+	lang := "en"
 
-	mockCacheList, err := GetMockCensusTopicCacheList(ctx)
+	mockCacheList, err := GetMockCacheList(ctx, lang)
 	if err != nil {
 		t.Error("failed to get mock census topic cache list")
 	}
@@ -144,8 +145,9 @@ func TestGetData(t *testing.T) {
 func TestGetCensusData(t *testing.T) {
 	t.Parallel()
 	ctx := context.Background()
+	lang := "en"
 
-	mockCacheList, err := GetMockCensusTopicCacheList(ctx)
+	mockCacheList, err := GetMockCacheList(ctx, lang)
 	if err != nil {
 		t.Error("failed to get mock census topic cache list")
 	}

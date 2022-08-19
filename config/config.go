@@ -11,6 +11,7 @@ type Config struct {
 	APIRouterURL                   string        `envconfig:"API_ROUTER_URL"`
 	BindAddr                       string        `envconfig:"BIND_ADDR"`
 	CacheCensusTopicUpdateInterval time.Duration `envconfig:"CACHE_CENSUS_TOPICS_UPDATE_INTERVAL"`
+	CacheNavigationUpdateInterval  time.Duration `envconfig:"CACHE_NAVIGATION_UPDATE_INTERVAL"`
 	CensusTopicID                  string        `envconfig:"CENSUS_TOPIC_ID"`
 	Debug                          bool          `envconfig:"DEBUG"`
 	DefaultLimit                   int           `envconfig:"DEFAULT_LIMIT"`
@@ -20,6 +21,7 @@ type Config struct {
 	DefaultPage                    int           `envconfig:"DEFAULT_PAGE"`
 	DefaultSort                    string        `envconfig:"DEFAULT_SORT"`
 	EnableCensusTopicFilterOption  bool          `envconfig:"ENABLE_CENSUS_TOPIC_FILTER_OPTION"`
+	EnableNewNavBar                bool          `envconfig:"ENABLE_NEW_NAV_BAR"`
 	GracefulShutdownTimeout        time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckCriticalTimeout     time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	HealthCheckInterval            time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
@@ -58,6 +60,7 @@ func get() (*Config, error) {
 		APIRouterURL:                   "http://localhost:23200/v1",
 		BindAddr:                       "localhost:25000",
 		CacheCensusTopicUpdateInterval: 30 * time.Minute,
+		CacheNavigationUpdateInterval:  10 * time.Second,
 		CensusTopicID:                  "4445",
 		Debug:                          false,
 		DefaultLimit:                   10,
@@ -67,6 +70,7 @@ func get() (*Config, error) {
 		DefaultPage:                    1,
 		DefaultSort:                    "relevance",
 		EnableCensusTopicFilterOption:  false,
+		EnableNewNavBar:                false,
 		GracefulShutdownTimeout:        5 * time.Second,
 		HealthCheckCriticalTimeout:     90 * time.Second,
 		HealthCheckInterval:            30 * time.Second,

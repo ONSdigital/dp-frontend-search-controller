@@ -97,7 +97,8 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
-		mockCacheList, err := cache.GetMockCensusTopicCacheList(ctx)
+		lang := "en"
+		mockCacheList, err := cache.GetMockCacheList(ctx, lang)
 		So(err, ShouldBeNil)
 
 		Convey("When Read is called", func() {
@@ -162,7 +163,8 @@ func TestUnitReadSuccess(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
-		mockCacheList, err := cache.GetMockCensusTopicCacheList(ctx)
+		lang := "en"
+		mockCacheList, err := cache.GetMockCacheList(ctx, lang)
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
@@ -229,7 +231,8 @@ func TestUnitReadFailure(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
-		mockCacheList, err := cache.GetMockCensusTopicCacheList(ctx)
+		lang := "en"
+		mockCacheList, err := cache.GetMockCacheList(ctx, lang)
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
@@ -273,7 +276,8 @@ func TestUnitReadFailure(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
-		mockCacheList, err := cache.GetMockCensusTopicCacheList(ctx)
+		lang := "en"
+		mockCacheList, err := cache.GetMockCacheList(ctx, lang)
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
@@ -318,7 +322,8 @@ func TestUnitReadFailure(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
-		mockCacheList, err := cache.GetMockCensusTopicCacheList(ctx)
+		lang := "en"
+		mockCacheList, err := cache.GetMockCacheList(ctx, lang)
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {

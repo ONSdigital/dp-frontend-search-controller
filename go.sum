@@ -80,6 +80,8 @@ github.com/ONSdigital/dp-renderer v1.46.1 h1:Rhn8ni6PGWCjHVUYD4R6FTJmITyaKXKz+q9
 github.com/ONSdigital/dp-renderer v1.46.1/go.mod h1:q/zlK9Qc7b95w7XPfgS7RPLID++CZgaAn0q51QCqZew=
 github.com/ONSdigital/dp-topic-api v0.13.0 h1:5/MZpoThR/RiSaWTKg9iJsXPAqz0aYgiDgRuA1bAWwU=
 github.com/ONSdigital/dp-topic-api v0.13.0/go.mod h1:MipguYB6NVmJtzcdvmQ2DDpVY31PPPOiSFiWDzV5bWw=
+github.com/ONSdigital/dp-topic-api v0.13.1 h1:3D+COy0REDTIBx76bfOoJi7M6pBmZNeXwiqx4wOoL3k=
+github.com/ONSdigital/dp-topic-api v0.13.1/go.mod h1:MipguYB6NVmJtzcdvmQ2DDpVY31PPPOiSFiWDzV5bWw=
 github.com/ONSdigital/go-ns v0.0.0-20191104121206-f144c4ec2e58/go.mod h1:iWos35il+NjbvDEqwtB736pyHru0MPFE/LqcwkV1wDc=
 github.com/ONSdigital/log.go v1.0.0/go.mod h1:UnGu9Q14gNC+kz0DOkdnLYGoqugCvnokHBRBxFRpVoQ=
 github.com/ONSdigital/log.go v1.0.1-0.20200805084515-ee61165ea36a/go.mod h1:dDnQATFXCBOknvj6ZQuKfmDhbOWf3e8mtV+dPEfWJqs=
