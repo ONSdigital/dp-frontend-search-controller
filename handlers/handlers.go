@@ -22,6 +22,15 @@ const (
 	homepagePath = "/"
 )
 
+var (
+	homepageResponse zebedeeCli.HomepageContent
+	searchResp searchCli.Response
+	respErr error
+	departmentResp searchCli.Department
+	validatedQueryParams data.SearchURLParams
+	apiQuery url.Values
+)
+
 // Read Handler
 func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.CacheList) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
@@ -53,30 +62,8 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
-	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
-		log.Error(ctx, "unable to review query", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
-	apiQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
-
-	var homepageResponse zebedeeCli.HomepageContent
-	var searchResp searchCli.Response
-	var respErr error
-	var departmentResp searchCli.Department
-
-	if errs.ErrMapForRenderBeforeAPICalls[err] {
-		// avoid making any API calls
-		basePage := rend.NewBasePageModel()
-		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.Topic{}, searchResp, departmentResp, lang, homepageResponse, err.Error(), navigationCache)
-		rend.BuildPage(w, m, "search")
-		return
-	}
-
 	var wg sync.WaitGroup
-	wg.Add(3)
+	wg.Add(2)
 
 	go func() {
 		defer wg.Done()
@@ -88,8 +75,18 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 			return
 		}
 	}()
+
 	go func() {
 		defer wg.Done()
+		validatedQueryParams, err = data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
+		if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
+			log.Error(ctx, "unable to review query", err)
+			setStatusCode(w, req, err)
+			return
+		}
+
+		apiQuery = data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
+
 		searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
 		if respErr != nil {
 			logData := log.Data{"api query passed to search-api": apiQuery}
@@ -98,20 +95,18 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 			return
 		}
 	}()
-	go func() {
-		defer wg.Done()
-		var deptErr error
-		departmentResp, deptErr = searchC.GetDepartments(ctx, accessToken, "", collectionID, apiQuery)
-		if deptErr != nil {
-			logData := log.Data{"api query passed to search-api": apiQuery}
-			log.Error(ctx, "getting deartment response from client failed", deptErr, logData)
-			return
-		}
-	}()
 
 	wg.Wait()
 	if respErr != nil {
 		setStatusCode(w, req, respErr)
+		return
+	}
+
+	if errs.ErrMapForRenderBeforeAPICalls[err] {
+		// avoid making any API calls
+		basePage := rend.NewBasePageModel()
+		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.Topic{}, searchResp, departmentResp, lang, homepageResponse, err.Error(), navigationCache)
+		rend.BuildPage(w, m, "search")
 		return
 	}
 
