@@ -243,7 +243,7 @@ func TestUnitReadFailure(t *testing.T) {
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 0)
-				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 0)
+				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
 	})
@@ -288,7 +288,6 @@ func TestUnitReadFailure(t *testing.T) {
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetDepartmentsCalls()), ShouldEqual, 1)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
@@ -334,7 +333,6 @@ func TestUnitReadFailure(t *testing.T) {
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetDepartmentsCalls()), ShouldEqual, 1)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
