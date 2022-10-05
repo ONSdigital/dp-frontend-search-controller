@@ -1,10 +1,12 @@
 package mapper
 
 import (
+	"context"
 	"net/http"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/log.go/v2/log"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-cookies/cookies"
@@ -16,9 +18,8 @@ import (
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-
 func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams,
-	categories []data.Category, topicCategories []data.Topic, respC searchC.Response, departments searchC.Department,
+	categories []data.Category, topicCategories []data.Topic, respC searchC.Response,
 	lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string, navigationContent *topicModel.Navigation) model.SearchPage {
 
 	page := model.SearchPage{
@@ -45,17 +46,11 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC, ErrorMessage)
 
-	if respC.ES_710 {
-		mapResponse(&page, respC, categories)
-	} else {
-		mapLegacyResponse(&page, respC, categories)
-	}
+	mapResponse(&page, respC, categories)
 
 	mapFilters(&page, categories, validatedQueryParams)
 
 	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
-
-	mapDepartments(&page, departments)
 
 	return page
 }
@@ -99,15 +94,75 @@ func mapPagination(cfg *config.Config, page *model.SearchPage, validatedQueryPar
 	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
 }
 
-func mapLegacyResponse(page *model.SearchPage, respC searchC.Response, categories []data.Category) {
+func mapResponse(page *model.SearchPage, respC searchC.Response, categories []data.Category) {
+	log.Info(context.Background(), "got es 7.10 mapper", log.Data{"search_api_response": respC})
 	page.Data.Response.Count = respC.Count
 
 	mapResponseCategories(page, categories)
 
-	mapLegacyResponseItems(page, respC)
+	mapResponseItems(page, respC)
 
 	page.Data.Response.Suggestions = respC.Suggestions
 	page.Data.Response.AdditionalSuggestions = respC.AdditionalSuggestions
+	log.Info(context.Background(), "page response", log.Data{"page_response": page.Data.Response})
+}
+
+func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
+	itemPage := []model.ContentItem{}
+
+	for _, itemC := range respC.Items {
+		item := model.ContentItem{}
+
+		mapItemDescription(&item, itemC)
+
+		mapItemHighlight(&item, itemC)
+
+		item.Type.Type = itemC.Type
+		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(itemC.Type)
+
+		item.URI = itemC.URI
+
+		mapItemMatches(&item, itemC)
+
+		itemPage = append(itemPage, item)
+	}
+
+	page.Data.Response.Items = itemPage
+}
+
+func mapItemDescription(item *model.ContentItem, itemC searchC.ContentItem) {
+
+	item.Description = model.Description{
+		DatasetID:       itemC.DatasetID,
+		Language:        itemC.Language,
+		MetaDescription: itemC.MetaDescription,
+		ReleaseDate:     itemC.ReleaseDate,
+		Summary:         itemC.Summary,
+		Title:           itemC.Title,
+	}
+
+	if len(itemC.Keywords) != 0 {
+		item.Description.Keywords = &itemC.Keywords
+	} else {
+		item.Description.Keywords = nil
+	}
+}
+
+func mapItemHighlight(item *model.ContentItem, itemC searchC.ContentItem) {
+	highlightC := itemC.Highlight
+
+	if highlightC != nil {
+		item.Description.Highlight = model.Highlight{
+			DatasetID:       highlightC.DatasetID,
+			Edition:         highlightC.Edition,
+			Keywords:        highlightC.Keywords,
+			MetaDescription: highlightC.MetaDescription,
+			Summary:         highlightC.Summary,
+			Title:           highlightC.Title,
+		}
+	} else {
+		item.Description.Highlight = model.Highlight{}
+	}
 }
 
 func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
@@ -133,74 +188,6 @@ func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
 	}
 
 	page.Data.Response.Categories = pageCategories
-}
-
-func mapLegacyResponseItems(page *model.SearchPage, respC searchC.Response) {
-	itemPage := []model.ContentItem{}
-
-	for _, itemC := range respC.Items {
-		item := model.ContentItem{}
-
-		mapItemLegacyDescription(&item, itemC)
-
-		mapLegacyItemHighlight(&item, itemC)
-
-		item.Type.Type = itemC.Type
-		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(itemC.Type)
-
-		item.URI = itemC.URI
-
-		mapItemMatches(&item, itemC)
-
-		itemPage = append(itemPage, item)
-	}
-
-	page.Data.Response.Items = itemPage
-}
-
-func mapItemLegacyDescription(item *model.ContentItem, itemC searchC.ContentItem) {
-	descriptionC := itemC.LegacyDescription
-
-	item.Description = model.Description{
-		DatasetID:         descriptionC.DatasetID,
-		Edition:           descriptionC.Edition,
-		Headline1:         descriptionC.Headline1,
-		Headline2:         descriptionC.Headline2,
-		Headline3:         descriptionC.Headline3,
-		Keywords:          descriptionC.Keywords,
-		LatestRelease:     descriptionC.LatestRelease,
-		Language:          descriptionC.Language,
-		MetaDescription:   descriptionC.MetaDescription,
-		NationalStatistic: descriptionC.NationalStatistic,
-		NextRelease:       descriptionC.NextRelease,
-		PreUnit:           descriptionC.PreUnit,
-		ReleaseDate:       descriptionC.ReleaseDate,
-		Source:            descriptionC.Source,
-		Summary:           descriptionC.Summary,
-		Title:             descriptionC.Title,
-		Unit:              descriptionC.Unit,
-	}
-
-	if descriptionC.Contact != nil {
-		item.Description.Contact = &model.Contact{
-			Name:      descriptionC.Contact.Name,
-			Telephone: descriptionC.Contact.Telephone,
-			Email:     descriptionC.Contact.Email,
-		}
-	}
-}
-
-func mapLegacyItemHighlight(item *model.ContentItem, itemC searchC.ContentItem) {
-	highlightC := itemC.LegacyDescription.Highlight
-
-	item.Description.Highlight = model.Highlight{
-		DatasetID:       highlightC.DatasetID,
-		Edition:         highlightC.Edition,
-		Keywords:        highlightC.Keywords,
-		MetaDescription: highlightC.MetaDescription,
-		Summary:         highlightC.Summary,
-		Title:           highlightC.Title,
-	}
 }
 
 func mapItemMatches(pageItem *model.ContentItem, item searchC.ContentItem) {
@@ -374,25 +361,6 @@ func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool 
 		}
 	}
 	return false
-}
-
-func mapDepartments(page *model.SearchPage, departments searchC.Department) {
-	if &departments != nil && departments.Items == nil {
-		page.Department = nil
-		return
-	}
-
-	dept := (*departments.Items)[0]
-	page.Department = &model.Department{
-		Code: dept.Code,
-		URL:  dept.URL,
-		Name: dept.Name,
-	}
-	if dept.Matches != nil {
-		matches := (*dept.Matches)[0]
-		terms := (*matches.Terms)[0]
-		page.Department.Match = terms.Value
-	}
 }
 
 // MapCookiePreferences reads cookie policy and preferences cookies and then maps the values to the page model

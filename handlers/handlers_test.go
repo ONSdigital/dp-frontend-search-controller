@@ -58,10 +58,6 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
-	mockDepartmentResponse, err := mapper.GetMockDepartmentResponse()
-	if err != nil {
-		t.Errorf("failed to retrieve mock department response for unit tests, failing early: %v", err)
-	}
 
 	mockHomepageContent, err := mapper.GetMockHomepageContent()
 	if err != nil {
@@ -85,9 +81,6 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
-			},
-			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
-				return mockDepartmentResponse, nil
 			},
 		}
 
@@ -125,11 +118,6 @@ func TestUnitReadSuccess(t *testing.T) {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
 
-	mockDepartmentResponse, err := mapper.GetMockDepartmentResponse()
-	if err != nil {
-		t.Errorf("failed to retrieve mock department response for unit tests, failing early: %v", err)
-	}
-
 	mockHomepageContent, err := mapper.GetMockHomepageContent()
 	if err != nil {
 		t.Errorf("failed to retrieve mock homepage content for unit tests, failing early: %v", err)
@@ -152,9 +140,6 @@ func TestUnitReadSuccess(t *testing.T) {
 		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
-			},
-			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
-				return mockDepartmentResponse, nil
 			},
 		}
 
@@ -192,13 +177,9 @@ func TestUnitReadFailure(t *testing.T) {
 	if err != nil {
 		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
 	}
-	mockDepartmentResponse, err := mapper.GetMockDepartmentResponse()
-	if err != nil {
-		t.Errorf("failed to retrieve mock department response for unit tests, failing early: %v", err)
-	}
 
 	mockHomepageContent, err := mapper.GetMockHomepageContent()
-	fmt.Printf("%+v\n", mockDepartmentResponse)
+	fmt.Printf("%+v\n", mockHomepageContent)
 	if err != nil {
 		t.Errorf("failed to retrieve mock homepage content for unit tests, failing early: %v", err)
 	}
@@ -220,9 +201,6 @@ func TestUnitReadFailure(t *testing.T) {
 		mockedSearchClient := &SearchClientMock{
 			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
-			},
-			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
-				return mockDepartmentResponse, nil
 			},
 		}
 
@@ -266,9 +244,6 @@ func TestUnitReadFailure(t *testing.T) {
 			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return searchC.Response{}, errs.ErrInternalServer
 			},
-			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
-				return mockDepartmentResponse, nil
-			},
 		}
 
 		mockedZebedeeClient := &ZebedeeClientMock{
@@ -288,7 +263,6 @@ func TestUnitReadFailure(t *testing.T) {
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetDepartmentsCalls()), ShouldEqual, 1)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
@@ -312,9 +286,6 @@ func TestUnitReadFailure(t *testing.T) {
 			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
 				return mockSearchResponse, nil
 			},
-			GetDepartmentsFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Department, error) {
-				return mockDepartmentResponse, nil
-			},
 		}
 
 		mockedZebedeeClient := &ZebedeeClientMock{
@@ -334,7 +305,6 @@ func TestUnitReadFailure(t *testing.T) {
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetDepartmentsCalls()), ShouldEqual, 1)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
