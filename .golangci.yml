@@ -67,7 +67,6 @@ linters:
     - ineffassign
     - nakedret
     - staticcheck
-    - structcheck
     - stylecheck
     - typecheck
     - unconvert
@@ -85,6 +84,9 @@ issues:
         - errcheck
         - dupl
         - gosec
+    - path: service/service.go
+      linters:
+        - typecheck
   new: false
 
 # golangci.com configuration
