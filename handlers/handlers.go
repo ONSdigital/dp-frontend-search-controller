@@ -23,15 +23,14 @@ const (
 )
 
 // Read Handler
-func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.CacheList) http.HandlerFunc {
+func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		read(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList)
 	})
 }
 
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
-	accessToken, collectionID, lang string, cacheList cache.CacheList) {
-
+	accessToken, collectionID, lang string, cacheList cache.List) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
 
@@ -128,7 +127,6 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 // validateCurrentPage checks if the current page exceeds the total pages which is a bad request
 func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQueryParams data.SearchURLParams, resultsCount int) error {
-
 	if resultsCount > 0 {
 		totalPages := data.GetTotalPages(cfg, validatedQueryParams.Limit, resultsCount)
 
@@ -145,7 +143,7 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
 func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, apiQuery url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
-	//Remove filter to get count of all types for the query from the client
+	// Remove filter to get count of all types for the query from the client
 	apiQuery.Del("content_type")
 	apiQuery.Del("topics")
 

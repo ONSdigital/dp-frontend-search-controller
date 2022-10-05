@@ -12,7 +12,6 @@ func TestConfig(t *testing.T) {
 		cfg, err := Get()
 
 		Convey("When the config values are retrieved", func() {
-
 			Convey("Then there should be no error returned", func() {
 				So(err, ShouldBeNil)
 			})
@@ -20,6 +19,7 @@ func TestConfig(t *testing.T) {
 			Convey("Then the values should be set to the expected defaults", func() {
 				cfg, err = Get() // This Get() is only called once, when inside this function
 				So(err, ShouldBeNil)
+				So(cfg, ShouldNotBeNil)
 
 				So(cfg.APIRouterURL, ShouldEqual, "http://localhost:23200/v1")
 				So(cfg.BindAddr, ShouldEqual, "localhost:25000")

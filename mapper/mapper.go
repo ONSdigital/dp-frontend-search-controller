@@ -1,12 +1,10 @@
 package mapper
 
 import (
-	"context"
 	"net/http"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/log.go/v2/log"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-cookies/cookies"
@@ -18,10 +16,10 @@ import (
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams,
-	categories []data.Category, topicCategories []data.Topic, respC searchC.Response,
-	lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string, navigationContent *topicModel.Navigation) model.SearchPage {
-
+func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
+	respC searchC.Response, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
+	navigationContent *topicModel.Navigation) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
 	}
@@ -44,7 +42,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
 
-	mapQuery(cfg, &page, validatedQueryParams, categories, respC, ErrorMessage)
+	mapQuery(cfg, &page, validatedQueryParams, categories, respC, errorMessage)
 
 	mapResponse(&page, respC, categories)
 
@@ -55,12 +53,12 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	return page
 }
 
-func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, ErrorMessage string) {
+func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, errorMessage string) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
 
-	page.Data.ErrorMessage = ErrorMessage
+	page.Data.ErrorMessage = errorMessage
 
 	mapSort(page, validatedQueryParams)
 
@@ -74,13 +72,14 @@ func mapSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) 
 
 	page.Data.Sort.LocaliseSortKey = validatedQueryParams.Sort.LocaliseKeyName
 
-	var pageSortOptions []model.SortOptions
-	for _, sort := range data.SortOptions {
-		pageSortOptions = append(pageSortOptions, model.SortOptions{
-			Query:           sort.Query,
-			LocaliseKeyName: sort.LocaliseKeyName,
-		})
+	pageSortOptions := make([]model.SortOptions, len(data.SortOptions))
+	for i := range data.SortOptions {
+		pageSortOptions[i] = model.SortOptions{
+			Query:           data.SortOptions[i].Query,
+			LocaliseKeyName: data.SortOptions[i].LocaliseKeyName,
+		}
 	}
+
 	page.Data.Sort.Options = pageSortOptions
 }
 
@@ -95,7 +94,6 @@ func mapPagination(cfg *config.Config, page *model.SearchPage, validatedQueryPar
 }
 
 func mapResponse(page *model.SearchPage, respC searchC.Response, categories []data.Category) {
-	log.Info(context.Background(), "got es 7.10 mapper", log.Data{"search_api_response": respC})
 	page.Data.Response.Count = respC.Count
 
 	mapResponseCategories(page, categories)
@@ -104,25 +102,24 @@ func mapResponse(page *model.SearchPage, respC searchC.Response, categories []da
 
 	page.Data.Response.Suggestions = respC.Suggestions
 	page.Data.Response.AdditionalSuggestions = respC.AdditionalSuggestions
-	log.Info(context.Background(), "page response", log.Data{"page_response": page.Data.Response})
 }
 
 func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
 	itemPage := []model.ContentItem{}
 
-	for _, itemC := range respC.Items {
+	for i := range respC.Items {
 		item := model.ContentItem{}
 
-		mapItemDescription(&item, itemC)
+		mapItemDescription(&item, respC.Items[i])
 
-		mapItemHighlight(&item, itemC)
+		mapItemHighlight(&item, respC.Items[i])
 
-		item.Type.Type = itemC.Type
-		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(itemC.Type)
+		item.Type.Type = respC.Items[i].Type
+		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(respC.Items[i].Type)
 
-		item.URI = itemC.URI
+		item.URI = respC.Items[i].URI
 
-		mapItemMatches(&item, itemC)
+		mapItemMatches(&item, respC.Items[i])
 
 		itemPage = append(itemPage, item)
 	}
@@ -131,7 +128,6 @@ func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
 }
 
 func mapItemDescription(item *model.ContentItem, itemC searchC.ContentItem) {
-
 	item.Description = model.Description{
 		DatasetID:       itemC.DatasetID,
 		Language:        itemC.Language,
@@ -192,7 +188,6 @@ func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
 
 func mapItemMatches(pageItem *model.ContentItem, item searchC.ContentItem) {
 	if item.Matches != nil {
-
 		matchesDesc := item.Matches.Description
 
 		pageItem.Matches = &model.Matches{
@@ -292,17 +287,17 @@ func mapItemMatches(pageItem *model.ContentItem, item searchC.ContentItem) {
 }
 
 func mapFilters(page *model.SearchPage, categories []data.Category, queryParams data.SearchURLParams) {
-	var filters []model.Filter
+	filters := make([]model.Filter, len(categories))
 
-	for _, category := range categories {
+	for i := range categories {
 		var filter model.Filter
-		filter.LocaliseKeyName = category.LocaliseKeyName
-		filter.NumberOfResults = category.Count
+		filter.LocaliseKeyName = categories[i].LocaliseKeyName
+		filter.NumberOfResults = categories[i].Count
 
 		var keys []string
 		var subTypes []model.Filter
-		if len(category.ContentTypes) > 0 {
-			for _, contentType := range category.ContentTypes {
+		if len(categories[i].ContentTypes) > 0 {
+			for _, contentType := range categories[i].ContentTypes {
 				if !contentType.ShowInWebUI && contentType.Count > 0 {
 					filter.NumberOfResults -= contentType.Count
 					continue
@@ -319,11 +314,13 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 				keys = append(keys, contentType.Group)
 			}
 		}
+
 		filter.Types = subTypes
 		filter.FilterKey = keys
 		filter.IsChecked = mapIsChecked(filter.FilterKey, queryParams)
-		filters = append(filters, filter)
+		filters[i] = filter
 	}
+
 	page.Data.Filters = filters
 }
 
@@ -331,22 +328,25 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 	if !cfg.EnableCensusTopicFilterOption {
 		return
 	}
-	var topicFilters []model.TopicFilter
 
-	for _, topicCategory := range topicCategories {
-		if topicCategory.ShowInWebUI {
-			var topicFilter model.TopicFilter
+	var topicFilters = make([]model.TopicFilter, len(topicCategories))
 
-			topicFilter.LocaliseKeyName = topicCategory.LocaliseKeyName
-			topicFilter.NumberOfResults = topicCategory.Count
-			topicFilter.Query = topicCategory.Query
-
-			if topicCategory.Query == queryParams.TopicFilter {
-				topicFilter.IsChecked = true
-			}
-
-			topicFilters = append(topicFilters, topicFilter)
+	for i := range topicCategories {
+		if !topicCategories[i].ShowInWebUI {
+			continue
 		}
+
+		var topicFilter model.TopicFilter
+
+		topicFilter.LocaliseKeyName = topicCategories[i].LocaliseKeyName
+		topicFilter.NumberOfResults = topicCategories[i].Count
+		topicFilter.Query = topicCategories[i].Query
+
+		if topicCategories[i].Query == queryParams.TopicFilter {
+			topicFilter.IsChecked = true
+		}
+
+		topicFilters[i] = topicFilter
 	}
 
 	page.Data.TopicFilters = topicFilters
@@ -360,6 +360,7 @@ func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool 
 			}
 		}
 	}
+
 	return false
 }
 
@@ -367,6 +368,7 @@ func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool 
 func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *coreModel.CookiesPolicy) {
 	preferencesCookie := cookies.GetCookiePreferences(req)
 	*preferencesIsSet = preferencesCookie.IsPreferenceSet
+
 	*policy = coreModel.CookiesPolicy{
 		Essential: preferencesCookie.Policy.Essential,
 		Usage:     preferencesCookie.Policy.Usage,
@@ -377,6 +379,7 @@ func mapEmergencyBanner(hpc zebedee.HomepageContent) coreModel.EmergencyBanner {
 	var mappedEmergencyBanner coreModel.EmergencyBanner
 	emptyBannerObj := zebedee.EmergencyBanner{}
 	bannerData := hpc.EmergencyBanner
+
 	if bannerData != emptyBannerObj {
 		mappedEmergencyBanner.Title = bannerData.Title
 		mappedEmergencyBanner.Type = strings.Replace(bannerData.Type, "_", "-", -1)
@@ -384,15 +387,18 @@ func mapEmergencyBanner(hpc zebedee.HomepageContent) coreModel.EmergencyBanner {
 		mappedEmergencyBanner.URI = bannerData.URI
 		mappedEmergencyBanner.LinkText = bannerData.LinkText
 	}
+
 	return mappedEmergencyBanner
 }
 
 // mapNavigationContent takes navigationContent as returned from the client and returns information needed for the navigation bar
 func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.NavigationItem {
 	var mappedNavigationContent []coreModel.NavigationItem
+
 	if navigationContent.Items != nil {
 		for _, rootContent := range *navigationContent.Items {
 			var subItems []coreModel.NavigationItem
+
 			if rootContent.SubtopicItems != nil {
 				for _, subtopicContent := range *rootContent.SubtopicItems {
 					subItems = append(subItems, coreModel.NavigationItem{
@@ -401,6 +407,7 @@ func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.N
 					})
 				}
 			}
+
 			mappedNavigationContent = append(mappedNavigationContent, coreModel.NavigationItem{
 				Uri:      rootContent.Uri,
 				Label:    rootContent.Label,
@@ -408,5 +415,6 @@ func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.N
 			})
 		}
 	}
+
 	return mappedNavigationContent
 }

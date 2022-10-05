@@ -78,8 +78,7 @@ func getPageFromURLQuery(ctx context.Context, cfg *config.Config, query url.Valu
 	return page
 }
 
-func getOffset(ctx context.Context, cfg *config.Config, page int, limit int) (offset int, err error) {
-
+func getOffset(ctx context.Context, cfg *config.Config, page, limit int) (offset int, err error) {
 	offset = (page - 1) * limit
 
 	// when the offset is negative due to negative current page number or limit
@@ -139,14 +138,11 @@ func GetFirstAndLastPages(cfg *config.Config, validatedQueryParams SearchURLPara
 	controllerQuery := createSearchControllerQuery(validatedQueryParams)
 	query := controllerQuery.Get("q")
 
-	// add first
+	// add first and last
 	firstAndLastPages = append(firstAndLastPages, model.PageToDisplay{
 		PageNumber: 1,
 		URL:        getPageURL(query, 1, controllerQuery),
-	})
-
-	// add last
-	firstAndLastPages = append(firstAndLastPages, model.PageToDisplay{
+	}, model.PageToDisplay{
 		PageNumber: totalPages,
 		URL:        getPageURL(query, totalPages, controllerQuery),
 	})
@@ -154,7 +150,7 @@ func GetFirstAndLastPages(cfg *config.Config, validatedQueryParams SearchURLPara
 	return firstAndLastPages
 }
 
-func getStartPage(cfg *config.Config, currentPage int, totalPages int) int {
+func getStartPage(cfg *config.Config, currentPage, totalPages int) int {
 	pageOffset := getPageOffset()
 
 	startPage := currentPage - pageOffset
@@ -172,7 +168,7 @@ func getPageOffset() int {
 	return int(math.Round((float64(noOfPagesToDisplay) - 1) / 2))
 }
 
-func getEndPage(startPage int, totalPages int) int {
+func getEndPage(startPage, totalPages int) int {
 	endPage := startPage + noOfPagesToDisplay - 1
 
 	if totalPages < noOfPagesToDisplay {

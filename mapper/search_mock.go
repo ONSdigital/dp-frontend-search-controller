@@ -2,7 +2,7 @@ package mapper
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
@@ -12,7 +12,7 @@ import (
 func GetMockSearchResponse() (searchC.Response, error) {
 	var respC searchC.Response
 
-	sampleResponse, err := ioutil.ReadFile("../mapper/data/mock_search_response.json")
+	sampleResponse, err := os.ReadFile("../mapper/data/mock_search_response.json")
 	if err != nil {
 		return searchC.Response{}, err
 	}
@@ -29,7 +29,7 @@ func GetMockSearchResponse() (searchC.Response, error) {
 func GetMockHomepageContent() (zebedeeC.HomepageContent, error) {
 	var hc zebedeeC.HomepageContent
 
-	mockContent, err := ioutil.ReadFile("../mapper/data/mock_homepage_content.json")
+	mockContent, err := os.ReadFile("../mapper/data/mock_homepage_content.json")
 	if err != nil {
 		return zebedeeC.HomepageContent{}, err
 	}

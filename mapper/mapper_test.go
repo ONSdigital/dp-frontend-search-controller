@@ -23,10 +23,10 @@ var (
 	}
 )
 
+const englishLang string = "en"
+
 func TestUnitCreateSearchPage(t *testing.T) {
 	t.Parallel()
-
-	lang := "en"
 
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
@@ -68,7 +68,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 			// NOTE: temporary measure until topic filter feature flag is removed
 			cfg.EnableCensusTopicFilterOption = true
 
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, lang, respH, "", &models.Navigation{})
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &models.Navigation{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")

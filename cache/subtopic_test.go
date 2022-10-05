@@ -1,6 +1,7 @@
 package cache
 
 import (
+	"sync"
 	"testing"
 	"time"
 
@@ -72,7 +73,7 @@ func TestGetSubtopicsIDsQuery(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given an empty list of subtopics", t, func() {
-		subtopicIDsStore := SubtopicsIDs{}
+		subtopicIDsStore := NewSubTopicsMap()
 
 		Convey("When GetSubtopicsIDsQuery is called", func() {
 			subtopicsIDQuery := subtopicIDsStore.GetSubtopicsIDsQuery()
@@ -85,6 +86,7 @@ func TestGetSubtopicsIDsQuery(t *testing.T) {
 
 	Convey("Given a list of subtopics", t, func() {
 		subtopicIDsStore := SubtopicsIDs{
+			mutex: &sync.RWMutex{},
 			subtopicsMap: map[string]bool{
 				"1234": true,
 				"5678": true,

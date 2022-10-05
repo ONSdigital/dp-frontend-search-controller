@@ -143,7 +143,6 @@ func TestUnitGetSearchAPIQuerySuccess(t *testing.T) {
 			Convey("And update content_type (filter) query with sub filters", func() {
 				So(apiQuery["content_type"], ShouldResemble, []string{"article,article_download"})
 			})
-
 		})
 	})
 }

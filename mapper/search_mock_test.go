@@ -14,7 +14,6 @@ func TestUnitGetMockSearchResponse(t *testing.T) {
 		mockSearchResponse, err := GetMockSearchResponse()
 
 		Convey("Then successfully get mock search response", func() {
-
 			mockSearchContentTypes := []searchC.FilterCount{
 				{
 					Type:  "article",
@@ -56,7 +55,6 @@ func TestUnitGetMockSearchResponse(t *testing.T) {
 				Topics:       mockSearchTopics,
 				Items:        mockSearchItems,
 			})
-
 		})
 
 		Convey("And return no error", func() {

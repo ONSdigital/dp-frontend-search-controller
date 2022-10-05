@@ -56,7 +56,6 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 	validatedTopicFilters := []string{}
 
 	for i := range topicIDs {
-
 		topicFilterQuery := strings.ToLower(topicIDs[i])
 
 		if topicFilterQuery == "" {

@@ -21,6 +21,8 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+const englishLang = "en"
+
 type mockClientError struct{}
 
 func (e *mockClientError) Error() string { return "client error" }
@@ -40,7 +42,6 @@ func doTestRequest(target string, req *http.Request, handlerFunc http.HandlerFun
 var (
 	accessToken  string
 	collectionID string
-	lang         string
 
 	mockCensusTopic = &cache.Topic{
 		ID:              "1234",
@@ -90,8 +91,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
-		lang := "en"
-		mockCacheList, err := cache.GetMockCacheList(ctx, lang)
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
 
 		Convey("When Read is called", func() {
@@ -148,12 +148,11 @@ func TestUnitReadSuccess(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
-		lang := "en"
-		mockCacheList, err := cache.GetMockCacheList(ctx, lang)
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang, *mockCacheList)
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -209,12 +208,11 @@ func TestUnitReadFailure(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
-		lang := "en"
-		mockCacheList, err := cache.GetMockCacheList(ctx, lang)
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang, *mockCacheList)
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
@@ -251,12 +249,11 @@ func TestUnitReadFailure(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
-		lang := "en"
-		mockCacheList, err := cache.GetMockCacheList(ctx, lang)
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang, *mockCacheList)
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList)
 
 			Convey("Then a 500 internal server error status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -293,12 +290,11 @@ func TestUnitReadFailure(t *testing.T) {
 				return mockHomepageContent, nil
 			}}
 
-		lang := "en"
-		mockCacheList, err := cache.GetMockCacheList(ctx, lang)
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, lang, *mockCacheList)
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)

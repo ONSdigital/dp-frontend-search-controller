@@ -46,7 +46,6 @@ var (
 
 // reviewSort retrieves sort from query and checks if it is one of the sort options
 func reviewSort(ctx context.Context, cfg *config.Config, urlQuery url.Values, validatedQueryParams *SearchURLParams) {
-
 	sortQuery := urlQuery.Get("sort")
 
 	sort, found := sortOptions[sortQuery]
