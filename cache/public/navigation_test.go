@@ -6,7 +6,7 @@ import (
 
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-topic-api/models"
-	"github.com/ONSdigital/dp-topic-api/sdk"
+	topicCli "github.com/ONSdigital/dp-topic-api/sdk"
 	apiError "github.com/ONSdigital/dp-topic-api/sdk/errors"
 	mockTopicCli "github.com/ONSdigital/dp-topic-api/sdk/mocks"
 	. "github.com/smartystreets/goconvey/convey"
@@ -59,8 +59,8 @@ func TestUpdateNavigationData(t *testing.T) {
 	cfg.EnableNewNavBar = true
 
 	mockedNavigationClient := &mockTopicCli.ClienterMock{
-		GetNavigationPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers, options sdk.Options) (*models.Navigation, apiError.Error) {
-			if options.Lang == "cy" {
+		GetNavigationPublicFunc: func(ctx context.Context, reqHeaders topicCli.Headers, options topicCli.Options) (*models.Navigation, apiError.Error) {
+			if options.Lang == topicCli.Welsh {
 				return testNavDataCY, nil
 			}
 			return testNavData, nil
@@ -68,7 +68,6 @@ func TestUpdateNavigationData(t *testing.T) {
 	}
 
 	Convey("Given navigation data is being served by the topic API", t, func() {
-
 		Convey("When UpdateNavigationData is called", func() {
 			respNavigationCache := UpdateNavigationData(ctx, cfg, "en", mockedNavigationClient)()
 
@@ -82,7 +81,7 @@ func TestUpdateNavigationData(t *testing.T) {
 		})
 
 		Convey("When UpdateNavigationData is called with Welsh specified", func() {
-			respNavigationCache := UpdateNavigationData(ctx, cfg, "cy", mockedNavigationClient)()
+			respNavigationCache := UpdateNavigationData(ctx, cfg, topicCli.Welsh, mockedNavigationClient)()
 
 			Convey("Then the navigation data is returned", func() {
 				So(respNavigationCache, ShouldNotBeNil)

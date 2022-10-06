@@ -11,6 +11,8 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+const housingQuery = "housing"
+
 func TestUnitReviewPaginationSuccess(t *testing.T) {
 	t.Parallel()
 
@@ -523,7 +525,6 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given search query, page and controller query", t, func() {
-		query := "housing"
 		page := 1
 
 		controllerQuery := url.Values{
@@ -535,7 +536,7 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 		}
 
 		Convey("When getPageURL is called", func() {
-			pageURL := getPageURL(query, page, controllerQuery)
+			pageURL := getPageURL(housingQuery, page, controllerQuery)
 
 			Convey("Then successfully return page URL with query first and page last", func() {
 				So(pageURL, ShouldEqual, "/search?q=housing&filter=article&limit=10&sort=relevance&page=1")
@@ -544,16 +545,15 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 	})
 
 	Convey("Given no filter, sort, limit in controllerQuery", t, func() {
-		query := "housing"
 		page := 1
 
 		controllerQuery := url.Values{
-			"q":    []string{"housing"},
+			"q":    []string{housingQuery},
 			"page": []string{"1"},
 		}
 
 		Convey("When getPageURL is called", func() {
-			pageURL := getPageURL(query, page, controllerQuery)
+			pageURL := getPageURL(housingQuery, page, controllerQuery)
 
 			Convey("Then successfully return page URL with query and page", func() {
 				So(pageURL, ShouldEqual, "/search?q=housing&page=1")

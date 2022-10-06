@@ -10,17 +10,18 @@ import (
 )
 
 func UpdateNavigationData(ctx context.Context, cfg *config.Config, lang string, topicClient topicCli.Clienter) func() *topicModel.Navigation {
-	if cfg.EnableNewNavBar == false {
+	if !cfg.EnableNewNavBar {
 		return func() *topicModel.Navigation {
 			return &topicModel.Navigation{}
 		}
 	}
+
 	return func() *topicModel.Navigation {
 		headers := topicCli.Headers{}
 		options := topicCli.Options{}
 
 		switch lang {
-		case "cy":
+		case topicCli.Welsh:
 			options.Lang = topicCli.Welsh
 		default:
 			options.Lang = topicCli.English

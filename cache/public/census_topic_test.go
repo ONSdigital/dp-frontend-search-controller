@@ -227,7 +227,6 @@ func TestGetRootTopicCachePublic(t *testing.T) {
 	}
 
 	Convey("Given topic has subtopics", t, func() {
-
 		Convey("When getRootTopicCache is called", func() {
 			respCensusTopicCache := getRootTopicCachePublic(ctx, subtopicsIDChan, mockedTopicClient, testCensusRootTopic)
 

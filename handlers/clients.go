@@ -26,7 +26,6 @@ type RenderClient interface {
 // SearchClient is an interface with methods required for a search client
 type SearchClient interface {
 	GetSearch(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (r searchCli.Response, err error)
-	GetDepartments(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (d searchCli.Department, err error)
 }
 
 // ZebedeeClient is an interface with methods required for a zebedee client

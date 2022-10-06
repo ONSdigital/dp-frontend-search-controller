@@ -31,7 +31,7 @@ var (
 
 // Service contains the healthcheck, server and serviceList for the frontend search controller
 type Service struct {
-	Cache              cache.CacheList
+	Cache              cache.List
 	Config             *config.Config
 	HealthCheck        HealthChecker
 	routerHealthClient *health.Client
