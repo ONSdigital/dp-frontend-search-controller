@@ -60,6 +60,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	}
 
 	var (
+		// counter used to keep track of the number of concurrent API calls
 		counter            = 3
 		errorMessage       string
 		makeSearchAPICalls = true
@@ -68,6 +69,9 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	// avoid making unecessary search API calls
 	if errs.ErrMapForRenderBeforeAPICalls[err] {
 		makeSearchAPICalls = false
+
+		// reduce counter by the number of concurrent search API calls that would be
+		// run in go routines
 		counter -= 2
 		errorMessage = err.Error()
 	}
@@ -159,13 +163,16 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
 func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, apiQuery url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
-	// Remove filter to get count of all types for the query from the client
-	apiQuery.Del("content_type")
-	apiQuery.Del("topics")
+	// clone url values before removing values as to prevent changing the original copy
+	newQuery := url.Values(http.Header(apiQuery).Clone())
 
-	countResp, err := searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
+	// Remove filter to get count of all types for the query from the client
+	newQuery.Del("content_type")
+	newQuery.Del("topics")
+
+	countResp, err := searchC.GetSearch(ctx, accessToken, "", collectionID, newQuery)
 	if err != nil {
-		logData := log.Data{"api query passed to search-api": apiQuery}
+		logData := log.Data{"url_values": newQuery}
 		log.Error(ctx, "getting search query count from client failed", err, logData)
 		return nil, nil, err
 	}

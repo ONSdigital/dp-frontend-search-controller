@@ -66,7 +66,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 	}
 
 	Convey("Given a valid request", t, func() {
-		req := httptest.NewRequest("GET", "/search?q=housing", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing&filter=bulletin&topics=1234", nil)
 		req.Header.Set("X-Florence-Token", "testuser")
 
 		cfg, err := config.Get()
@@ -79,15 +79,28 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 			},
 		}
 
-		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
-				return mockSearchResponse, nil
+		expectedQueries := map[int]url.Values{
+			0: {
+				"limit":  []string{"10"},
+				"offset": []string{"0"},
+				"q":      []string{"housing"},
+				"sort":   []string{"relevance"},
+			},
+			1: {
+				"limit":  []string{"10"},
+				"offset": []string{"0"},
+				"q":      []string{"housing"},
+				"sort":   []string{"relevance"},
 			},
 		}
 
+		contentTypes := "bulletion"
+		topics := "1234"
+
+		mockedSearchClient := GetSearchClient(mockSearchResponse, expectedQueries, contentTypes, topics)
+
 		mockedZebedeeClient := &ZebedeeClientMock{
 			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
-				fmt.Printf("%+v\n", mockHomepageContent)
 				return mockHomepageContent, nil
 			}}
 
@@ -102,6 +115,8 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
+				So(mockedSearchClient.calls.GetSearch[0].Query, ShouldResemble, expectedQueries[0])
+				So(mockedSearchClient.calls.GetSearch[1].Query, ShouldResemble, expectedQueries[1])
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
@@ -563,4 +578,24 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 			})
 		})
 	})
+}
+
+func GetSearchClient(mockSearchResponse searchC.Response, expectedQueries map[int]url.Values, contentTypes, topics string) *SearchClientMock {
+	searchRequestCounter := 0
+	mockedSearchClient := &SearchClientMock{
+		GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
+			if query.Get("content_type") != "" {
+				expectedQueries[searchRequestCounter].Add("content_type", contentTypes)
+			}
+
+			if query.Get("topics") != "" {
+				expectedQueries[searchRequestCounter].Add("topics", topics)
+			}
+
+			searchRequestCounter++
+			return mockSearchResponse, nil
+		},
+	}
+
+	return mockedSearchClient
 }
