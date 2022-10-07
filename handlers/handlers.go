@@ -59,52 +59,75 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
-	apiQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
+	var (
+		counter            = 3
+		errorMessage       string
+		makeSearchAPICalls = true
+	)
 
-	var homepageResponse zebedeeCli.HomepageContent
-	var searchResp searchCli.Response
-	var respErr error
-
+	// avoid making unecessary search API calls
 	if errs.ErrMapForRenderBeforeAPICalls[err] {
-		// avoid making any API calls
-		basePage := rend.NewBasePageModel()
-		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.Topic{}, searchResp, lang, homepageResponse, err.Error(), navigationCache)
-		rend.BuildPage(w, m, "search")
-		return
+		makeSearchAPICalls = false
+		counter -= 2
+		errorMessage = err.Error()
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(2)
+	apiQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
+
+	var (
+		homepageResp zebedeeCli.HomepageContent
+		searchResp   searchCli.Response
+
+		categories      []data.Category
+		topicCategories []data.Topic
+
+		wg sync.WaitGroup
+
+		respErr, countErr error
+	)
+
+	wg.Add(counter)
 
 	go func() {
 		defer wg.Done()
 		var homeErr error
-		homepageResponse, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
 		if homeErr != nil {
-			logData := log.Data{"homepage_content": homeErr}
-			log.Error(ctx, "unable to get homepage content", homeErr, logData)
-			cancel()
-			return
-		}
-	}()
-	go func() {
-		defer wg.Done()
-		searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
-		if respErr != nil {
-			logData := log.Data{"api query passed to search-api": apiQuery}
-			log.Error(ctx, "getting search response from client failed", respErr, logData)
-			cancel()
+			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
 			return
 		}
 	}()
 
+	if makeSearchAPICalls {
+		go func() {
+			defer wg.Done()
+
+			searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
+			if respErr != nil {
+				log.Error(ctx, "getting search response from client failed", respErr)
+				cancel()
+				return
+			}
+		}()
+		go func() {
+			defer wg.Done()
+
+			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, searchC, censusTopicCache)
+			if countErr != nil {
+				log.Error(ctx, "getting categories, types and its counts failed", countErr)
+				setStatusCode(w, req, countErr)
+				cancel()
+				return
+			}
+		}()
+	}
+
 	wg.Wait()
-	if respErr != nil {
+	if respErr != nil || countErr != nil {
 		setStatusCode(w, req, respErr)
 		return
 	}
-
-	// TO-DO: Until API handles aggregration on datatypes (e.g. bulletins, article), we need to make a second request
 
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
@@ -113,15 +136,8 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
-	categories, topicCategories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, searchC, censusTopicCache)
-	if err != nil {
-		log.Error(ctx, "getting categories, types and its counts failed", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResponse, "", navigationCache)
+	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, errorMessage, navigationCache)
 	rend.BuildPage(w, m, "search")
 }
 

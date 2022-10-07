@@ -259,7 +259,7 @@ func TestUnitReadFailure(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
@@ -300,7 +300,7 @@ func TestUnitReadFailure(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
