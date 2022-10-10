@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"sync"
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
@@ -80,25 +79,11 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 			},
 		}
 
-		expectedQueries := map[int]url.Values{
-			0: {
-				"limit":  []string{"10"},
-				"offset": []string{"0"},
-				"q":      []string{"housing"},
-				"sort":   []string{"relevance"},
-			},
-			1: {
-				"limit":  []string{"10"},
-				"offset": []string{"0"},
-				"q":      []string{"housing"},
-				"sort":   []string{"relevance"},
+		mockedSearchClient := &SearchClientMock{
+			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
+				return mockSearchResponse, nil
 			},
 		}
-
-		contentTypes := "bulletin"
-		topics := "1234"
-
-		mockedSearchClient := GetSearchClient(mockSearchResponse, expectedQueries, contentTypes, topics)
 
 		mockedZebedeeClient := &ZebedeeClientMock{
 			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
@@ -115,10 +100,24 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusOK)
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
-				So(mockedSearchClient.calls.GetSearch[0].Query, ShouldResemble, expectedQueries[0])
-				So(mockedSearchClient.calls.GetSearch[1].Query, ShouldResemble, expectedQueries[1])
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
+
+				if mockedSearchClient.calls.GetSearch[0].Query.Has("topics") {
+					So(mockedSearchClient.calls.GetSearch[0].Query.Get("topics"), ShouldEqual, "1234")
+					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldNotContainKey, "topics")
+				} else {
+					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldContainKey, "topics")
+					So(mockedSearchClient.calls.GetSearch[1].Query.Get("topics"), ShouldEqual, "1234")
+				}
+
+				if mockedSearchClient.calls.GetSearch[0].Query.Has("content_type") {
+					So(mockedSearchClient.calls.GetSearch[0].Query.Get("content_type"), ShouldEqual, "bulletin")
+					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldNotContainKey, "content_type")
+				} else {
+					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldContainKey, "content_type")
+					So(mockedSearchClient.calls.GetSearch[1].Query.Get("content_type"), ShouldEqual, "bulletin")
+				}
 			})
 		})
 	})
@@ -579,34 +578,4 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 			})
 		})
 	})
-}
-
-type container struct {
-	counter int
-	mu      sync.Mutex
-}
-
-func GetSearchClient(mockSearchResponse searchC.Response, expectedQueries map[int]url.Values, contentTypes, topics string) *SearchClientMock {
-	var searchRequestContainer container
-
-	mockedSearchClient := &SearchClientMock{
-		GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
-			searchRequestContainer.mu.Lock()
-			defer searchRequestContainer.mu.Unlock()
-
-			if query.Get("content_type") != "" {
-				expectedQueries[searchRequestContainer.counter].Add("content_type", contentTypes)
-			}
-
-			if query.Get("topics") != "" {
-				expectedQueries[searchRequestContainer.counter].Add("topics", topics)
-			}
-
-			searchRequestContainer.counter++
-
-			return mockSearchResponse, nil
-		},
-	}
-
-	return mockedSearchClient
 }
