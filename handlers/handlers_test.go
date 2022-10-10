@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"sync"
 	"testing"
 
 	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
@@ -94,7 +95,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 			},
 		}
 
-		contentTypes := "bulletion"
+		contentTypes := "bulletin"
 		topics := "1234"
 
 		mockedSearchClient := GetSearchClient(mockSearchResponse, expectedQueries, contentTypes, topics)
@@ -580,19 +581,29 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 	})
 }
 
+type container struct {
+	counter int
+	mu      sync.Mutex
+}
+
 func GetSearchClient(mockSearchResponse searchC.Response, expectedQueries map[int]url.Values, contentTypes, topics string) *SearchClientMock {
-	searchRequestCounter := 0
+	var searchRequestContainer container
+
 	mockedSearchClient := &SearchClientMock{
 		GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
+			searchRequestContainer.mu.Lock()
+			defer searchRequestContainer.mu.Unlock()
+
 			if query.Get("content_type") != "" {
-				expectedQueries[searchRequestCounter].Add("content_type", contentTypes)
+				expectedQueries[searchRequestContainer.counter].Add("content_type", contentTypes)
 			}
 
 			if query.Get("topics") != "" {
-				expectedQueries[searchRequestCounter].Add("topics", topics)
+				expectedQueries[searchRequestContainer.counter].Add("topics", topics)
 			}
 
-			searchRequestCounter++
+			searchRequestContainer.counter++
+
 			return mockSearchResponse, nil
 		},
 	}

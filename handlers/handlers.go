@@ -76,7 +76,8 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		errorMessage = err.Error()
 	}
 
-	apiQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
+	searchQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
+	categoriesCountQuery := getCategoriesCountQuery(searchQuery)
 
 	var (
 		homepageResp zebedeeCli.HomepageContent
@@ -106,7 +107,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		go func() {
 			defer wg.Done()
 
-			searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
+			searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, searchQuery)
 			if respErr != nil {
 				log.Error(ctx, "getting search response from client failed", respErr)
 				cancel()
@@ -117,7 +118,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 			defer wg.Done()
 
 			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
-			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, searchC, censusTopicCache)
+			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 			if countErr != nil {
 				log.Error(ctx, "getting categories, types and its counts failed", countErr)
 				setStatusCode(w, req, countErr)
@@ -161,18 +162,24 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 	return nil
 }
 
-// getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
-func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, apiQuery url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
-	// clone url values before removing values as to prevent changing the original copy
-	newQuery := url.Values(http.Header(apiQuery).Clone())
+// getCategoriesCountQuery clones url (query) values before removing
+// filters to be able to return total counts for different filters
+func getCategoriesCountQuery(searchQuery url.Values) url.Values {
+	// Clone the searchQuery url values to prevent changing the original copy
+	query := url.Values(http.Header(searchQuery).Clone())
 
 	// Remove filter to get count of all types for the query from the client
-	newQuery.Del("content_type")
-	newQuery.Del("topics")
+	query.Del("content_type")
+	query.Del("topics")
 
-	countResp, err := searchC.GetSearch(ctx, accessToken, "", collectionID, newQuery)
+	return query
+}
+
+// getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
+func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, query url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
+	countResp, err := searchC.GetSearch(ctx, accessToken, "", collectionID, query)
 	if err != nil {
-		logData := log.Data{"url_values": newQuery}
+		logData := log.Data{"url_values": query}
 		log.Error(ctx, "getting search query count from client failed", err, logData)
 		return nil, nil, err
 	}
