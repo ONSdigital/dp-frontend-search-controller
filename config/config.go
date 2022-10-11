@@ -61,7 +61,7 @@ func get() (*Config, error) {
 		APIRouterURL:                   "http://localhost:23200/v1",
 		BindAddr:                       "localhost:25000",
 		CacheCensusTopicUpdateInterval: 30 * time.Minute,
-		CacheNavigationUpdateInterval:  10 * time.Second,
+		CacheNavigationUpdateInterval:  30 * time.Minute,
 		CensusTopicID:                  "4445",
 		Debug:                          false,
 		DefaultLimit:                   10,
