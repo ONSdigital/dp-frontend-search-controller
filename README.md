@@ -9,7 +9,10 @@ An HTTP service for the controlling of search API
 Run new search in the UI:
 * run the [web journey](https://github.com/ONSdigital/dp/blob/main/guides/INSTALLING.md#web-journey)
 
+* set `SearchRoutesEnabled` to `true` and `SearchABTestPercentage` to `100` in the config of the [dp-frontend-router](https://github.com/ONSdigital/dp-frontend-router)
+
 ## Dependencies
+
 * generate default content with [dp-zebedee-content](https://github.com/ONSdigital/dp-zebedee-content#dp-zebedee-content)
 * [dp-design-system](https://github.com/ONSdigital/dp-design-system)
 * [dp-search-api](https://github.com/ONSdigital/dp-search-api)
