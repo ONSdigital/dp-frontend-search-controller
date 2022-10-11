@@ -66,7 +66,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 	}
 
 	Convey("Given a valid request", t, func() {
-		req := httptest.NewRequest("GET", "/search?q=housing", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing&filter=bulletin&topics=1234", nil)
 		req.Header.Set("X-Florence-Token", "testuser")
 
 		cfg, err := config.Get()
@@ -87,7 +87,6 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 
 		mockedZebedeeClient := &ZebedeeClientMock{
 			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
-				fmt.Printf("%+v\n", mockHomepageContent)
 				return mockHomepageContent, nil
 			}}
 
@@ -101,8 +100,24 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusOK)
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
+
+				if mockedSearchClient.calls.GetSearch[0].Query.Has("topics") {
+					So(mockedSearchClient.calls.GetSearch[0].Query.Get("topics"), ShouldEqual, "1234")
+					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldNotContainKey, "topics")
+				} else {
+					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldContainKey, "topics")
+					So(mockedSearchClient.calls.GetSearch[1].Query.Get("topics"), ShouldEqual, "1234")
+				}
+
+				if mockedSearchClient.calls.GetSearch[0].Query.Has("content_type") {
+					So(mockedSearchClient.calls.GetSearch[0].Query.Get("content_type"), ShouldEqual, "bulletin")
+					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldNotContainKey, "content_type")
+				} else {
+					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldContainKey, "content_type")
+					So(mockedSearchClient.calls.GetSearch[1].Query.Get("content_type"), ShouldEqual, "bulletin")
+				}
 			})
 		})
 	})
@@ -259,7 +274,7 @@ func TestUnitReadFailure(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
@@ -300,7 +315,7 @@ func TestUnitReadFailure(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
