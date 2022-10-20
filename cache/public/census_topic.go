@@ -28,7 +28,7 @@ func UpdateCensusTopic(ctx context.Context, topicClient topicCli.Clienter) func(
 			return cache.GetEmptyCensusTopic()
 		}
 
-		//deference root topics items to allow ranging through them
+		// deference root topics items to allow ranging through them
 		if rootTopics.PublicItems == nil {
 			err := errors.New("root topic public items is nil")
 			log.Error(ctx, "failed to deference root topics items pointer", err)
@@ -109,7 +109,7 @@ func getSubtopicsIDsPublic(ctx context.Context, subtopicsIDChan chan string, top
 		return
 	}
 
-	//deference sub topics items to allow ranging through them
+	// deference sub topics items to allow ranging through them
 	var subTopicItems []models.Topic
 	if subTopics.PublicItems != nil {
 		subTopicItems = *subTopics.PublicItems

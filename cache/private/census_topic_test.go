@@ -259,7 +259,6 @@ func TestGetRootTopicCachePrivate(t *testing.T) {
 	}
 
 	Convey("Given topic has subtopics", t, func() {
-
 		Convey("When getRootTopicCachePrivate is called", func() {
 			respCensusTopicCache := getRootTopicCachePrivate(ctx, "", subtopicsIDChan, mockedTopicClient, testCensusRootTopic)
 

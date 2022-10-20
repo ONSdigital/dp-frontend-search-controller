@@ -28,7 +28,7 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 			return cache.GetEmptyCensusTopic()
 		}
 
-		//deference root topics items to allow ranging through them
+		// deference root topics items to allow ranging through them
 		var rootTopicItems []models.TopicResponse
 		if rootTopics.PrivateItems != nil {
 			rootTopicItems = *rootTopics.PrivateItems
@@ -113,7 +113,7 @@ func getSubtopicsIDsPrivate(ctx context.Context, serviceAuthToken string, subtop
 		return
 	}
 
-	//deference sub topics items to allow ranging through them
+	// deference sub topics items to allow ranging through them
 	if subTopics.PrivateItems == nil {
 		err := errors.New("sub topics private items is nil")
 		log.Error(ctx, "failed to deference sub topics items pointer", err)

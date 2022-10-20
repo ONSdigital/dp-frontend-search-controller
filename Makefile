@@ -26,8 +26,9 @@ debug: generate-debug
 	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-frontend-search-controller
 
 .PHONY: lint
-lint:
-	exit
+lint: generate-prod
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.50.0
+	golangci-lint run ./...
 
 .PHONY: test
 test: generate-prod

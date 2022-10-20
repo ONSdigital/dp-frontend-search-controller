@@ -12,7 +12,6 @@ func TestConfig(t *testing.T) {
 		cfg, err := Get()
 
 		Convey("When the config values are retrieved", func() {
-
 			Convey("Then there should be no error returned", func() {
 				So(err, ShouldBeNil)
 			})
@@ -20,10 +19,12 @@ func TestConfig(t *testing.T) {
 			Convey("Then the values should be set to the expected defaults", func() {
 				cfg, err = Get() // This Get() is only called once, when inside this function
 				So(err, ShouldBeNil)
+				So(cfg, ShouldNotBeNil)
 
 				So(cfg.APIRouterURL, ShouldEqual, "http://localhost:23200/v1")
 				So(cfg.BindAddr, ShouldEqual, "localhost:25000")
 				So(cfg.CacheCensusTopicUpdateInterval, ShouldEqual, 30*time.Minute)
+				So(cfg.CacheNavigationUpdateInterval, ShouldEqual, 30*time.Minute)
 				So(cfg.CensusTopicID, ShouldEqual, "4445")
 				So(cfg.Debug, ShouldBeFalse)
 				So(cfg.DefaultLimit, ShouldEqual, 10)
@@ -33,6 +34,7 @@ func TestConfig(t *testing.T) {
 				So(cfg.DefaultPage, ShouldEqual, 1)
 				So(cfg.DefaultSort, ShouldEqual, "relevance")
 				So(cfg.EnableCensusTopicFilterOption, ShouldBeFalse)
+				So(cfg.EnableNewNavBar, ShouldBeFalse)
 				So(cfg.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)
 				So(cfg.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
 				So(cfg.HealthCheckInterval, ShouldEqual, 30*time.Second)

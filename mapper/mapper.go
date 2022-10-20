@@ -12,14 +12,14 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	model "github.com/ONSdigital/dp-frontend-search-controller/model"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
+	topicModel "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-
-func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page, validatedQueryParams data.SearchURLParams,
-	categories []data.Category, topicCategories []data.Topic, respC searchC.Response, departments searchC.Department,
-	lang string, homepageResponse zebedee.HomepageContent, ErrorMessage string) model.SearchPage {
-
+func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
+	respC searchC.Response, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
+	navigationContent *topicModel.Navigation) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
 	}
@@ -38,30 +38,27 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
 	page.SearchNoIndexEnabled = cfg.NoIndexEnabled
-
-	mapQuery(cfg, &page, validatedQueryParams, categories, respC, ErrorMessage)
-
-	if respC.ES_710 {
-		mapResponse(&page, respC, categories)
-	} else {
-		mapLegacyResponse(&page, respC, categories)
+	if navigationContent != nil {
+		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
+
+	mapQuery(cfg, &page, validatedQueryParams, categories, respC, errorMessage)
+
+	mapResponse(&page, respC, categories)
 
 	mapFilters(&page, categories, validatedQueryParams)
 
 	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
 
-	mapDepartments(&page, departments)
-
 	return page
 }
 
-func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, ErrorMessage string) {
+func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, errorMessage string) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
 
-	page.Data.ErrorMessage = ErrorMessage
+	page.Data.ErrorMessage = errorMessage
 
 	mapSort(page, validatedQueryParams)
 
@@ -75,13 +72,14 @@ func mapSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) 
 
 	page.Data.Sort.LocaliseSortKey = validatedQueryParams.Sort.LocaliseKeyName
 
-	var pageSortOptions []model.SortOptions
-	for _, sort := range data.SortOptions {
-		pageSortOptions = append(pageSortOptions, model.SortOptions{
-			Query:           sort.Query,
-			LocaliseKeyName: sort.LocaliseKeyName,
-		})
+	pageSortOptions := make([]model.SortOptions, len(data.SortOptions))
+	for i := range data.SortOptions {
+		pageSortOptions[i] = model.SortOptions{
+			Query:           data.SortOptions[i].Query,
+			LocaliseKeyName: data.SortOptions[i].LocaliseKeyName,
+		}
 	}
+
 	page.Data.Sort.Options = pageSortOptions
 }
 
@@ -95,15 +93,72 @@ func mapPagination(cfg *config.Config, page *model.SearchPage, validatedQueryPar
 	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
 }
 
-func mapLegacyResponse(page *model.SearchPage, respC searchC.Response, categories []data.Category) {
+func mapResponse(page *model.SearchPage, respC searchC.Response, categories []data.Category) {
 	page.Data.Response.Count = respC.Count
 
 	mapResponseCategories(page, categories)
 
-	mapLegacyResponseItems(page, respC)
+	mapResponseItems(page, respC)
 
 	page.Data.Response.Suggestions = respC.Suggestions
 	page.Data.Response.AdditionalSuggestions = respC.AdditionalSuggestions
+}
+
+func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
+	itemPage := []model.ContentItem{}
+
+	for i := range respC.Items {
+		item := model.ContentItem{}
+
+		mapItemDescription(&item, respC.Items[i])
+
+		mapItemHighlight(&item, respC.Items[i])
+
+		item.Type.Type = respC.Items[i].Type
+		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(respC.Items[i].Type)
+
+		item.URI = respC.Items[i].URI
+
+		mapItemMatches(&item, respC.Items[i])
+
+		itemPage = append(itemPage, item)
+	}
+
+	page.Data.Response.Items = itemPage
+}
+
+func mapItemDescription(item *model.ContentItem, itemC searchC.ContentItem) {
+	item.Description = model.Description{
+		DatasetID:       itemC.DatasetID,
+		Language:        itemC.Language,
+		MetaDescription: itemC.MetaDescription,
+		ReleaseDate:     itemC.ReleaseDate,
+		Summary:         itemC.Summary,
+		Title:           itemC.Title,
+	}
+
+	if len(itemC.Keywords) != 0 {
+		item.Description.Keywords = &itemC.Keywords
+	} else {
+		item.Description.Keywords = nil
+	}
+}
+
+func mapItemHighlight(item *model.ContentItem, itemC searchC.ContentItem) {
+	highlightC := itemC.Highlight
+
+	if highlightC != nil {
+		item.Description.Highlight = model.Highlight{
+			DatasetID:       highlightC.DatasetID,
+			Edition:         highlightC.Edition,
+			Keywords:        highlightC.Keywords,
+			MetaDescription: highlightC.MetaDescription,
+			Summary:         highlightC.Summary,
+			Title:           highlightC.Title,
+		}
+	} else {
+		item.Description.Highlight = model.Highlight{}
+	}
 }
 
 func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
@@ -131,77 +186,8 @@ func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
 	page.Data.Response.Categories = pageCategories
 }
 
-func mapLegacyResponseItems(page *model.SearchPage, respC searchC.Response) {
-	itemPage := []model.ContentItem{}
-
-	for _, itemC := range respC.Items {
-		item := model.ContentItem{}
-
-		mapItemLegacyDescription(&item, itemC)
-
-		mapLegacyItemHighlight(&item, itemC)
-
-		item.Type.Type = itemC.Type
-		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(itemC.Type)
-
-		item.URI = itemC.URI
-
-		mapItemMatches(&item, itemC)
-
-		itemPage = append(itemPage, item)
-	}
-
-	page.Data.Response.Items = itemPage
-}
-
-func mapItemLegacyDescription(item *model.ContentItem, itemC searchC.ContentItem) {
-	descriptionC := itemC.LegacyDescription
-
-	item.Description = model.Description{
-		DatasetID:         descriptionC.DatasetID,
-		Edition:           descriptionC.Edition,
-		Headline1:         descriptionC.Headline1,
-		Headline2:         descriptionC.Headline2,
-		Headline3:         descriptionC.Headline3,
-		Keywords:          descriptionC.Keywords,
-		LatestRelease:     descriptionC.LatestRelease,
-		Language:          descriptionC.Language,
-		MetaDescription:   descriptionC.MetaDescription,
-		NationalStatistic: descriptionC.NationalStatistic,
-		NextRelease:       descriptionC.NextRelease,
-		PreUnit:           descriptionC.PreUnit,
-		ReleaseDate:       descriptionC.ReleaseDate,
-		Source:            descriptionC.Source,
-		Summary:           descriptionC.Summary,
-		Title:             descriptionC.Title,
-		Unit:              descriptionC.Unit,
-	}
-
-	if descriptionC.Contact != nil {
-		item.Description.Contact = &model.Contact{
-			Name:      descriptionC.Contact.Name,
-			Telephone: descriptionC.Contact.Telephone,
-			Email:     descriptionC.Contact.Email,
-		}
-	}
-}
-
-func mapLegacyItemHighlight(item *model.ContentItem, itemC searchC.ContentItem) {
-	highlightC := itemC.LegacyDescription.Highlight
-
-	item.Description.Highlight = model.Highlight{
-		DatasetID:       highlightC.DatasetID,
-		Edition:         highlightC.Edition,
-		Keywords:        highlightC.Keywords,
-		MetaDescription: highlightC.MetaDescription,
-		Summary:         highlightC.Summary,
-		Title:           highlightC.Title,
-	}
-}
-
 func mapItemMatches(pageItem *model.ContentItem, item searchC.ContentItem) {
 	if item.Matches != nil {
-
 		matchesDesc := item.Matches.Description
 
 		pageItem.Matches = &model.Matches{
@@ -301,17 +287,17 @@ func mapItemMatches(pageItem *model.ContentItem, item searchC.ContentItem) {
 }
 
 func mapFilters(page *model.SearchPage, categories []data.Category, queryParams data.SearchURLParams) {
-	var filters []model.Filter
+	filters := make([]model.Filter, len(categories))
 
-	for _, category := range categories {
+	for i := range categories {
 		var filter model.Filter
-		filter.LocaliseKeyName = category.LocaliseKeyName
-		filter.NumberOfResults = category.Count
+		filter.LocaliseKeyName = categories[i].LocaliseKeyName
+		filter.NumberOfResults = categories[i].Count
 
 		var keys []string
 		var subTypes []model.Filter
-		if len(category.ContentTypes) > 0 {
-			for _, contentType := range category.ContentTypes {
+		if len(categories[i].ContentTypes) > 0 {
+			for _, contentType := range categories[i].ContentTypes {
 				if !contentType.ShowInWebUI && contentType.Count > 0 {
 					filter.NumberOfResults -= contentType.Count
 					continue
@@ -328,11 +314,13 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 				keys = append(keys, contentType.Group)
 			}
 		}
+
 		filter.Types = subTypes
 		filter.FilterKey = keys
 		filter.IsChecked = mapIsChecked(filter.FilterKey, queryParams)
-		filters = append(filters, filter)
+		filters[i] = filter
 	}
+
 	page.Data.Filters = filters
 }
 
@@ -340,22 +328,25 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 	if !cfg.EnableCensusTopicFilterOption {
 		return
 	}
-	var topicFilters []model.TopicFilter
 
-	for _, topicCategory := range topicCategories {
-		if topicCategory.ShowInWebUI {
-			var topicFilter model.TopicFilter
+	var topicFilters = make([]model.TopicFilter, len(topicCategories))
 
-			topicFilter.LocaliseKeyName = topicCategory.LocaliseKeyName
-			topicFilter.NumberOfResults = topicCategory.Count
-			topicFilter.Query = topicCategory.Query
-
-			if topicCategory.Query == queryParams.TopicFilter {
-				topicFilter.IsChecked = true
-			}
-
-			topicFilters = append(topicFilters, topicFilter)
+	for i := range topicCategories {
+		if !topicCategories[i].ShowInWebUI {
+			continue
 		}
+
+		var topicFilter model.TopicFilter
+
+		topicFilter.LocaliseKeyName = topicCategories[i].LocaliseKeyName
+		topicFilter.NumberOfResults = topicCategories[i].Count
+		topicFilter.Query = topicCategories[i].Query
+
+		if topicCategories[i].Query == queryParams.TopicFilter {
+			topicFilter.IsChecked = true
+		}
+
+		topicFilters[i] = topicFilter
 	}
 
 	page.Data.TopicFilters = topicFilters
@@ -369,32 +360,15 @@ func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool 
 			}
 		}
 	}
+
 	return false
-}
-
-func mapDepartments(page *model.SearchPage, departments searchC.Department) {
-	if &departments != nil && departments.Items == nil {
-		page.Department = nil
-		return
-	}
-
-	dept := (*departments.Items)[0]
-	page.Department = &model.Department{
-		Code: dept.Code,
-		URL:  dept.URL,
-		Name: dept.Name,
-	}
-	if dept.Matches != nil {
-		matches := (*dept.Matches)[0]
-		terms := (*matches.Terms)[0]
-		page.Department.Match = terms.Value
-	}
 }
 
 // MapCookiePreferences reads cookie policy and preferences cookies and then maps the values to the page model
 func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *coreModel.CookiesPolicy) {
 	preferencesCookie := cookies.GetCookiePreferences(req)
 	*preferencesIsSet = preferencesCookie.IsPreferenceSet
+
 	*policy = coreModel.CookiesPolicy{
 		Essential: preferencesCookie.Policy.Essential,
 		Usage:     preferencesCookie.Policy.Usage,
@@ -405,6 +379,7 @@ func mapEmergencyBanner(hpc zebedee.HomepageContent) coreModel.EmergencyBanner {
 	var mappedEmergencyBanner coreModel.EmergencyBanner
 	emptyBannerObj := zebedee.EmergencyBanner{}
 	bannerData := hpc.EmergencyBanner
+
 	if bannerData != emptyBannerObj {
 		mappedEmergencyBanner.Title = bannerData.Title
 		mappedEmergencyBanner.Type = strings.Replace(bannerData.Type, "_", "-", -1)
@@ -412,5 +387,34 @@ func mapEmergencyBanner(hpc zebedee.HomepageContent) coreModel.EmergencyBanner {
 		mappedEmergencyBanner.URI = bannerData.URI
 		mappedEmergencyBanner.LinkText = bannerData.LinkText
 	}
+
 	return mappedEmergencyBanner
+}
+
+// mapNavigationContent takes navigationContent as returned from the client and returns information needed for the navigation bar
+func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.NavigationItem {
+	var mappedNavigationContent []coreModel.NavigationItem
+
+	if navigationContent.Items != nil {
+		for _, rootContent := range *navigationContent.Items {
+			var subItems []coreModel.NavigationItem
+
+			if rootContent.SubtopicItems != nil {
+				for _, subtopicContent := range *rootContent.SubtopicItems {
+					subItems = append(subItems, coreModel.NavigationItem{
+						Uri:   subtopicContent.Uri,
+						Label: subtopicContent.Label,
+					})
+				}
+			}
+
+			mappedNavigationContent = append(mappedNavigationContent, coreModel.NavigationItem{
+				Uri:      rootContent.Uri,
+				Label:    rootContent.Label,
+				SubItems: subItems,
+			})
+		}
+	}
+
+	return mappedNavigationContent
 }

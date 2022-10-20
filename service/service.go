@@ -31,7 +31,7 @@ var (
 
 // Service contains the healthcheck, server and serviceList for the frontend search controller
 type Service struct {
-	Cache              cache.CacheList
+	Cache              cache.List
 	Config             *config.Config
 	HealthCheck        HealthChecker
 	routerHealthClient *health.Client
@@ -81,10 +81,22 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 		log.Error(ctx, "failed to create topics cache", err)
 		return err
 	}
+	svc.Cache.Navigation, err = cache.NewNavigationCache(ctx, &cfg.CacheNavigationUpdateInterval)
+	if err != nil {
+		log.Error(ctx, "failed to create navigation cache", err, log.Data{"update_interval": cfg.CacheNavigationUpdateInterval})
+		return err
+	}
+
 	if cfg.IsPublishing {
 		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePrivate.UpdateCensusTopic(ctx, cfg.ServiceAuthToken, clients.Topic))
 	} else {
 		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePublic.UpdateCensusTopic(ctx, clients.Topic))
+
+		for _, lang := range cfg.SupportedLanguages {
+			navigationlangKey := svc.Cache.Navigation.GetCachingKeyForNavigationLanguage(lang)
+			svc.Cache.Navigation.AddUpdateFunc(navigationlangKey, cachePublic.UpdateNavigationData(ctx, cfg, lang, clients.Topic))
+		}
+
 	}
 
 	// Initialise router
@@ -104,6 +116,7 @@ func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
 
 	// Start caching
 	go svc.Cache.CensusTopic.StartUpdates(ctx, svcErrors)
+	go svc.Cache.Navigation.StartUpdates(ctx, svcErrors)
 
 	// Start HTTP server
 	log.Info(ctx, "Starting server")
@@ -130,6 +143,7 @@ func (svc *Service) Close(ctx context.Context) error {
 
 		// stop caching
 		svc.Cache.CensusTopic.Close()
+		svc.Cache.Navigation.Close()
 
 		// stop any incoming requests
 		if err := svc.Server.Shutdown(ctx); err != nil {

@@ -8,19 +8,22 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-func TestGetMockCensusTopicCacheList(t *testing.T) {
+const testLang = "en"
+
+func TestGetMockCacheList(t *testing.T) {
 	t.Parallel()
 
 	ctx := context.Background()
 
-	Convey("When GetMockCensusTopicCacheList is called", t, func() {
-		cacheList, err := GetMockCensusTopicCacheList(ctx)
+	Convey("When GetMockCacheList is called", t, func() {
+		cacheList, err := GetMockCacheList(ctx, testLang)
 
 		Convey("Then the list of cache should be returned", func() {
 			So(cacheList, ShouldNotBeNil)
 			So(err, ShouldBeNil)
 
 			So(cacheList.CensusTopic, ShouldNotBeNil)
+			So(cacheList.Navigation, ShouldNotBeNil)
 
 			censusTopic, err := cacheList.CensusTopic.GetCensusData(ctx)
 			So(censusTopic, ShouldNotBeNil)
