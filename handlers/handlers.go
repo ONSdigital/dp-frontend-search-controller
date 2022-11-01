@@ -44,6 +44,8 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
+	log.Info(ctx, "got topic cache", log.Data{"cache": censusTopicCache})
+
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
 	if err != nil {

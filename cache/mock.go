@@ -48,9 +48,9 @@ func GetMockCensusTopic() *Topic {
 	}
 
 	mockCensusTopic.List = NewSubTopicsMap()
-	mockCensusTopic.List.AppendSubtopicID("1234")
-	mockCensusTopic.List.AppendSubtopicID("5678")
-	mockCensusTopic.List.AppendSubtopicID(CensusTopicID)
+	mockCensusTopic.List.AppendSubtopicID("1234", Subtopic{LocaliseKeyName: "International Migration", ReleaseDate: "2022-10-10T08:30:00Z"})
+	mockCensusTopic.List.AppendSubtopicID("5678", Subtopic{LocaliseKeyName: "Age", ReleaseDate: "2022-11-09T09:30:00Z"})
+	mockCensusTopic.List.AppendSubtopicID(CensusTopicID, Subtopic{LocaliseKeyName: "Census", ReleaseDate: "2022-10-10T09:30:00Z"})
 
 	return mockCensusTopic
 }

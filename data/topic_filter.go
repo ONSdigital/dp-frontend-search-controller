@@ -62,8 +62,7 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 			continue
 		}
 
-		found := censusTopicCache.List.Get(topicFilterQuery)
-		if !found {
+		if ok := censusTopicCache.List.CheckTopicIDExsits(topicFilterQuery); !ok {
 			err := errs.ErrTopicNotFound
 			logData := log.Data{"subtopic id not found": topicFilterQuery}
 			log.Error(ctx, "failed to find subtopic id in census topic data", err, logData)
