@@ -40,7 +40,7 @@ func TestAppendSubtopicID(t *testing.T) {
 
 	Convey("Given a nil map in the SubtopicsIDs object", t, func() {
 		subtopicIDsStore := NewSubTopicsMap()
-		subtopicIDsStore.subtopicsMap = nil
+		subtopicIDsStore.SubtopicsMap = nil
 
 		Convey("When AppendSubtopicID is called", func() {
 			subtopicIDsStore.AppendSubtopicID("1234", subtopic1)
@@ -53,7 +53,7 @@ func TestAppendSubtopicID(t *testing.T) {
 
 	Convey("Given an existing SubtopicsIDs object with data", t, func() {
 		subtopicIDsStore := NewSubTopicsMap()
-		subtopicIDsStore.subtopicsMap = map[string]Subtopic{
+		subtopicIDsStore.SubtopicsMap = map[string]Subtopic{
 			"1234": subtopic1,
 		}
 
@@ -104,9 +104,9 @@ func TestGetSubtopicsIDsQuery(t *testing.T) {
 	})
 
 	Convey("Given a list of subtopics", t, func() {
-		subtopicIDsStore := SubtopicsIDs{
+		subtopicIDsStore := Subtopics{
 			mutex: &sync.RWMutex{},
-			subtopicsMap: map[string]Subtopic{
+			SubtopicsMap: map[string]Subtopic{
 				"1234": subtopic1,
 				"5678": subtopic2,
 			},

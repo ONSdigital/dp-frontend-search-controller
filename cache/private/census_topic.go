@@ -90,11 +90,12 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 
 		for s := range subtopicsChan {
 			subtopic := cache.Subtopic{
+				ID:              s.ID,
 				LocaliseKeyName: s.Next.Title,
 				ReleaseDate:     s.Next.ReleaseDate,
 			}
 
-			subtopicsIDMap.AppendSubtopicID(s.Next.ID, subtopic)
+			subtopicsIDMap.AppendSubtopicID(s.ID, subtopic)
 		}
 	}()
 

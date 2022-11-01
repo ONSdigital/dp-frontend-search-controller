@@ -87,6 +87,7 @@ func getRootTopicCachePublic(ctx context.Context, subtopicsChan chan models.Topi
 		defer wg.Done()
 		for s := range subtopicsChan {
 			subtopic := cache.Subtopic{
+				ID:              s.ID,
 				LocaliseKeyName: s.Title,
 				ReleaseDate:     s.ReleaseDate,
 			}
