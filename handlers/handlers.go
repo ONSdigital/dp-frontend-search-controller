@@ -44,8 +44,6 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
-	log.Info(ctx, "got topic cache", log.Data{"cache": censusTopicCache})
-
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
 	if err != nil {
@@ -187,7 +185,7 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 	}
 
 	categories := data.GetCategories()
-	topicCategories := data.GetTopicCategories(censusTopicCache, countResp)
+	topicCategories := data.GetTopics(censusTopicCache, countResp)
 
 	setCountToCategories(ctx, countResp, categories)
 

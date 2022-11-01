@@ -10,7 +10,7 @@ import (
 // and to check if the subtopic id given by a user exists
 type Subtopics struct {
 	mutex        *sync.RWMutex
-	SubtopicsMap map[string]Subtopic
+	subtopicsMap map[string]Subtopic
 }
 
 type Subtopic struct {
@@ -23,7 +23,7 @@ type Subtopic struct {
 func NewSubTopicsMap() *Subtopics {
 	return &Subtopics{
 		mutex:        &sync.RWMutex{},
-		SubtopicsMap: make(map[string]Subtopic),
+		subtopicsMap: make(map[string]Subtopic),
 	}
 }
 
@@ -32,7 +32,23 @@ func (t *Subtopics) Get(key string) Subtopic {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
 
-	return t.SubtopicsMap[key]
+	return t.subtopicsMap[key]
+}
+
+// GetSubtopics returns an array of subtopics
+func (t *Subtopics) GetSubtopics(key string) (subtopics []Subtopic) {
+	if t.subtopicsMap == nil {
+		return
+	}
+
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
+
+	for _, subtopic := range t.subtopicsMap {
+		subtopics = append(subtopics, subtopic)
+	}
+
+	return subtopics
 }
 
 // CheckTopicIDExists returns subtopic for given key (id)
@@ -40,7 +56,7 @@ func (t *Subtopics) CheckTopicIDExists(key string) bool {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
 
-	if _, ok := t.SubtopicsMap[key]; !ok {
+	if _, ok := t.subtopicsMap[key]; !ok {
 		return false
 	}
 
@@ -52,9 +68,9 @@ func (t *Subtopics) GetSubtopicsIDsQuery() string {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
 
-	ids := make([]string, 0, len(t.SubtopicsMap))
+	ids := make([]string, 0, len(t.subtopicsMap))
 
-	for id := range t.SubtopicsMap {
+	for id := range t.subtopicsMap {
 		ids = append(ids, id)
 	}
 
@@ -66,9 +82,9 @@ func (t *Subtopics) AppendSubtopicID(id string, subtopic Subtopic) {
 	t.mutex.Lock()
 	defer t.mutex.Unlock()
 
-	if t.SubtopicsMap == nil {
-		t.SubtopicsMap = make(map[string]Subtopic)
+	if t.subtopicsMap == nil {
+		t.subtopicsMap = make(map[string]Subtopic)
 	}
 
-	t.SubtopicsMap[id] = subtopic
+	t.subtopicsMap[id] = subtopic
 }

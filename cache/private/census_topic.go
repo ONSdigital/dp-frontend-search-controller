@@ -67,6 +67,7 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 	}
 
 	subtopic := cache.Subtopic{
+		ID:              rootTopic.ID,
 		LocaliseKeyName: rootTopic.Title,
 		ReleaseDate:     rootTopic.ReleaseDate,
 	}

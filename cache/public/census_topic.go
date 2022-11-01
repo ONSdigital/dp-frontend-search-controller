@@ -65,6 +65,7 @@ func getRootTopicCachePublic(ctx context.Context, subtopicsChan chan models.Topi
 	}
 
 	subtopic := cache.Subtopic{
+		ID:              rootTopic.ID,
 		LocaliseKeyName: rootTopic.Title,
 		ReleaseDate:     rootTopic.ReleaseDate,
 	}
