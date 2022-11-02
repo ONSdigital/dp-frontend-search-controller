@@ -28,7 +28,7 @@ func TestGetTopicCategories(t *testing.T) {
 		mockCensusTopic := cache.GetMockCensusTopic()
 
 		Convey("When GetTopicCategories is called", func() {
-			topicCategories := GetTopicCategories(mockCensusTopic, mockSearchCliResponse)
+			topicCategories := GetTopics(mockCensusTopic, mockSearchCliResponse)
 
 			Convey("Then a list of topic categories with count should be returned", func() {
 				So(topicCategories, ShouldNotBeEmpty)
@@ -45,7 +45,7 @@ func TestGetTopicCategories(t *testing.T) {
 		mockCensusTopic := cache.GetMockCensusTopic()
 
 		Convey("When GetTopicCategories is called", func() {
-			topicCategories := GetTopicCategories(mockCensusTopic, mockSearchCliResponse)
+			topicCategories := GetTopics(mockCensusTopic, mockSearchCliResponse)
 
 			Convey("Then a list of topic categories with 0 count should be returned", func() {
 				So(topicCategories, ShouldNotBeEmpty)
@@ -67,7 +67,7 @@ func TestGetTopicCategories(t *testing.T) {
 		}
 
 		Convey("When GetTopicCategories is called", func() {
-			topicCategories := GetTopicCategories(mockCensusTopic, mockSearchCliResponse)
+			topicCategories := GetTopics(mockCensusTopic, mockSearchCliResponse)
 
 			Convey("Then we hide the census topic filter in web UI", func() {
 				So(topicCategories, ShouldNotBeEmpty)

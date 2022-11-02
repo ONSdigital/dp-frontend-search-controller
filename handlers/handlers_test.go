@@ -47,8 +47,14 @@ var (
 		ID:              "1234",
 		LocaliseKeyName: "Census",
 		Query:           "1234",
+		List:            &cache.Subtopics{},
 	}
 )
+
+// func setupTopicCache(cacheTopic *cache.Topic) {
+// 	cacheTopic.UpdateCensusTopic{}
+// 	cacheTopic.List.AppendSubtopicID("5678", cache.Subtopic{ID: "5678", LocaliseKeyName: "Ageing", ReleaseDate: "2022-10-10T09:30:00Z"})
+// }
 
 func TestUnitReadHandlerSuccess(t *testing.T) {
 	t.Parallel()

@@ -43,9 +43,9 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 		// go through each root topic, find census topic and gets its data for caching which includes subtopic ids
 		for i := range rootTopicItems {
 			if rootTopicItems[i].Current.ID == cache.CensusTopicID {
-				subtopicsIDChan := make(chan string)
+				subtopicsChan := make(chan models.TopicResponse)
 
-				censusTopicCache = getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsIDChan, topicClient, *rootTopicItems[i].Current)
+				censusTopicCache = getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, *rootTopicItems[i].Current)
 				break
 			}
 		}
@@ -60,14 +60,20 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 	}
 }
 
-func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subtopicsIDChan chan string, topicClient topicCli.Clienter, rootTopic models.Topic) *cache.Topic {
+func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subtopicsChan chan models.TopicResponse, topicClient topicCli.Clienter, rootTopic models.Topic) *cache.Topic {
 	rootTopicCache := &cache.Topic{
 		ID:              rootTopic.ID,
 		LocaliseKeyName: rootTopic.Title,
 	}
 
+	subtopic := cache.Subtopic{
+		ID:              rootTopic.ID,
+		LocaliseKeyName: rootTopic.Title,
+		ReleaseDate:     rootTopic.ReleaseDate,
+	}
+
 	subtopicsIDMap := cache.NewSubTopicsMap()
-	subtopicsIDMap.AppendSubtopicID(rootTopic.ID)
+	subtopicsIDMap.AppendSubtopicID(rootTopic.ID, subtopic)
 
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -75,15 +81,22 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 	// get subtopics ids
 	go func() {
 		defer wg.Done()
-		getSubtopicsIDsPrivate(ctx, serviceAuthToken, subtopicsIDChan, topicClient, rootTopic.ID)
-		close(subtopicsIDChan)
+		getSubtopicsIDsPrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, rootTopic.ID)
+		close(subtopicsChan)
 	}()
 
 	// extract subtopic id from channel to update rootTopicCache
 	go func() {
 		defer wg.Done()
-		for subtopicID := range subtopicsIDChan {
-			subtopicsIDMap.AppendSubtopicID(subtopicID)
+
+		for s := range subtopicsChan {
+			subtopic := cache.Subtopic{
+				ID:              s.ID,
+				LocaliseKeyName: s.Next.Title,
+				ReleaseDate:     s.Next.ReleaseDate,
+			}
+
+			subtopicsIDMap.AppendSubtopicID(s.ID, subtopic)
 		}
 	}()
 
@@ -95,7 +108,7 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 	return rootTopicCache
 }
 
-func getSubtopicsIDsPrivate(ctx context.Context, serviceAuthToken string, subtopicsIDChan chan string, topicClient topicCli.Clienter, topLevelTopicID string) {
+func getSubtopicsIDsPrivate(ctx context.Context, serviceAuthToken string, subtopicsChan chan models.TopicResponse, topicClient topicCli.Clienter, topLevelTopicID string) {
 	topicCliReqHeaders := topicCli.Headers{ServiceAuthToken: serviceAuthToken}
 
 	// get subtopics from dp-topic-api
@@ -128,11 +141,11 @@ func getSubtopicsIDsPrivate(ctx context.Context, serviceAuthToken string, subtop
 		wg.Add(1)
 
 		// send subtopic id to channel
-		subtopicsIDChan <- subTopicItems[i].ID
+		subtopicsChan <- subTopicItems[i]
 
 		go func(index int) {
 			defer wg.Done()
-			getSubtopicsIDsPrivate(ctx, serviceAuthToken, subtopicsIDChan, topicClient, subTopicItems[index].ID)
+			getSubtopicsIDsPrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, subTopicItems[index].ID)
 		}(i)
 	}
 	wg.Wait()

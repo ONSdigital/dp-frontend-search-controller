@@ -185,7 +185,7 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 	}
 
 	categories := data.GetCategories()
-	topicCategories := data.GetTopicCategories(censusTopicCache, countResp)
+	topicCategories := data.GetTopics(censusTopicCache, countResp)
 
 	setCountToCategories(ctx, countResp, categories)
 
