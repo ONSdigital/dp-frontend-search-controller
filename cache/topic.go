@@ -26,8 +26,8 @@ type Topic struct {
 	LocaliseKeyName string
 	// Query is a comma separated string of topic id and its subtopic ids which will be used by the controller to create the query
 	Query string
-	// List is a map[string]bool which contains the topic id and its subtopic ids which will be used to check if the topic id given by the user exists
-	List *SubtopicsIDs
+	// List is a map[string]Subtopics which contains the topic id and a list of it's subtopics
+	List *Subtopics
 }
 
 // NewTopicCache create a topic cache object to be used in the service which will update at every updateInterval

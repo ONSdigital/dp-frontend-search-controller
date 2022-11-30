@@ -347,6 +347,23 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 		}
 
 		topicFilters[i] = topicFilter
+
+		for j := range topicCategories[i].Subtopics {
+			if !topicCategories[i].Subtopics[j].ShowInWebUI {
+				continue
+			}
+			var subtopicFilter model.TopicFilter
+
+			subtopicFilter.LocaliseKeyName = topicCategories[i].Subtopics[j].LocaliseKeyName
+			subtopicFilter.NumberOfResults = topicCategories[i].Subtopics[j].Count
+			subtopicFilter.Query = topicCategories[i].Subtopics[j].Query
+
+			if topicCategories[i].Subtopics[j].Query == queryParams.TopicFilter {
+				subtopicFilter.IsChecked = true
+			}
+
+			topicFilters[i].Types = append(topicFilters[i].Types, subtopicFilter)
+		}
 	}
 
 	page.Data.TopicFilters = topicFilters
