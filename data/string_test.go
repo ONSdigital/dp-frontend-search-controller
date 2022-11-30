@@ -15,7 +15,6 @@ func TestUnitReviewQueryStringSuccess(t *testing.T) {
 	ctx := context.Background()
 
 	Convey("Given valid query string", t, func() {
-
 		urlQuery := url.Values{
 			"q": []string{"housing"},
 		}
@@ -26,7 +25,6 @@ func TestUnitReviewQueryStringSuccess(t *testing.T) {
 			Convey("Then return false with a valid query string", func() {
 				So(err, ShouldBeNil)
 			})
-
 		})
 	})
 }
@@ -37,7 +35,6 @@ func TestUnitReviewQueryStringFailure(t *testing.T) {
 	ctx := context.Background()
 
 	Convey("Given an invalid query string (only whitespace)", t, func() {
-
 		urlQuery := url.Values{
 			"q": []string{"        "},
 		}
@@ -48,12 +45,10 @@ func TestUnitReviewQueryStringFailure(t *testing.T) {
 			Convey("Then return true with a valid query string", func() {
 				So(err, ShouldResemble, errs.ErrInvalidQueryString)
 			})
-
 		})
 	})
 
 	Convey("Given an invalid query string (too short)", t, func() {
-
 		urlQuery := url.Values{
 			"q": []string{"ab"},
 		}
@@ -64,7 +59,6 @@ func TestUnitReviewQueryStringFailure(t *testing.T) {
 			Convey("Then return true with a valid query string", func() {
 				So(err, ShouldResemble, errs.ErrInvalidQueryString)
 			})
-
 		})
 	})
 }

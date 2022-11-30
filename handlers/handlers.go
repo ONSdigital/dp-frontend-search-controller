@@ -23,15 +23,14 @@ const (
 )
 
 // Read Handler
-func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.CacheList) http.HandlerFunc {
+func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		read(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList)
 	})
 }
 
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
-	accessToken, collectionID, lang string, cacheList cache.CacheList) {
-
+	accessToken, collectionID, lang string, cacheList cache.List) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
 
@@ -45,6 +44,14 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
+	// get cached navigation data
+	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
+	if err != nil {
+		log.Error(ctx, "failed to get navigation cache", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
 	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
 	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
@@ -52,62 +59,80 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
-	apiQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
+	var (
+		// counter used to keep track of the number of concurrent API calls
+		counter            = 3
+		errorMessage       string
+		makeSearchAPICalls = true
+	)
 
-	var homepageResponse zebedeeCli.HomepageContent
-	var searchResp searchCli.Response
-	var respErr error
-	var departmentResp searchCli.Department
-
+	// avoid making unecessary search API calls
 	if errs.ErrMapForRenderBeforeAPICalls[err] {
-		// avoid making any API calls
-		basePage := rend.NewBasePageModel()
-		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.Topic{}, searchResp, departmentResp, lang, homepageResponse, err.Error())
-		rend.BuildPage(w, m, "search")
-		return
+		makeSearchAPICalls = false
+
+		// reduce counter by the number of concurrent search API calls that would be
+		// run in go routines
+		counter -= 2
+		errorMessage = err.Error()
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(3)
+	searchQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
+	categoriesCountQuery := getCategoriesCountQuery(searchQuery)
+
+	var (
+		homepageResp zebedeeCli.HomepageContent
+		searchResp   searchCli.Response
+
+		categories      []data.Category
+		topicCategories []data.Topic
+
+		wg sync.WaitGroup
+
+		respErr, countErr error
+	)
+
+	wg.Add(counter)
 
 	go func() {
 		defer wg.Done()
-		homepageResponse, err = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
-		if err != nil {
-			logData := log.Data{"homepage_content": err}
-			log.Error(ctx, "unable to get homepage content", err, logData)
-			cancel()
+		var homeErr error
+		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+		if homeErr != nil {
+			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
 			return
 		}
 	}()
-	go func() {
-		defer wg.Done()
-		searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
-		if respErr != nil {
-			logData := log.Data{"api query passed to search-api": apiQuery}
-			log.Error(ctx, "getting search response from client failed", respErr, logData)
-			cancel()
-			return
-		}
-	}()
-	go func() {
-		defer wg.Done()
-		var deptErr error
-		departmentResp, deptErr = searchC.GetDepartments(ctx, accessToken, "", collectionID, apiQuery)
-		if deptErr != nil {
-			logData := log.Data{"api query passed to search-api": apiQuery}
-			log.Error(ctx, "getting deartment response from client failed", deptErr, logData)
-			return
-		}
-	}()
+
+	if makeSearchAPICalls {
+		go func() {
+			defer wg.Done()
+
+			searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, searchQuery)
+			if respErr != nil {
+				log.Error(ctx, "getting search response from client failed", respErr)
+				cancel()
+				return
+			}
+		}()
+		go func() {
+			defer wg.Done()
+
+			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+			if countErr != nil {
+				log.Error(ctx, "getting categories, types and its counts failed", countErr)
+				setStatusCode(w, req, countErr)
+				cancel()
+				return
+			}
+		}()
+	}
 
 	wg.Wait()
-	if respErr != nil {
+	if respErr != nil || countErr != nil {
 		setStatusCode(w, req, respErr)
 		return
 	}
-
-	// TO-DO: Until API handles aggregration on datatypes (e.g. bulletins, article), we need to make a second request
 
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
@@ -116,21 +141,13 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
-	categories, topicCategories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, searchC, censusTopicCache)
-	if err != nil {
-		log.Error(ctx, "getting categories, types and its counts failed", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, departmentResp, lang, homepageResponse, "")
+	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, errorMessage, navigationCache)
 	rend.BuildPage(w, m, "search")
 }
 
 // validateCurrentPage checks if the current page exceeds the total pages which is a bad request
 func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQueryParams data.SearchURLParams, resultsCount int) error {
-
 	if resultsCount > 0 {
 		totalPages := data.GetTotalPages(cfg, validatedQueryParams.Limit, resultsCount)
 
@@ -145,21 +162,30 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 	return nil
 }
 
-// getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
-func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, apiQuery url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
-	//Remove filter to get count of all types for the query from the client
-	apiQuery.Del("content_type")
-	apiQuery.Del("topics")
+// getCategoriesCountQuery clones url (query) values before removing
+// filters to be able to return total counts for different filters
+func getCategoriesCountQuery(searchQuery url.Values) url.Values {
+	// Clone the searchQuery url values to prevent changing the original copy
+	query := url.Values(http.Header(searchQuery).Clone())
 
-	countResp, err := searchC.GetSearch(ctx, accessToken, "", collectionID, apiQuery)
+	// Remove filter to get count of all types for the query from the client
+	query.Del("content_type")
+	query.Del("topics")
+
+	return query
+}
+
+// getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
+func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, query url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
+	countResp, err := searchC.GetSearch(ctx, accessToken, "", collectionID, query)
 	if err != nil {
-		logData := log.Data{"api query passed to search-api": apiQuery}
+		logData := log.Data{"url_values": query}
 		log.Error(ctx, "getting search query count from client failed", err, logData)
 		return nil, nil, err
 	}
 
 	categories := data.GetCategories()
-	topicCategories := data.GetTopicCategories(censusTopicCache, countResp)
+	topicCategories := data.GetTopics(censusTopicCache, countResp)
 
 	setCountToCategories(ctx, countResp, categories)
 
@@ -187,7 +213,7 @@ func setCountToCategories(ctx context.Context, countResp searchCli.Response, cat
 		}
 
 		if !foundFilter {
-			log.Warn(ctx, "unrecognised filter type returned from api")
+			log.Warn(ctx, "unrecognised filter type returned from api", log.Data{"filter_type": responseType.Type})
 		}
 	}
 }

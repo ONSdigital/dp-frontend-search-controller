@@ -5,8 +5,7 @@ import "github.com/ONSdigital/dp-renderer/model"
 // Search is the model struct for the cookies preferences form
 type SearchPage struct {
 	model.Page
-	Data       Search      `json:"data"`
-	Department *Department `json:"department"`
+	Data Search `json:"data"`
 }
 
 // Search represents all search parameters and response data of the search
@@ -32,10 +31,11 @@ type Filter struct {
 
 // TopicFilter respresents all the topic filter information needed by templates
 type TopicFilter struct {
-	LocaliseKeyName string `json:"localise_key_name,omitempty"`
-	Query           string `json:"query,omitempty"`
-	IsChecked       bool   `json:"is_checked,omitempty"`
-	NumberOfResults int    `json:"number_of_results,omitempty"`
+	LocaliseKeyName string        `json:"localise_key_name,omitempty"`
+	Query           string        `json:"query,omitempty"`
+	IsChecked       bool          `json:"is_checked,omitempty"`
+	NumberOfResults int           `json:"number_of_results,omitempty"`
+	Types           []TopicFilter `json:"subtopics,omitempty"`
 }
 
 // Sort represents all the information of sorting related to the search page
@@ -150,12 +150,4 @@ type MatchDetails struct {
 	Value string `json:"value,omitempty"`
 	Start int    `json:"start"`
 	End   int    `json:"end"`
-}
-
-// Department represents other gov departmetns that match the search term
-type Department struct {
-	Name  string `json:"name"`
-	URL   string `json:"url"`
-	Code  string `json:"code"`
-	Match string `json:"match"`
 }

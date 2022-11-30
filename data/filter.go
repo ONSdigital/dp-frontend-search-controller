@@ -156,11 +156,10 @@ var (
 )
 
 // reviewFilter retrieves filters from query, checks if they are one of the filter options, and updates validatedQueryParams
-func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
+func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams) (err error) {
 	filtersQuery := urlQuery["filter"]
 
 	for _, filterQuery := range filtersQuery {
-
 		filterQuery = strings.ToLower(filterQuery)
 
 		if filterQuery == "" {
@@ -170,18 +169,18 @@ func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParam
 		filter, found := filterOptions[filterQuery]
 
 		if !found {
-			err := errs.ErrFilterNotFound
-			logData := log.Data{"filter not found": filter}
+			err = errs.ErrFilterNotFound
+			logData := log.Data{"requested_filter": filter}
 			log.Error(ctx, "failed to find filter", err, logData)
 
-			return err
+			continue
 		}
 
 		validatedQueryParams.Filter.Query = append(validatedQueryParams.Filter.Query, filter.Group)
 		validatedQueryParams.Filter.LocaliseKeyName = append(validatedQueryParams.Filter.LocaliseKeyName, filter.LocaliseKeyName)
 	}
 
-	return nil
+	return err
 }
 
 // GetCategories returns all the categories and its content types where all the count is set to zero
