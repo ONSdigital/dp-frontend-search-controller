@@ -2,9 +2,11 @@ package data
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"strconv"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -26,30 +28,25 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
 
-	err := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
-	if err != nil {
-		log.Error(ctx, "unable to review pagination", err)
-		return validatedQueryParams, err
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
+	if paginationErr != nil {
+		log.Error(ctx, "unable to review pagination", paginationErr)
+		return validatedQueryParams, paginationErr
 	}
 
 	reviewSort(ctx, cfg, urlQuery, &validatedQueryParams)
 
-	err = reviewFilters(ctx, urlQuery, &validatedQueryParams)
-	if err != nil {
-		log.Error(ctx, "unable to review filters", err)
-		return validatedQueryParams, err
+	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+	if contentTypeFilterError != nil && topicFilterErr != nil {
+		log.Error(ctx, "unable to review both content type and topic filters", apperrors.ErrInvalidConentTypeAndTopicFilters)
+		return validatedQueryParams, apperrors.ErrInvalidConentTypeAndTopicFilters
 	}
 
-	err = reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
-	if err != nil {
-		log.Error(ctx, "unable to review topic filters", err)
-		return validatedQueryParams, err
-	}
-
-	err = reviewQueryString(ctx, urlQuery)
-	if err != nil {
+	queryStringErr := reviewQueryString(ctx, urlQuery)
+	if queryStringErr != nil && errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) {
 		log.Info(ctx, "the query string did not pass review")
-		return validatedQueryParams, err
+		return validatedQueryParams, queryStringErr
 	}
 
 	return validatedQueryParams, nil

@@ -86,13 +86,14 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 		})
 	})
 
-	Convey("Given failure to review filter due to invalid filters provided", t, func() {
+	Convey("Given failure to review filter due to both invalid content type and topic filters provided", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 
 		urlQuery := url.Values{
 			"q":      []string{"housing"},
 			"filter": []string{"INVALID"},
+			"topics": []string{"INVALID"},
 			"sort":   []string{"relevance"},
 			"limit":  []string{"10"},
 			"page":   []string{"1"},
