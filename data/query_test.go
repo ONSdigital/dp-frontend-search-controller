@@ -57,6 +57,72 @@ func TestUnitReviewQuerySuccess(t *testing.T) {
 			})
 		})
 	})
+
+	Convey("Given process query when both valid content type and invalid topic filters provided", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		urlQuery := url.Values{
+			"q":      []string{"housing"},
+			"filter": []string{"article"},
+			"topics": []string{"INVALID"},
+			"sort":   []string{"relevance"},
+			"limit":  []string{"10"},
+			"page":   []string{"1"},
+		}
+
+		Convey("When ReviewQuery is called", func() {
+			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
+
+			Convey("Then return an error", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+
+	Convey("Given process query when both invalid content type and valid topic filters provided", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		urlQuery := url.Values{
+			"q":      []string{"housing"},
+			"filter": []string{"INVALID"},
+			"topics": []string{"1234,5678"},
+			"sort":   []string{"relevance"},
+			"limit":  []string{"10"},
+			"page":   []string{"1"},
+		}
+
+		Convey("When ReviewQuery is called", func() {
+			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
+
+			Convey("Then return an error", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+	})
+
+	Convey("Given process query when both are valid filters but the query is less than minimum char length", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		urlQuery := url.Values{
+			"q":      []string{"h"},
+			"filter": []string{"article"},
+			"topics": []string{"1234,5678"},
+			"sort":   []string{"relevance"},
+			"limit":  []string{"10"},
+			"page":   []string{"1"},
+		}
+
+		Convey("When ReviewQuery is called", func() {
+			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
+
+			Convey("Then return an error", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+	})
 }
 
 func TestUnitReviewQueryFailure(t *testing.T) {

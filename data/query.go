@@ -44,7 +44,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	}
 
 	queryStringErr := reviewQueryString(ctx, urlQuery)
-	if queryStringErr != nil && errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) {
+	if queryStringErr != nil && !errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) {
 		log.Info(ctx, "the query string did not pass review")
 		return validatedQueryParams, queryStringErr
 	}
