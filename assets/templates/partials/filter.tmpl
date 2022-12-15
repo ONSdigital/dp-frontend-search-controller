@@ -21,15 +21,15 @@
                             {{ if $topicFilter.IsChecked }}
                                 checked
                             {{ end }}
-                            {{ if eq $topicFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
+                            {{ if eq $topicFilter.NumberOfResults 0 }} aria-disabled="true" {{ end }}
                         >
                         <label class="ons-checkbox__label" for="topic-group-{{ $index }}" id="topic-group-{{ $index }}-label">
                             {{ localise $topicFilter.LocaliseKeyName $lang 4 }} ({{ $topicFilter.NumberOfResults }})
                         </label>
-                        <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
+                        <span class="ons-checkbox__other" id="topic-group-{{ $index }}-other-wrap">
                             <fieldset class="ons-fieldset ons-js-other-fieldset">
                                 {{ range $index, $childFilter := $topicFilter.Types }}
-                                    {{ $id := index $childFilter.Query 0 }}
+                                    {{ $id := $childFilter.Query }}
                                     <div class="ons-checkboxes__items">
                                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
                                             <span class="ons-checkbox ons-checkbox--no-border child-filter">
@@ -48,6 +48,7 @@
                                             </span>
                                         </span>
                                     </div>
+
                                 {{ end }}
                             </fieldset>
                         </span>

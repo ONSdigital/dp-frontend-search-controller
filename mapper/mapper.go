@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"github.com/davecgh/go-spew/spew"
 	"net/http"
 	"strings"
 
@@ -367,6 +368,7 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 	}
 
 	page.Data.TopicFilters = topicFilters
+	spew.Dump(topicFilters, "BLAH4")
 }
 
 func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool {
