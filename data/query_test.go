@@ -123,6 +123,26 @@ func TestUnitReviewQuerySuccess(t *testing.T) {
 			})
 		})
 	})
+
+	Convey("Given process query when both filters are not found and is more than minimum char length", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		urlQuery := url.Values{
+			"q":     []string{"housing"},
+			"sort":  []string{"relevance"},
+			"limit": []string{"10"},
+			"page":  []string{"1"},
+		}
+
+		Convey("When ReviewQuery is called", func() {
+			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
+
+			Convey("Then return an error", func() {
+				So(err, ShouldBeNil)
+			})
+		})
+	})
 }
 
 func TestUnitReviewQueryFailure(t *testing.T) {
@@ -163,6 +183,26 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 			"sort":   []string{"relevance"},
 			"limit":  []string{"10"},
 			"page":   []string{"1"},
+		}
+
+		Convey("When ReviewQuery is called", func() {
+			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
+
+			Convey("Then return an error", func() {
+				So(err, ShouldNotBeNil)
+			})
+		})
+	})
+
+	Convey("Given process query when both filters are not found and is less than minimum char length", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		urlQuery := url.Values{
+			"q":     []string{"h"},
+			"sort":  []string{"relevance"},
+			"limit": []string{"10"},
+			"page":  []string{"1"},
 		}
 
 		Convey("When ReviewQuery is called", func() {
