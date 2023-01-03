@@ -3,12 +3,13 @@ package data
 import (
 	"context"
 	"errors"
+	"net/url"
+	"strconv"
+
 	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
-	"net/url"
-	"strconv"
 )
 
 // SearchURLParams is a struct which contains all information of search url parameters and values
