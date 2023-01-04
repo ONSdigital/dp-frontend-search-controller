@@ -37,10 +37,14 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	reviewSort(ctx, cfg, urlQuery, &validatedQueryParams)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	if contentTypeFilterError != nil {
+		log.Error(ctx, "bad content type filters set", contentTypeFilterError)
+		return validatedQueryParams, contentTypeFilterError
+	}
 	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
-	if contentTypeFilterError != nil && topicFilterErr != nil {
-		log.Error(ctx, "unable to review both content type and topic filters", apperrors.ErrInvalidConentTypeAndTopicFilters)
-		return validatedQueryParams, apperrors.ErrInvalidConentTypeAndTopicFilters
+	if topicFilterErr != nil {
+		log.Error(ctx, "bad topic filters set", topicFilterErr)
+		return validatedQueryParams, topicFilterErr
 	}
 
 	queryStringErr := reviewQueryString(ctx, urlQuery)
@@ -50,6 +54,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 		log.Info(ctx, "the query string did not pass review")
 		return validatedQueryParams, nil
 	}
+
 	return validatedQueryParams, queryStringErr
 }
 
