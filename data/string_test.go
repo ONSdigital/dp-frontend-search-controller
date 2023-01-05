@@ -43,7 +43,7 @@ func TestUnitReviewQueryStringFailure(t *testing.T) {
 			err := reviewQueryString(ctx, urlQuery)
 
 			Convey("Then return true with a valid query string", func() {
-				So(err, ShouldResemble, errs.ErrInvalidQueryString)
+				So(err, ShouldResemble, errs.ErrInvalidQueryCharLengthString)
 			})
 		})
 	})
@@ -57,7 +57,7 @@ func TestUnitReviewQueryStringFailure(t *testing.T) {
 			err := reviewQueryString(ctx, urlQuery)
 
 			Convey("Then return true with a valid query string", func() {
-				So(err, ShouldResemble, errs.ErrInvalidQueryString)
+				So(err, ShouldResemble, errs.ErrInvalidQueryCharLengthString)
 			})
 		})
 	})
