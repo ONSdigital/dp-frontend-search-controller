@@ -16,7 +16,7 @@
                         <input type="checkbox" id="topic-group-{{ $index }}"
                             class="ons-checkbox__input ons-js-checkbox"
                             name="topics"
-                            value="{{ print $topicFilter.Query }}"
+                            value="{{ print $topicFilter.Query }}" aria-controls="topic-group-{{ $index }}-other-wrap"
                             data-gtm-label="{{ $topicFilter.LocaliseKeyName }}"
                             {{ if $topicFilter.IsChecked }}
                                 checked
@@ -35,7 +35,7 @@
                                             <span class="ons-checkbox ons-checkbox--no-border child-filter">
                                                 <input id="{{ $id }}"
                                                     class="ons-checkbox__input ons-js-checkbox"
-                                                    type="checkbox" name="filter"
+                                                    type="checkbox" name="topics"
                                                     {{ if $childFilter.IsChecked }}checked{{ end }}
                                                     data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
                                                     value="{{ $id }}"
