@@ -12,7 +12,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.3.0
 	github.com/ONSdigital/dp-net v1.4.1
 	github.com/ONSdigital/dp-net/v2 v2.4.0
-	github.com/ONSdigital/dp-renderer v1.54.0
+	github.com/ONSdigital/dp-renderer v1.58.0
 	github.com/ONSdigital/dp-topic-api v0.13.3
 	github.com/ONSdigital/log.go/v2 v2.2.0
 	github.com/cucumber/godog v0.12.5
@@ -73,8 +73,8 @@ require (
 	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
 	go.mongodb.org/mongo-driver v1.9.1 // indirect
 	golang.org/x/crypto v0.0.0-20220622213112-05595931fe9d // indirect
-	golang.org/x/net v0.0.0-20220708220712-1185a9018129 // indirect
-	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f // indirect
+	golang.org/x/net v0.0.0-20220722155237-a158d28d115b // indirect
+	golang.org/x/sync v0.0.0-20220722155255-886fb9371eb4 // indirect
 	golang.org/x/sys v0.0.0-20220722155257-8c9f86f7a55f // indirect
 	golang.org/x/text v0.3.8 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
