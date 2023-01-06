@@ -21,7 +21,7 @@
                             {{ if $topicFilter.IsChecked }}
                                 checked
                             {{ end }}
-                            {{ if eq $topicFilter.NumberOfResults 0 }} aria-disabled="true" {{ end }}
+                            {{ if eq $topicFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
                         >
                         <label class="ons-checkbox__label" for="topic-group-{{ $index }}" id="topic-group-{{ $index }}-label">
                             {{ localise $topicFilter.LocaliseKeyName $lang 4 }} ({{ $topicFilter.NumberOfResults }})
@@ -48,7 +48,6 @@
                                             </span>
                                         </span>
                                     </div>
-
                                 {{ end }}
                             </fieldset>
                         </span>
