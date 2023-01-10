@@ -38,12 +38,12 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	if contentTypeFilterError != nil {
-		log.Error(ctx, "bad content type filters set", contentTypeFilterError)
+		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
 		return validatedQueryParams, contentTypeFilterError
 	}
 	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
 	if topicFilterErr != nil {
-		log.Error(ctx, "bad topic filters set", topicFilterErr)
+		log.Error(ctx, "invalid topic filters set", topicFilterErr)
 		return validatedQueryParams, topicFilterErr
 	}
 
