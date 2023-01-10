@@ -30,7 +30,7 @@ func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
 
 	if !match {
 		log.Warn(ctx, fmt.Sprintf("the query string did not match the regex, %v non-space characters required", minQueryLength))
-		errVal := errs.ErrInvalidQueryString
+		errVal := errs.ErrInvalidQueryCharLengthString
 		return errVal
 	}
 

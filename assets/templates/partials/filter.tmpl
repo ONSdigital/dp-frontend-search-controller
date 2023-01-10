@@ -16,7 +16,7 @@
                         <input type="checkbox" id="topic-group-{{ $index }}"
                             class="ons-checkbox__input ons-js-checkbox"
                             name="topics"
-                            value="{{ print $topicFilter.Query }}"
+                            value="{{ print $topicFilter.Query }}" aria-controls="topic-group-{{ $index }}-other-wrap"
                             data-gtm-label="{{ $topicFilter.LocaliseKeyName }}"
                             {{ if $topicFilter.IsChecked }}
                                 checked
@@ -26,16 +26,16 @@
                         <label class="ons-checkbox__label" for="topic-group-{{ $index }}" id="topic-group-{{ $index }}-label">
                             {{ localise $topicFilter.LocaliseKeyName $lang 4 }} ({{ $topicFilter.NumberOfResults }})
                         </label>
-                        <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
+                        <span class="ons-checkbox__other" id="topic-group-{{ $index }}-other-wrap">
                             <fieldset class="ons-fieldset ons-js-other-fieldset">
                                 {{ range $index, $childFilter := $topicFilter.Types }}
-                                    {{ $id := index $childFilter.Query 0 }}
+                                    {{ $id := $childFilter.Query }}
                                     <div class="ons-checkboxes__items">
                                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
                                             <span class="ons-checkbox ons-checkbox--no-border child-filter">
                                                 <input id="{{ $id }}"
                                                     class="ons-checkbox__input ons-js-checkbox"
-                                                    type="checkbox" name="filter"
+                                                    type="checkbox" name="topics"
                                                     {{ if $childFilter.IsChecked }}checked{{ end }}
                                                     data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
                                                     value="{{ $id }}"

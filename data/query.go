@@ -2,9 +2,11 @@ package data
 
 import (
 	"context"
+	"errors"
 	"net/url"
 	"strconv"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -26,33 +28,34 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
 
-	err := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
-	if err != nil {
-		log.Error(ctx, "unable to review pagination", err)
-		return validatedQueryParams, err
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
+	if paginationErr != nil {
+		log.Error(ctx, "unable to review pagination", paginationErr)
+		return validatedQueryParams, paginationErr
 	}
 
 	reviewSort(ctx, cfg, urlQuery, &validatedQueryParams)
 
-	err = reviewFilters(ctx, urlQuery, &validatedQueryParams)
-	if err != nil {
-		log.Error(ctx, "unable to review filters", err)
-		return validatedQueryParams, err
+	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	if contentTypeFilterError != nil {
+		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
+		return validatedQueryParams, contentTypeFilterError
+	}
+	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+	if topicFilterErr != nil {
+		log.Error(ctx, "invalid topic filters set", topicFilterErr)
+		return validatedQueryParams, topicFilterErr
 	}
 
-	err = reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
-	if err != nil {
-		log.Error(ctx, "unable to review topic filters", err)
-		return validatedQueryParams, err
-	}
-
-	err = reviewQueryString(ctx, urlQuery)
-	if err != nil {
+	queryStringErr := reviewQueryString(ctx, urlQuery)
+	if queryStringErr == nil {
+		return validatedQueryParams, nil
+	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(ctx, validatedQueryParams) {
 		log.Info(ctx, "the query string did not pass review")
-		return validatedQueryParams, err
+		return validatedQueryParams, nil
 	}
 
-	return validatedQueryParams, nil
+	return validatedQueryParams, queryStringErr
 }
 
 // GetSearchAPIQuery gets the query that needs to be passed to the search-api to get search results
@@ -66,6 +69,14 @@ func GetSearchAPIQuery(validatedQueryParams SearchURLParams, censusTopicCache *c
 	updateTopicsQueryForSearchAPI(apiQuery, censusTopicCache)
 
 	return apiQuery
+}
+
+func hasFilters(ctx context.Context, validatedQueryParams SearchURLParams) bool {
+	if len(validatedQueryParams.Filter.Query) > 0 || len(validatedQueryParams.TopicFilter) > 0 {
+		return true
+	}
+
+	return false
 }
 
 func createSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {

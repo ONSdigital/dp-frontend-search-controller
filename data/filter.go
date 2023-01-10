@@ -169,11 +169,11 @@ func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParam
 		filter, found := filterOptions[filterQuery]
 
 		if !found {
-			err = errs.ErrFilterNotFound
+			err = errs.ErrContentTypeNotFound
 			logData := log.Data{"requested_filter": filter}
 			log.Error(ctx, "failed to find filter", err, logData)
 
-			continue
+			break
 		}
 
 		validatedQueryParams.Filter.Query = append(validatedQueryParams.Filter.Query, filter.Group)
