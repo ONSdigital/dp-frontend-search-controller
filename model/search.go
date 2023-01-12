@@ -31,11 +31,12 @@ type Filter struct {
 
 // TopicFilter respresents all the topic filter information needed by templates
 type TopicFilter struct {
-	LocaliseKeyName string        `json:"localise_key_name,omitempty"`
-	Query           string        `json:"query,omitempty"`
-	IsChecked       bool          `json:"is_checked,omitempty"`
-	NumberOfResults int           `json:"number_of_results,omitempty"`
-	Types           []TopicFilter `json:"subtopics,omitempty"`
+	LocaliseKeyName    string        `json:"localise_key_name,omitempty"`
+	DistinctTopicCount int           `json:"distinct_topics_count,omitempty"`
+	Query              string        `json:"query,omitempty"`
+	IsChecked          bool          `json:"is_checked,omitempty"`
+	NumberOfResults    int           `json:"number_of_results,omitempty"`
+	Types              []TopicFilter `json:"subtopics,omitempty"`
 }
 
 // Sort represents all the information of sorting related to the search page

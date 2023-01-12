@@ -14,11 +14,12 @@ import (
 
 // Topic represents a topic filter on the search page
 type Topic struct {
-	Count           int        `json:"count"`
-	LocaliseKeyName string     `json:"localise_key"`
-	Query           string     `json:"query"`
-	ShowInWebUI     bool       `json:"show_in_web_ui"`
-	Subtopics       []Subtopic `json:"subtopics"`
+	Count              int        `json:"count"`
+	DistinctTopicCount int        `json:"distinct_topics_count"`
+	LocaliseKeyName    string     `json:"localise_key"`
+	Query              string     `json:"query"`
+	ShowInWebUI        bool       `json:"show_in_web_ui"`
+	Subtopics          []Subtopic `json:"subtopics"`
 }
 
 // Subtopic represents a subtopic filter on the search page
@@ -87,6 +88,8 @@ func addTopicCounts(censusTopic Topic, countResp searchCli.Response) Topic {
 			}
 		}
 	}
+
+	censusTopic.DistinctTopicCount = countResp.DistinctTopicCount
 
 	return censusTopic
 }
