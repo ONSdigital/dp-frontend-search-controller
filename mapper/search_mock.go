@@ -4,22 +4,23 @@ import (
 	"encoding/json"
 	"os"
 
-	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	searchModels "github.com/ONSdigital/dp-search-api/models"
+
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 )
 
 // GetMockSearchResponse get a mock search response in searchC.Response type from dp-search-api using ES 7.10
-func GetMockSearchResponse() (searchC.Response, error) {
-	var respC searchC.Response
+func GetMockSearchResponse() (*searchModels.SearchResponse, error) {
+	var respC *searchModels.SearchResponse
 
 	sampleResponse, err := os.ReadFile("../mapper/data/mock_search_response.json")
 	if err != nil {
-		return searchC.Response{}, err
+		return &searchModels.SearchResponse{}, err
 	}
 
 	err = json.Unmarshal(sampleResponse, &respC)
 	if err != nil {
-		return searchC.Response{}, err
+		return &searchModels.SearchResponse{}, err
 	}
 
 	return respC, nil

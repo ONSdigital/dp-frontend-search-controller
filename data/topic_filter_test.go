@@ -6,9 +6,9 @@ import (
 	"net/url"
 	"testing"
 
-	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
+	searchModels "github.com/ONSdigital/dp-search-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -16,8 +16,8 @@ func TestGetTopicCategories(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given the count response has results with topics", t, func() {
-		mockSearchCliResponse := searchCli.Response{
-			Topics: []searchCli.FilterCount{
+		mockSearchCliResponse := searchModels.SearchResponse{
+			Topics: []searchModels.FilterCount{
 				{
 					Type:  cache.CensusTopicID,
 					Count: 1,
@@ -28,7 +28,7 @@ func TestGetTopicCategories(t *testing.T) {
 		mockCensusTopic := cache.GetMockCensusTopic()
 
 		Convey("When GetTopicCategories is called", func() {
-			topicCategories := GetTopics(mockCensusTopic, mockSearchCliResponse)
+			topicCategories := GetTopics(mockCensusTopic, &mockSearchCliResponse)
 
 			Convey("Then a list of topic categories with count should be returned", func() {
 				So(topicCategories, ShouldNotBeEmpty)
@@ -38,14 +38,14 @@ func TestGetTopicCategories(t *testing.T) {
 	})
 
 	Convey("Given the count response has results with no topics", t, func() {
-		mockSearchCliResponse := searchCli.Response{
-			Topics: []searchCli.FilterCount{},
+		mockSearchCliResponse := searchModels.SearchResponse{
+			Topics: []searchModels.FilterCount{},
 		}
 
 		mockCensusTopic := cache.GetMockCensusTopic()
 
 		Convey("When GetTopicCategories is called", func() {
-			topicCategories := GetTopics(mockCensusTopic, mockSearchCliResponse)
+			topicCategories := GetTopics(mockCensusTopic, &mockSearchCliResponse)
 
 			Convey("Then a list of topic categories with 0 count should be returned", func() {
 				So(topicCategories, ShouldNotBeEmpty)
@@ -57,8 +57,8 @@ func TestGetTopicCategories(t *testing.T) {
 	Convey("Given census topic cache has not updated correctly or has no data", t, func() {
 		mockCensusTopic := cache.GetEmptyCensusTopic()
 
-		mockSearchCliResponse := searchCli.Response{
-			Topics: []searchCli.FilterCount{
+		mockSearchCliResponse := searchModels.SearchResponse{
+			Topics: []searchModels.FilterCount{
 				{
 					Type:  cache.CensusTopicID,
 					Count: 1,
@@ -67,7 +67,7 @@ func TestGetTopicCategories(t *testing.T) {
 		}
 
 		Convey("When GetTopicCategories is called", func() {
-			topicCategories := GetTopics(mockCensusTopic, mockSearchCliResponse)
+			topicCategories := GetTopics(mockCensusTopic, &mockSearchCliResponse)
 
 			Convey("Then we hide the census topic filter in web UI", func() {
 				So(topicCategories, ShouldNotBeEmpty)

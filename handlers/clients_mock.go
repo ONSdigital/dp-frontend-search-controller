@@ -5,18 +5,86 @@ package handlers
 
 import (
 	"context"
-	"github.com/ONSdigital/dp-api-clients-go/v2/site-search"
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-renderer/model"
+	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	coreModel "github.com/ONSdigital/dp-renderer/model"
+	searchModels "github.com/ONSdigital/dp-search-api/models"
+	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
+	apiError "github.com/ONSdigital/dp-search-api/sdk/errors"
 	"io"
-	"net/url"
 	"sync"
 )
 
-var (
-	lockRenderClientMockBuildPage        sync.RWMutex
-	lockRenderClientMockNewBasePageModel sync.RWMutex
-)
+// Ensure, that SearchClientMock does implement SearchClient.
+// If this is not the case, regenerate this file with moq.
+var _ SearchClient = &SearchClientMock{}
+
+// SearchClientMock is a mock implementation of SearchClient.
+//
+//	func TestSomethingThatUsesSearchClient(t *testing.T) {
+//
+//		// make and configure a mocked SearchClient
+//		mockedSearchClient := &SearchClientMock{
+//			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+//				panic("mock out the GetSearch method")
+//			},
+//		}
+//
+//		// use mockedSearchClient in code that requires SearchClient
+//		// and then make assertions.
+//
+//	}
+type SearchClientMock struct {
+	// GetSearchFunc mocks the GetSearch method.
+	GetSearchFunc func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error)
+
+	// calls tracks calls to the methods.
+	calls struct {
+		// GetSearch holds details about calls to the GetSearch method.
+		GetSearch []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Options is the options argument value.
+			Options searchSDK.Options
+		}
+	}
+	lockGetSearch sync.RWMutex
+}
+
+// GetSearch calls GetSearchFunc.
+func (mock *SearchClientMock) GetSearch(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+	if mock.GetSearchFunc == nil {
+		panic("SearchClientMock.GetSearchFunc: method is nil but SearchClient.GetSearch was just called")
+	}
+	callInfo := struct {
+		Ctx     context.Context
+		Options searchSDK.Options
+	}{
+		Ctx:     ctx,
+		Options: options,
+	}
+	mock.lockGetSearch.Lock()
+	mock.calls.GetSearch = append(mock.calls.GetSearch, callInfo)
+	mock.lockGetSearch.Unlock()
+	return mock.GetSearchFunc(ctx, options)
+}
+
+// GetSearchCalls gets all the calls that were made to GetSearch.
+// Check the length with:
+//
+//	len(mockedSearchClient.GetSearchCalls())
+func (mock *SearchClientMock) GetSearchCalls() []struct {
+	Ctx     context.Context
+	Options searchSDK.Options
+} {
+	var calls []struct {
+		Ctx     context.Context
+		Options searchSDK.Options
+	}
+	mock.lockGetSearch.RLock()
+	calls = mock.calls.GetSearch
+	mock.lockGetSearch.RUnlock()
+	return calls
+}
 
 // Ensure, that RenderClientMock does implement RenderClient.
 // If this is not the case, regenerate this file with moq.
@@ -24,28 +92,28 @@ var _ RenderClient = &RenderClientMock{}
 
 // RenderClientMock is a mock implementation of RenderClient.
 //
-//     func TestSomethingThatUsesRenderClient(t *testing.T) {
+//	func TestSomethingThatUsesRenderClient(t *testing.T) {
 //
-//         // make and configure a mocked RenderClient
-//         mockedRenderClient := &RenderClientMock{
-//             BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string)  {
-// 	               panic("mock out the BuildPage method")
-//             },
-//             NewBasePageModelFunc: func() model.Page {
-// 	               panic("mock out the NewBasePageModel method")
-//             },
-//         }
+//		// make and configure a mocked RenderClient
+//		mockedRenderClient := &RenderClientMock{
+//			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string)  {
+//				panic("mock out the BuildPage method")
+//			},
+//			NewBasePageModelFunc: func() coreModel.Page {
+//				panic("mock out the NewBasePageModel method")
+//			},
+//		}
 //
-//         // use mockedRenderClient in code that requires RenderClient
-//         // and then make assertions.
+//		// use mockedRenderClient in code that requires RenderClient
+//		// and then make assertions.
 //
-//     }
+//	}
 type RenderClientMock struct {
 	// BuildPageFunc mocks the BuildPage method.
 	BuildPageFunc func(w io.Writer, pageModel interface{}, templateName string)
 
 	// NewBasePageModelFunc mocks the NewBasePageModel method.
-	NewBasePageModelFunc func() model.Page
+	NewBasePageModelFunc func() coreModel.Page
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -62,6 +130,8 @@ type RenderClientMock struct {
 		NewBasePageModel []struct {
 		}
 	}
+	lockBuildPage        sync.RWMutex
+	lockNewBasePageModel sync.RWMutex
 }
 
 // BuildPage calls BuildPageFunc.
@@ -78,15 +148,16 @@ func (mock *RenderClientMock) BuildPage(w io.Writer, pageModel interface{}, temp
 		PageModel:    pageModel,
 		TemplateName: templateName,
 	}
-	lockRenderClientMockBuildPage.Lock()
+	mock.lockBuildPage.Lock()
 	mock.calls.BuildPage = append(mock.calls.BuildPage, callInfo)
-	lockRenderClientMockBuildPage.Unlock()
+	mock.lockBuildPage.Unlock()
 	mock.BuildPageFunc(w, pageModel, templateName)
 }
 
 // BuildPageCalls gets all the calls that were made to BuildPage.
 // Check the length with:
-//     len(mockedRenderClient.BuildPageCalls())
+//
+//	len(mockedRenderClient.BuildPageCalls())
 func (mock *RenderClientMock) BuildPageCalls() []struct {
 	W            io.Writer
 	PageModel    interface{}
@@ -97,133 +168,38 @@ func (mock *RenderClientMock) BuildPageCalls() []struct {
 		PageModel    interface{}
 		TemplateName string
 	}
-	lockRenderClientMockBuildPage.RLock()
+	mock.lockBuildPage.RLock()
 	calls = mock.calls.BuildPage
-	lockRenderClientMockBuildPage.RUnlock()
+	mock.lockBuildPage.RUnlock()
 	return calls
 }
 
 // NewBasePageModel calls NewBasePageModelFunc.
-func (mock *RenderClientMock) NewBasePageModel() model.Page {
+func (mock *RenderClientMock) NewBasePageModel() coreModel.Page {
 	if mock.NewBasePageModelFunc == nil {
 		panic("RenderClientMock.NewBasePageModelFunc: method is nil but RenderClient.NewBasePageModel was just called")
 	}
 	callInfo := struct {
 	}{}
-	lockRenderClientMockNewBasePageModel.Lock()
+	mock.lockNewBasePageModel.Lock()
 	mock.calls.NewBasePageModel = append(mock.calls.NewBasePageModel, callInfo)
-	lockRenderClientMockNewBasePageModel.Unlock()
+	mock.lockNewBasePageModel.Unlock()
 	return mock.NewBasePageModelFunc()
 }
 
 // NewBasePageModelCalls gets all the calls that were made to NewBasePageModel.
 // Check the length with:
-//     len(mockedRenderClient.NewBasePageModelCalls())
+//
+//	len(mockedRenderClient.NewBasePageModelCalls())
 func (mock *RenderClientMock) NewBasePageModelCalls() []struct {
 } {
 	var calls []struct {
 	}
-	lockRenderClientMockNewBasePageModel.RLock()
+	mock.lockNewBasePageModel.RLock()
 	calls = mock.calls.NewBasePageModel
-	lockRenderClientMockNewBasePageModel.RUnlock()
+	mock.lockNewBasePageModel.RUnlock()
 	return calls
 }
-
-var (
-	lockSearchClientMockGetSearch sync.RWMutex
-)
-
-// Ensure, that SearchClientMock does implement SearchClient.
-// If this is not the case, regenerate this file with moq.
-var _ SearchClient = &SearchClientMock{}
-
-// SearchClientMock is a mock implementation of SearchClient.
-//
-//     func TestSomethingThatUsesSearchClient(t *testing.T) {
-//
-//         // make and configure a mocked SearchClient
-//         mockedSearchClient := &SearchClientMock{
-//             GetSearchFunc: func(ctx context.Context, userAuthToken string, serviceAuthToken string, collectionID string, query url.Values) (search.Response, error) {
-// 	               panic("mock out the GetSearch method")
-//             },
-//         }
-//
-//         // use mockedSearchClient in code that requires SearchClient
-//         // and then make assertions.
-//
-//     }
-type SearchClientMock struct {
-	// GetSearchFunc mocks the GetSearch method.
-	GetSearchFunc func(ctx context.Context, userAuthToken string, serviceAuthToken string, collectionID string, query url.Values) (search.Response, error)
-
-	// calls tracks calls to the methods.
-	calls struct {
-		// GetSearch holds details about calls to the GetSearch method.
-		GetSearch []struct {
-			// Ctx is the ctx argument value.
-			Ctx context.Context
-			// UserAuthToken is the userAuthToken argument value.
-			UserAuthToken string
-			// ServiceAuthToken is the serviceAuthToken argument value.
-			ServiceAuthToken string
-			// CollectionID is the collectionID argument value.
-			CollectionID string
-			// Query is the query argument value.
-			Query url.Values
-		}
-	}
-}
-
-// GetSearch calls GetSearchFunc.
-func (mock *SearchClientMock) GetSearch(ctx context.Context, userAuthToken string, serviceAuthToken string, collectionID string, query url.Values) (search.Response, error) {
-	if mock.GetSearchFunc == nil {
-		panic("SearchClientMock.GetSearchFunc: method is nil but SearchClient.GetSearch was just called")
-	}
-	callInfo := struct {
-		Ctx              context.Context
-		UserAuthToken    string
-		ServiceAuthToken string
-		CollectionID     string
-		Query            url.Values
-	}{
-		Ctx:              ctx,
-		UserAuthToken:    userAuthToken,
-		ServiceAuthToken: serviceAuthToken,
-		CollectionID:     collectionID,
-		Query:            query,
-	}
-	lockSearchClientMockGetSearch.Lock()
-	mock.calls.GetSearch = append(mock.calls.GetSearch, callInfo)
-	lockSearchClientMockGetSearch.Unlock()
-	return mock.GetSearchFunc(ctx, userAuthToken, serviceAuthToken, collectionID, query)
-}
-
-// GetSearchCalls gets all the calls that were made to GetSearch.
-// Check the length with:
-//     len(mockedSearchClient.GetSearchCalls())
-func (mock *SearchClientMock) GetSearchCalls() []struct {
-	Ctx              context.Context
-	UserAuthToken    string
-	ServiceAuthToken string
-	CollectionID     string
-	Query            url.Values
-} {
-	var calls []struct {
-		Ctx              context.Context
-		UserAuthToken    string
-		ServiceAuthToken string
-		CollectionID     string
-		Query            url.Values
-	}
-	lockSearchClientMockGetSearch.RLock()
-	calls = mock.calls.GetSearch
-	lockSearchClientMockGetSearch.RUnlock()
-	return calls
-}
-
-var (
-	lockZebedeeClientMockGetHomepageContent sync.RWMutex
-)
 
 // Ensure, that ZebedeeClientMock does implement ZebedeeClient.
 // If this is not the case, regenerate this file with moq.
@@ -231,22 +207,22 @@ var _ ZebedeeClient = &ZebedeeClientMock{}
 
 // ZebedeeClientMock is a mock implementation of ZebedeeClient.
 //
-//     func TestSomethingThatUsesZebedeeClient(t *testing.T) {
+//	func TestSomethingThatUsesZebedeeClient(t *testing.T) {
 //
-//         // make and configure a mocked ZebedeeClient
-//         mockedZebedeeClient := &ZebedeeClientMock{
-//             GetHomepageContentFunc: func(ctx context.Context, userAuthToken string, collectionID string, lang string, path string) (zebedee.HomepageContent, error) {
-// 	               panic("mock out the GetHomepageContent method")
-//             },
-//         }
+//		// make and configure a mocked ZebedeeClient
+//		mockedZebedeeClient := &ZebedeeClientMock{
+//			GetHomepageContentFunc: func(ctx context.Context, userAuthToken string, collectionID string, lang string, path string) (zebedeeCli.HomepageContent, error) {
+//				panic("mock out the GetHomepageContent method")
+//			},
+//		}
 //
-//         // use mockedZebedeeClient in code that requires ZebedeeClient
-//         // and then make assertions.
+//		// use mockedZebedeeClient in code that requires ZebedeeClient
+//		// and then make assertions.
 //
-//     }
+//	}
 type ZebedeeClientMock struct {
 	// GetHomepageContentFunc mocks the GetHomepageContent method.
-	GetHomepageContentFunc func(ctx context.Context, userAuthToken string, collectionID string, lang string, path string) (zebedee.HomepageContent, error)
+	GetHomepageContentFunc func(ctx context.Context, userAuthToken string, collectionID string, lang string, path string) (zebedeeCli.HomepageContent, error)
 
 	// calls tracks calls to the methods.
 	calls struct {
@@ -264,10 +240,11 @@ type ZebedeeClientMock struct {
 			Path string
 		}
 	}
+	lockGetHomepageContent sync.RWMutex
 }
 
 // GetHomepageContent calls GetHomepageContentFunc.
-func (mock *ZebedeeClientMock) GetHomepageContent(ctx context.Context, userAuthToken string, collectionID string, lang string, path string) (zebedee.HomepageContent, error) {
+func (mock *ZebedeeClientMock) GetHomepageContent(ctx context.Context, userAuthToken string, collectionID string, lang string, path string) (zebedeeCli.HomepageContent, error) {
 	if mock.GetHomepageContentFunc == nil {
 		panic("ZebedeeClientMock.GetHomepageContentFunc: method is nil but ZebedeeClient.GetHomepageContent was just called")
 	}
@@ -284,15 +261,16 @@ func (mock *ZebedeeClientMock) GetHomepageContent(ctx context.Context, userAuthT
 		Lang:          lang,
 		Path:          path,
 	}
-	lockZebedeeClientMockGetHomepageContent.Lock()
+	mock.lockGetHomepageContent.Lock()
 	mock.calls.GetHomepageContent = append(mock.calls.GetHomepageContent, callInfo)
-	lockZebedeeClientMockGetHomepageContent.Unlock()
+	mock.lockGetHomepageContent.Unlock()
 	return mock.GetHomepageContentFunc(ctx, userAuthToken, collectionID, lang, path)
 }
 
 // GetHomepageContentCalls gets all the calls that were made to GetHomepageContent.
 // Check the length with:
-//     len(mockedZebedeeClient.GetHomepageContentCalls())
+//
+//	len(mockedZebedeeClient.GetHomepageContentCalls())
 func (mock *ZebedeeClientMock) GetHomepageContentCalls() []struct {
 	Ctx           context.Context
 	UserAuthToken string
@@ -307,8 +285,8 @@ func (mock *ZebedeeClientMock) GetHomepageContentCalls() []struct {
 		Lang          string
 		Path          string
 	}
-	lockZebedeeClientMockGetHomepageContent.RLock()
+	mock.lockGetHomepageContent.RLock()
 	calls = mock.calls.GetHomepageContent
-	lockZebedeeClientMockGetHomepageContent.RUnlock()
+	mock.lockGetHomepageContent.RUnlock()
 	return calls
 }
