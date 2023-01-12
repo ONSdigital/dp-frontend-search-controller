@@ -98,7 +98,7 @@ type Description struct {
 	Headline1         string    `json:"headline1,omitempty"`
 	Headline2         string    `json:"headline2,omitempty"`
 	Headline3         string    `json:"headline3,omitempty"`
-	Keywords          *[]string `json:"keywords,omitempty"`
+	Keywords          []string  `json:"keywords,omitempty"`
 	LatestRelease     *bool     `json:"latest_release,omitempty"`
 	Language          string    `json:"language,omitempty"`
 	MetaDescription   string    `json:"meta_description,omitempty"`
@@ -116,7 +116,7 @@ type Description struct {
 // Hightlight contains specfic metadata with search keyword(s) highlighted
 type Highlight struct {
 	Title           string    `json:"title"`
-	Keywords        *[]string `json:"keywords"`
+	Keywords        []*string `json:"keywords"`
 	Summary         string    `json:"summary"`
 	MetaDescription string    `json:"meta_description"`
 	DatasetID       string    `json:"dataset_id"`

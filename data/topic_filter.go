@@ -6,9 +6,9 @@ import (
 	"sort"
 	"strings"
 
-	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
+	searchModels "github.com/ONSdigital/dp-search-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
@@ -31,7 +31,7 @@ type Subtopic struct {
 
 // GetTopicCategories returns the topic filters to be displayed on the search page.
 // Please note that only census topic filter is being returned
-func GetTopics(censusTopicCache *cache.Topic, countResp searchCli.Response) []Topic {
+func GetTopics(censusTopicCache *cache.Topic, countResp *searchModels.SearchResponse) []Topic {
 	var cachedSubtopics []cache.Subtopic
 	if censusTopicCache != nil || censusTopicCache.List != nil {
 		cachedSubtopics = censusTopicCache.List.GetSubtopics(censusTopicCache.LocaliseKeyName)
@@ -73,7 +73,7 @@ func GetTopics(censusTopicCache *cache.Topic, countResp searchCli.Response) []To
 	return []Topic{censusTopic}
 }
 
-func addTopicCounts(censusTopic Topic, countResp searchCli.Response) Topic {
+func addTopicCounts(censusTopic Topic, countResp *searchModels.SearchResponse) Topic {
 	for i := range countResp.Topics {
 		if censusTopic.Query == countResp.Topics[i].Type {
 			censusTopic.Count = countResp.Topics[i].Count

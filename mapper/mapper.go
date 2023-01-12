@@ -2,23 +2,24 @@ package mapper
 
 import (
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 
-	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	model "github.com/ONSdigital/dp-frontend-search-controller/model"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
+	searchModels "github.com/ONSdigital/dp-search-api/models"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
 func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
 	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
-	respC searchC.Response, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
+	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
@@ -53,7 +54,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	return page
 }
 
-func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC searchC.Response, errorMessage string) {
+func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC *searchModels.SearchResponse, errorMessage string) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
@@ -83,7 +84,7 @@ func mapSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) 
 	page.Data.Sort.Options = pageSortOptions
 }
 
-func mapPagination(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC searchC.Response) {
+func mapPagination(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse) {
 	page.Data.Pagination.Limit = validatedQueryParams.Limit
 	page.Data.Pagination.LimitOptions = data.LimitOptions
 
@@ -93,7 +94,7 @@ func mapPagination(cfg *config.Config, page *model.SearchPage, validatedQueryPar
 	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
 }
 
-func mapResponse(page *model.SearchPage, respC searchC.Response, categories []data.Category) {
+func mapResponse(page *model.SearchPage, respC *searchModels.SearchResponse, categories []data.Category) {
 	page.Data.Response.Count = respC.Count
 
 	mapResponseCategories(page, categories)
@@ -101,25 +102,22 @@ func mapResponse(page *model.SearchPage, respC searchC.Response, categories []da
 	mapResponseItems(page, respC)
 
 	page.Data.Response.Suggestions = respC.Suggestions
-	page.Data.Response.AdditionalSuggestions = respC.AdditionalSuggestions
+	page.Data.Response.AdditionalSuggestions = respC.AdditionSuggestions
 }
 
-func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
+func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse) {
 	itemPage := []model.ContentItem{}
-
 	for i := range respC.Items {
 		item := model.ContentItem{}
 
-		mapItemDescription(&item, respC.Items[i])
+		mapItemDescription(&item, &respC.Items[i])
 
-		mapItemHighlight(&item, respC.Items[i])
+		mapItemHighlight(&item, &respC.Items[i])
 
-		item.Type.Type = respC.Items[i].Type
-		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(respC.Items[i].Type)
+		item.Type.Type = respC.Items[i].DataType
+		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(respC.Items[i].DataType)
 
 		item.URI = respC.Items[i].URI
-
-		mapItemMatches(&item, respC.Items[i])
 
 		itemPage = append(itemPage, item)
 	}
@@ -127,7 +125,7 @@ func mapResponseItems(page *model.SearchPage, respC searchC.Response) {
 	page.Data.Response.Items = itemPage
 }
 
-func mapItemDescription(item *model.ContentItem, itemC searchC.ContentItem) {
+func mapItemDescription(item *model.ContentItem, itemC *searchModels.ESSourceDocument) {
 	item.Description = model.Description{
 		DatasetID:       itemC.DatasetID,
 		Language:        itemC.Language,
@@ -138,23 +136,22 @@ func mapItemDescription(item *model.ContentItem, itemC searchC.ContentItem) {
 	}
 
 	if len(itemC.Keywords) != 0 {
-		item.Description.Keywords = &itemC.Keywords
+		item.Description.Keywords = itemC.Keywords
 	} else {
 		item.Description.Keywords = nil
 	}
 }
 
-func mapItemHighlight(item *model.ContentItem, itemC searchC.ContentItem) {
-	highlightC := itemC.Highlight
-
-	if highlightC != nil {
+func mapItemHighlight(item *model.ContentItem, itemC *searchModels.ESSourceDocument) {
+	itemHighlight := itemC.Highlight
+	if !reflect.ValueOf(itemHighlight).IsNil() {
 		item.Description.Highlight = model.Highlight{
-			DatasetID:       highlightC.DatasetID,
-			Edition:         highlightC.Edition,
-			Keywords:        highlightC.Keywords,
-			MetaDescription: highlightC.MetaDescription,
-			Summary:         highlightC.Summary,
-			Title:           highlightC.Title,
+			DatasetID:       itemHighlight.DatasetID,
+			Edition:         itemC.Edition,
+			Keywords:        itemHighlight.Keywords,
+			MetaDescription: itemHighlight.MetaDescription,
+			Summary:         itemHighlight.Summary,
+			Title:           itemHighlight.Title,
 		}
 	} else {
 		item.Description.Highlight = model.Highlight{}
@@ -184,106 +181,6 @@ func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
 	}
 
 	page.Data.Response.Categories = pageCategories
-}
-
-func mapItemMatches(pageItem *model.ContentItem, item searchC.ContentItem) {
-	if item.Matches != nil {
-		matchesDesc := item.Matches.Description
-
-		pageItem.Matches = &model.Matches{
-			Description: model.MatchDescription{},
-		}
-
-		// Summary Match
-		if matchesDesc.Summary != nil {
-			var matchesSummaryPage []model.MatchDetails
-
-			for _, summaryC := range *matchesDesc.Summary {
-				matchesSummaryPage = append(matchesSummaryPage, model.MatchDetails{
-					Value: summaryC.Value,
-					Start: summaryC.Start,
-					End:   summaryC.End,
-				})
-			}
-
-			pageItem.Matches.Description.Summary = &matchesSummaryPage
-		}
-
-		// Title Match
-		if matchesDesc.Title != nil {
-			var matchesTitlePage []model.MatchDetails
-
-			for _, titleC := range *matchesDesc.Title {
-				matchesTitlePage = append(matchesTitlePage, model.MatchDetails{
-					Value: titleC.Value,
-					Start: titleC.Start,
-					End:   titleC.End,
-				})
-			}
-
-			pageItem.Matches.Description.Title = &matchesTitlePage
-		}
-
-		// Edition Match
-		if matchesDesc.Edition != nil {
-			var matchesEditionPage []model.MatchDetails
-
-			for _, editionC := range *matchesDesc.Edition {
-				matchesEditionPage = append(matchesEditionPage, model.MatchDetails{
-					Value: editionC.Value,
-					Start: editionC.Start,
-					End:   editionC.End,
-				})
-			}
-
-			pageItem.Matches.Description.Edition = &matchesEditionPage
-		}
-
-		// Meta Description Match
-		if matchesDesc.MetaDescription != nil {
-			var matchesMetaDescPage []model.MatchDetails
-
-			for _, metaDescC := range *matchesDesc.MetaDescription {
-				matchesMetaDescPage = append(matchesMetaDescPage, model.MatchDetails{
-					Value: metaDescC.Value,
-					Start: metaDescC.Start,
-					End:   metaDescC.End,
-				})
-			}
-
-			pageItem.Matches.Description.MetaDescription = &matchesMetaDescPage
-		}
-
-		// Keywords Match
-		if matchesDesc.Keywords != nil {
-			var matchesKeywordsPage []model.MatchDetails
-
-			for _, keywordC := range *matchesDesc.Keywords {
-				matchesKeywordsPage = append(matchesKeywordsPage, model.MatchDetails{
-					Value: keywordC.Value,
-					Start: keywordC.Start,
-					End:   keywordC.End,
-				})
-			}
-
-			pageItem.Matches.Description.Keywords = &matchesKeywordsPage
-		}
-
-		// DatasetID Match
-		if matchesDesc.DatasetID != nil {
-			var matchesDatasetIDPage []model.MatchDetails
-
-			for _, datasetIDClient := range *matchesDesc.DatasetID {
-				matchesDatasetIDPage = append(matchesDatasetIDPage, model.MatchDetails{
-					Value: datasetIDClient.Value,
-					Start: datasetIDClient.Start,
-					End:   datasetIDClient.End,
-				})
-			}
-
-			pageItem.Matches.Description.DatasetID = &matchesDatasetIDPage
-		}
-	}
 }
 
 func mapFilters(page *model.SearchPage, categories []data.Category, queryParams data.SearchURLParams) {

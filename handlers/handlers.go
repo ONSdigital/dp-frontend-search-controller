@@ -6,7 +6,6 @@ import (
 	"net/url"
 	"sync"
 
-	searchCli "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
@@ -14,6 +13,9 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
+	searchModels "github.com/ONSdigital/dp-search-api/models"
+	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
+
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
@@ -81,7 +83,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 	var (
 		homepageResp zebedeeCli.HomepageContent
-		searchResp   searchCli.Response
+		searchResp   *searchModels.SearchResponse
 
 		categories      []data.Category
 		topicCategories []data.Topic
@@ -104,10 +106,12 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	}()
 
 	if makeSearchAPICalls {
+		var options searchSDK.Options
+		options.Query = searchQuery
 		go func() {
 			defer wg.Done()
 
-			searchResp, respErr = searchC.GetSearch(ctx, accessToken, "", collectionID, searchQuery)
+			searchResp, respErr = searchC.GetSearch(ctx, options)
 			if respErr != nil {
 				log.Error(ctx, "getting search response from client failed", respErr)
 				cancel()
@@ -177,7 +181,10 @@ func getCategoriesCountQuery(searchQuery url.Values) url.Values {
 
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
 func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, query url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
-	countResp, err := searchC.GetSearch(ctx, accessToken, "", collectionID, query)
+	var options searchSDK.Options
+	options.Query = query
+
+	countResp, err := searchC.GetSearch(ctx, options)
 	if err != nil {
 		logData := log.Data{"url_values": query}
 		log.Error(ctx, "getting search query count from client failed", err, logData)
@@ -192,7 +199,7 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 	return categories, topicCategories, nil
 }
 
-func setCountToCategories(ctx context.Context, countResp searchCli.Response, categories []data.Category) {
+func setCountToCategories(ctx context.Context, countResp *searchModels.SearchResponse, categories []data.Category) {
 	for _, responseType := range countResp.ContentTypes {
 		foundFilter := false
 

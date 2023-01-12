@@ -9,7 +9,10 @@ import (
 	"net/url"
 	"testing"
 
-	searchC "github.com/ONSdigital/dp-api-clients-go/v2/site-search"
+	searchModels "github.com/ONSdigital/dp-search-api/models"
+	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
+	apiError "github.com/ONSdigital/dp-search-api/sdk/errors"
+
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
@@ -86,7 +89,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
 				return mockSearchResponse, nil
 			},
 		}
@@ -109,20 +112,20 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 
-				if mockedSearchClient.calls.GetSearch[0].Query.Has("topics") {
-					So(mockedSearchClient.calls.GetSearch[0].Query.Get("topics"), ShouldEqual, "1234")
-					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldNotContainKey, "topics")
+				if mockedSearchClient.calls.GetSearch[0].Options.Query.Has("topics") {
+					So(mockedSearchClient.calls.GetSearch[0].Options.Query.Get("topics"), ShouldEqual, "1234")
+					So(mockedSearchClient.calls.GetSearch[1].Options.Query, ShouldNotContainKey, "topics")
 				} else {
-					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldContainKey, "topics")
-					So(mockedSearchClient.calls.GetSearch[1].Query.Get("topics"), ShouldEqual, "1234")
+					So(mockedSearchClient.calls.GetSearch[1].Options.Query, ShouldContainKey, "topics")
+					So(mockedSearchClient.calls.GetSearch[1].Options.Query.Get("topics"), ShouldEqual, "1234")
 				}
 
-				if mockedSearchClient.calls.GetSearch[0].Query.Has("content_type") {
-					So(mockedSearchClient.calls.GetSearch[0].Query.Get("content_type"), ShouldEqual, "bulletin")
-					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldNotContainKey, "content_type")
+				if mockedSearchClient.calls.GetSearch[0].Options.Query.Has("content_type") {
+					So(mockedSearchClient.calls.GetSearch[0].Options.Query.Get("content_type"), ShouldEqual, "bulletin")
+					So(mockedSearchClient.calls.GetSearch[1].Options.Query, ShouldNotContainKey, "content_type")
 				} else {
-					So(mockedSearchClient.calls.GetSearch[1].Query, ShouldContainKey, "content_type")
-					So(mockedSearchClient.calls.GetSearch[1].Query.Get("content_type"), ShouldEqual, "bulletin")
+					So(mockedSearchClient.calls.GetSearch[1].Options.Query, ShouldContainKey, "content_type")
+					So(mockedSearchClient.calls.GetSearch[1].Options.Query.Get("content_type"), ShouldEqual, "bulletin")
 				}
 			})
 		})
@@ -159,7 +162,7 @@ func TestUnitReadSuccess(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
 				return mockSearchResponse, nil
 			},
 		}
@@ -180,8 +183,6 @@ func TestUnitReadSuccess(t *testing.T) {
 
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
-				So(mockedSearchClient.GetSearchCalls()[0].UserAuthToken, ShouldEqual, accessToken)
-				So(mockedSearchClient.GetSearchCalls()[0].CollectionID, ShouldEqual, collectionID)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
 			})
 		})
@@ -219,7 +220,7 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
 				return mockSearchResponse, nil
 			},
 		}
@@ -260,8 +261,8 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
-				return searchC.Response{}, errs.ErrInternalServer
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+				return &searchModels.SearchResponse{}, apiError.StatusError{Code: 500}
 			},
 		}
 
@@ -301,7 +302,7 @@ func TestUnitReadFailure(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
 				return mockSearchResponse, nil
 			},
 		}
@@ -421,7 +422,7 @@ func TestUnitGetCategoriesTypesCountSuccess(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
 				return mockSearchResponse, nil
 			},
 		}
@@ -461,8 +462,8 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 		}
 
 		mockedSearchClient := &SearchClientMock{
-			GetSearchFunc: func(ctx context.Context, userAuthToken, serviceAuthToken, collectionID string, query url.Values) (searchC.Response, error) {
-				return searchC.Response{}, errs.ErrInternalServer
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+				return &searchModels.SearchResponse{}, apiError.StatusError{Code: 500}
 			},
 		}
 
@@ -477,8 +478,6 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 				So(categories, ShouldBeNil)
 				So(topicCategories, ShouldBeNil)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
-				So(mockedSearchClient.GetSearchCalls()[0].UserAuthToken, ShouldEqual, accessToken)
-				So(mockedSearchClient.GetSearchCalls()[0].CollectionID, ShouldEqual, collectionID)
 			})
 		})
 	})
@@ -508,9 +507,9 @@ func TestUnitSetCountToCategoriesSuccess(t *testing.T) {
 	})
 
 	Convey("Given unrecognised filter type returned from api", t, func() {
-		mockCountSearchResponse := searchC.Response{
+		mockCountSearchResponse := searchModels.SearchResponse{
 			Count: 1,
-			ContentTypes: []searchC.FilterCount{
+			ContentTypes: []searchModels.FilterCount{
 				{
 					Type:  "article",
 					Count: 1,
@@ -526,7 +525,7 @@ func TestUnitSetCountToCategoriesSuccess(t *testing.T) {
 			categories := data.GetCategories()
 
 			Convey("When setCountToCategories is called", func() {
-				setCountToCategories(ctx, mockCountSearchResponse, categories)
+				setCountToCategories(ctx, &mockCountSearchResponse, categories)
 
 				Convey("Then the count should be updated in the list of known categories and warning given", func() {
 					So(categories[0].Count, ShouldEqual, 1)
