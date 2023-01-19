@@ -104,10 +104,14 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 			return
 		}
 	}()
-
 	if makeSearchAPICalls {
 		var options searchSDK.Options
+
 		options.Query = searchQuery
+		options.Headers = http.Header{
+			searchSDK.Authorization: {"Bearer " + accessToken},
+			searchSDK.CollectionID:  {collectionID},
+		}
 		go func() {
 			defer wg.Done()
 
@@ -182,8 +186,12 @@ func getCategoriesCountQuery(searchQuery url.Values) url.Values {
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
 func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, query url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
 	var options searchSDK.Options
-	options.Query = query
 
+	options.Query = query
+	options.Headers = http.Header{
+		searchSDK.Authorization: {"Bearer " + accessToken},
+		searchSDK.CollectionID:  {collectionID},
+	}
 	countResp, err := searchC.GetSearch(ctx, options)
 	if err != nil {
 		logData := log.Data{"url_values": query}
