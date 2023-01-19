@@ -30,7 +30,7 @@ require (
 	github.com/ONSdigital/dp-elasticsearch/v3 v3.0.0-alpha.7 // indirect
 	github.com/ONSdigital/dp-mongodb-in-memory v1.3.1 // indirect
 	github.com/ONSdigital/dp-rchttp v1.0.0 // indirect
-	github.com/ONSdigital/dp-search-api v1.29.0 // indirect
+	github.com/ONSdigital/dp-search-api v1.31.0 // indirect
 	github.com/ONSdigital/go-ns v0.0.0-20210916104633-ac1c1c52327e // indirect
 	github.com/aws/aws-sdk-go v1.44.76 // indirect
 	github.com/c2h5oh/datasize v0.0.0-20220606134207-859f65c6625b // indirect
