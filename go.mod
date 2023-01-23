@@ -5,7 +5,7 @@ go 1.19
 replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 
 require (
-	github.com/ONSdigital/dp-api-clients-go/v2 v2.189.0
+	github.com/ONSdigital/dp-api-clients-go/v2 v2.214.0
 	github.com/ONSdigital/dp-cache v0.1.0
 	github.com/ONSdigital/dp-component-test v0.7.0
 	github.com/ONSdigital/dp-cookies v0.3.3
@@ -13,6 +13,7 @@ require (
 	github.com/ONSdigital/dp-net v1.5.0
 	github.com/ONSdigital/dp-net/v2 v2.4.0
 	github.com/ONSdigital/dp-renderer v1.58.0
+	github.com/ONSdigital/dp-search-api v1.31.0
 	github.com/ONSdigital/dp-topic-api v0.13.3
 	github.com/ONSdigital/log.go/v2 v2.2.0
 	github.com/cucumber/godog v0.12.5
@@ -30,7 +31,6 @@ require (
 	github.com/ONSdigital/dp-elasticsearch/v3 v3.0.0-alpha.7 // indirect
 	github.com/ONSdigital/dp-mongodb-in-memory v1.3.1 // indirect
 	github.com/ONSdigital/dp-rchttp v1.0.0 // indirect
-	github.com/ONSdigital/dp-search-api v1.29.0 // indirect
 	github.com/ONSdigital/go-ns v0.0.0-20210916104633-ac1c1c52327e // indirect
 	github.com/aws/aws-sdk-go v1.44.76 // indirect
 	github.com/c2h5oh/datasize v0.0.0-20220606134207-859f65c6625b // indirect
