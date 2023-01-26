@@ -83,7 +83,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 	var (
 		homepageResp zebedeeCli.HomepageContent
-		searchResp   *searchModels.SearchResponse
+		searchResp   = &searchModels.SearchResponse{}
 
 		categories      []data.Category
 		topicCategories []data.Topic

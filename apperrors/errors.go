@@ -23,6 +23,7 @@ var (
 
 	// ErrMapForRenderBeforeAPICalls is a list of errors which leads to the search page being rendered before making any API calls
 	ErrMapForRenderBeforeAPICalls = map[error]bool{
-		ErrInvalidQueryString: true,
+		ErrInvalidQueryString:           true,
+		ErrInvalidQueryCharLengthString: true,
 	}
 )
