@@ -15,7 +15,7 @@ import (
 // Topic represents a topic filter on the search page
 type Topic struct {
 	Count              int        `json:"count"`
-	DistinctTopicCount int        `json:"distinct_topics_count"`
+	DistinctItemsCount int        `json:"distinct_items_count"`
 	LocaliseKeyName    string     `json:"localise_key"`
 	Query              string     `json:"query"`
 	ShowInWebUI        bool       `json:"show_in_web_ui"`
@@ -89,7 +89,7 @@ func addTopicCounts(censusTopic Topic, countResp *searchModels.SearchResponse) T
 		}
 	}
 
-	censusTopic.DistinctTopicCount = countResp.DistinctTopicCount
+	censusTopic.DistinctItemsCount = countResp.DistinctItemsCount
 
 	return censusTopic
 }

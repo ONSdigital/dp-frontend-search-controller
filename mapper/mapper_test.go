@@ -17,7 +17,7 @@ var (
 		{
 			LocaliseKeyName:    "Census",
 			Count:              1,
-			DistinctTopicCount: 2,
+			DistinctItemsCount: 2,
 			Query:              "1234",
 			ShowInWebUI:        true,
 		},
@@ -142,7 +142,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 				So(sp.Data.TopicFilters[0].LocaliseKeyName, ShouldEqual, "Census")
 				So(sp.Data.TopicFilters[0].NumberOfResults, ShouldEqual, 1)
 				So(sp.Data.TopicFilters[0].Query, ShouldEqual, "1234")
-				So(sp.Data.TopicFilters[0].DistinctTopicCount, ShouldEqual, 2)
+				So(sp.Data.TopicFilters[0].DistinctItemsCount, ShouldEqual, 2)
 
 				So(sp.ServiceMessage, ShouldEqual, respH.ServiceMessage)
 

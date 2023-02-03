@@ -238,7 +238,7 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 		topicFilter.LocaliseKeyName = topicCategories[i].LocaliseKeyName
 		topicFilter.NumberOfResults = topicCategories[i].Count
 		topicFilter.Query = topicCategories[i].Query
-		topicFilter.DistinctTopicCount = topicCategories[i].DistinctTopicCount
+		topicFilter.DistinctItemsCount = topicCategories[i].DistinctItemsCount
 
 		if topicCategories[i].Query == queryParams.TopicFilter {
 			topicFilter.IsChecked = true
