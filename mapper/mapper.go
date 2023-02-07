@@ -226,7 +226,10 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 		return
 	}
 
-	topicsQueryParam := strings.Split(queryParams.TopicFilter, ",")
+	var topicsQueryParam []string
+	if queryParams.TopicFilter != "" {
+		topicsQueryParam = strings.Split(queryParams.TopicFilter, ",")
+	}
 
 	mapTopicQueryParams := make(map[string]bool)
 	for i := range topicsQueryParam {
