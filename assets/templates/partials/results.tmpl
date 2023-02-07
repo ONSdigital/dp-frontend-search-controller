@@ -13,7 +13,7 @@
         </div>
     </div>
     <ul class="flush--padding">
-    {{ range $i, $item := .Data.Response.Items }}
+    {{ range $i, $item := $response.Items }}
         {{ $currentPosition := add $i 1 }}
         <li class="search__results__item{{if eq $item.Type.Type `product_page`}} search__results__item--product-page{{end}}">
             <h3>
@@ -60,7 +60,6 @@
                 </p>
             {{end}}
         </li>
-
     {{end}}
     </ul>
 </div>
