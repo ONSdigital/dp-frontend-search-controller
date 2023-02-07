@@ -226,7 +226,14 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 		return
 	}
 
-	var topicFilters = make([]model.TopicFilter, len(topicCategories))
+	topicsQueryParam := strings.Split(queryParams.TopicFilter, ",")
+
+	mapTopicQueryParams := make(map[string]bool)
+	for i := range topicsQueryParam {
+		mapTopicQueryParams[topicsQueryParam[i]] = true
+	}
+
+	topicFilters := make([]model.TopicFilter, len(topicCategories))
 
 	for i := range topicCategories {
 		if !topicCategories[i].ShowInWebUI {
@@ -240,7 +247,7 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 		topicFilter.Query = topicCategories[i].Query
 		topicFilter.DistinctItemsCount = topicCategories[i].DistinctItemsCount
 
-		if topicCategories[i].Query == queryParams.TopicFilter {
+		if len(topicsQueryParam) > 0 {
 			topicFilter.IsChecked = true
 		}
 
@@ -256,7 +263,7 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 			subtopicFilter.NumberOfResults = topicCategories[i].Subtopics[j].Count
 			subtopicFilter.Query = topicCategories[i].Subtopics[j].Query
 
-			if topicCategories[i].Subtopics[j].Query == queryParams.TopicFilter {
+			if mapTopicQueryParams[topicCategories[i].Subtopics[j].Query] {
 				subtopicFilter.IsChecked = true
 			}
 
