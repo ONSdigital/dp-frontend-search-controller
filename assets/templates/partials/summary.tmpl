@@ -10,7 +10,7 @@
                 </span>
             {{ end }}
         {{else}} {{ localise "Results" $lang 1 }} {{end}} 
-        {{ localise "For" $lang 1 }}
+        {{ if .Data.Query}} {{ localise "For" $lang 1 }} {{ end }}
     </span>
     <span class="search__summary__query">{{ .Data.Query}}</span>
     {{ $len := len .Data.Response.AdditionalSuggestions}}
