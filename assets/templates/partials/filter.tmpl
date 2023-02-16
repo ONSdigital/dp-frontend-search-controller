@@ -67,70 +67,68 @@
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sort" value="{{$sort}}"/>
     <fieldset class="ons-fieldset">
-        <div id="collapsibleContentType" class="ons-collapsible ons-js-collapsible" data-btn-close="Hide this" data-open="true">
-        <div class="ons-collapsible__heading ons-js-collapsible-heading">
-            <div class="ons-collapsible__controls">
-            <h2 class="ons-collapsible__title">
-                <legend class="ons-fieldset__legend">
-                    {{ localise "ContentType" $lang 1 }}
-                </legend>
-            </h2>
-            <span class="ons-collapsible__icon">
-                 {{ template "icons/chevron-right" }}
-            </span>
-            </div>
-        </div>
-        <div id="collapsible-content" class="ons-collapsible__content ons-js-collapsible-content">
-            <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
-            <p class="ons-checkboxes__label">Show only:</p>
-            {{ range $index, $topFilter := $filters}}
-                <div class="ons-checkboxes__items">
-                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                        <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
-                            <input type="checkbox" id="group-{{ $index }}"
-                                class="ons-checkbox__input ons-js-checkbox"
-                                value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
-                                aria-haspopup="true"
-                                data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
-                                {{ if $topFilter.IsChecked }}
-                                    checked
-                                {{ end }}
-                                {{ if eq $topFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
-                            >
-                            <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
-                                {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
-                            </label>
-                            <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
-                                <fieldset class="ons-fieldset ons-js-other-fieldset">
-                                    {{ range $index, $childFilter := $topFilter.Types }}
-                                        {{ $id := index $childFilter.FilterKey 0 }}
-                                        <div class="ons-checkboxes__items">
-                                            <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                                <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                    <input id="{{ $id }}"
-                                                        class="ons-checkbox__input ons-js-checkbox"
-                                                        type="checkbox" name="filter"
-                                                        {{ if $childFilter.IsChecked }}checked{{ end }}
-                                                        data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
-                                                        value="{{ $id }}"
-                                                        {{ if eq $childFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
-                                                    />
-                                                    <label class="ons-checkbox__label" for="{{ $id }}"
-                                                        id="{{ $id }}-label">
-                                                        {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
-                                                    </label>
-                                                </span>
-                                            </span>
-                                        </div>
+        <details id="collapsibleContentType" class="ons-collapsible ons-js-collapsible" data-btn-close="Hide this" data-open="true">
+            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                <h2 class="ons-collapsible__title">
+                    <legend class="ons-fieldset__legend">
+                        {{ localise "ContentType" $lang 1 }}
+                    </legend>
+                </h2>
+                <span class="ons-collapsible__icon">
+                    {{ template "icons/chevron-right" }}
+                </span>
+            </summary>
+            <div id="collapsible-content" class="ons-collapsible__content ons-js-collapsible-content">
+                <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
+                <p class="ons-checkboxes__label">Show only:</p>
+                {{ range $index, $topFilter := $filters}}
+                    <div class="ons-checkboxes__items">
+                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                            <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
+                                <input type="checkbox" id="group-{{ $index }}"
+                                    class="ons-checkbox__input ons-js-checkbox"
+                                    value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
+                                    aria-haspopup="true"
+                                    data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
+                                    {{ if $topFilter.IsChecked }}
+                                        checked
                                     {{ end }}
-                                </fieldset>
+                                    {{ if eq $topFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
+                                >
+                                <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
+                                    {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
+                                </label>
+                                <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
+                                    <fieldset class="ons-fieldset ons-js-other-fieldset">
+                                        {{ range $index, $childFilter := $topFilter.Types }}
+                                            {{ $id := index $childFilter.FilterKey 0 }}
+                                            <div class="ons-checkboxes__items">
+                                                <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                                                    <span class="ons-checkbox ons-checkbox--no-border child-filter">
+                                                        <input id="{{ $id }}"
+                                                            class="ons-checkbox__input ons-js-checkbox"
+                                                            type="checkbox" name="filter"
+                                                            {{ if $childFilter.IsChecked }}checked{{ end }}
+                                                            data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
+                                                            value="{{ $id }}"
+                                                            {{ if eq $childFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
+                                                        />
+                                                        <label class="ons-checkbox__label" for="{{ $id }}"
+                                                            id="{{ $id }}-label">
+                                                            {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
+                                                        </label>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        {{ end }}
+                                    </fieldset>
+                                </span>
                             </span>
                         </span>
-                    </span>
-                </div>
-            {{ end }}
-        </div>
-        </div>
+                    </div>
+                {{ end }}
+            </div>
+        </details>
     </fieldset>
     <noscript>
         <button type="submit"
