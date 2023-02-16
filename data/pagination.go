@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"net/http"
 	"net/url"
 	"strconv"
 
@@ -109,8 +110,8 @@ func GetTotalPages(cfg *config.Config, limit, count int) int {
 }
 
 // GetPagesToDisplay gets all the pages available for the search results
-func GetPagesToDisplay(cfg *config.Config, validatedQueryParams SearchURLParams, totalPages int) []model.PageToDisplay {
-	var pagesToDisplay = make([]model.PageToDisplay, 0)
+func GetPagesToDisplay(cfg *config.Config, req http.Request, validatedQueryParams SearchURLParams, totalPages int) []model.PageToDisplay {
+	pagesToDisplay := make([]model.PageToDisplay, 0)
 
 	currentPage := validatedQueryParams.CurrentPage
 
@@ -120,11 +121,14 @@ func GetPagesToDisplay(cfg *config.Config, validatedQueryParams SearchURLParams,
 
 	controllerQuery := createSearchControllerQuery(validatedQueryParams)
 	query := controllerQuery.Get("q")
+	populationTypes := controllerQuery.Get("population_types")
+	dimensions := controllerQuery.Get("dimensions")
+	queryString := buildQueryString(query, populationTypes, dimensions)
 
 	for i := startPage; i <= endPage; i++ {
 		pagesToDisplay = append(pagesToDisplay, model.PageToDisplay{
 			PageNumber: i,
-			URL:        getPageURL(query, i, controllerQuery),
+			URL:        getPageURL(queryString, req, i, controllerQuery),
 		})
 	}
 
@@ -132,19 +136,22 @@ func GetPagesToDisplay(cfg *config.Config, validatedQueryParams SearchURLParams,
 }
 
 // GetFirstAndLastPages gets the first and last pages
-func GetFirstAndLastPages(cfg *config.Config, validatedQueryParams SearchURLParams, totalPages int) []model.PageToDisplay {
-	var firstAndLastPages = make([]model.PageToDisplay, 0)
+func GetFirstAndLastPages(cfg *config.Config, req http.Request, validatedQueryParams SearchURLParams, totalPages int) []model.PageToDisplay {
+	firstAndLastPages := make([]model.PageToDisplay, 0)
 
 	controllerQuery := createSearchControllerQuery(validatedQueryParams)
 	query := controllerQuery.Get("q")
+	populationTypes := controllerQuery.Get("population_types")
+	dimensions := controllerQuery.Get("dimensions")
+	queryString := buildQueryString(query, populationTypes, dimensions)
 
 	// add first and last
 	firstAndLastPages = append(firstAndLastPages, model.PageToDisplay{
 		PageNumber: 1,
-		URL:        getPageURL(query, 1, controllerQuery),
+		URL:        getPageURL(queryString, req, 1, controllerQuery),
 	}, model.PageToDisplay{
 		PageNumber: totalPages,
-		URL:        getPageURL(query, totalPages, controllerQuery),
+		URL:        getPageURL(queryString, req, totalPages, controllerQuery),
 	})
 
 	return firstAndLastPages
@@ -178,11 +185,12 @@ func getEndPage(startPage, totalPages int) int {
 	return endPage
 }
 
-func getPageURL(query string, page int, controllerQuery url.Values) (pageURL string) {
+func getPageURL(queryString string, req http.Request, page int, controllerQuery url.Values) (pageQueryString string) {
 	controllerQuery.Del("q")
 	controllerQuery.Del("page")
+	controllerQuery.Del("population_types")
+	controllerQuery.Del("dimensions")
 
-	queryParam := "q=" + query
 	pageParam := "&page=" + strconv.Itoa(page)
 
 	// This includes all the query parameters excluding search query and current page
@@ -192,7 +200,20 @@ func getPageURL(query string, page int, controllerQuery url.Values) (pageURL str
 	}
 
 	// The pageURL is structured so that search query comes first and current page is mentioned last to make it more readable and logical
-	pageURL = "/search?" + queryParam + filterSortLimitParams + pageParam
+	pageQueryString = req.URL.Path + "?" + queryString + filterSortLimitParams + pageParam
 
-	return pageURL
+	return pageQueryString
+}
+
+func buildQueryString(query, populationTypes, dimensions string) string {
+	var u url.URL
+	q := u.Query()
+	q.Set("q", query)
+	if len(populationTypes) > 0 {
+		q.Set("population_types", populationTypes)
+	}
+	if len(dimensions) > 0 {
+		q.Set("dimensions", dimensions)
+	}
+	return q.Encode()
 }

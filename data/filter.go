@@ -218,7 +218,7 @@ func updateQueryWithAPIFilters(apiQuery url.Values) {
 
 // getSubFilters gets all available sub filters which is related to the search filter given by the user
 func getSubFilters(filters []string) []string {
-	var subFilters = make([]string, 0)
+	subFilters := make([]string, 0)
 
 	for _, filter := range filters {
 		subFilter := filterOptions[filter]

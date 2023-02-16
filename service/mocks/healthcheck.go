@@ -5,10 +5,11 @@ package mocks
 
 import (
 	"context"
-	"github.com/ONSdigital/dp-frontend-search-controller/service"
-	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	"net/http"
 	"sync"
+
+	"github.com/ONSdigital/dp-frontend-search-controller/service"
+	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 )
 
 var (
@@ -24,28 +25,28 @@ var _ service.HealthChecker = &HealthCheckerMock{}
 
 // HealthCheckerMock is a mock implementation of service.HealthChecker.
 //
-//     func TestSomethingThatUsesHealthChecker(t *testing.T) {
+//	    func TestSomethingThatUsesHealthChecker(t *testing.T) {
 //
-//         // make and configure a mocked service.HealthChecker
-//         mockedHealthChecker := &HealthCheckerMock{
-//             AddCheckFunc: func(name string, checker healthcheck.Checker) error {
-// 	               panic("mock out the AddCheck method")
-//             },
-//             HandlerFunc: func(w http.ResponseWriter, req *http.Request)  {
-// 	               panic("mock out the Handler method")
-//             },
-//             StartFunc: func(ctx context.Context)  {
-// 	               panic("mock out the Start method")
-//             },
-//             StopFunc: func()  {
-// 	               panic("mock out the Stop method")
-//             },
-//         }
+//	        // make and configure a mocked service.HealthChecker
+//	        mockedHealthChecker := &HealthCheckerMock{
+//	            AddCheckFunc: func(name string, checker healthcheck.Checker) error {
+//		               panic("mock out the AddCheck method")
+//	            },
+//	            HandlerFunc: func(w http.ResponseWriter, req *http.Request)  {
+//		               panic("mock out the Handler method")
+//	            },
+//	            StartFunc: func(ctx context.Context)  {
+//		               panic("mock out the Start method")
+//	            },
+//	            StopFunc: func()  {
+//		               panic("mock out the Stop method")
+//	            },
+//	        }
 //
-//         // use mockedHealthChecker in code that requires service.HealthChecker
-//         // and then make assertions.
+//	        // use mockedHealthChecker in code that requires service.HealthChecker
+//	        // and then make assertions.
 //
-//     }
+//	    }
 type HealthCheckerMock struct {
 	// AddCheckFunc mocks the AddCheck method.
 	AddCheckFunc func(name string, checker healthcheck.Checker) error
@@ -106,7 +107,8 @@ func (mock *HealthCheckerMock) AddCheck(name string, checker healthcheck.Checker
 
 // AddCheckCalls gets all the calls that were made to AddCheck.
 // Check the length with:
-//     len(mockedHealthChecker.AddCheckCalls())
+//
+//	len(mockedHealthChecker.AddCheckCalls())
 func (mock *HealthCheckerMock) AddCheckCalls() []struct {
 	Name    string
 	Checker healthcheck.Checker
@@ -141,7 +143,8 @@ func (mock *HealthCheckerMock) Handler(w http.ResponseWriter, req *http.Request)
 
 // HandlerCalls gets all the calls that were made to Handler.
 // Check the length with:
-//     len(mockedHealthChecker.HandlerCalls())
+//
+//	len(mockedHealthChecker.HandlerCalls())
 func (mock *HealthCheckerMock) HandlerCalls() []struct {
 	W   http.ResponseWriter
 	Req *http.Request
@@ -174,7 +177,8 @@ func (mock *HealthCheckerMock) Start(ctx context.Context) {
 
 // StartCalls gets all the calls that were made to Start.
 // Check the length with:
-//     len(mockedHealthChecker.StartCalls())
+//
+//	len(mockedHealthChecker.StartCalls())
 func (mock *HealthCheckerMock) StartCalls() []struct {
 	Ctx context.Context
 } {
@@ -202,7 +206,8 @@ func (mock *HealthCheckerMock) Stop() {
 
 // StopCalls gets all the calls that were made to Stop.
 // Check the length with:
-//     len(mockedHealthChecker.StopCalls())
+//
+//	len(mockedHealthChecker.StopCalls())
 func (mock *HealthCheckerMock) StopCalls() []struct {
 } {
 	var calls []struct {

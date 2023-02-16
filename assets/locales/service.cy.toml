@@ -26,6 +26,16 @@ description = "Content type"
 one = "Math o gynnwys"
 other = "Math o gynnwys"
 
+[PopulationTypes]
+description = "Population type"
+one = "Population type"
+other = "Population type"
+
+[Dimensions]
+description = "Dimensions"
+one = "Dimensions"
+other = "Dimensions"
+
 [ClearAll]
 description = "Clear all"
 one = "Clirio'r cyfan"

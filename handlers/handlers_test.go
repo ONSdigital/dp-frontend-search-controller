@@ -97,7 +97,8 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 		mockedZebedeeClient := &ZebedeeClientMock{
 			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
 				return mockHomepageContent, nil
-			}}
+			},
+		}
 
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
@@ -170,7 +171,8 @@ func TestUnitReadSuccess(t *testing.T) {
 		mockedZebedeeClient := &ZebedeeClientMock{
 			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
 				return mockHomepageContent, nil
-			}}
+			},
+		}
 
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
@@ -228,7 +230,8 @@ func TestUnitReadFailure(t *testing.T) {
 		mockedZebedeeClient := &ZebedeeClientMock{
 			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
 				return mockHomepageContent, nil
-			}}
+			},
+		}
 
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
@@ -269,7 +272,8 @@ func TestUnitReadFailure(t *testing.T) {
 		mockedZebedeeClient := &ZebedeeClientMock{
 			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
 				return mockHomepageContent, nil
-			}}
+			},
+		}
 
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
@@ -310,7 +314,8 @@ func TestUnitReadFailure(t *testing.T) {
 		mockedZebedeeClient := &ZebedeeClientMock{
 			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
 				return mockHomepageContent, nil
-			}}
+			},
+		}
 
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
@@ -428,7 +433,7 @@ func TestUnitGetCategoriesTypesCountSuccess(t *testing.T) {
 		}
 
 		Convey("When getCategoriesTypesCount is called", func() {
-			categories, topicCategories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient, mockCensusTopic)
+			categories, topicCategories, _, _, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient, mockCensusTopic)
 
 			Convey("Then return all categories and types with its count", func() {
 				So(categories[0].Count, ShouldEqual, 1)
@@ -468,7 +473,7 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 		}
 
 		Convey("When getCategoriesTypesCount is called", func() {
-			categories, topicCategories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient, mockCensusTopic)
+			categories, topicCategories, _, _, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient, mockCensusTopic)
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)

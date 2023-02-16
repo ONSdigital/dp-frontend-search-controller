@@ -43,7 +43,7 @@ func TestMain(t *testing.T) {
 
 		status := 0
 
-		var opts = godog.Options{
+		opts := godog.Options{
 			Output: colors.Colored(os.Stdout),
 			Paths:  flag.Args(),
 			Format: "pretty",

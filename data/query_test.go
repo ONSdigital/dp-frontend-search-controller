@@ -21,12 +21,14 @@ func TestUnitReviewQuerySuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		urlQuery := url.Values{
-			"q":      []string{"housing"},
-			"filter": []string{"article"},
-			"topics": []string{"1234,5678"},
-			"sort":   []string{"relevance"},
-			"limit":  []string{"10"},
-			"page":   []string{"1"},
+			"q":                []string{"housing"},
+			"population_types": []string{""},
+			"dimensions":       []string{""},
+			"filter":           []string{"article"},
+			"topics":           []string{"1234,5678"},
+			"sort":             []string{"relevance"},
+			"limit":            []string{"10"},
+			"page":             []string{"1"},
 		}
 
 		Convey("When ReviewQuery is called", func() {
@@ -64,12 +66,14 @@ func TestUnitReviewQuerySuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		urlQuery := url.Values{
-			"q":      []string{"h"},
-			"filter": []string{"article"},
-			"topics": []string{"1234,5678"},
-			"sort":   []string{"relevance"},
-			"limit":  []string{"10"},
-			"page":   []string{"1"},
+			"q":                []string{"h"},
+			"population_types": []string{""},
+			"dimensions":       []string{""},
+			"filter":           []string{"article"},
+			"topics":           []string{"1234,5678"},
+			"sort":             []string{"relevance"},
+			"limit":            []string{"10"},
+			"page":             []string{"1"},
 		}
 
 		Convey("When ReviewQuery is called", func() {
@@ -86,10 +90,12 @@ func TestUnitReviewQuerySuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		urlQuery := url.Values{
-			"q":     []string{"housing"},
-			"sort":  []string{"relevance"},
-			"limit": []string{"10"},
-			"page":  []string{"1"},
+			"q":                []string{"housing"},
+			"population_types": []string{""},
+			"dimensions":       []string{""},
+			"sort":             []string{"relevance"},
+			"limit":            []string{"10"},
+			"page":             []string{"1"},
 		}
 
 		Convey("When ReviewQuery is called", func() {
@@ -112,12 +118,14 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		urlQuery := url.Values{
-			"q":      []string{"housing"},
-			"filter": []string{"article"},
-			"topics": []string{"INVALID"},
-			"sort":   []string{"relevance"},
-			"limit":  []string{"10"},
-			"page":   []string{"1"},
+			"q":                []string{"housing"},
+			"population_types": []string{""},
+			"dimensions":       []string{""},
+			"filter":           []string{"article"},
+			"topics":           []string{"INVALID"},
+			"sort":             []string{"relevance"},
+			"limit":            []string{"10"},
+			"page":             []string{"1"},
 		}
 
 		Convey("When ReviewQuery is called", func() {
@@ -134,12 +142,14 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		urlQuery := url.Values{
-			"q":      []string{"housing"},
-			"filter": []string{"INVALID"},
-			"topics": []string{"1234,5678"},
-			"sort":   []string{"relevance"},
-			"limit":  []string{"10"},
-			"page":   []string{"1"},
+			"q":                []string{"housing"},
+			"population_types": []string{""},
+			"dimensions":       []string{""},
+			"filter":           []string{"INVALID"},
+			"topics":           []string{"1234,5678"},
+			"sort":             []string{"relevance"},
+			"limit":            []string{"10"},
+			"page":             []string{"1"},
 		}
 
 		Convey("When ReviewQuery is called", func() {
@@ -156,12 +166,14 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		urlQuery := url.Values{
-			"q":      []string{"housing"},
-			"filter": []string{"article"},
-			"topics": []string{"1234,5678"},
-			"sort":   []string{"relevance"},
-			"limit":  []string{"10"},
-			"page":   []string{"10000000"},
+			"q":                []string{"housing"},
+			"population_types": []string{""},
+			"dimensions":       []string{""},
+			"filter":           []string{"article"},
+			"topics":           []string{"1234,5678"},
+			"sort":             []string{"relevance"},
+			"limit":            []string{"10"},
+			"page":             []string{"10000000"},
 		}
 
 		Convey("When ReviewQuery is called", func() {
@@ -178,10 +190,12 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		urlQuery := url.Values{
-			"q":     []string{"ho"},
-			"sort":  []string{"relevance"},
-			"limit": []string{"10"},
-			"page":  []string{"1"},
+			"q":                []string{"ho"},
+			"population_types": []string{""},
+			"dimensions":       []string{""},
+			"sort":             []string{"relevance"},
+			"limit":            []string{"10"},
+			"page":             []string{"1"},
 		}
 
 		Convey("When ReviewQuery is called", func() {
@@ -257,12 +271,14 @@ func TestUnitCreateSearchAPIQuerySuccess(t *testing.T) {
 
 			Convey("Then successfully return api query for dp-search-api", func() {
 				So(apiQuery, ShouldResemble, url.Values{
-					"q":            []string{"housing"},
-					"content_type": []string{"article"},
-					"sort":         []string{"relevance"},
-					"limit":        []string{"10"},
-					"offset":       []string{"0"},
-					"topics":       []string{"1234,5678"},
+					"q":                []string{"housing"},
+					"population_types": []string{""},
+					"dimensions":       []string{""},
+					"content_type":     []string{"article"},
+					"sort":             []string{"relevance"},
+					"limit":            []string{"10"},
+					"offset":           []string{"0"},
+					"topics":           []string{"1234,5678"},
 				})
 			})
 		})
@@ -292,11 +308,89 @@ func TestUnitCreateSearchControllerQuerySuccess(t *testing.T) {
 
 			Convey("Then successfully return controller query", func() {
 				So(controllerQuery, ShouldResemble, url.Values{
-					"q":      []string{"housing"},
-					"filter": []string{"article"},
-					"sort":   []string{"relevance"},
-					"limit":  []string{"10"},
-					"page":   []string{"1"},
+					"q":                []string{"housing"},
+					"population_types": []string{""},
+					"dimensions":       []string{""},
+					"filter":           []string{"article"},
+					"sort":             []string{"relevance"},
+					"limit":            []string{"10"},
+					"page":             []string{"1"},
+				})
+			})
+		})
+	})
+}
+
+func TestUnitCreateSearchControllerDimensions(t *testing.T) {
+	t.Parallel()
+
+	Convey("Given validated query parameters provided", t, func() {
+		validatedQueryParams := SearchURLParams{
+			Query: "housing",
+			Filter: Filter{
+				Query:           []string{"article"},
+				LocaliseKeyName: []string{"Article"},
+			},
+			Sort: Sort{
+				Query:           "relevance",
+				LocaliseKeyName: "Relevance",
+			},
+			PopulationTypeFilter: "Usual Residents",
+			DimensionsFilter:     "Ethnicity",
+			Limit:                10,
+			CurrentPage:          1,
+		}
+
+		Convey("When createSearchControllerQuery is called", func() {
+			controllerQuery := createSearchControllerQuery(validatedQueryParams)
+
+			Convey("Then successfully return controller query", func() {
+				So(controllerQuery, ShouldResemble, url.Values{
+					"q":                []string{"housing"},
+					"population_types": []string{"Usual Residents"},
+					"dimensions":       []string{"Ethnicity"},
+					"filter":           []string{"article"},
+					"sort":             []string{"relevance"},
+					"limit":            []string{"10"},
+					"page":             []string{"1"},
+				})
+			})
+		})
+	})
+}
+
+func TestUnitCreateSearchControllerPoputationTypes(t *testing.T) {
+	t.Parallel()
+
+	Convey("Given validated query parameters provided", t, func() {
+		validatedQueryParams := SearchURLParams{
+			Query: "housing",
+			Filter: Filter{
+				Query:           []string{"article"},
+				LocaliseKeyName: []string{"Article"},
+			},
+			Sort: Sort{
+				Query:           "relevance",
+				LocaliseKeyName: "Relevance",
+			},
+			PopulationTypeFilter: "Usual Residents",
+			DimensionsFilter:     "Ethnicity",
+			Limit:                10,
+			CurrentPage:          1,
+		}
+
+		Convey("When createSearchControllerQuery is called", func() {
+			controllerQuery := createSearchControllerQuery(validatedQueryParams)
+
+			Convey("Then successfully return controller query", func() {
+				So(controllerQuery, ShouldResemble, url.Values{
+					"q":                []string{"housing"},
+					"population_types": []string{"Usual Residents"},
+					"dimensions":       []string{"Ethnicity"},
+					"filter":           []string{"article"},
+					"sort":             []string{"relevance"},
+					"limit":            []string{"10"},
+					"page":             []string{"1"},
 				})
 			})
 		})

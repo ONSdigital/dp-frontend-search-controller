@@ -1,0 +1,59 @@
+
+{
+    "count": 1,
+    "took": 96,
+    "content_types": [
+        {
+            "type": "article",
+            "count": 1
+        }
+    ],
+    "population_types": [{
+        "type": "Usual Residents",
+        "count": 1
+      }],
+      "dimensions": [{
+        "type": "Ethnicity",
+        "count": 1
+      }],
+    "topics": [
+        {
+            "_comment": "type value represents topic id",
+            "type": "1234", 
+            "count": 1
+        }
+    ],
+    "items": [
+        {
+            "population_type": "Usual Residents",
+            "dimensions": [ {
+              "label": "Ethnicity",
+              "raw_label": "Ethnicity",
+              "name": "Ethnicity"
+            } ],
+            "canonical_topic": "1234",
+            "keywords": [
+                "regional house prices",
+                "property prices",
+                "area with cheapest houses",
+                "area with most expensive houses"
+            ],
+            "meta_description": "Test Meta Description",
+            "release_date": "2015-02-17T00:00:00.000Z",
+            "summary": "Test Summary",
+            "title": "Title Title",
+            "highlight": {
+                "summary": "Test Summary",
+                "title": "Title Title",
+                "keywords": [
+                    "regional house prices",
+                    "property prices",
+                    "area with cheapest houses",
+                    "area with most expensive houses"
+                ]
+            },
+            "type": "article",
+            "uri": "/uri1/housing/articles/uri2/2015-02-17"
+        }
+    ]
+}
