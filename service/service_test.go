@@ -323,7 +323,6 @@ func TestStart(t *testing.T) {
 
 func TestCloseSuccess(t *testing.T) {
 	Convey("Given a correctly initialised service", t, func() {
-
 		ctx := context.Background()
 
 		cfg, err := config.Get()

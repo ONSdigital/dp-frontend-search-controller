@@ -10,10 +10,8 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-var (
-	// CensusTopicID is the id of the Census topic stored in mongodb which is accessible by using dp-topic-api
-	CensusTopicID string
-)
+// CensusTopicID is the id of the Census topic stored in mongodb which is accessible by using dp-topic-api
+var CensusTopicID string
 
 // TopicCache is a wrapper to dpcache.Cache which has additional fields and methods specifically for caching topics
 type TopicCache struct {

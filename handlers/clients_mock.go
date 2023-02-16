@@ -5,13 +5,14 @@ package handlers
 
 import (
 	"context"
+	"io"
+	"sync"
+
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	coreModel "github.com/ONSdigital/dp-renderer/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	apiError "github.com/ONSdigital/dp-search-api/sdk/errors"
-	"io"
-	"sync"
 )
 
 // Ensure, that SearchClientMock does implement SearchClient.

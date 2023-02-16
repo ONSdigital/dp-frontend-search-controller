@@ -18,9 +18,49 @@ import (
 
 // CreateSearchPage maps type searchC.Response to model.Page
 func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
-	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
-	navigationContent *topicModel.Navigation) model.SearchPage {
+	navigationContent *topicModel.Navigation,
+) model.SearchPage {
+	page := model.SearchPage{
+		Page: basePage,
+	}
+
+	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
+
+	page.Metadata.Title = "Search" //nolint:goconst //The strings aren't actually the same.
+	page.Type = "search"           //nolint:goconst //The strings aren't actually the same.
+	page.Count = respC.Count
+	page.Language = lang
+	page.BetaBannerEnabled = true
+	page.SearchDisabled = false
+	page.URI = req.URL.RequestURI()
+	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath
+	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
+	page.ServiceMessage = homepageResponse.ServiceMessage
+	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
+	page.SearchNoIndexEnabled = cfg.NoIndexEnabled
+	if navigationContent != nil {
+		page.NavigationContent = mapNavigationContent(*navigationContent)
+	}
+
+	mapQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
+
+	mapResponse(&page, respC, categories)
+
+	mapFilters(&page, categories, validatedQueryParams)
+
+	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
+
+	return page
+}
+
+// CreateSearchPage maps type searchC.Response to model.Page
+func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
+	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
+	navigationContent *topicModel.Navigation,
+) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
 	}
@@ -43,7 +83,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
 
-	mapQuery(cfg, &page, validatedQueryParams, categories, respC, errorMessage)
+	mapQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, categories)
 
@@ -51,10 +91,14 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
 
+	mapPopulationTypesFilters(cfg, &page, populationTypes, validatedQueryParams)
+
+	mapDimensionsFilters(cfg, &page, dimensions, validatedQueryParams)
+
 	return page
 }
 
-func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC *searchModels.SearchResponse, errorMessage string) {
+func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC *searchModels.SearchResponse, req http.Request, errorMessage string) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
@@ -63,7 +107,7 @@ func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams d
 
 	mapSort(page, validatedQueryParams)
 
-	mapPagination(cfg, page, validatedQueryParams, respC)
+	mapPagination(cfg, req, page, validatedQueryParams, respC)
 }
 
 func mapSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) {
@@ -84,14 +128,14 @@ func mapSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) 
 	page.Data.Sort.Options = pageSortOptions
 }
 
-func mapPagination(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse) {
+func mapPagination(cfg *config.Config, req http.Request, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse) {
 	page.Data.Pagination.Limit = validatedQueryParams.Limit
 	page.Data.Pagination.LimitOptions = data.LimitOptions
 
 	page.Data.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.Data.Pagination.TotalPages = data.GetTotalPages(cfg, validatedQueryParams.Limit, respC.Count)
-	page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
-	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(cfg, validatedQueryParams, page.Data.Pagination.TotalPages)
+	page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, req, validatedQueryParams, page.Data.Pagination.TotalPages)
+	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(cfg, req, validatedQueryParams, page.Data.Pagination.TotalPages)
 }
 
 func mapResponse(page *model.SearchPage, respC *searchModels.SearchResponse, categories []data.Category) {
@@ -125,7 +169,7 @@ func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse
 	page.Data.Response.Items = itemPage
 }
 
-func mapItemDescription(item *model.ContentItem, itemC *searchModels.ESSourceDocument) {
+func mapItemDescription(item *model.ContentItem, itemC *searchModels.Item) {
 	item.Description = model.Description{
 		DatasetID:       itemC.DatasetID,
 		Language:        itemC.Language,
@@ -142,7 +186,7 @@ func mapItemDescription(item *model.ContentItem, itemC *searchModels.ESSourceDoc
 	}
 }
 
-func mapItemHighlight(item *model.ContentItem, itemC *searchModels.ESSourceDocument) {
+func mapItemHighlight(item *model.ContentItem, itemC *searchModels.Item) {
 	itemHighlight := itemC.Highlight
 	if !reflect.ValueOf(itemHighlight).IsNil() {
 		item.Description.Highlight = model.Highlight{
@@ -275,6 +319,94 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 	}
 
 	page.Data.TopicFilters = topicFilters
+}
+
+func mapPopulationTypesFilters(cfg *config.Config, page *model.SearchPage, populationTypes []data.PopulationTypes, queryParams data.SearchURLParams) {
+	if !cfg.EnableCensusPopulationTypesFilterOption {
+		return
+	}
+
+	var popultationTypesQueryParam []string
+	if queryParams.PopulationTypeFilter != "" {
+		popultationTypesQueryParam = strings.Split(queryParams.PopulationTypeFilter, ",")
+	}
+
+	mapPopultationTypesQueryParams := make(map[string]bool)
+	for i := range popultationTypesQueryParam {
+		mapPopultationTypesQueryParams[popultationTypesQueryParam[i]] = true
+	}
+
+	populationTypeFilters := make([]model.PopulationTypeFilter, len(populationTypes))
+
+	for i := range populationTypes {
+		if !populationTypes[i].ShowInWebUI {
+			continue
+		}
+
+		var populationTypesFilter model.PopulationTypeFilter
+
+		populationTypesFilter.LocaliseKeyName = populationTypes[i].LocaliseKeyName
+		populationTypesFilter.NumberOfResults = populationTypes[i].Count
+		populationTypesFilter.Query = queryParams.Query
+		populationTypesFilter.Count = populationTypes[i].Count
+		populationTypesFilter.Type = populationTypes[i].Type
+
+		if len(popultationTypesQueryParam) > 0 {
+			for _, v := range popultationTypesQueryParam {
+				if v == populationTypesFilter.LocaliseKeyName {
+					populationTypesFilter.IsChecked = true
+				}
+			}
+		}
+
+		populationTypeFilters[i] = populationTypesFilter
+	}
+
+	page.Data.PopulationTypeFilter = populationTypeFilters
+}
+
+func mapDimensionsFilters(cfg *config.Config, page *model.SearchPage, dimensions []data.Dimensions, queryParams data.SearchURLParams) {
+	if !cfg.EnableCensusDimensionsFilterOption {
+		return
+	}
+
+	var dimensionsQueryParam []string
+	if queryParams.PopulationTypeFilter != "" {
+		dimensionsQueryParam = strings.Split(queryParams.DimensionsFilter, ",")
+	}
+
+	mapPopultationTypesQueryParams := make(map[string]bool)
+	for i := range dimensionsQueryParam {
+		mapPopultationTypesQueryParams[dimensionsQueryParam[i]] = true
+	}
+
+	dimensionsFilters := make([]model.DimensionsFilter, len(dimensions))
+
+	for i := range dimensions {
+		if !dimensions[i].ShowInWebUI {
+			continue
+		}
+
+		var dimensionsFilter model.DimensionsFilter
+
+		dimensionsFilter.LocaliseKeyName = dimensions[i].LocaliseKeyName
+		dimensionsFilter.NumberOfResults = dimensions[i].Count
+		dimensionsFilter.Query = queryParams.Query
+		dimensionsFilter.Count = dimensions[i].Count
+		dimensionsFilter.Type = dimensions[i].Type
+
+		if len(dimensionsQueryParam) > 0 {
+			for _, v := range dimensionsQueryParam {
+				if v == dimensionsFilter.LocaliseKeyName {
+					dimensionsFilter.IsChecked = true
+				}
+			}
+		}
+
+		dimensionsFilters[i] = dimensionsFilter
+	}
+
+	page.Data.DimensionsFilter = dimensionsFilters
 }
 
 func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool {

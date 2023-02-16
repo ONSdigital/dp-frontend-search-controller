@@ -26,6 +26,27 @@ description = "Content type"
 one = "Content type"
 other = "Content type"
 
+[PopulationTypes]
+description = "Population type"
+one = "Population type"
+other = "Population type"
+
+[Dimensions]
+description = "Dimensions"
+one = "Dimensions"
+other = "Dimensions"
+
+[UsualResidents]
+description = "Usual Residents"
+one = "Usual Residents"
+other = "Usual Residents"
+
+[Ethnicity]
+description = "Ethnicity"
+one = "Ethnicity"
+other = "Ethnicity"
+
+
 [ClearAll]
 description = "Clear all"
 one = "Clear all"

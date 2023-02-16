@@ -4,8 +4,10 @@
 {{ $query := .Data.Query }}
 {{ $sort := .Data.Sort.Query }}
 {{ $lang := .Language }}
+{{ $population_types := .Data.PopulationTypeFilter}}
+{{ $dimensions:= .Data.DimensionsFilter}}
 
-<form id="topicsFilterForm" method="get" class="js-auto-submit__form" action="/search">
+<form id="topicsFilterForm" method="get" class="js-auto-submit__form">
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sort" value="{{$sort}}"/>
     <fieldset class="ons-fieldset">
@@ -63,7 +65,7 @@
     </noscript>
 </form>
 
-<form id="filterForm" method="get" class="js-auto-submit__form" action="/search">
+<form id="filterForm" method="get" class="js-auto-submit__form">
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sort" value="{{$sort}}"/>
     <fieldset class="ons-fieldset">
@@ -136,6 +138,108 @@
         </button>
     </noscript>
 </form>
+
+{{ if $population_types }}
+<form id="filterForm" method="get" class="js-auto-submit__form">
+    <input type="hidden" name="q" value="{{ $query }}"/>
+    <input type="hidden" name="sort" value="{{$sort}}"/>
+    <fieldset class="ons-fieldset">
+        <details id="collapsibleContentType" class="ons-collapsible ons-js-collapsible" data-btn-close="Hide this" data-open="true">
+            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                <h2 class="ons-collapsible__title">
+                    <legend class="ons-fieldset__legend">
+                        {{ localise "PopulationTypes" $lang 1 }}
+                    </legend>
+                </h2>
+                <span class="ons-collapsible__icon">
+                    {{ template "icons/chevron-right" }}
+                </span>
+            </summary>
+            <div id="collapsible-content" class="ons-collapsible__content ons-js-collapsible-content">
+                <p class="ons-checkboxes__label">Show only:</p>
+        {{ range $index, $populationFilter := $population_types }}
+            <div class="ons-checkboxes__items">
+                <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                    <span class="ons-checkbox ons-checkbox--no-border population-types">
+                        <input type="checkbox" id="population-group-{{ $index }}"
+                            class="ons-checkbox__input ons-js-checkbox"
+                            name="populations"
+                            value="{{ print $populationFilter.LocaliseKeyName }}" aria-controls="population-group-{{ $index }}-other-wrap"
+                            data-gtm-label="{{ $populationFilter.LocaliseKeyName }}"
+                            {{ if $populationFilter.IsChecked }}
+                                checked
+                            {{ end }}
+                            {{ if eq $populationFilter.Count 0 }} disabled aria-disabled="true" {{ end }}
+                        >
+                        <label class="ons-checkbox__label" for="population-group-{{ $index }}" id="population-group-{{ $index }}-label">
+                            {{ localise $populationFilter.LocaliseKeyName $lang 4 }} ({{ $populationFilter.Count }})
+                        </label>
+                    </span>
+                </span>
+            </div>         
+        {{ end }}         
+            </div>
+        </details>
+    </fieldset>
+    <noscript>
+        <button type="submit"
+                class="btn btn--primary btn--thick margin-top-sm--2 margin-top-md--2 js-submit-button">Filter
+        </button>
+    </noscript>
+</form>
+{{ end }}
+
+{{ if $dimensions }}
+<form id="filterForm" method="get" class="js-auto-submit__form">
+    <input type="hidden" name="q" value="{{ $query }}"/>
+    <input type="hidden" name="sort" value="{{$sort}}"/>
+    <fieldset class="ons-fieldset">
+        <details id="collapsibleContentType" class="ons-collapsible ons-js-collapsible" data-btn-close="Hide this" data-open="true">
+            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                <h2 class="ons-collapsible__title">
+                    <legend class="ons-fieldset__legend">
+                        {{ localise "Dimensions" $lang 1 }}
+                    </legend>
+                </h2>
+                <span class="ons-collapsible__icon">
+                    {{ template "icons/chevron-right" }}
+                </span>
+            </summary>
+            <div id="collapsible-content" class="ons-collapsible__content ons-js-collapsible-content">
+                <p class="ons-checkboxes__label">Show only:</p>
+        {{ range $index, $dimensionFilter := $dimensions }}
+            <div class="ons-checkboxes__items">
+                <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                    <span class="ons-checkbox ons-checkbox--no-border dimensions">
+                        <input type="checkbox" id="dimension-group-{{ $index }}"
+                            class="ons-checkbox__input ons-js-checkbox"
+                            name="dimensions"
+                            value="{{ print $dimensionFilter.LocaliseKeyName }}" aria-controls="dimension-group-{{ $index }}-other-wrap"
+                            data-gtm-label="{{ $dimensionFilter.LocaliseKeyName }}"
+                            {{ if $dimensionFilter.IsChecked }}
+                                checked
+                            {{ end }}
+                            {{ if eq $dimensionFilter.Count 0 }} disabled aria-disabled="true" {{ end }}
+                        >
+                        <label class="ons-checkbox__label" for="dimension-group-{{ $index }}" id="dimension-group-{{ $index }}-label">
+                            {{ localise $dimensionFilter.LocaliseKeyName $lang 4 }} ({{ $dimensionFilter.Count }})
+                        </label>
+                    </span>
+                </span>
+            </div>         
+
+
+        {{ end }}         
+            </div>
+        </details>
+    </fieldset>
+    <noscript>
+        <button type="submit"
+                class="btn btn--primary btn--thick margin-top-sm--2 margin-top-md--2 js-submit-button">Filter
+        </button>
+    </noscript>
+</form>
+{{ end }}
 
 <div class="search__filter__mobile-filter-toggle hide">
     <button id="show-results" type="button" class="ons-btn" aria-controls="search-filter">

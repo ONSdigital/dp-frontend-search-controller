@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"net/http/httptest"
 	"net/url"
 	"strconv"
 	"testing"
@@ -11,7 +12,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-const housingQuery = "housing"
+var housingQuery = buildQueryString("housing", "", "")
 
 func TestUnitReviewPaginationSuccess(t *testing.T) {
 	t.Parallel()
@@ -342,9 +343,10 @@ func TestUnitGetPagesToDisplaySuccess(t *testing.T) {
 		}
 
 		totalPages := 5
+		req := *httptest.NewRequest("", "/search", nil)
 
 		Convey("When GetPagesToDisplay is called", func() {
-			pagesToDisplay := GetPagesToDisplay(cfg, validatedQueryParams, totalPages)
+			pagesToDisplay := GetPagesToDisplay(cfg, req, validatedQueryParams, totalPages)
 
 			Convey("Then return all available page numbers with its respective URL", func() {
 				So(pagesToDisplay, ShouldResemble, []model.PageToDisplay{
@@ -397,9 +399,10 @@ func TestUnitGetFirstAndLastPagesSuccess(t *testing.T) {
 		}
 
 		totalPages := 50
+		req := *httptest.NewRequest("", "/search", nil)
 
 		Convey("When GetFirstAndLastPages is called", func() {
-			firstAndLastPages := GetFirstAndLastPages(cfg, validatedQueryParams, totalPages)
+			firstAndLastPages := GetFirstAndLastPages(cfg, req, validatedQueryParams, totalPages)
 
 			Convey("Then return the first and last page numbers with their respective URLs", func() {
 				So(firstAndLastPages, ShouldResemble, []model.PageToDisplay{
@@ -526,7 +529,7 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 
 	Convey("Given search query, page and controller query", t, func() {
 		page := 1
-
+		req := *httptest.NewRequest("", "/search", nil)
 		controllerQuery := url.Values{
 			"q":      []string{"housing"},
 			"filter": []string{"article"},
@@ -536,7 +539,7 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 		}
 
 		Convey("When getPageURL is called", func() {
-			pageURL := getPageURL(housingQuery, page, controllerQuery)
+			pageURL := getPageURL(housingQuery, req, page, controllerQuery)
 
 			Convey("Then successfully return page URL with query first and page last", func() {
 				So(pageURL, ShouldEqual, "/search?q=housing&filter=article&limit=10&sort=relevance&page=1")
@@ -546,6 +549,7 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 
 	Convey("Given no filter, sort, limit in controllerQuery", t, func() {
 		page := 1
+		req := *httptest.NewRequest("", "/search", nil)
 
 		controllerQuery := url.Values{
 			"q":    []string{housingQuery},
@@ -553,7 +557,7 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 		}
 
 		Convey("When getPageURL is called", func() {
-			pageURL := getPageURL(housingQuery, page, controllerQuery)
+			pageURL := getPageURL(housingQuery, req, page, controllerQuery)
 
 			Convey("Then successfully return page URL with query and page", func() {
 				So(pageURL, ShouldEqual, "/search?q=housing&page=1")
