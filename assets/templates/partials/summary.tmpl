@@ -18,14 +18,14 @@
     {{ if .Data.Response.Suggestions}}
         <span class="search__summary__suggestion">
             {{ localise "DidYouMean" $lang 1 }} <a class="underline-link"
-                            href="/search?q={{ index .Data.Response.Suggestions 0 }}">{{ index .Data.Response.Suggestions 0 }}</a>?
+                            href="?q={{ index .Data.Response.Suggestions 0 }}">{{ index .Data.Response.Suggestions 0 }}</a>?
         </span>
     {{/* if additional suggestions and no results */}}
     {{ else if (and (gt $len 0) (le $numberResults 0) ) }}
         <span class="search__summary__suggestion">
             {{ localise "Try" $lang 1 }}
             {{ range $i, $suggestion := .Data.Response.AdditionalSuggestions}}
-                <a class="underline-link" href="/search?q={{ $suggestion }}">{{ $suggestion }}</a>
+                <a class="underline-link" href="?q={{ $suggestion }}">{{ $suggestion }}</a>
                 {{ if notLastItem $len $i }}
                     {{ localise "Or" $lang 1 }}
                 {{ end }}

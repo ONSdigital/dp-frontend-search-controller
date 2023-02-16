@@ -30,4 +30,5 @@ func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, ca
 	log.Info(ctx, "adding routes")
 	r.StrictSlash(true).Path("/health").HandlerFunc(c.HealthCheckHandler)
 	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, c.Zebedee, c.Renderer, c.Search, cacheList))
+	r.StrictSlash(true).Path("/census/find-a-dataset").Methods("GET").HandlerFunc(handlers.ReadFindDataset(cfg, c.Zebedee, c.Renderer, c.Search, cacheList))
 }

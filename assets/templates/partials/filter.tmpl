@@ -5,7 +5,7 @@
 {{ $sort := .Data.Sort.Query }}
 {{ $lang := .Language }}
 
-<form id="topicsFilterForm" method="get" class="js-auto-submit__form" action="/search">
+<form id="topicsFilterForm" method="get" class="js-auto-submit__form">
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sort" value="{{$sort}}"/>
     <fieldset class="ons-fieldset">
@@ -63,7 +63,7 @@
     </noscript>
 </form>
 
-<form id="filterForm" method="get" class="js-auto-submit__form" action="/search">
+<form id="filterForm" method="get" class="js-auto-submit__form">
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sort" value="{{$sort}}"/>
     <fieldset class="ons-fieldset">

@@ -27,6 +27,44 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
 
+	page.Metadata.Title = "Search" //nolint:goconst //The strings aren't actually the same.
+	page.Type = "search"           //nolint:goconst //The strings aren't actually the same.
+	page.Count = respC.Count
+	page.Language = lang
+	page.BetaBannerEnabled = true
+	page.SearchDisabled = false
+	page.URI = req.URL.RequestURI()
+	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath
+	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
+	page.ServiceMessage = homepageResponse.ServiceMessage
+	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
+	page.SearchNoIndexEnabled = cfg.NoIndexEnabled
+	if navigationContent != nil {
+		page.NavigationContent = mapNavigationContent(*navigationContent)
+	}
+
+	mapQuery(cfg, &page, validatedQueryParams, categories, respC, errorMessage)
+
+	mapResponse(&page, respC, categories)
+
+	mapFilters(&page, categories, validatedQueryParams)
+
+	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
+
+	return page
+}
+
+// CreateSearchPage maps type searchC.Response to model.Page
+func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
+	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
+	navigationContent *topicModel.Navigation) model.SearchPage {
+	page := model.SearchPage{
+		Page: basePage,
+	}
+
+	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
+
 	page.Metadata.Title = "Search"
 	page.Type = "search"
 	page.Count = respC.Count

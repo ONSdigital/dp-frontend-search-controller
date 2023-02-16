@@ -31,6 +31,135 @@ func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC Searc
 	})
 }
 
+func ReadFindDataset(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List) http.HandlerFunc {
+	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		readFindDataset(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList)
+	})
+}
+
+func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
+	accessToken, collectionID, lang string, cacheList cache.List) {
+	ctx, cancel := context.WithCancel(req.Context())
+	defer cancel()
+
+	urlQuery := req.URL.Query()
+
+	// get cached census topic and its subtopics
+	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
+	if err != nil {
+		log.Error(ctx, "failed to get census topic cache", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	// get cached navigation data
+	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
+	if err != nil {
+		log.Error(ctx, "failed to get navigation cache", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
+	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
+		log.Error(ctx, "unable to review query", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	var (
+		// counter used to keep track of the number of concurrent API calls
+		counter            = 3
+		errorMessage       string
+		makeSearchAPICalls = true
+	)
+
+	// avoid making unecessary search API calls
+	if errs.ErrMapForRenderBeforeAPICalls[err] {
+		makeSearchAPICalls = false
+
+		// reduce counter by the number of concurrent search API calls that would be
+		// run in go routines
+		counter -= 2
+		errorMessage = err.Error()
+	}
+
+	searchQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
+	categoriesCountQuery := getCategoriesCountQuery(searchQuery)
+
+	var (
+		homepageResp zebedeeCli.HomepageContent
+		searchResp   = &searchModels.SearchResponse{}
+
+		categories      []data.Category
+		topicCategories []data.Topic
+
+		wg sync.WaitGroup
+
+		respErr, countErr error
+	)
+
+	wg.Add(counter)
+
+	go func() {
+		defer wg.Done()
+		var homeErr error
+		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+		if homeErr != nil {
+			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
+			return
+		}
+	}()
+	if makeSearchAPICalls {
+		var options searchSDK.Options
+
+		options.Query = searchQuery
+		options.Headers = http.Header{
+			searchSDK.Authorization: {"Bearer " + accessToken},
+			searchSDK.CollectionID:  {collectionID},
+		}
+		go func() {
+			defer wg.Done()
+
+			searchResp, respErr = searchC.GetSearch(ctx, options)
+			if respErr != nil {
+				log.Error(ctx, "getting search response from client failed", respErr)
+				cancel()
+				return
+			}
+		}()
+		go func() {
+			defer wg.Done()
+
+			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+			if countErr != nil {
+				log.Error(ctx, "getting categories, types and its counts failed", countErr)
+				setStatusCode(w, req, countErr)
+				cancel()
+				return
+			}
+		}()
+	}
+
+	wg.Wait()
+	if respErr != nil || countErr != nil {
+		setStatusCode(w, req, respErr)
+		return
+	}
+
+	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
+	if err != nil {
+		log.Error(ctx, "unable to validate current page", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	basePage := rend.NewBasePageModel()
+	m := mapper.CreateDataFinderPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, errorMessage, navigationCache)
+	rend.BuildPage(w, m, "search")
+}
+
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
 	accessToken, collectionID, lang string, cacheList cache.List) {
 	ctx, cancel := context.WithCancel(req.Context())
