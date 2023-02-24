@@ -46,7 +46,7 @@ func Get() (*Config, error) {
 	if newCfg.Debug {
 		newCfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
 	} else {
-		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/2200ea0"
+		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/663cd73"
 	}
 
 	return newCfg, nil
@@ -70,7 +70,7 @@ func get() (*Config, error) {
 		DefaultOffset:                  0,
 		DefaultPage:                    1,
 		DefaultSort:                    "relevance",
-		EnableCensusTopicFilterOption:  false,
+		EnableCensusTopicFilterOption:  true,
 		EnableNewNavBar:                false,
 		GracefulShutdownTimeout:        5 * time.Second,
 		HealthCheckCriticalTimeout:     90 * time.Second,
