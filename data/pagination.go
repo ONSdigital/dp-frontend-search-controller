@@ -120,11 +120,14 @@ func GetPagesToDisplay(cfg *config.Config, validatedQueryParams SearchURLParams,
 
 	controllerQuery := createSearchControllerQuery(validatedQueryParams)
 	query := controllerQuery.Get("q")
+	populationTypes := controllerQuery.Get("population_types")
+	dimensions := controllerQuery.Get("dimensions")
+	queryString := buildQueryString(query, populationTypes, dimensions)
 
 	for i := startPage; i <= endPage; i++ {
 		pagesToDisplay = append(pagesToDisplay, model.PageToDisplay{
 			PageNumber: i,
-			URL:        getPageURL(query, i, controllerQuery),
+			URL:        getPageURL(queryString, i, controllerQuery),
 		})
 	}
 
@@ -137,14 +140,17 @@ func GetFirstAndLastPages(cfg *config.Config, validatedQueryParams SearchURLPara
 
 	controllerQuery := createSearchControllerQuery(validatedQueryParams)
 	query := controllerQuery.Get("q")
+	populationTypes := controllerQuery.Get("population_types")
+	dimensions := controllerQuery.Get("dimensions")
+	queryString := buildQueryString(query, populationTypes, dimensions)
 
 	// add first and last
 	firstAndLastPages = append(firstAndLastPages, model.PageToDisplay{
 		PageNumber: 1,
-		URL:        getPageURL(query, 1, controllerQuery),
+		URL:        getPageURL(queryString, 1, controllerQuery),
 	}, model.PageToDisplay{
 		PageNumber: totalPages,
-		URL:        getPageURL(query, totalPages, controllerQuery),
+		URL:        getPageURL(queryString, totalPages, controllerQuery),
 	})
 
 	return firstAndLastPages
@@ -178,11 +184,13 @@ func getEndPage(startPage, totalPages int) int {
 	return endPage
 }
 
-func getPageURL(query string, page int, controllerQuery url.Values) (pageURL string) {
+func getPageURL(queryString string, page int, controllerQuery url.Values) (pageURL string) {
 	controllerQuery.Del("q")
 	controllerQuery.Del("page")
+	controllerQuery.Del("population_types")
+	controllerQuery.Del("dimensions")
 
-	queryParam := "q=" + query
+
 	pageParam := "&page=" + strconv.Itoa(page)
 
 	// This includes all the query parameters excluding search query and current page
@@ -192,7 +200,16 @@ func getPageURL(query string, page int, controllerQuery url.Values) (pageURL str
 	}
 
 	// The pageURL is structured so that search query comes first and current page is mentioned last to make it more readable and logical
-	pageURL = "/search?" + queryParam + filterSortLimitParams + pageParam
+	pageURL = "/search?" + queryString + filterSortLimitParams + pageParam
 
 	return pageURL
+}
+
+func buildQueryString(query string, populationTypes string, dimensions string) string {
+	var u url.URL
+	q := u.Query()
+	q.Set("q", query)
+	q.Set("population_types", populationTypes)
+	q.Set("dimensions", dimensions)
+	return q.Encode()
 }

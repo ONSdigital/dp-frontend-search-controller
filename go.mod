@@ -13,7 +13,7 @@ require (
 	github.com/ONSdigital/dp-net v1.5.0
 	github.com/ONSdigital/dp-net/v2 v2.8.1
 	github.com/ONSdigital/dp-renderer v1.58.0
-	github.com/ONSdigital/dp-search-api v1.32.0
+	github.com/ONSdigital/dp-search-api v1.7.1-0.20230302130438-961275353098
 	github.com/ONSdigital/dp-topic-api v0.13.3
 	github.com/ONSdigital/log.go/v2 v2.2.0
 	github.com/cucumber/godog v0.12.5
@@ -40,8 +40,10 @@ require (
 	github.com/cucumber/gherkin-go/v19 v19.0.3 // indirect
 	github.com/cucumber/messages-go/v16 v16.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/elastic/go-elasticsearch/v7 v7.10.0 // indirect
 	github.com/fatih/color v1.13.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
+	github.com/go-errors/errors v1.4.2
 	github.com/go-stack/stack v1.8.1 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect
@@ -55,6 +57,7 @@ require (
 	github.com/hashicorp/go-memdb v1.3.3 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f // indirect
+	github.com/iancoleman/strcase v0.2.0
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect

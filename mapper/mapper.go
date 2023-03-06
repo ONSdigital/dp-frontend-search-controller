@@ -18,7 +18,7 @@ import (
 
 // CreateSearchPage maps type searchC.Response to model.Page
 func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
-	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation) model.SearchPage {
 	page := model.SearchPage{
@@ -56,7 +56,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 // CreateSearchPage maps type searchC.Response to model.Page
 func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
-	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation) model.SearchPage {
 	page := model.SearchPage{
@@ -88,6 +88,10 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 	mapFilters(&page, categories, validatedQueryParams)
 
 	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
+
+	mapPopulationTypesFilters(cfg, &page, populationTypes, validatedQueryParams)
+
+	mapDimensionsFilters(cfg, &page, dimensions, validatedQueryParams)
 
 	return page
 }
@@ -313,6 +317,94 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 	}
 
 	page.Data.TopicFilters = topicFilters
+}
+
+func mapPopulationTypesFilters(cfg *config.Config, page *model.SearchPage, populationTypes []data.PopulationTypes, queryParams data.SearchURLParams) {
+	//if !cfg.EnablePopultationTypesFilterOption {
+	//	return
+	//}
+
+	var popultationTypesQueryParam []string
+	if queryParams.PopulationTypeFilter != "" {
+		popultationTypesQueryParam = strings.Split(queryParams.PopulationTypeFilter, ",")
+	}
+
+	mapPopultationTypesQueryParams := make(map[string]bool)
+	for i := range popultationTypesQueryParam {
+		mapPopultationTypesQueryParams[popultationTypesQueryParam[i]] = true
+	}
+
+	populationTypeFilters := make([]model.PopulationTypeFilter, len(populationTypes))
+
+	for i := range populationTypes {
+		if !populationTypes[i].ShowInWebUI {
+			continue
+		}
+
+		var populationTypesFilter model.PopulationTypeFilter
+
+		populationTypesFilter.LocaliseKeyName = populationTypes[i].LocaliseKeyName
+		populationTypesFilter.NumberOfResults = populationTypes[i].Count
+		populationTypesFilter.Query = queryParams.Query
+		populationTypesFilter.Count = populationTypes[i].Count
+		populationTypesFilter.Type = populationTypes[i].Type
+
+		if len(popultationTypesQueryParam) > 0 {
+			for _, v := range popultationTypesQueryParam {
+				if v == populationTypesFilter.Type {
+					populationTypesFilter.IsChecked = true
+				}
+			}
+		}
+
+		populationTypeFilters[i] = populationTypesFilter
+	}
+
+	page.Data.PopulationTypeFilter = populationTypeFilters
+}
+
+func mapDimensionsFilters(cfg *config.Config, page *model.SearchPage, dimensions []data.Dimensions, queryParams data.SearchURLParams) {
+	//if !cfg.EnablePopultationTypesFilterOption {
+	//	return
+	//}
+
+	var dimensionsQueryParam []string
+	if queryParams.PopulationTypeFilter != "" {
+		dimensionsQueryParam = strings.Split(queryParams.DimensionsFilter, ",")
+	}
+
+	mapPopultationTypesQueryParams := make(map[string]bool)
+	for i := range dimensionsQueryParam {
+		mapPopultationTypesQueryParams[dimensionsQueryParam[i]] = true
+	}
+
+	dimensionsFilters := make([]model.DimensionsFilter, len(dimensions))
+
+	for i := range dimensions {
+		if !dimensions[i].ShowInWebUI {
+			continue
+		}
+
+		var dimensionsFilter model.DimensionsFilter
+
+		dimensionsFilter.LocaliseKeyName = dimensions[i].LocaliseKeyName
+		dimensionsFilter.NumberOfResults = dimensions[i].Count
+		dimensionsFilter.Query = queryParams.Query
+		dimensionsFilter.Count = dimensions[i].Count
+		dimensionsFilter.Type = dimensions[i].Type
+
+		if len(dimensionsQueryParam) > 0 {
+			for _, v := range dimensionsQueryParam {
+				if v == dimensionsFilter.Type {
+					dimensionsFilter.IsChecked = true
+				}
+			}
+		}
+
+		dimensionsFilters[i] = dimensionsFilter
+	}
+
+	page.Data.DimensionsFilter = dimensionsFilters
 }
 
 func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool {
