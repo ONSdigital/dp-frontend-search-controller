@@ -24,7 +24,7 @@
                             {{ if eq $topicFilter.DistinctItemsCount 0 }} disabled aria-disabled="true" {{ end }}
                         >
                         <label class="ons-checkbox__label" for="topic-group-{{ $index }}" id="topic-group-{{ $index }}-label">
-                            {{ localise $topicFilter.LocaliseKeyName $lang 4 }} ({{ $topicFilter.DistinctItemsCount }})
+                            {{ localise $topicFilter.LocaliseKeyName $lang 4 }}
                         </label>
                         <span class="ons-checkbox__other" id="topic-group-{{ $index }}-other-wrap">
                             <fieldset class="ons-fieldset ons-js-other-fieldset">
