@@ -82,7 +82,6 @@
                 </span>
             </summary>
             <div id="collapsible-content" class="ons-collapsible__content ons-js-collapsible-content">
-                <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
                 <p class="ons-checkboxes__label">Show only:</p>
                 {{ range $index, $topFilter := $filters}}
                     <div class="ons-checkboxes__items">

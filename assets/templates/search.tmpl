@@ -35,7 +35,9 @@
           <div class="search__filter__heading">
             <h3 class="font-size--18">
               {{ localise "FilterResults" $lang 4 }}
+              <a href="{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--16">{{ localise "ClearAll" $lang 1 }}</a>
             </h3>
+
           </div>
           <div class="search__filter__content">
             {{ template "partials/filter" . }}
