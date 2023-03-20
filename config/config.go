@@ -61,7 +61,7 @@ func get() (*Config, error) {
 
 	cfg := &Config{
 		APIRouterURL:                            "http://localhost:23200/v1",
-		BindAddr:                                "localhost:25000",
+		BindAddr:                                "0.0.0.0:25000",
 		CacheCensusTopicUpdateInterval:          30 * time.Minute,
 		CacheNavigationUpdateInterval:           30 * time.Minute,
 		CensusTopicID:                           "4445",
@@ -73,8 +73,8 @@ func get() (*Config, error) {
 		DefaultPage:                             1,
 		DefaultSort:                             "relevance",
 		EnableCensusTopicFilterOption:           false,
-		EnableCensusPopulationTypesFilterOption: false,
-		EnableCensusDimensionsFilterOption:      false,
+		EnableCensusPopulationTypesFilterOption: true,
+		EnableCensusDimensionsFilterOption:      true,
 		EnableNewNavBar:                         false,
 		GracefulShutdownTimeout:                 5 * time.Second,
 		HealthCheckCriticalTimeout:              90 * time.Second,

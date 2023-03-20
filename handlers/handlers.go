@@ -33,14 +33,14 @@ func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC Searc
 }
 
 func ReadFindDataset(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List) http.HandlerFunc {
-	search := &SearchClientMock{
+	searchC = &SearchClientMock{
 		GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
 			model, _ := mapper.GetFindADatasetResponse()
 			return model, nil
 		},
 	}
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readFindDataset(w, req, cfg, zc, rend, search, accessToken, collectionID, lang, cacheList)
+		readFindDataset(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList)
 	})
 }
 
@@ -51,6 +51,8 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	defer cancel()
 
 	urlQuery := req.URL.Query()
+	urlQuery.Del("filter")
+	//urlQuery.Add("filter", "datasetslandingpage")
 
 	// get cached census topic and its subtopics
 	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)

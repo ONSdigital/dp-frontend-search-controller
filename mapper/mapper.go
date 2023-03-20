@@ -87,8 +87,6 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 
 	mapResponse(&page, respC, categories)
 
-	mapFilters(&page, categories, validatedQueryParams)
-
 	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
 
 	mapPopulationTypesFilters(cfg, &page, populationTypes, validatedQueryParams)

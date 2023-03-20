@@ -4,7 +4,7 @@
     "took": 96,
     "content_types": [
         {
-            "type": "article",
+            "type": "dataset_landing_page",
             "count": 1
         }
     ],

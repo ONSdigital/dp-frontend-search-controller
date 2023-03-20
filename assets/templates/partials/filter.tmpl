@@ -65,6 +65,7 @@
     </noscript>
 </form>
 
+{{ if $filters }}
 <form id="filterForm" method="get" class="js-auto-submit__form">
     <input type="hidden" name="q" value="{{ $query }}"/>
     <input type="hidden" name="sort" value="{{$sort}}"/>
@@ -138,6 +139,7 @@
         </button>
     </noscript>
 </form>
+{{ end }}
 
 {{ if $population_types }}
 <form id="filterForm" method="get" class="js-auto-submit__form">
