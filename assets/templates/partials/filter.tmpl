@@ -10,10 +10,10 @@
     <input type="hidden" name="sort" value="{{$sort}}"/>
     <fieldset class="ons-fieldset">
         {{ range $index, $topicFilter := $topicFilters }}
-            <div class="ons-checkboxes__items">
+            <div class="ons-checkboxes__items" role="tree">
                 <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
                     <span class="ons-checkbox ons-checkbox--no-border topic-filter">
-                        <input type="checkbox" id="topic-group-{{ $index }}"
+                        <input type="checkbox" role="group" id="topic-group-{{ $index }}"
                             class="ons-checkbox__input ons-js-checkbox"
                             name="topics"
                             value="{{ print $topicFilter.Query }}" aria-controls="topic-group-{{ $index }}-other-wrap"
@@ -33,7 +33,7 @@
                                     <div class="ons-checkboxes__items">
                                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
                                             <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                <input id="{{ $id }}"
+                                                <input id="{{ $id }}" role="treeitem"
                                                     class="ons-checkbox__input ons-js-checkbox"
                                                     type="checkbox" name="topics"
                                                     {{ if $childFilter.IsChecked }}checked{{ end }}
@@ -82,13 +82,12 @@
                 <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
                 <p class="ons-checkboxes__label">Show only:</p>
                 {{ range $index, $topFilter := $filters}}
-                    <div class="ons-checkboxes__items">
+                    <div class="ons-checkboxes__items" role="tree">
                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
                             <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
-                                <input type="checkbox" id="group-{{ $index }}"
+                                <input type="checkbox" role="group" id="group-{{ $index }}"
                                     class="ons-checkbox__input ons-js-checkbox"
                                     value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
-                                    aria-haspopup="true"
                                     data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
                                     {{ if $topFilter.IsChecked }}
                                         checked
@@ -105,7 +104,7 @@
                                             <div class="ons-checkboxes__items">
                                                 <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
                                                     <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                        <input id="{{ $id }}"
+                                                        <input id="{{ $id }}" role="treeitem"
                                                             class="ons-checkbox__input ons-js-checkbox"
                                                             type="checkbox" name="filter"
                                                             {{ if $childFilter.IsChecked }}checked{{ end }}
