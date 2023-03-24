@@ -10,14 +10,16 @@ type SearchPage struct {
 
 // Search represents all search parameters and response data of the search
 type Search struct {
-	Query        string           `json:"query"`
-	ErrorMessage string           `json:"error_message,omitempty"`
-	Filter       []string         `json:"filter,omitempty"`
-	Filters      []Filter         `json:"filters"`
-	TopicFilters []TopicFilter    `json:"topic_filters"`
-	Sort         Sort             `json:"sort,omitempty"`
-	Pagination   model.Pagination `json:"pagination,omitempty"`
-	Response     Response         `json:"response"`
+	Query                string                 `json:"query"`
+	ErrorMessage         string                 `json:"error_message,omitempty"`
+	Filter               []string               `json:"filter,omitempty"`
+	Filters              []Filter               `json:"filters"`
+	TopicFilters         []TopicFilter          `json:"topic_filters"`
+	PopulationTypeFilter []PopulationTypeFilter `json:"population_types"`
+	DimensionsFilter     []DimensionsFilter     `json:"dimensions"`
+	Sort                 Sort                   `json:"sort,omitempty"`
+	Pagination           model.Pagination       `json:"pagination,omitempty"`
+	Response             Response               `json:"response"`
 }
 
 // Filter respresents all filter information needed by templates
@@ -37,6 +39,24 @@ type TopicFilter struct {
 	IsChecked          bool          `json:"is_checked,omitempty"`
 	NumberOfResults    int           `json:"number_of_results,omitempty"`
 	Types              []TopicFilter `json:"subtopics,omitempty"`
+}
+
+type PopulationTypeFilter struct {
+	LocaliseKeyName string `json:"localise_key_name,omitempty"`
+	Count           int    `json:"count,omitempty"`
+	Query           string `json:"query,omitempty"`
+	IsChecked       bool   `json:"is_checked,omitempty"`
+	NumberOfResults int    `json:"number_of_results,omitempty"`
+	Type            string `json:"type,omitempty"`
+}
+
+type DimensionsFilter struct {
+	LocaliseKeyName string `json:"localise_key_name,omitempty"`
+	Count           int    `json:"count,omitempty"`
+	Query           string `json:"query,omitempty"`
+	IsChecked       bool   `json:"is_checked,omitempty"`
+	NumberOfResults int    `json:"number_of_results,omitempty"`
+	Type            string `json:"type,omitempty"`
 }
 
 // Sort represents all the information of sorting related to the search page

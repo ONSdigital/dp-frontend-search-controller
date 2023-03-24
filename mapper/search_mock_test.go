@@ -31,7 +31,7 @@ func TestUnitGetMockSearchResponse(t *testing.T) {
 			testString2 := "property prices"
 			testString3 := "area with cheapest houses"
 			testString4 := "area with most expensive houses"
-			mockSearchItems := []searchModels.ESSourceDocument{
+			mockSearchItems := []searchModels.Item{
 				{
 					CanonicalTopic:  "1234",
 					Keywords:        []string{"regional house prices", "property prices", "area with cheapest houses", "area with most expensive houses"},
@@ -55,6 +55,87 @@ func TestUnitGetMockSearchResponse(t *testing.T) {
 				ContentTypes: mockSearchContentTypes,
 				Topics:       mockSearchTopics,
 				Items:        mockSearchItems,
+			})
+		})
+
+		Convey("And return no error", func() {
+			So(err, ShouldBeNil)
+		})
+	})
+}
+
+func TestUnitGetMockFindADatasetResponse(t *testing.T) {
+	t.Parallel()
+
+	Convey("When GetMockFindADatasetResponse is called", t, func() {
+		mockSearchResponse, err := GetFindADatasetResponse()
+
+		Convey("Then successfully get mock search response", func() {
+			mockSearchContentTypes := []searchModels.FilterCount{
+				{
+					Type:  "article",
+					Count: 1,
+				},
+			}
+
+			mockPopulationTypes := []searchModels.FilterCount{
+				{
+					Type:  "Usual Residents",
+					Count: 1,
+				},
+			}
+
+			mockDimensions := []searchModels.FilterCount{
+				{
+					Type:  "Ethnicity",
+					Count: 1,
+				},
+			}
+
+			mockSearchTopics := []searchModels.FilterCount{
+				{
+					Type:  "1234",
+					Count: 1,
+				},
+			}
+			testString1 := "regional house prices"
+			testString2 := "property prices"
+			testString3 := "area with cheapest houses"
+			testString4 := "area with most expensive houses"
+			mockSearchItems := []searchModels.Item{
+				{
+					CanonicalTopic:  "1234",
+					Keywords:        []string{"regional house prices", "property prices", "area with cheapest houses", "area with most expensive houses"},
+					MetaDescription: "Test Meta Description",
+					ReleaseDate:     "2015-02-17T00:00:00.000Z",
+					Summary:         "Test Summary",
+					Title:           "Title Title",
+					Highlight: &searchModels.HighlightObj{
+						Summary:  "Test Summary",
+						Title:    "Title Title",
+						Keywords: []*string{&testString1, &testString2, &testString3, &testString4}, // "regional house prices", "property prices", "area with cheapest houses", "area with most expensive houses"},
+					},
+					DataType:       "article",
+					URI:            "/uri1/housing/articles/uri2/2015-02-17",
+					PopulationType: "Usual Residents",
+					Dimensions: []searchModels.ESDimensions{
+						{
+							RawLabel: "Ethnicity",
+							Label:    "Ethnicity",
+							Name:     "Ethnicity",
+						},
+					},
+				},
+			}
+
+			So(mockSearchResponse, ShouldResemble, &searchModels.SearchResponse{
+				Count:          1,
+				Took:           96,
+				PopulationType: mockPopulationTypes,
+				Dimensions:     mockDimensions,
+				ContentTypes:   mockSearchContentTypes,
+				Topics:         mockSearchTopics,
+				Items:          mockSearchItems,
 			})
 		})
 

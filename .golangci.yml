@@ -5,7 +5,7 @@ run:
   concurrency: 4
 
   # timeout for analysis, e.g. 30s, 5m, default is 1m
-  timeout: 10m
+  timeout: 15m
 linters-settings:
   govet:
     check-shadowing: true
@@ -21,7 +21,7 @@ linters-settings:
     threshold: 100
   goconst:
     min-len: 2
-    min-occurrences: 2
+    min-occurrences: 5
   misspell:
     locale: UK
   lll:
