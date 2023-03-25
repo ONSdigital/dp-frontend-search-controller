@@ -25,7 +25,7 @@ const (
 // Component contains all the information to create a component test
 type Component struct {
 	APIFeature     *componentTest.APIFeature
-	cfg            *config.Config
+	Config         *config.Config
 	ErrorFeature   componentTest.ErrorFeature
 	FakeAPIRouter  *FakeAPI
 	fakeRequest    *httpfake.Request
@@ -47,16 +47,16 @@ func NewSearchControllerComponent() (c *Component, err error) {
 
 	svcErrors := make(chan error, 1)
 
-	c.cfg, err = config.Get()
+	c.Config, err = config.Get()
 	if err != nil {
 		return nil, err
 	}
 
 	c.FakeAPIRouter = NewFakeAPI()
-	c.cfg.APIRouterURL = c.FakeAPIRouter.fakeHTTP.ResolveURL("")
+	c.Config.APIRouterURL = c.FakeAPIRouter.fakeHTTP.ResolveURL("")
 
-	c.cfg.HealthCheckInterval = 1 * time.Second
-	c.cfg.HealthCheckCriticalTimeout = 3 * time.Second
+	c.Config.HealthCheckInterval = 1 * time.Second
+	c.Config.HealthCheckCriticalTimeout = 3 * time.Second
 
 	c.FakeAPIRouter.healthRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/health")
 	c.FakeAPIRouter.healthRequest.CustomHandle = healthCheckStatusHandle(200)
@@ -70,7 +70,7 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	serviceList := service.NewServiceList(initFunctions)
 
 	c.svc = service.New()
-	if err := c.svc.Init(ctx, c.cfg, serviceList); err != nil {
+	if err := c.svc.Init(ctx, c.Config, serviceList); err != nil {
 		log.Error(ctx, "failed to initialise service", err)
 		return nil, err
 	}

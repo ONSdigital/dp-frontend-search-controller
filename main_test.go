@@ -8,6 +8,7 @@ import (
 	"os"
 	"testing"
 
+	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-frontend-search-controller/features/steps"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/cucumber/godog"
@@ -24,10 +25,19 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	}
 	apiFeature := controllerComponent.InitAPIFeature()
 
+	url := fmt.Sprintf("http://%s%s", controllerComponent.Config.SiteDomain, controllerComponent.Config.BindAddr)
+	uiFeature := componenttest.NewUIFeature(url)
+	uiFeature.RegisterSteps(ctx)
+
 	apiFeature.RegisterSteps(ctx)
 	controllerComponent.RegisterSteps(ctx)
 
+	ctx.BeforeScenario(func(*godog.Scenario) {
+		uiFeature.Reset()
+	})
+
 	ctx.AfterScenario(func(*godog.Scenario, error) {
+		uiFeature.Close()
 		controllerComponent.Close()
 	})
 }
