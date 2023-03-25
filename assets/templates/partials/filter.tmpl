@@ -65,7 +65,7 @@
     </form>
 
     <form id="filterForm" method="get" class="js-auto-submit__form">
-            <details id="collapsibleContentType" class="ons-details ons-js-details ons-details--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <details id="collapsibleContentType" class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                     <h2 class="ons-collapsible__title">
                         <legend class="ons-fieldset__legend">
@@ -76,7 +76,7 @@
                         {{ template "icons/chevron-right" }}
                     </span>
                 </summary>
-                <div id="collapsible-content" class="ons-details__content ons-js-details-content">
+                <div id="collapsible-content" class="ons-collapsible__content ons-js-details-content">
                     {{ range $index, $topFilter := $filters}}
                         <div class="ons-checkboxes__items">
                             <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
@@ -135,7 +135,7 @@
     {{ $key := "population-types" }}
     {{ $value := $population_types }}
     <form id="filterForm{{ $translationKey }}" method="get" class="js-auto-submit__form">
-            <details id="collapsibleContentType" class="ons-details ons-js-details ons-details--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <details id="collapsibleContentType" class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                     <h2 class="ons-collapsible__title">
                         <legend class="ons-fieldset__legend">
@@ -146,7 +146,7 @@
                         {{ template "icons/chevron-right" }}
                     </span>
                 </summary>
-                <div id="collapsible-content" class="ons-details__content ons-js-details-content">
+                <div id="collapsible-content" class="ons-collapsible__content ons-js-details-content">
                     {{ range $index, $filter := $value }}
                     <div class="ons-checkboxes__items">
                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
@@ -182,7 +182,7 @@
     {{ $translationKey := "Dimensions" }}
     {{ $value := $dimensions }}
     <form id="filterForm{{ $translationKey }}" method="get" class="js-auto-submit__form">
-            <details id="collapsibleContentType" class="ons-details ons-js-details ons-details--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <details id="collapsibleContentType" class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                     <h2 class="ons-collapsible__title">
                         <legend class="ons-fieldset__legend">
@@ -193,7 +193,7 @@
                         {{ template "icons/chevron-right" }}
                     </span>
                 </summary>
-                <div id="collapsible-content" class="ons-details__content ons-js-details-content">
+                <div id="collapsible-content" class="ons-collapsible__content ons-js-details-content">
                     {{ range $index, $filter := $value }}
                     <div class="ons-checkboxes__items">
                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
