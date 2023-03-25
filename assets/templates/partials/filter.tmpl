@@ -24,7 +24,6 @@
                                 {{ if $topicFilter.IsChecked }}
                                     checked
                                 {{ end }}
-                                {{ if eq $topicFilter.DistinctItemsCount 0 }} disabled aria-disabled="true" {{ end }}
                             >
                             <label class="ons-checkbox__label" for="topic-group-{{ $index }}" id="topic-group-{{ $index }}-label">
                                 {{ localise $topicFilter.LocaliseKeyName $lang 4 }}
@@ -42,7 +41,6 @@
                                                         {{ if $childFilter.IsChecked }}checked{{ end }}
                                                         data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
                                                         value="{{ $id }}"
-                                                        {{ if eq $childFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
                                                     />
                                                     <label class="ons-checkbox__label" for="{{ $id }}"
                                                         id="{{ $id }}-label">
@@ -91,7 +89,6 @@
                                         {{ if $topFilter.IsChecked }}
                                             checked
                                         {{ end }}
-                                        {{ if eq $topFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
                                     >
                                     <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
                                         {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
@@ -109,7 +106,6 @@
                                                                 {{ if $childFilter.IsChecked }}checked{{ end }}
                                                                 data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
                                                                 value="{{ $id }}"
-                                                                {{ if eq $childFilter.NumberOfResults 0 }} disabled aria-disabled="true" {{ end }}
                                                             />
                                                             <label class="ons-checkbox__label" for="{{ $id }}"
                                                                 id="{{ $id }}-label">
@@ -163,7 +159,6 @@
                                     {{ if $filter.IsChecked }}
                                         checked
                                     {{ end }}
-                                    {{ if eq $filter.Count 0 }} disabled aria-disabled="true" {{ end }}
                                 >
                                 <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
                                     {{ $filter.Type }} ({{ $filter.Count }})
@@ -211,7 +206,6 @@
                                     {{ if $filter.IsChecked }}
                                         checked
                                     {{ end }}
-                                    {{ if eq $filter.Count 0 }} disabled aria-disabled="true" {{ end }}
                                 >
                                 <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
                                     {{ $filter.Type }} ({{ $filter.Count }})
