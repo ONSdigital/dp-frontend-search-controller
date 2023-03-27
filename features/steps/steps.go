@@ -108,7 +108,7 @@ func (c *Component) iShouldReceiveTheFollowingHealthJSONResponse(expectedRespons
 }
 
 func (c *Component) validateHealthCheckResponse(healthResponse HealthCheckTest, expectedResponse HealthCheckTest) {
-	maxExpectedStartTime := c.StartTime.Add((c.cfg.HealthCheckInterval + 1) * time.Second)
+	maxExpectedStartTime := c.StartTime.Add((c.Config.HealthCheckInterval + 1) * time.Second)
 
 	assert.Equal(&c.ErrorFeature, expectedResponse.Status, healthResponse.Status)
 	assert.True(&c.ErrorFeature, healthResponse.StartTime.After(c.StartTime))
@@ -131,7 +131,7 @@ func (c *Component) validateHealthVersion(versionResponse healthcheck.VersionInf
 }
 
 func (c *Component) validateHealthCheck(checkResponse, expectedCheck *Check) {
-	maxExpectedHealthCheckTime := c.StartTime.Add((c.cfg.HealthCheckInterval + c.cfg.HealthCheckCriticalTimeout + 1) * time.Second)
+	maxExpectedHealthCheckTime := c.StartTime.Add((c.Config.HealthCheckInterval + c.Config.HealthCheckCriticalTimeout + 1) * time.Second)
 
 	assert.Equal(&c.ErrorFeature, expectedCheck.Name, checkResponse.Name)
 	assert.Equal(&c.ErrorFeature, expectedCheck.Status, checkResponse.Status)

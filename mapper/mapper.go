@@ -72,6 +72,7 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 	page.Count = respC.Count
 	page.Language = lang
 	page.BetaBannerEnabled = true
+	page.Page.Breadcrumb = []coreModel.TaxonomyNode{{Title: "Home", URI: "/"}, {Title: "Census", URI: "/census"}, {Title: "Find census data"}}
 	page.SearchDisabled = false
 	page.URI = req.URL.RequestURI()
 	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath

@@ -40,6 +40,10 @@ other = "Dimensions"
 description = "Clear all"
 one = "Clear all"
 
+[ClearAllFilters]
+description = "clear all filters"
+one = "clear all filters"
+
 [Publication]
 description = "Publications"
 one="publication"
@@ -206,3 +210,15 @@ one = "Try"
 [Or]
 description = "or"
 one = "or" 
+
+[NoResultsHeader]
+description = "Sorry, there are no matching results."
+one = "Sorry, there are no matching results."
+
+[NoResultsSelectAnother]
+description = "Select another topic"
+one = "Select another topic"
+
+[NoResultsBody]
+description = "Not all census content has been released. Check for upcoming releases in the <a href=\"/releasecalendar\">release calendar</a>. Alternatively, you can create a <a href=\"/datasets/create\">custom dataset</a>."
+one = "Not all census content has been released. Check for upcoming releases in the <a href=\"/releasecalendar\">release calendar</a>. Alternatively, you can create a <a href=\"/datasets/create\">custom dataset</a>."

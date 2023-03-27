@@ -22,7 +22,7 @@ func TestConfig(t *testing.T) {
 				So(cfg, ShouldNotBeNil)
 
 				So(cfg.APIRouterURL, ShouldEqual, "http://localhost:23200/v1")
-				So(cfg.BindAddr, ShouldEqual, "localhost:25000")
+				So(cfg.BindAddr, ShouldEqual, ":25000")
 				So(cfg.CacheCensusTopicUpdateInterval, ShouldEqual, 30*time.Minute)
 				So(cfg.CacheNavigationUpdateInterval, ShouldEqual, 30*time.Minute)
 				So(cfg.CensusTopicID, ShouldEqual, "4445")

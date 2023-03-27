@@ -48,7 +48,7 @@ func Get() (*Config, error) {
 	if newCfg.Debug {
 		newCfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
 	} else {
-		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/e56c82e"
+		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/22a3f50"
 	}
 
 	return newCfg, nil
@@ -61,7 +61,7 @@ func get() (*Config, error) {
 
 	cfg := &Config{
 		APIRouterURL:                            "http://localhost:23200/v1",
-		BindAddr:                                "localhost:25000",
+		BindAddr:                                ":25000",
 		CacheCensusTopicUpdateInterval:          30 * time.Minute,
 		CacheNavigationUpdateInterval:           30 * time.Minute,
 		CensusTopicID:                           "4445",

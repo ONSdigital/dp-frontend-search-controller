@@ -40,6 +40,10 @@ other = "Dimensions"
 description = "Clear all"
 one = "Clirio'r cyfan"
 
+[ClearAllFilters]
+description = "clear all filters"
+one = "clirio pob hidlydd"
+
 [Publication]
 description = "Cyhoeddiadau"
 other = "Cyhoeddiadau"
@@ -205,3 +209,15 @@ one = "Rhoi cynnig ar"
 [Or]
 description = "or"
 one = "neu" 
+
+[NoResultsHeader]
+description = "Sorry, there are no matching results."
+one = "Nid oes unrhyw ganlyniadau cyfatebol"
+
+[NoResultsSelectAnother]
+description = "Select another topic"
+one = "Dewis pwnc arall"
+
+[NoResultsBody]
+description = "Not all census content has been released. Check for upcoming releases in the <a href=\"/releasecalendar\">release calendar</a>. Alternatively, you can create a <a href=\"/datasets/create\">custom dataset</a>."
+one = "Nid yw holl gynnwys y cyfrifia wedi'i ryddhau. Edrychwch am ddatganiadau sydd i ddod ar y <a href=\"/releasecalendar\">calendr datganiadau</a>. Fel arall, gallwch <a href=\"/datasets/create\">greu set ddata eich fun</a>."
