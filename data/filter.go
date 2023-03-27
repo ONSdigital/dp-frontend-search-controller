@@ -110,6 +110,13 @@ var (
 		ShowInWebUI:     true,
 	}
 
+	DatasetLandingPage = ContentType{
+		LocaliseKeyName: "Datasets",
+		Group:           "dataset_landing_page",
+		Types:           []string{"dataset_landing_page"},
+		ShowInWebUI:     true,
+	}
+
 	// UserRequestedData - Search information specific for user requested data
 	UserRequestedData = ContentType{
 		LocaliseKeyName: "UserRequestedData",
@@ -149,6 +156,7 @@ var (
 		Compendium.Group:           Compendium,
 		CorporateInformation.Group: CorporateInformation,
 		Datasets.Group:             Datasets,
+		DatasetLandingPage.Group:   DatasetLandingPage,
 		Methodology.Group:          Methodology,
 		TimeSeries.Group:           TimeSeries,
 		UserRequestedData.Group:    UserRequestedData,

@@ -31,16 +31,16 @@ func TestUnitGetDimensions(t *testing.T) {
 		Suggestions:         []string{},
 		AdditionSuggestions: []string{},
 		Dimensions: []searchModels.FilterCount{
-			{Type: "Ethnicity", Count: 1},
+			{Type: "ethnicity", Label: "Ethnicity", Count: 1},
 		},
 		PopulationType: []searchModels.FilterCount{
-			{Type: "Usual Residents", Count: 1},
+			{Type: "UR", Label: "Usual Residents", Count: 1},
 		},
 	}
 	dimensions := GetDimensions(searchResponseMock)
 	Convey("Given search result includes dimensions ", t, func() {
 		Convey("Check we can map them", func() {
-			So(dimensions[0].Type, ShouldEqual, searchResponseMock.Items[0].Dimensions[0].RawLabel)
+			So(dimensions[0].LocaliseKeyName, ShouldEqual, searchResponseMock.Items[0].Dimensions[0].RawLabel)
 		})
 	})
 }

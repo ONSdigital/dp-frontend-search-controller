@@ -73,21 +73,23 @@ func TestUnitGetMockFindADatasetResponse(t *testing.T) {
 		Convey("Then successfully get mock search response", func() {
 			mockSearchContentTypes := []searchModels.FilterCount{
 				{
-					Type:  "article",
+					Type:  "dataset_landing_page",
 					Count: 1,
 				},
 			}
 
 			mockPopulationTypes := []searchModels.FilterCount{
 				{
-					Type:  "Usual Residents",
+					Type:  "UR",
+					Label: "Usual Residents",
 					Count: 1,
 				},
 			}
 
 			mockDimensions := []searchModels.FilterCount{
 				{
-					Type:  "Ethnicity",
+					Type:  "ethnicity",
+					Label: "Ethnicity",
 					Count: 1,
 				},
 			}
@@ -115,13 +117,13 @@ func TestUnitGetMockFindADatasetResponse(t *testing.T) {
 						Title:    "Title Title",
 						Keywords: []*string{&testString1, &testString2, &testString3, &testString4}, // "regional house prices", "property prices", "area with cheapest houses", "area with most expensive houses"},
 					},
-					DataType:       "article",
+					DataType:       "dataset_landing_page",
 					URI:            "/uri1/housing/articles/uri2/2015-02-17",
 					PopulationType: "Usual Residents",
 					Dimensions: []searchModels.ESDimensions{
 						{
 							RawLabel: "Ethnicity",
-							Label:    "Ethnicity",
+							Label:    "ethnicity",
 							Name:     "Ethnicity",
 						},
 					},

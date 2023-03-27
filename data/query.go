@@ -70,6 +70,43 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	return validatedQueryParams, queryStringErr
 }
 
+// ReviewQuery ensures that all search parameter values given by the user are reviewed
+func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
+	var validatedQueryParams SearchURLParams
+	validatedQueryParams.Query = urlQuery.Get("q")
+
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
+	if paginationErr != nil {
+		log.Error(ctx, "unable to review pagination", paginationErr)
+		return validatedQueryParams, paginationErr
+	}
+
+	reviewSort(ctx, cfg, urlQuery, &validatedQueryParams)
+
+	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	if contentTypeFilterError != nil {
+		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
+		return validatedQueryParams, contentTypeFilterError
+	}
+	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+	if topicFilterErr != nil {
+		log.Error(ctx, "invalid topic filters set", topicFilterErr)
+		return validatedQueryParams, topicFilterErr
+	}
+	populationTypeFilterErr := reviewPopulationTypeFilters(ctx, urlQuery, &validatedQueryParams)
+	if populationTypeFilterErr != nil {
+		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
+		return validatedQueryParams, populationTypeFilterErr
+	}
+	dimensionsFilterErr := reviewDimensionsFilters(ctx, urlQuery, &validatedQueryParams)
+	if dimensionsFilterErr != nil {
+		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
+		return validatedQueryParams, dimensionsFilterErr
+	}
+
+	return validatedQueryParams, nil
+}
+
 // GetSearchAPIQuery gets the query that needs to be passed to the search-api to get search results
 func GetSearchAPIQuery(validatedQueryParams SearchURLParams, censusTopicCache *cache.Topic) url.Values {
 	apiQuery := createSearchAPIQuery(validatedQueryParams)

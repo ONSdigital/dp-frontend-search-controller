@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	searchModels "github.com/ONSdigital/dp-search-api/models"
-	"github.com/iancoleman/strcase"
 )
 
 type PopulationTypes struct {
@@ -23,7 +22,7 @@ func reviewPopulationTypeFilters(ctx context.Context, urlQuery url.Values, valid
 	validatedPopulationTypeFilters := []string{}
 
 	for i := range populationTypes {
-		populationTypesQuery := strings.ToLower(populationTypes[i])
+		populationTypesQuery := populationTypes[i]
 		if populationTypesQuery == "" {
 			continue
 		}
@@ -40,15 +39,17 @@ func reviewPopulationTypeFilters(ctx context.Context, urlQuery url.Values, valid
 
 func GetPopulationTypes(countResp *searchModels.SearchResponse) (populationTypes []PopulationTypes) {
 	for _, populationType := range countResp.PopulationType {
-		populationTypes = append(populationTypes, PopulationTypes{
-			/*
-			* TODO - Get translations
-			 */
-			LocaliseKeyName: strcase.ToCamel(populationType.Type),
-			Count:           populationType.Count,
-			Type:            populationType.Type,
-			ShowInWebUI:     true,
-		})
+		if len(populationType.Label) > 0 && len(populationType.Type) > 0 {
+			populationTypes = append(populationTypes, PopulationTypes{
+				/*
+				* TODO - Get translations
+				 */
+				LocaliseKeyName: populationType.Label,
+				Count:           populationType.Count,
+				Type:            populationType.Type,
+				ShowInWebUI:     true,
+			})
+		}
 	}
 	return
 }

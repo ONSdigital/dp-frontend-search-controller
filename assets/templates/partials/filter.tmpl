@@ -65,6 +65,7 @@
         </noscript>
     </form>
 
+    {{ if $filters }}
     <form id="filterForm" method="get" class="js-auto-submit__form">
             <details id="collapsibleContentType" class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
@@ -131,6 +132,7 @@
                 </noscript>
             </details>
     </form> 
+    {{ end }}
 
     {{ if $population_types }}
     {{ $translationKey := "PopulationTypes" }}
@@ -156,14 +158,14 @@
                                 <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
                                     class="ons-checkbox__input ons-js-checkbox"
                                     name="{{ $key }}"
-                                    value="{{ print $filter.LocaliseKeyName }}" aria-controls="{{ $key }}-group-{{ $index }}-other-wrap"
-                                    data-gtm-label="{{ $filter.LocaliseKeyName }}"
+                                    value="{{ print $filter.Type }}" aria-controls="{{ $key }}-group-{{ $index }}-other-wrap"
+                                    data-gtm-label="{{ $filter.Type }}"
                                     {{ if $filter.IsChecked }}
                                         checked
                                     {{ end }}
                                 >
                                 <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
-                                    {{ $filter.Type }} ({{ $filter.Count }})
+                                    {{ $filter.LocaliseKeyName }} ({{ $filter.Count }})
                                 </label>
                             </span>
                         </span>
@@ -204,14 +206,14 @@
                                 <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
                                     class="ons-checkbox__input ons-js-checkbox"
                                     name="{{ $key }}"
-                                    value="{{ print $filter.LocaliseKeyName }}" aria-controls="{{ $key }}-group-{{ $index }}-other-wrap"
-                                    data-gtm-label="{{ $filter.LocaliseKeyName }}"
+                                    value="{{ print $filter.Type }}" aria-controls="{{ $key }}-group-{{ $index }}-other-wrap"
+                                    data-gtm-label="{{ $filter.Type }}"
                                     {{ if $filter.IsChecked }}
                                         checked
                                     {{ end }}
                                 >
                                 <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
-                                    {{ $filter.Type }} ({{ $filter.Count }})
+                                    {{ $filter.LocaliseKeyName }} ({{ $filter.Count }})
                                 </label>
                             </span>
                         </span>

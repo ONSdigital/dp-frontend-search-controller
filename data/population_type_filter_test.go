@@ -20,7 +20,7 @@ func TestUnitGetPoputationTypes(t *testing.T) {
 			{
 				Dimensions: []searchModels.ESDimensions{
 					{
-						Name:     "Ethnicity",
+						Name:     "ethnicity",
 						Label:    "Ethnicity",
 						RawLabel: "Ethnicity",
 					},
@@ -31,16 +31,16 @@ func TestUnitGetPoputationTypes(t *testing.T) {
 		Suggestions:         []string{},
 		AdditionSuggestions: []string{},
 		Dimensions: []searchModels.FilterCount{
-			{Type: "Ethenticity", Count: 1},
+			{Type: "ethnicity", Label: "Ethnicity", Count: 1},
 		},
 		PopulationType: []searchModels.FilterCount{
-			{Type: "Usual Residents", Count: 1},
+			{Type: "UR", Label: "Usual Residents", Count: 1},
 		},
 	}
 	populationTypes := GetPopulationTypes(searchResponseMock)
 	Convey("Given search result includes Popultation Types ", t, func() {
 		Convey("Check we can map them", func() {
-			So(populationTypes[0].Type, ShouldEqual, searchResponseMock.Items[0].PopulationType)
+			So(populationTypes[0].LocaliseKeyName, ShouldEqual, searchResponseMock.Items[0].PopulationType)
 		})
 	})
 }

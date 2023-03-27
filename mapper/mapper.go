@@ -83,12 +83,9 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
-
 	mapQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, categories)
-
-	mapFilters(&page, categories, validatedQueryParams)
 
 	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
 
@@ -362,7 +359,6 @@ func mapPopulationTypesFilters(cfg *config.Config, page *model.SearchPage, popul
 
 		populationTypeFilters[i] = populationTypesFilter
 	}
-
 	page.Data.PopulationTypeFilter = populationTypeFilters
 }
 

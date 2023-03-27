@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	searchModels "github.com/ONSdigital/dp-search-api/models"
-	"github.com/iancoleman/strcase"
 )
 
 type Dimensions struct {
@@ -23,7 +22,7 @@ func reviewDimensionsFilters(ctx context.Context, urlQuery url.Values, validated
 	validatedDimensionFilters := []string{}
 
 	for i := range dimensions {
-		dimensionsQuery := strings.ToLower(dimensions[i])
+		dimensionsQuery := dimensions[i]
 		if dimensionsQuery == "" {
 			continue
 		}
@@ -36,15 +35,17 @@ func reviewDimensionsFilters(ctx context.Context, urlQuery url.Values, validated
 
 func GetDimensions(countResp *searchModels.SearchResponse) (dimensions []Dimensions) {
 	for _, dimension := range countResp.Dimensions {
-		dimensions = append(dimensions, Dimensions{
-			/*
-			* TODO - Get translations
-			 */
-			LocaliseKeyName: strcase.ToCamel(dimension.Type),
-			Count:           dimension.Count,
-			Type:            dimension.Type,
-			ShowInWebUI:     true,
-		})
+		if len(dimension.Label) > 0 && len(dimension.Type) > 0 {
+			dimensions = append(dimensions, Dimensions{
+				/*
+				* TODO - Get translations
+				 */
+				LocaliseKeyName: dimension.Label,
+				Count:           dimension.Count,
+				Type:            dimension.Type,
+				ShowInWebUI:     true,
+			})
+		}
 	}
 	return
 }

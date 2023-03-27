@@ -4,16 +4,18 @@
     "took": 96,
     "content_types": [
         {
-            "type": "article",
+            "type": "dataset_landing_page",
             "count": 1
         }
     ],
-    "population_types": [{
-        "type": "Usual Residents",
+    "population_type": [{
+        "type": "UR",
+        "label": "Usual Residents",
         "count": 1
       }],
       "dimensions": [{
-        "type": "Ethnicity",
+        "type": "ethnicity",
+        "label": "Ethnicity",
         "count": 1
       }],
     "topics": [
@@ -27,7 +29,7 @@
         {
             "population_type": "Usual Residents",
             "dimensions": [ {
-              "label": "Ethnicity",
+              "label": "ethnicity",
               "raw_label": "Ethnicity",
               "name": "Ethnicity"
             } ],
@@ -52,7 +54,7 @@
                     "area with most expensive houses"
                 ]
             },
-            "type": "article",
+            "type": "dataset_landing_page",
             "uri": "/uri1/housing/articles/uri2/2015-02-17"
         }
     ]

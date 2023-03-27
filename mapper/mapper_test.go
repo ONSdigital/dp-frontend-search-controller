@@ -162,6 +162,8 @@ func TestUnitFindDatasetPage(t *testing.T) {
 
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
+		cfg.EnableCensusDimensionsFilterOption = true
+		cfg.EnableCensusPopulationTypesFilterOption = true
 		So(err, ShouldBeNil)
 		req := httptest.NewRequest("GET", "/census/find-a-dataset", nil)
 		mdl := model.Page{}
@@ -170,14 +172,19 @@ func TestUnitFindDatasetPage(t *testing.T) {
 			Query: "housing",
 
 			Filter: data.Filter{
-				Query:           []string{"article", "filter2"},
-				LocaliseKeyName: []string{"Article"},
+				Query:           []string{"dataset_landing_page"},
+				LocaliseKeyName: []string{"Dataset"},
 			},
+
+			PopulationTypeFilter: "UR",
+
+			DimensionsFilter: "ethnicity",
 
 			Sort: data.Sort{
 				Query:           "relevance",
 				LocaliseKeyName: "Relevance",
 			},
+
 			Limit:       10,
 			CurrentPage: 1,
 			TopicFilter: "1234",
@@ -206,12 +213,11 @@ func TestUnitFindDatasetPage(t *testing.T) {
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
-				So(sp.Data.Filter, ShouldHaveLength, 2)
-				So(sp.Data.Filter[0], ShouldEqual, "article")
-				So(sp.Data.Filter[1], ShouldEqual, "filter2")
+				So(sp.Data.Filter, ShouldHaveLength, 1)
+				So(sp.Data.Filter[0], ShouldEqual, "dataset_landing_page")
 
 				So(sp.Data.Sort.Query, ShouldEqual, "relevance")
-				So(sp.Data.Sort.LocaliseFilterKeys, ShouldResemble, []string{"Article"})
+				So(sp.Data.Sort.LocaliseFilterKeys, ShouldResemble, []string{"Dataset"})
 				So(sp.Data.Sort.LocaliseSortKey, ShouldEqual, "Relevance")
 				So(sp.Data.Sort.Options[0].Query, ShouldEqual, "relevance")
 				So(sp.Data.Sort.Options[0].LocaliseKeyName, ShouldEqual, "Relevance")
@@ -220,7 +226,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 				So(sp.Data.Pagination.TotalPages, ShouldEqual, 1)
 				So(sp.Data.Pagination.PagesToDisplay, ShouldHaveLength, 1)
 				So(sp.Data.Pagination.PagesToDisplay[0].PageNumber, ShouldEqual, 1)
-				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/census/find-a-dataset?q=housing&filter=article&filter=filter2&limit=10&sort=relevance&page=1")
+				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/census/find-a-dataset?dimensions=ethnicity&population_types=UR&q=housing&filter=dataset_landing_page&limit=10&sort=relevance&page=1")
 				So(sp.Data.Pagination.Limit, ShouldEqual, 10)
 				So(sp.Data.Pagination.LimitOptions, ShouldResemble, []int{10, 25, 50})
 
@@ -247,27 +253,9 @@ func TestUnitFindDatasetPage(t *testing.T) {
 				So(sp.Data.Response.Items[0].Description.Summary, ShouldEqual, "Test Summary")
 				So(sp.Data.Response.Items[0].Description.Title, ShouldEqual, "Title Title")
 
-				So(sp.Data.Response.Items[0].Type.Type, ShouldEqual, "article")
-				So(sp.Data.Response.Items[0].Type.LocaliseKeyName, ShouldEqual, "Article")
+				So(sp.Data.Response.Items[0].Type.Type, ShouldEqual, "dataset_landing_page")
+				So(sp.Data.Response.Items[0].Type.LocaliseKeyName, ShouldEqual, "Datasets")
 				So(sp.Data.Response.Items[0].URI, ShouldEqual, "/uri1/housing/articles/uri2/2015-02-17")
-
-				So(len(sp.Data.Filters[0].FilterKey), ShouldEqual, 3)
-				So(sp.Data.Filters[0].LocaliseKeyName, ShouldEqual, "Publication")
-				So(sp.Data.Filters[0].IsChecked, ShouldBeTrue)
-				So(sp.Data.Filters[0].NumberOfResults, ShouldEqual, 1)
-				So(len(sp.Data.Filters[0].Types[0].FilterKey), ShouldEqual, 1)
-				So(sp.Data.Filters[0].Types[0].LocaliseKeyName, ShouldEqual, "StatisticalBulletin")
-				So(sp.Data.Filters[0].Types[0].IsChecked, ShouldBeFalse)
-				So(sp.Data.Filters[0].Types[0].NumberOfResults, ShouldEqual, 0)
-				So(len(sp.Data.Filters[0].Types[1].FilterKey), ShouldEqual, 1)
-				So(sp.Data.Filters[0].Types[1].LocaliseKeyName, ShouldEqual, "Article")
-				So(sp.Data.Filters[0].Types[1].IsChecked, ShouldBeTrue)
-				So(sp.Data.Filters[0].Types[1].NumberOfResults, ShouldEqual, 1)
-				So(len(sp.Data.Filters[0].Types[2].FilterKey), ShouldEqual, 1)
-				So(sp.Data.Filters[0].Types[2].LocaliseKeyName, ShouldEqual, "Compendium")
-				So(sp.Data.Filters[0].Types[2].IsChecked, ShouldBeFalse)
-				So(sp.Data.Filters[0].Types[2].NumberOfResults, ShouldEqual, 0)
-				So(len(sp.Data.Filters[2].Types), ShouldEqual, 3)
 
 				So(sp.ServiceMessage, ShouldEqual, respH.ServiceMessage)
 

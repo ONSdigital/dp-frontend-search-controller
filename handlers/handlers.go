@@ -15,7 +15,6 @@ import (
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
-	apiError "github.com/ONSdigital/dp-search-api/sdk/errors"
 
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -33,14 +32,8 @@ func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC Searc
 }
 
 func ReadFindDataset(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List) http.HandlerFunc {
-	search := &SearchClientMock{
-		GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
-			model, _ := mapper.GetFindADatasetResponse()
-			return model, nil
-		},
-	}
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readFindDataset(w, req, cfg, zc, rend, search, accessToken, collectionID, lang, cacheList)
+		readFindDataset(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList)
 	})
 }
 
@@ -51,6 +44,8 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	defer cancel()
 
 	urlQuery := req.URL.Query()
+	urlQuery.Del("filter")
+	urlQuery.Add("filter", "dataset_landing_page")
 
 	// get cached census topic and its subtopics
 	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
@@ -68,7 +63,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		return
 	}
 
-	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
+	validatedQueryParams, err := data.ReviewDatasetQuery(ctx, cfg, urlQuery, censusTopicCache)
 	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
@@ -93,7 +88,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	}
 
 	searchQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
-	categoriesCountQuery := getCategoriesCountQuery(searchQuery)
+	categoriesCountQuery := getCategoriesDatasetCountQuery(searchQuery)
 
 	var (
 		homepageResp zebedeeCli.HomepageContent
@@ -250,6 +245,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		var options searchSDK.Options
 
 		options.Query = searchQuery
+
 		options.Headers = http.Header{
 			searchSDK.Authorization: {"Bearer " + accessToken},
 			searchSDK.CollectionID:  {collectionID},
@@ -290,7 +286,6 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		setStatusCode(w, req, err)
 		return
 	}
-
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, errorMessage, navigationCache)
 	rend.BuildPage(w, m, "search")
@@ -320,6 +315,20 @@ func getCategoriesCountQuery(searchQuery url.Values) url.Values {
 
 	// Remove filter to get count of all types for the query from the client
 	query.Del("content_type")
+	query.Del("topics")
+	query.Del("population_types")
+	query.Del("dimensions")
+
+	return query
+}
+
+// getCategoriesCountQuery clones url (query) values before removing
+// filters to be able to return total counts for different filters
+func getCategoriesDatasetCountQuery(searchQuery url.Values) url.Values {
+	// Clone the searchQuery url values to prevent changing the original copy
+	query := url.Values(http.Header(searchQuery).Clone())
+
+	// Remove filter to get count of all types for the query from the client
 	query.Del("topics")
 	query.Del("population_types")
 	query.Del("dimensions")
