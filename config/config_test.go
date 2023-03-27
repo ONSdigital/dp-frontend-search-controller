@@ -33,7 +33,7 @@ func TestConfig(t *testing.T) {
 				So(cfg.DefaultOffset, ShouldEqual, 0)
 				So(cfg.DefaultPage, ShouldEqual, 1)
 				So(cfg.DefaultSort, ShouldEqual, "relevance")
-				So(cfg.EnableCensusTopicFilterOption, ShouldBeFalse)
+				So(cfg.EnableCensusTopicFilterOption, ShouldBeTrue)
 				So(cfg.EnableNewNavBar, ShouldBeFalse)
 				So(cfg.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)
 				So(cfg.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
