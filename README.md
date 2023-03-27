@@ -26,7 +26,7 @@ No further dependencies other than those defined in `go.mod`
 | Environment variable                   | Default                      | Description
 | ---------------------------------      | ---------------------------- | --------------------------------------------------
 | API_ROUTER_URL                         | http://localhost:23200/v1    | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)
-| BIND_ADDR                              | localhost:25000              | The host and port to bind to
+| BIND_ADDR                              | :25000                       | The port to bind to
 | CACHE_CENSUS_TOPICS_UPDATE_INTERVAL    | 30m                          | The time interval to update cache for census topics (`time.Duration` format)
 | CACHE_NAVIGATION_UPDATE_INTERVAL       | 30m                          | The time interval to update cache for navigation bar (`time.Duration` format)
 | CENSUS_TOPIC_ID                        | 4445                         | Unique identifer for the census topic, used to get census topics from Topics API
