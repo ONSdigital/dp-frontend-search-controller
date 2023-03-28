@@ -152,8 +152,8 @@ other = "Topic"
 
 [Topic]
 description = "Topic"
-one = "pwnc"
-other = "pwnc"
+one = "Pwnc"
+other = "Pwnc"
 
 [And]
 description = "and"
