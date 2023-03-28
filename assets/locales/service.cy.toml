@@ -150,6 +150,11 @@ description = "Topic"
 one = "Topic"
 other = "Topic"
 
+[Topic]
+description = "Topic"
+one = "pwnc"
+other = "pwnc"
+
 [And]
 description = "and"
 one = "a"

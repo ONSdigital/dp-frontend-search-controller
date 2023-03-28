@@ -11,58 +11,70 @@
     <form id="topicsFilterForm" method="get" class="js-auto-submit__form">
         <input type="hidden" name="q" value="{{ $query }}"/>
         <input type="hidden" name="sort" value="{{$sort}}"/>
-        <fieldset class="ons-fieldset">
-            {{ range $index, $topicFilter := $topicFilters }}
-                <div class="ons-checkboxes__items">
-                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                        <span class="ons-checkbox ons-checkbox--no-border topic-filter">
-                            <input type="checkbox" id="topic-group-{{ $index }}"
-                                class="ons-checkbox__input ons-js-checkbox"
-                                name="topics"
-                                value="{{ print $topicFilter.Query }}" aria-controls="topic-group-{{ $index }}-other-wrap"
-                                data-gtm-label="{{ $topicFilter.LocaliseKeyName }}"
-                                {{ if $topicFilter.IsChecked }}
-                                    checked
-                                {{ end }}
-                            >
-                            <label class="ons-checkbox__label" for="topic-group-{{ $index }}" id="topic-group-{{ $index }}-label">
-                                {{ localise $topicFilter.LocaliseKeyName $lang 4 }}
-                            </label>
-                            <span class="ons-checkbox__other" id="topic-group-{{ $index }}-other-wrap">
-                                <fieldset class="ons-fieldset ons-js-other-fieldset">
-                                    {{ range $index, $childFilter := $topicFilter.Types }}
-                                        {{ $id := $childFilter.Query }}
-                                        <div class="ons-checkboxes__items">
-                                            <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                                <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                    <input id="{{ $id }}"
-                                                        class="ons-checkbox__input ons-js-checkbox"
-                                                        type="checkbox" name="topics"
-                                                        {{ if $childFilter.IsChecked }}checked{{ end }}
-                                                        data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
-                                                        value="{{ $id }}"
-                                                    />
-                                                    <label class="ons-checkbox__label" for="{{ $id }}"
-                                                        id="{{ $id }}-label">
-                                                        {{ $childFilter.LocaliseKeyName }} ({{ $childFilter.NumberOfResults }})
-                                                    </label>
-                                                </span>
-                                            </span>
-                                        </div>
+        <details id="collapsibleContentType" class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                <h2 class="ons-collapsible__title">
+                    <legend class="block">
+                        {{ localise "Topic" $lang 2 }}
+                    </legend>
+                </h2>
+                <span class="ons-collapsible__icon">
+                    {{ template "icons/chevron-right" }}
+                </span>
+            </summary>
+            <fieldset class="ons-fieldset">
+                {{ range $index, $topicFilter := $topicFilters }}
+                    <div class="ons-checkboxes__items">
+                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                            <span class="ons-checkbox ons-checkbox--no-border topic-filter">
+                                <input type="checkbox" id="topic-group-{{ $index }}"
+                                    class="ons-checkbox__input ons-js-checkbox"
+                                    name="topics"
+                                    value="{{ print $topicFilter.Query }}" aria-controls="topic-group-{{ $index }}-other-wrap"
+                                    data-gtm-label="{{ $topicFilter.LocaliseKeyName }}"
+                                    {{ if $topicFilter.IsChecked }}
+                                        checked
                                     {{ end }}
-                                </fieldset>
+                                >
+                                <label class="ons-checkbox__label" for="topic-group-{{ $index }}" id="topic-group-{{ $index }}-label">
+                                    {{ localise $topicFilter.LocaliseKeyName $lang 4 }}
+                                </label>
+                                <span class="ons-checkbox__other" id="topic-group-{{ $index }}-other-wrap">
+                                    <fieldset class="ons-fieldset ons-js-other-fieldset">
+                                        {{ range $index, $childFilter := $topicFilter.Types }}
+                                            {{ $id := $childFilter.Query }}
+                                            <div class="ons-checkboxes__items">
+                                                <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                                                    <span class="ons-checkbox ons-checkbox--no-border child-filter">
+                                                        <input id="{{ $id }}"
+                                                            class="ons-checkbox__input ons-js-checkbox"
+                                                            type="checkbox" name="topics"
+                                                            {{ if $childFilter.IsChecked }}checked{{ end }}
+                                                            data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
+                                                            value="{{ $id }}"
+                                                        />
+                                                        <label class="ons-checkbox__label" for="{{ $id }}"
+                                                            id="{{ $id }}-label">
+                                                            {{ $childFilter.LocaliseKeyName }} ({{ $childFilter.NumberOfResults }})
+                                                        </label>
+                                                    </span>
+                                                </span>
+                                            </div>
+                                        {{ end }}
+                                    </fieldset>
+                                </span>
                             </span>
                         </span>
-                    </span>
-                </div>
-            {{ end }}
-        </fieldset>
-        <noscript>
-            <button type="submit"
-                    class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                    <span class="ons-btn__inner"><span class="ons-btn__text">Filter</span></span>
-            </button>
-        </noscript>
+                    </div>
+                {{ end }}
+            </fieldset>
+            <noscript>
+                <button type="submit"
+                        class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
+                        <span class="ons-btn__inner"><span class="ons-btn__text">Filter</span></span>
+                </button>
+            </noscript>
+        </details>
     </form>
 
     {{ if $filters }}
@@ -70,7 +82,7 @@
             <details id="collapsibleContentType" class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                     <h2 class="ons-collapsible__title">
-                        <legend class="ons-fieldset__legend">
+                        <legend class="block">
                             {{ localise "ContentType" $lang 1 }}
                         </legend>
                     </h2>
@@ -142,7 +154,7 @@
             <details id="collapsibleContentType" class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                     <h2 class="ons-collapsible__title">
-                        <legend class="ons-fieldset__legend">
+                        <legend class="block">
                             {{ localise $translationKey $lang 1 }}
                         </legend>
                     </h2>
@@ -190,7 +202,7 @@
             <details id="collapsibleContentType" class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                     <h2 class="ons-collapsible__title">
-                        <legend class="ons-fieldset__legend">
+                        <legend class="block">
                             {{ localise $translationKey $lang 1 }}
                         </legend>
                     </h2>
