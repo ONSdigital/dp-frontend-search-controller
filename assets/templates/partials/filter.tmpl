@@ -11,7 +11,7 @@
     <form id="topicsFilterForm" method="get" class="js-auto-submit__form">
         <input type="hidden" name="q" value="{{ $query }}"/>
         <input type="hidden" name="sort" value="{{$sort}}"/>
-        <details id="collapsibleContentType" class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+        <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
             <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                 <h2 class="ons-collapsible__title">
                     <legend class="block">
@@ -79,7 +79,7 @@
 
     {{ if $filters }}
     <form id="filterForm" method="get" class="js-auto-submit__form">
-            <details id="collapsibleContentType" class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                     <h2 class="ons-collapsible__title">
                         <legend class="block">
@@ -151,7 +151,7 @@
     {{ $key := "population-types" }}
     {{ $value := $population_types }}
     <form id="filterForm{{ $translationKey }}" method="get" class="js-auto-submit__form">
-            <details id="collapsibleContentType" class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <details class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                     <h2 class="ons-collapsible__title">
                         <legend class="block">
@@ -199,7 +199,7 @@
     {{ $translationKey := "Dimensions" }}
     {{ $value := $dimensions }}
     <form id="filterForm{{ $translationKey }}" method="get" class="js-auto-submit__form">
-            <details id="collapsibleContentType" class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <details class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                     <h2 class="ons-collapsible__title">
                         <legend class="block">
