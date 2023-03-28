@@ -1,0 +1,7 @@
+{{ $lang := .Language }}
+
+<h2>
+    {{ $numberResults := len .Data.Response.Items}}
+    {{ .Data.Response.Count}} 
+    {{ localise .Data.TermLocalKey $lang $numberResults }}
+</h2>

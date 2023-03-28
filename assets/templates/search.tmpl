@@ -40,7 +40,7 @@
         <section class="search__filter" role="contentinfo" aria-label="Search filtering" id="search-filter">
           <div class="search__filter__heading">
             <h3 class="font-size--18">
-              {{ localise "FilterResults" $lang 4 }}
+              {{ localise "Filter" $lang 4 }} {{ localise .Data.TermLocalKey $lang 4 }}
             </h3>
             <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
           </div>
@@ -52,6 +52,9 @@
 
       <div class="ons-grid__col ons-col-8@m">
         <section role="contentinfo" aria-label="Search results">
+          <div class="search__count">
+            {{ template "partials/count" . }}
+          </div>
           <div class="search__sort">
             {{ template "partials/sort" . }}
           </div>

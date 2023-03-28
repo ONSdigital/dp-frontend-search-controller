@@ -30,6 +30,8 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	page.Metadata.Title = "Search" //nolint:goconst //The strings aren't actually the same.
 	page.Type = "search"           //nolint:goconst //The strings aren't actually the same.
+	page.Title.LocaliseKeyName = "SearchResults"
+	page.Data.TermLocalKey = "Results"
 	page.Count = respC.Count
 	page.Language = lang
 	page.BetaBannerEnabled = true
@@ -69,6 +71,8 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 
 	page.Metadata.Title = "Search"
 	page.Type = "search"
+	page.Title.LocaliseKeyName = "FindCensusData"
+	page.Data.TermLocalKey = "DatasetsLower"
 	page.Count = respC.Count
 	page.Language = lang
 	page.BetaBannerEnabled = true

@@ -5,7 +5,8 @@ import "github.com/ONSdigital/dp-renderer/model"
 // Search is the model struct for the cookies preferences form
 type SearchPage struct {
 	model.Page
-	Data Search `json:"data"`
+	Data  Search `json:"data"`
+	Title Title  `json:"title,omitempty"`
 }
 
 // Search represents all search parameters and response data of the search
@@ -20,6 +21,7 @@ type Search struct {
 	Sort                 Sort                   `json:"sort,omitempty"`
 	Pagination           model.Pagination       `json:"pagination,omitempty"`
 	Response             Response               `json:"response"`
+	TermLocalKey         string                 `json:"term_localise_key_name,omitempty"`
 }
 
 // Filter respresents all filter information needed by templates
@@ -171,4 +173,8 @@ type MatchDetails struct {
 	Value string `json:"value,omitempty"`
 	Start int    `json:"start"`
 	End   int    `json:"end"`
+}
+
+type Title struct {
+	LocaliseKeyName string `json:"localise_key"`
 }
