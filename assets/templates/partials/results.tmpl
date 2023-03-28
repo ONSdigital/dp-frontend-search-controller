@@ -14,7 +14,7 @@
     </div>
     <div id="results-zero" class="hide">
         <h3>{{ localise "NoResultsHeader" $lang 1 }}</h3>
-        <p>{{ localise "NoResultsSelectAnother" $lang 1 }} {{ localise "Or" $lang 1 }} <a href="/search{{ if .Data.Query }}?q={{ .Data.Query}}{{end}}" id="clear-search">{{ localise "ClearAllFilters" $lang 1 }}</a>.</p>
+        <p>{{ localise "NoResultsSelectAnother" $lang 1 }} {{ localise "Or" $lang 1 }} <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search">{{ localise "ClearAllFilters" $lang 1 }}</a>.</p>
         <p>{{ localise "NoResultsBody" $lang 1 | safeHTML}}</p>
     </div>
     <ul class="flush--padding">
