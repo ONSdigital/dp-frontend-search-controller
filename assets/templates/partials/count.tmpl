@@ -2,6 +2,6 @@
 
 <h2>
     {{ $numberResults := len .Data.Response.Items}}
-    {{ .Data.Response.Count}} 
+    <span class="search__summary__count">{{ .Data.Response.Count}} </span>
     {{ localise .Data.TermLocalKey $lang $numberResults }}
 </h2>
