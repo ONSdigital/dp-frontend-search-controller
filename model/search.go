@@ -102,6 +102,7 @@ type ContentType struct {
 // ContentItem represents each search result
 type ContentItem struct {
 	Type        ContentItemType `json:"type"`
+	Dataset     Dataset         `json:"dataset"`
 	Description Description     `json:"description"`
 	URI         string          `json:"uri"`
 	Matches     *Matches        `json:"matches,omitempty"`
@@ -111,6 +112,11 @@ type ContentItem struct {
 type ContentItemType struct {
 	Type            string `json:"type"`
 	LocaliseKeyName string `json:"localise_key"`
+}
+
+// Dataset represents additional dataset fields
+type Dataset struct {
+	PopulationType string `json:"population_type,omitempty"`
 }
 
 // Description represents each search result description

@@ -164,6 +164,7 @@ func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse
 		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(respC.Items[i].DataType)
 
 		item.URI = respC.Items[i].URI
+		item.Dataset.PopulationType = respC.Items[i].PopulationType
 
 		itemPage = append(itemPage, item)
 	}
