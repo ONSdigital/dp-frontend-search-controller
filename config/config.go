@@ -72,7 +72,7 @@ func get() (*Config, error) {
 		DefaultOffset:                           0,
 		DefaultPage:                             1,
 		DefaultSort:                             "relevance",
-		EnableCensusTopicFilterOption:           true,
+		EnableCensusTopicFilterOption:           false,
 		EnableCensusPopulationTypesFilterOption: false,
 		EnableCensusDimensionsFilterOption:      false,
 		EnableNewNavBar:                         false,
