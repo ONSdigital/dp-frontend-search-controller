@@ -16,7 +16,8 @@ type Sort struct {
 
 var (
 	// SortOptions represent the list of all search sort options
-	SortOptions = []Sort{Relevance, ReleaseDate, Title}
+	SortOptions        = []Sort{Relevance, ReleaseDate, Title}
+	DatasetSortOptions = []Sort{ReleaseDate, Title}
 
 	// Relevance - informing on sorting based on relevance
 	Relevance = Sort{
@@ -42,6 +43,12 @@ var (
 		ReleaseDate.Query: ReleaseDate,
 		Title.Query:       Title,
 	}
+
+	datasetSortOptions = map[string]Sort{
+		Relevance.Query:   Relevance,
+		ReleaseDate.Query: ReleaseDate,
+		Title.Query:       Title,
+	}
 )
 
 // reviewSort retrieves sort from query and checks if it is one of the sort options
@@ -54,6 +61,22 @@ func reviewSort(ctx context.Context, cfg *config.Config, urlQuery url.Values, va
 		log.Warn(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort)
 		sort.Query = cfg.DefaultSort
 		sort.LocaliseKeyName = sortOptions[cfg.DefaultSort].LocaliseKeyName
+	}
+
+	validatedQueryParams.Sort.Query = sort.Query
+	validatedQueryParams.Sort.LocaliseKeyName = sort.LocaliseKeyName
+}
+
+// reviewSort retrieves sort from query and checks if it is one of the sort options
+func reviewDatasetSort(ctx context.Context, cfg *config.Config, urlQuery url.Values, validatedQueryParams *SearchURLParams) {
+	sortQuery := urlQuery.Get("sort")
+
+	sort, found := datasetSortOptions[sortQuery]
+
+	if !found {
+		log.Warn(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultDatasetSort)
+		sort.Query = cfg.DefaultDatasetSort
+		sort.LocaliseKeyName = datasetSortOptions[cfg.DefaultSort].LocaliseKeyName
 	}
 
 	validatedQueryParams.Sort.Query = sort.Query

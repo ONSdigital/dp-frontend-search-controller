@@ -81,7 +81,7 @@ func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Va
 		return validatedQueryParams, paginationErr
 	}
 
-	reviewSort(ctx, cfg, urlQuery, &validatedQueryParams)
+	reviewDatasetSort(ctx, cfg, urlQuery, &validatedQueryParams)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	if contentTypeFilterError != nil {

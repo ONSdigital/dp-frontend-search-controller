@@ -87,7 +87,7 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
-	mapQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
+	mapDatasetQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, categories)
 
@@ -112,6 +112,18 @@ func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams d
 	mapPagination(cfg, req, page, validatedQueryParams, respC)
 }
 
+func mapDatasetQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC *searchModels.SearchResponse, req http.Request, errorMessage string) {
+	page.Data.Query = validatedQueryParams.Query
+
+	page.Data.Filter = validatedQueryParams.Filter.Query
+
+	page.Data.ErrorMessage = errorMessage
+
+	mapDatasetSort(page, validatedQueryParams)
+
+	mapPagination(cfg, req, page, validatedQueryParams, respC)
+}
+
 func mapSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) {
 	page.Data.Sort.Query = validatedQueryParams.Sort.Query
 
@@ -124,6 +136,24 @@ func mapSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) 
 		pageSortOptions[i] = model.SortOptions{
 			Query:           data.SortOptions[i].Query,
 			LocaliseKeyName: data.SortOptions[i].LocaliseKeyName,
+		}
+	}
+
+	page.Data.Sort.Options = pageSortOptions
+}
+
+func mapDatasetSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) {
+	page.Data.Sort.Query = validatedQueryParams.Sort.Query
+
+	page.Data.Sort.LocaliseFilterKeys = validatedQueryParams.Filter.LocaliseKeyName
+
+	page.Data.Sort.LocaliseSortKey = validatedQueryParams.Sort.LocaliseKeyName
+
+	pageSortOptions := make([]model.SortOptions, len(data.DatasetSortOptions))
+	for i := range data.DatasetSortOptions {
+		pageSortOptions[i] = model.SortOptions{
+			Query:           data.DatasetSortOptions[i].Query,
+			LocaliseKeyName: data.DatasetSortOptions[i].LocaliseKeyName,
 		}
 	}
 
