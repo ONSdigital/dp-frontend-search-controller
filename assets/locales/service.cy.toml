@@ -235,4 +235,8 @@ one = "Nid yw holl gynnwys y cyfrifia wedi'i ryddhau. Edrychwch am ddatganiadau 
 
 [FindCensusData]
 description = "Find Census Data"
-one = "Find Census Data"
+one = "Cael setiau data’r cyfrifiad"
+
+[SearchResults]
+description = "Search results"
+one = "Canlyniadau chwilio"
