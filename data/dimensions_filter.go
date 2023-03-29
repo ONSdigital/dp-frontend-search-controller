@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"net/url"
+	"sort"
 	"strings"
 
 	searchModels "github.com/ONSdigital/dp-search-api/models"
@@ -47,5 +48,8 @@ func GetDimensions(countResp *searchModels.SearchResponse) (dimensions []Dimensi
 			})
 		}
 	}
+	sort.Slice(dimensions, func(i, j int) bool {
+		return dimensions[i].LocaliseKeyName < dimensions[j].LocaliseKeyName
+	})
 	return
 }

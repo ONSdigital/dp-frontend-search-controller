@@ -32,9 +32,9 @@ one = "Population type"
 other = "Population type"
 
 [Dimensions]
-description = "Dimensions"
-one = "Dimensions"
-other = "Dimensions"
+description = "Keywords"
+one = "Keywords"
+other = "Keywords"
 
 [ClearAll]
 description = "Clear all"
