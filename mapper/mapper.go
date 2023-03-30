@@ -91,7 +91,7 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 
 	mapResponse(&page, respC, categories)
 
-	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
+	mapCensusTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
 
 	mapPopulationTypesFilters(cfg, &page, populationTypes, validatedQueryParams)
 
@@ -352,6 +352,62 @@ func mapTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories
 	}
 
 	page.Data.TopicFilters = topicFilters
+}
+
+func mapCensusTopicFilters(cfg *config.Config, page *model.SearchPage, topicCategories []data.Topic, queryParams data.SearchURLParams) {
+	if !cfg.EnableCensusTopicFilterOption {
+		return
+	}
+
+	var topicsQueryParam []string
+	if queryParams.TopicFilter != "" {
+		topicsQueryParam = strings.Split(queryParams.TopicFilter, ",")
+	}
+
+	mapTopicQueryParams := make(map[string]bool)
+	for i := range topicsQueryParam {
+		mapTopicQueryParams[topicsQueryParam[i]] = true
+	}
+
+	topicFilters := make([]model.TopicFilter, len(topicCategories))
+
+	for i := range topicCategories {
+		if !topicCategories[i].ShowInWebUI {
+			continue
+		}
+
+		var topicFilter model.TopicFilter
+
+		topicFilter.LocaliseKeyName = topicCategories[i].LocaliseKeyName
+		topicFilter.NumberOfResults = topicCategories[i].Count
+		topicFilter.Query = topicCategories[i].Query
+		topicFilter.DistinctItemsCount = topicCategories[i].DistinctItemsCount
+
+		if len(topicsQueryParam) > 0 {
+			topicFilter.IsChecked = true
+		}
+
+		topicFilters[i] = topicFilter
+
+		for j := range topicCategories[i].Subtopics {
+			if !topicCategories[i].Subtopics[j].ShowInWebUI {
+				continue
+			}
+			var subtopicFilter model.TopicFilter
+
+			subtopicFilter.LocaliseKeyName = topicCategories[i].Subtopics[j].LocaliseKeyName
+			subtopicFilter.NumberOfResults = topicCategories[i].Subtopics[j].Count
+			subtopicFilter.Query = topicCategories[i].Subtopics[j].Query
+
+			if mapTopicQueryParams[topicCategories[i].Subtopics[j].Query] {
+				subtopicFilter.IsChecked = true
+			}
+
+			topicFilters[i].Types = append(topicFilters[i].Types, subtopicFilter)
+		}
+	}
+
+	page.Data.CensusFilters = topicFilters[0].Types
 }
 
 func mapPopulationTypesFilters(cfg *config.Config, page *model.SearchPage, populationTypes []data.PopulationTypes, queryParams data.SearchURLParams) {

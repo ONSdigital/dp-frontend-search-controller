@@ -16,6 +16,7 @@ type Search struct {
 	Filter               []string               `json:"filter,omitempty"`
 	Filters              []Filter               `json:"filters"`
 	TopicFilters         []TopicFilter          `json:"topic_filters"`
+	CensusFilters        []TopicFilter          `json:"census_filters"`
 	PopulationTypeFilter []PopulationTypeFilter `json:"population_types"`
 	DimensionsFilter     []DimensionsFilter     `json:"dimensions"`
 	Sort                 Sort                   `json:"sort,omitempty"`

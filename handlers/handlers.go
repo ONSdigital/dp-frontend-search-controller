@@ -55,6 +55,12 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		return
 	}
 
+	clearTopics := false
+	if urlQuery.Get("topics") == "" {
+		urlQuery.Add("topics", censusTopicCache.Query)
+		clearTopics = true
+	}
+
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
 	if err != nil {
@@ -151,6 +157,15 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	if respErr != nil || countErr != nil {
 		setStatusCode(w, req, respErr)
 		return
+	}
+
+	if clearTopics {
+		/* By default we set all topics as active,
+		 * but we don't want the checkboxes to be ticked
+		 * this ensures they're sent to the topic API, but
+		 * hides that from the frontend.
+		 */
+		validatedQueryParams.TopicFilter = ""
 	}
 
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
