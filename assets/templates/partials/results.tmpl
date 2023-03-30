@@ -3,6 +3,8 @@
 {{ $itemsPerPage := .Data.Pagination.Limit }}
 {{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
 {{ $response := .Data.Response }}
+{{ $datasetFinder := .Data.PopulationTypeFilter }}
+
 <div id="results">
     <div id="results-loading" class="ons-panel ons-panel--info ons-panel--no-title hide">
         <span class="ons-u-vh">Important information: </span>
@@ -34,20 +36,35 @@
                     {{ .Description.Edition | safeHTML }}
                 </a>
             </h3>
-            {{if eq $item.Type.Type `product_page`}}
-                <p class="search__results__meta font-size--16">
-                    <b>Topic</b>
-                </p>
-            {{else}}
-                <p class="search__results__meta font-size--16">
-                    <b>{{ localise "ReleasedOn" $lang 1 }}:</b> {{dateFormat .Description.ReleaseDate}}
-                    |
-                    <b>{{ localise .Type.LocaliseKeyName $lang 1 }}</b>
-                </p>
-            {{end}}
+            {{ if not $datasetFinder }} 
+                {{ if eq $item.Type.Type `product_page` }}
+                    <p class="search__results__meta font-size--16">
+                        <b>Topic</b>
+                    </p>
+                {{ else }}
+                    <p class="search__results__meta font-size--16">
+                        <b>{{ localise "ReleasedOn" $lang 1 }}:</b> {{dateFormat .Description.ReleaseDate}}
+                        |
+                        <b>{{ localise .Type.LocaliseKeyName $lang 1 }}</b>
+                    </p>
+                {{ end }}
+            {{ end }}
             <p class="search__results__summary font-size--16">
                 {{ if .Description.Highlight.Summary }} {{ .Description.Highlight.Summary | safeHTML }} {{ else }} {{ .Description.Summary | safeHTML }} {{ end }}
             </p>
+            {{ if $datasetFinder }} 
+                {{ $dlTermClasses := "ons-metadata__term ons-grid__col ons-col-3@m font-size--16" }}
+                {{ $dlValueClasses := "ons-metadata__value ons-grid__col ons-col-9@m font-size--16" }}
+
+                <dl class="ons-metadata ons-metadata__list ons-u-cf ons-grid ons-grid--gutterless font-size--16">
+                    <dt class="{{ $dlTermClasses }}">{{ localise "ReleasedOn" $lang 1 }}:</dt>
+                    <dd class="{{ $dlValueClasses }}">{{dateFormat .Description.ReleaseDate}}</dd>
+                    {{ if .Dataset.PopulationType }}
+                        <dt class="{{ $dlTermClasses }}">{{ localise "PopulationTypes" $lang 1 }}:</dt>
+                        <dd class="{{ $dlValueClasses }}">{{ .Dataset.PopulationType }}</dd>
+                    {{ end }}
+                </dl>
+            {{ end }}
             {{if eq $item.Type.Type `product_page`}}
                 <p class="search__results__summary--product-page font-size--16">
                     View all <a href="{{ .URI }}#datasets">datasets</a> or <a href="{{ .URI }}#publications">publications</a> related to 

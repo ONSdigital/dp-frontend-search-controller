@@ -181,8 +181,8 @@ func TestUnitFindDatasetPage(t *testing.T) {
 			DimensionsFilter: "ethnicity",
 
 			Sort: data.Sort{
-				Query:           "relevance",
-				LocaliseKeyName: "Relevance",
+				Query:           "release_date",
+				LocaliseKeyName: "Release Date",
 			},
 
 			Limit:       10,
@@ -216,17 +216,17 @@ func TestUnitFindDatasetPage(t *testing.T) {
 				So(sp.Data.Filter, ShouldHaveLength, 1)
 				So(sp.Data.Filter[0], ShouldEqual, "dataset_landing_page")
 
-				So(sp.Data.Sort.Query, ShouldEqual, "relevance")
+				So(sp.Data.Sort.Query, ShouldEqual, "release_date")
 				So(sp.Data.Sort.LocaliseFilterKeys, ShouldResemble, []string{"Dataset"})
-				So(sp.Data.Sort.LocaliseSortKey, ShouldEqual, "Relevance")
-				So(sp.Data.Sort.Options[0].Query, ShouldEqual, "relevance")
-				So(sp.Data.Sort.Options[0].LocaliseKeyName, ShouldEqual, "Relevance")
+				So(sp.Data.Sort.LocaliseSortKey, ShouldEqual, "Release Date")
+				So(sp.Data.Sort.Options[0].Query, ShouldEqual, "release_date")
+				So(sp.Data.Sort.Options[0].LocaliseKeyName, ShouldEqual, "ReleaseDate")
 
 				So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)
 				So(sp.Data.Pagination.TotalPages, ShouldEqual, 1)
 				So(sp.Data.Pagination.PagesToDisplay, ShouldHaveLength, 1)
 				So(sp.Data.Pagination.PagesToDisplay[0].PageNumber, ShouldEqual, 1)
-				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/census/find-a-dataset?dimensions=ethnicity&population_types=UR&q=housing&filter=dataset_landing_page&limit=10&sort=relevance&page=1")
+				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/census/find-a-dataset?dimensions=ethnicity&population_types=UR&q=housing&filter=dataset_landing_page&limit=10&sort=release_date&page=1")
 				So(sp.Data.Pagination.Limit, ShouldEqual, 10)
 				So(sp.Data.Pagination.LimitOptions, ShouldResemble, []int{10, 25, 50})
 

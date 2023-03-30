@@ -13,9 +13,9 @@
 # Plural rules can be found here: http://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-[FilterResults]
-description = "Filter results"
-other = "Filter results"
+[Filter]
+description = "Filter"
+other = "Filter"
 
 [ContentTypesToShow]
 description = "Content types to show"
@@ -37,9 +37,9 @@ one = "Population type"
 other = "Population type"
 
 [Dimensions]
-description = "Dimensions"
-one = "Dimensions"
-other = "Dimensions"
+description = "Keywords"
+one = "Keywords"
+other = "Keywords"
 
 [ClearAll]
 description = "Clear all"
@@ -147,6 +147,11 @@ description = "Datasets"
 one = "Dataset"
 other = "Datasets"
 
+[DatasetsLower]
+description = "datasets"
+one = "dataset"
+other = "datasets"
+
 [Methodology]
 description = "Methodology"
 one = "Methodology"
@@ -218,7 +223,8 @@ one = "Search for data, analysis and other publications."
 
 [Results]
 description = "results"
-one = "results" 
+one = "result" 
+other = "results"
 
 [For]
 description = "for"
@@ -247,3 +253,11 @@ one = "Select another topic"
 [NoResultsBody]
 description = "Not all census content has been released. Check for upcoming releases in the <a href=\"/releasecalendar\">release calendar</a>. Alternatively, you can create a <a href=\"/datasets/create\">custom dataset</a>."
 one = "Not all census content has been released. Check for upcoming releases in the <a href=\"/releasecalendar\">release calendar</a>. Alternatively, you can create a <a href=\"/datasets/create\">custom dataset</a>."
+
+[FindCensusData]
+description = "Find Census Data"
+one = "Find Census Data"
+
+[SearchResults]
+description = "Search results"
+one = "Search results"

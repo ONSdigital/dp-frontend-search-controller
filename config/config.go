@@ -20,6 +20,7 @@ type Config struct {
 	DefaultOffset                           int           `envconfig:"DEFAULT_OFFSET"`
 	DefaultPage                             int           `envconfig:"DEFAULT_PAGE"`
 	DefaultSort                             string        `envconfig:"DEFAULT_SORT"`
+	DefaultDatasetSort                      string        `envconfig:"DEFAULT_DATASET_SORT"`
 	EnableCensusDimensionsFilterOption      bool          `envconfig:"ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION"`
 	EnableCensusPopulationTypesFilterOption bool          `envconfig:"ENABLE_CENSUS_POPULATION_TYPE_FILTER_OPTION"`
 	EnableCensusTopicFilterOption           bool          `envconfig:"ENABLE_CENSUS_TOPIC_FILTER_OPTION"`
@@ -48,7 +49,7 @@ func Get() (*Config, error) {
 	if newCfg.Debug {
 		newCfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
 	} else {
-		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/edbff89"
+		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/543c761"
 	}
 
 	return newCfg, nil
@@ -72,6 +73,7 @@ func get() (*Config, error) {
 		DefaultOffset:                           0,
 		DefaultPage:                             1,
 		DefaultSort:                             "relevance",
+		DefaultDatasetSort:                      "release_date",
 		EnableCensusTopicFilterOption:           false,
 		EnableCensusPopulationTypesFilterOption: false,
 		EnableCensusDimensionsFilterOption:      false,

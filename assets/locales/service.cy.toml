@@ -13,9 +13,9 @@
 # Plural rules can be found here: http://www.unicode.org/cldr/charts/latest/supplemental/language_plural_rules.html
 #-------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-[FilterResults]
-description = "Filter results"
-other = "Mireinio'r canlyniadau"
+[Filter]
+description = "Filter"
+other = "Mireinio'r"
 
 [ContentTypesToShow]
 description = "Content types to show"
@@ -37,9 +37,9 @@ one = "Population type"
 other = "Population type"
 
 [Dimensions]
-description = "Dimensions"
-one = "Dimensions"
-other = "Dimensions"
+description = "Keywords"
+one = "Keywords"
+other = "Keywords"
 
 [ClearAll]
 description = "Clear all"
@@ -146,6 +146,11 @@ description = "Datasets"
 one = "Setiau data"
 other = "Setiau data"
 
+[DatasetsLower]
+description = "datasets"
+one = "setiau data"
+other = "setiau data"
+
 [Methodology]
 description = "Methodology"
 one = "Methodoleg"
@@ -218,6 +223,7 @@ one = "Chwilio am ddata, gwaith dadansoddi a chyhoeddiadau eraill."
 [Results]
 description = "results"
 one = "canlyniadau" 
+other = "canlyniadau"
 
 [For]
 description = "for"
@@ -246,3 +252,11 @@ one = "Dewis pwnc arall"
 [NoResultsBody]
 description = "Not all census content has been released. Check for upcoming releases in the <a href=\"/releasecalendar\">release calendar</a>. Alternatively, you can create a <a href=\"/datasets/create\">custom dataset</a>."
 one = "Nid yw holl gynnwys y cyfrifia wedi'i ryddhau. Edrychwch am ddatganiadau sydd i ddod ar y <a href=\"/releasecalendar\">calendr datganiadau</a>. Fel arall, gallwch <a href=\"/datasets/create\">greu set ddata eich fun</a>."
+
+[FindCensusData]
+description = "Find Census Data"
+one = "Cael setiau data’r cyfrifiad"
+
+[SearchResults]
+description = "Search results"
+one = "Canlyniadau chwilio"

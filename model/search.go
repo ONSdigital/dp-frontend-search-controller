@@ -5,7 +5,8 @@ import "github.com/ONSdigital/dp-renderer/model"
 // Search is the model struct for the cookies preferences form
 type SearchPage struct {
 	model.Page
-	Data Search `json:"data"`
+	Data  Search `json:"data"`
+	Title Title  `json:"title,omitempty"`
 }
 
 // Search represents all search parameters and response data of the search
@@ -20,6 +21,7 @@ type Search struct {
 	Sort                 Sort                   `json:"sort,omitempty"`
 	Pagination           model.Pagination       `json:"pagination,omitempty"`
 	Response             Response               `json:"response"`
+	TermLocalKey         string                 `json:"term_localise_key_name,omitempty"`
 }
 
 // Filter respresents all filter information needed by templates
@@ -100,6 +102,7 @@ type ContentType struct {
 // ContentItem represents each search result
 type ContentItem struct {
 	Type        ContentItemType `json:"type"`
+	Dataset     Dataset         `json:"dataset"`
 	Description Description     `json:"description"`
 	URI         string          `json:"uri"`
 	Matches     *Matches        `json:"matches,omitempty"`
@@ -109,6 +112,11 @@ type ContentItem struct {
 type ContentItemType struct {
 	Type            string `json:"type"`
 	LocaliseKeyName string `json:"localise_key"`
+}
+
+// Dataset represents additional dataset fields
+type Dataset struct {
+	PopulationType string `json:"population_type,omitempty"`
 }
 
 // Description represents each search result description
@@ -171,4 +179,8 @@ type MatchDetails struct {
 	Value string `json:"value,omitempty"`
 	Start int    `json:"start"`
 	End   int    `json:"end"`
+}
+
+type Title struct {
+	LocaliseKeyName string `json:"localise_key"`
 }

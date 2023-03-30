@@ -30,6 +30,8 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 	page.Metadata.Title = "Search" //nolint:goconst //The strings aren't actually the same.
 	page.Type = "search"           //nolint:goconst //The strings aren't actually the same.
+	page.Title.LocaliseKeyName = "SearchResults"
+	page.Data.TermLocalKey = "Results"
 	page.Count = respC.Count
 	page.Language = lang
 	page.BetaBannerEnabled = true
@@ -69,6 +71,8 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 
 	page.Metadata.Title = "Search"
 	page.Type = "search"
+	page.Title.LocaliseKeyName = "FindCensusData"
+	page.Data.TermLocalKey = "DatasetsLower"
 	page.Count = respC.Count
 	page.Language = lang
 	page.BetaBannerEnabled = true
@@ -83,7 +87,7 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
-	mapQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
+	mapDatasetQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, categories)
 
@@ -108,6 +112,18 @@ func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams d
 	mapPagination(cfg, req, page, validatedQueryParams, respC)
 }
 
+func mapDatasetQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC *searchModels.SearchResponse, req http.Request, errorMessage string) {
+	page.Data.Query = validatedQueryParams.Query
+
+	page.Data.Filter = validatedQueryParams.Filter.Query
+
+	page.Data.ErrorMessage = errorMessage
+
+	mapDatasetSort(page, validatedQueryParams)
+
+	mapPagination(cfg, req, page, validatedQueryParams, respC)
+}
+
 func mapSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) {
 	page.Data.Sort.Query = validatedQueryParams.Sort.Query
 
@@ -120,6 +136,24 @@ func mapSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) 
 		pageSortOptions[i] = model.SortOptions{
 			Query:           data.SortOptions[i].Query,
 			LocaliseKeyName: data.SortOptions[i].LocaliseKeyName,
+		}
+	}
+
+	page.Data.Sort.Options = pageSortOptions
+}
+
+func mapDatasetSort(page *model.SearchPage, validatedQueryParams data.SearchURLParams) {
+	page.Data.Sort.Query = validatedQueryParams.Sort.Query
+
+	page.Data.Sort.LocaliseFilterKeys = validatedQueryParams.Filter.LocaliseKeyName
+
+	page.Data.Sort.LocaliseSortKey = validatedQueryParams.Sort.LocaliseKeyName
+
+	pageSortOptions := make([]model.SortOptions, len(data.DatasetSortOptions))
+	for i := range data.DatasetSortOptions {
+		pageSortOptions[i] = model.SortOptions{
+			Query:           data.DatasetSortOptions[i].Query,
+			LocaliseKeyName: data.DatasetSortOptions[i].LocaliseKeyName,
 		}
 	}
 
@@ -160,6 +194,7 @@ func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse
 		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(respC.Items[i].DataType)
 
 		item.URI = respC.Items[i].URI
+		item.Dataset.PopulationType = respC.Items[i].PopulationType
 
 		itemPage = append(itemPage, item)
 	}

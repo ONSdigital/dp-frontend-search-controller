@@ -3,6 +3,7 @@ package data
 import (
 	"context"
 	"net/url"
+	"sort"
 	"strings"
 
 	searchModels "github.com/ONSdigital/dp-search-api/models"
@@ -51,5 +52,8 @@ func GetPopulationTypes(countResp *searchModels.SearchResponse) (populationTypes
 			})
 		}
 	}
+	sort.Slice(populationTypes, func(i, j int) bool {
+		return populationTypes[i].LocaliseKeyName < populationTypes[j].LocaliseKeyName
+	})
 	return
 }
