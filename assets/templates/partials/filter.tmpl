@@ -90,7 +90,7 @@
                         {{ template "icons/chevron-right" }}
                     </span>
                 </summary>
-                <div id="collapsible-content" class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                     {{ range $index, $topFilter := $filters}}
                         <div class="ons-checkboxes__items">
                             <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
@@ -161,7 +161,7 @@
                         {{ template "icons/chevron-right" }}
                     </span>
                 </summary>
-                <div id="collapsible-content" class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                     {{ range $index, $filter := $value }}
                     <div class="ons-checkboxes__items">
                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
@@ -169,7 +169,7 @@
                                 <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
                                     class="ons-checkbox__input ons-js-checkbox"
                                     name="{{ $key }}"
-                                    value="{{ print $filter.Type }}" aria-controls="{{ $key }}-group-{{ $index }}-other-wrap"
+                                    value="{{ print $filter.Type }}"
                                     data-gtm-label="{{ $filter.Type }}"
                                     {{ if $filter.IsChecked }}
                                         checked
@@ -209,7 +209,7 @@
                         {{ template "icons/chevron-right" }}
                     </span>
                 </summary>
-                <div id="collapsible-content" class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                     {{ range $index, $filter := $value }}
                     <div class="ons-checkboxes__items">
                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
@@ -217,7 +217,7 @@
                                 <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
                                     class="ons-checkbox__input ons-js-checkbox"
                                     name="{{ $key }}"
-                                    value="{{ print $filter.Type }}" aria-controls="{{ $key }}-group-{{ $index }}-other-wrap"
+                                    value="{{ print $filter.Type }}"
                                     data-gtm-label="{{ $filter.Type }}"
                                     {{ if $filter.IsChecked }}
                                         checked
