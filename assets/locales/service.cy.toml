@@ -26,6 +26,11 @@ description = "Content type"
 one = "Math o gynnwys"
 other = "Math o gynnwys"
 
+[SelectContentType]
+description = "Select content type"
+one = "Select content type"
+other = "Select content types"
+
 [PopulationTypes]
 description = "Population type"
 one = "Population type"
@@ -100,6 +105,21 @@ other = "Veterans"
 description = "Census"
 one = "Census"
 other = "Census"
+
+[CensusTopic]
+description = "Select census topic"
+one = "Select census topic"
+other = "Select census topics"
+
+[CensusSubTopics]
+description = "Select census subtopics"
+one = "Select census subtopic"
+other = "Select census subtopics"
+
+[Select]
+description = "Select "
+one = "Select "
+other = "Select "
 
 [StatisticalBulletin]
 description = "Statistical bulletins"
