@@ -106,6 +106,32 @@
                                                 checked
                                             {{ end }}
                                         >
+                                    <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
+                                        {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
+                                    </label>
+                                    <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
+                                        <fieldset class="ons-fieldset ons-js-other-fieldset">
+                                            {{ range $index, $childFilter := $topFilter.Types }}
+                                                {{ $id := index $childFilter.FilterKey 0 }}
+                                                <div class="ons-checkboxes__items">
+                                                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                                                        <span class="ons-checkbox ons-checkbox--no-border child-filter">
+                                                            <input id="{{ $id }}"
+                                                                class="ons-checkbox__input ons-js-checkbox"
+                                                                type="checkbox" name="filter"
+                                                                {{ if $childFilter.IsChecked }}checked{{ end }}
+                                                                data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
+                                                                value="{{ $id }}"
+                                                            />
+                                                            <label class="ons-checkbox__label" for="{{ $id }}"
+                                                                id="{{ $id }}-label">
+                                                                {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
+                                                            </label>
+                                                        </span>
+                                                    </span>
+                                                </div>
+                                            {{ end }}
+                                        </fieldset>
                                         <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
                                             {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
                                         </label>
@@ -165,7 +191,7 @@
                         {{ template "icons/chevron-right" }}
                     </span>
                 </summary>
-                <div id="collapsible-content" class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                     {{ range $index, $filter := $value }}
                     <div class="ons-checkboxes__items">
                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
@@ -173,7 +199,7 @@
                                 <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
                                     class="ons-checkbox__input ons-js-checkbox"
                                     name="{{ $key }}"
-                                    value="{{ print $filter.Type }}" aria-controls="{{ $key }}-group-{{ $index }}-other-wrap"
+                                    value="{{ print $filter.Type }}"
                                     data-gtm-label="{{ $filter.Type }}"
                                     {{ if $filter.IsChecked }}
                                         checked
@@ -213,7 +239,7 @@
                         {{ template "icons/chevron-right" }}
                     </span>
                 </summary>
-                <div id="collapsible-content" class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                     {{ range $index, $filter := $value }}
                     <div class="ons-checkboxes__items">
                         <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
@@ -221,7 +247,7 @@
                                 <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
                                     class="ons-checkbox__input ons-js-checkbox"
                                     name="{{ $key }}"
-                                    value="{{ print $filter.Type }}" aria-controls="{{ $key }}-group-{{ $index }}-other-wrap"
+                                    value="{{ print $filter.Type }}"
                                     data-gtm-label="{{ $filter.Type }}"
                                     {{ if $filter.IsChecked }}
                                         checked
