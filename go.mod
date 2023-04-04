@@ -12,7 +12,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.5.0
 	github.com/ONSdigital/dp-net v1.5.0
 	github.com/ONSdigital/dp-net/v2 v2.8.1
-	github.com/ONSdigital/dp-renderer v1.58.0
+	github.com/ONSdigital/dp-renderer v1.62.0
 	github.com/ONSdigital/dp-search-api v1.35.0
 	github.com/ONSdigital/dp-topic-api v0.13.3
 	github.com/ONSdigital/log.go/v2 v2.3.0
