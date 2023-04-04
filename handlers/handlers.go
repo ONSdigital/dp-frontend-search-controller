@@ -46,6 +46,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	urlQuery := req.URL.Query()
 	urlQuery.Del("filter")
 	urlQuery.Add("filter", "dataset_landing_page")
+	urlQuery.Add("filter", "user_requested_data")
 
 	// get cached census topic and its subtopics
 	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
