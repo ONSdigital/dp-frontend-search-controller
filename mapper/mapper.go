@@ -42,6 +42,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
 	page.SearchNoIndexEnabled = cfg.NoIndexEnabled
+	page.FeatureFlags.IsPublishing = cfg.IsPublishing
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
