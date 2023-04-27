@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	render "github.com/ONSdigital/dp-renderer"
+	render "github.com/ONSdigital/dp-renderer/v2"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
 	"github.com/ONSdigital/dp-frontend-search-controller/assets"

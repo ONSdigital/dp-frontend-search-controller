@@ -9,7 +9,7 @@ import (
 	apiError "github.com/ONSdigital/dp-search-api/sdk/errors"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 //go:generate moq -out clients_mock.go -pkg handlers . RenderClient SearchClient ZebedeeClient

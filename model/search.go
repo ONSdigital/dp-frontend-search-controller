@@ -1,6 +1,6 @@
 package model
 
-import "github.com/ONSdigital/dp-renderer/model"
+import "github.com/ONSdigital/dp-renderer/v2/model"
 
 // Search is the model struct for the cookies preferences form
 type SearchPage struct {

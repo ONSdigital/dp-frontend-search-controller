@@ -8,7 +8,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/handlers"
-	rend "github.com/ONSdigital/dp-renderer"
+	rend "github.com/ONSdigital/dp-renderer/v2"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	topic "github.com/ONSdigital/dp-topic-api/sdk"
 

@@ -9,7 +9,7 @@ import (
 	"sync"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	coreModel "github.com/ONSdigital/dp-renderer/model"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	apiError "github.com/ONSdigital/dp-search-api/sdk/errors"
