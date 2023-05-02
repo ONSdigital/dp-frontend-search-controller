@@ -23,7 +23,10 @@ require (
 	github.com/stretchr/testify v1.8.1
 )
 
-require github.com/elastic/go-elasticsearch/v7 v7.10.0 // indirect
+require (
+	github.com/elastic/go-elasticsearch/v7 v7.10.0 // indirect
+	github.com/kevinburke/go-bindata v3.24.0+incompatible // indirect
+)
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
