@@ -12,7 +12,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
-	dphttp "github.com/ONSdigital/dp-net/http"
+	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/maxcnunes/httpfake"
 )

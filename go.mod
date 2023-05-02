@@ -10,7 +10,6 @@ require (
 	github.com/ONSdigital/dp-component-test v0.7.0
 	github.com/ONSdigital/dp-cookies v0.3.3
 	github.com/ONSdigital/dp-healthcheck v1.6.1
-	github.com/ONSdigital/dp-net v1.5.0
 	github.com/ONSdigital/dp-net/v2 v2.9.1
 	github.com/ONSdigital/dp-renderer/v2 v2.0.3
 	github.com/ONSdigital/dp-search-api v1.35.0
@@ -24,11 +23,7 @@ require (
 	github.com/stretchr/testify v1.8.1
 )
 
-require (
-	github.com/ONSdigital/dp-renderer v1.63.0 // indirect
-	github.com/elastic/go-elasticsearch/v7 v7.10.0 // indirect
-	github.com/kevinburke/go-bindata v3.24.0+incompatible // indirect
-)
+require github.com/elastic/go-elasticsearch/v7 v7.10.0 // indirect
 
 require (
 	github.com/BurntSushi/toml v1.2.1 // indirect
@@ -38,7 +33,6 @@ require (
 	github.com/ONSdigital/dp-mongodb-in-memory v1.3.1 // indirect
 	github.com/ONSdigital/dp-rchttp v1.0.0 // indirect
 	github.com/ONSdigital/go-ns v0.0.0-20210916104633-ac1c1c52327e // indirect
-	github.com/aws/aws-sdk-go v1.44.190 // indirect
 	github.com/c2h5oh/datasize v0.0.0-20220606134207-859f65c6625b // indirect
 	github.com/chromedp/cdproto v0.0.0-20220629234738-4cfc9cdeeb92 // indirect
 	github.com/chromedp/chromedp v0.8.2 // indirect
@@ -61,8 +55,6 @@ require (
 	github.com/hashicorp/go-memdb v1.3.3 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/hokaccha/go-prettyjson v0.0.0-20211117102719-0474bc63780f // indirect
-	github.com/iancoleman/strcase v0.2.0
-	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/jtolds/gls v4.20.0+incompatible // indirect
 	github.com/justinas/alice v1.2.0 // indirect
