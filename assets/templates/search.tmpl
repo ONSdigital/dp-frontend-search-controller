@@ -2,12 +2,6 @@
 <div class="ons-container search__container">
   <div class="ons-grid">
 
-    {{ if .Page.Breadcrumb }}
-      <div class="ons-grid__col ons-col-12@m">
-        {{ template "partials/breadcrumb" . }}
-      </div>
-    {{ end }}
-
     {{if .Data.ErrorMessage}}
 
       <div class="ons-grid__col ons-col-12@m">
