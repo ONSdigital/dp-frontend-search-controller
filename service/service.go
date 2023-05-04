@@ -92,11 +92,11 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	} else {
 		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePublic.UpdateCensusTopic(ctx, clients.Topic))
 
-		for _, lang := range cfg.SupportedLanguages {
-			navigationlangKey := svc.Cache.Navigation.GetCachingKeyForNavigationLanguage(lang)
-			svc.Cache.Navigation.AddUpdateFunc(navigationlangKey, cachePublic.UpdateNavigationData(ctx, cfg, lang, clients.Topic))
-		}
+	}
 
+	for _, lang := range cfg.SupportedLanguages {
+		navigationlangKey := svc.Cache.Navigation.GetCachingKeyForNavigationLanguage(lang)
+		svc.Cache.Navigation.AddUpdateFunc(navigationlangKey, cachePublic.UpdateNavigationData(ctx, cfg, lang, clients.Topic))
 	}
 
 	// Initialise router
