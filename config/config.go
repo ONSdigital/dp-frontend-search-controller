@@ -29,7 +29,6 @@ type Config struct {
 	HealthCheckCriticalTimeout              time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	HealthCheckInterval                     time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
 	IsPublishing                            bool          `envconfig:"IS_PUBLISHING"`
-	NoIndexEnabled                          bool          `envconfig:"NO_INDEX_ENABLED"`
 	PatternLibraryAssetsPath                string        `envconfig:"PATTERN_LIBRARY_ASSETS_PATH"`
 	ServiceAuthToken                        string        `envconfig:"SERVICE_AUTH_TOKEN"   json:"-"`
 	SiteDomain                              string        `envconfig:"SITE_DOMAIN"`
@@ -82,7 +81,6 @@ func get() (*Config, error) {
 		HealthCheckCriticalTimeout:              90 * time.Second,
 		HealthCheckInterval:                     30 * time.Second,
 		IsPublishing:                            false,
-		NoIndexEnabled:                          false,
 		ServiceAuthToken:                        "",
 		SiteDomain:                              "localhost",
 		SupportedLanguages:                      []string{"en", "cy"},

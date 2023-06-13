@@ -46,7 +46,6 @@ No further dependencies other than those defined in `go.mod`
 | HEALTHCHECK_CRITICAL_TIMEOUT                | 90s                       | Time to wait until an unhealthy dependent propagates its state to make this app unhealthy (`time.Duration` format) |
 | HEALTHCHECK_INTERVAL                        | 30s                       | Time between self-healthchecks (`time.Duration` format)                                                            |
 | IS_PUBLISHING                               | false                     | Mode in which service is running                                                                                   |
-| NO_INDEX_ENABLED                            | false                     | If true then prevents most search engine web crawlers from indexing the search pages                               |
 | PATTERN_LIBRARY_ASSETS_PATH                 | ""                        | Pattern library location                                                                                           |
 | SERVICE_AUTH_TOKEN                          | ""                        | This is required to identify the controller when it calls the topic API via the API router in publishing mode      |
 | SITE_DOMAIN                                 | localhost                 |                                                                                                                    |
