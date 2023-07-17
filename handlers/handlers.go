@@ -407,9 +407,17 @@ func setCountToCategories(ctx context.Context, countResp *searchModels.SearchRes
 func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 	status := http.StatusInternalServerError
 
+	// Zebedee returns a ClientError interface
 	if err, ok := err.(ClientError); ok {
 		if err.Code() == http.StatusNotFound {
 			status = err.Code()
+		}
+	}
+
+	// Search API returns a SearchClientError interface
+	if err, ok := err.(SearchClientError); ok {
+		if err.Status() == http.StatusBadRequest {
+			status = err.Status()
 		}
 	}
 

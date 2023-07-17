@@ -19,6 +19,11 @@ type ClientError interface {
 	Code() int
 }
 
+// Search API returns a SearchClientError interface, which differs from ZebedeeClient
+type SearchClientError interface {
+	Status() int
+}
+
 // RenderClient is an interface with methods for require for rendering a template
 type RenderClient interface {
 	BuildPage(w io.Writer, pageModel interface{}, templateName string)
