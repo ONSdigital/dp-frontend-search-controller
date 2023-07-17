@@ -2,6 +2,13 @@ module github.com/ONSdigital/dp-frontend-search-controller
 
 go 1.19
 
+// to fix: [CVE-2023-32731] CWE-Other
+replace google.golang.org/grpc => google.golang.org/grpc v1.55.0
+
+// to avoid the following vulnerabilities:
+//     - CVE-2022-29153 # pkg:golang/github.com/hashicorp/consul/api@v1.1.0 and pkg:golang/github.com/hashicorp/consul/sdk@v0.1.1
+//     - sonatype-2021-1401 # pkg:golang/github.com/miekg/dns@v1.0.14
+//     - sonatype-2019-0890 # pkg:golang/github.com/pkg/sftp@v1.10.1
 replace github.com/spf13/cobra => github.com/spf13/cobra v1.4.0
 
 require (
@@ -18,14 +25,10 @@ require (
 	github.com/cucumber/godog v0.12.5
 	github.com/gorilla/mux v1.8.0
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/kevinburke/go-bindata v1.1.0
 	github.com/maxcnunes/httpfake v1.2.4
 	github.com/smartystreets/goconvey v1.8.0
 	github.com/stretchr/testify v1.8.1
-)
-
-require (
-	github.com/elastic/go-elasticsearch/v7 v7.10.0 // indirect
-	github.com/kevinburke/go-bindata v3.24.0+incompatible // indirect
 )
 
 require (
@@ -43,6 +46,7 @@ require (
 	github.com/cucumber/gherkin-go/v19 v19.0.3 // indirect
 	github.com/cucumber/messages-go/v16 v16.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/elastic/go-elasticsearch/v7 v7.10.0 // indirect
 	github.com/fatih/color v1.15.0 // indirect
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-stack/stack v1.8.1 // indirect
@@ -68,10 +72,9 @@ require (
 	github.com/nicksnyder/go-i18n/v2 v2.2.1 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/rogpeppe/go-internal v1.9.0 // indirect
 	github.com/russross/blackfriday/v2 v2.1.0 // indirect
 	github.com/smartystreets/assertions v1.13.1 // indirect
-	github.com/spf13/afero v1.8.2 // indirect
+	github.com/spf13/afero v1.9.2 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/tdewolff/minify v2.3.6+incompatible // indirect
 	github.com/tdewolff/parse v2.3.4+incompatible // indirect
