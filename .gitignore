@@ -14,3 +14,5 @@ coverage.txt
 
 /build
 assets/data.go
+
+/.go

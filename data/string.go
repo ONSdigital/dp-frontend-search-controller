@@ -17,7 +17,19 @@ var regexString = strings.Repeat(`\S\s*`, minQueryLength)
 
 // reviewQueryString performs basic checks on the string entered by the user
 func reviewQueryString(ctx context.Context, urlQuery url.Values) error {
-	return checkForNonSpaceCharacters(ctx, urlQuery.Get("q"))
+	q := urlQuery.Get("q")
+
+	nonSpaceCharErr := checkForNonSpaceCharacters(ctx, q)
+	if nonSpaceCharErr != nil {
+		return nonSpaceCharErr
+	}
+
+	specialCharErr := checkForSpecialCharacters(ctx, q)
+	if specialCharErr != nil {
+		return specialCharErr
+	}
+
+	return nil
 }
 
 func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
@@ -31,6 +43,20 @@ func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
 	if !match {
 		log.Warn(ctx, fmt.Sprintf("the query string did not match the regex, %v non-space characters required", minQueryLength))
 		errVal := errs.ErrInvalidQueryCharLengthString
+		return errVal
+	}
+
+	return nil
+}
+
+func checkForSpecialCharacters(ctx context.Context, str string) error {
+	re := regexp.MustCompile("[[:^ascii:]]")
+
+	match := re.MatchString(str)
+
+	if match {
+		log.Warn(ctx, "the query string contains special characters")
+		errVal := errs.ErrInvalidQueryString
 		return errVal
 	}
 
