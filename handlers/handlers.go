@@ -127,7 +127,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 
 		options.Query = searchQuery
 		options.Headers = http.Header{
-			searchSDK.Authorization: {"Bearer " + accessToken},
+			searchSDK.FlorenceToken: {"Bearer " + accessToken},
 			searchSDK.CollectionID:  {collectionID},
 		}
 		go func() {
@@ -263,7 +263,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		options.Query = searchQuery
 
 		options.Headers = http.Header{
-			searchSDK.Authorization: {"Bearer " + accessToken},
+			searchSDK.FlorenceToken: {"Bearer " + accessToken},
 			searchSDK.CollectionID:  {collectionID},
 		}
 		go func() {
@@ -358,7 +358,7 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 
 	options.Query = query
 	options.Headers = http.Header{
-		searchSDK.Authorization: {"Bearer " + accessToken},
+		searchSDK.FlorenceToken: {"Bearer " + accessToken},
 		searchSDK.CollectionID:  {collectionID},
 	}
 	countResp, err := searchC.GetSearch(ctx, options)
