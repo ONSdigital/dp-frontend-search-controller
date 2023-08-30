@@ -1,15 +1,24 @@
 {{ $lang := .Language }}
 <div class="ons-container search__container">
   <div class="ons-grid">
+    <!-- <h3>Terrrrr</h3> -->
+    <div class="ons-grid__col ons-col-12@m">
+      <section class="search__summary">
+        <span class="search__summary__generic">{{ localise "AllMethodology" $lang 1 }}</span>
+      </section>
+     
+      <!-- {{ template "partials/standalone-search" . }} -->
+    </div>
 
+    
     {{if .Data.ErrorMessage}}
 
-      <div class="ons-grid__col ons-col-12@m">
+      <!-- <div class="ons-grid__col ons-col-12@m">
         <section class="search__summary">
           <span class="search__summary__generic">{{ localise "EnterSearchTerm" $lang 1 }}</span>
         </section>
         {{ template "partials/standalone-search" . }}
-      </div>
+      </div> -->
 
     {{else if eq .Data.Response.Count 0}}
       <div class="ons-grid__col ons-col-12@m">
@@ -24,11 +33,11 @@
 
     {{else}}
 
-      <div class="ons-grid__col ons-col-12@m">
+      <!-- <div class="ons-grid__col ons-col-12@m">
         <section class="search__summary" role="contentinfo" aria-label="Search summary">
           {{ template "partials/summary" . }}
         </section>
-      </div>
+      </div> -->
 
       <div class="ons-grid__col ons-col-4@m">
         <section class="search__filter" role="contentinfo" aria-label="Search filtering" id="search-filter">
@@ -39,6 +48,12 @@
             <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
           </div>
          
+         <div class="search__filter__content">
+            {{ template "partials/filter-results" . }}
+          </div>
+          <div class="search__filter__content">
+            {{ template "partials/archived-release-message" . }}
+          </div>
         </section>
       </div>
 
@@ -56,7 +71,7 @@
               </button>
           </div>
           <div class="search__results">
-            {{ template "partials/results" . }}
+            {{ template "partials/testresults" . }}
           </div>
           <div class="search__pagination">
             {{ template "partials/search-pagination" . }}
@@ -64,6 +79,16 @@
         </section>
       </div>
     {{end}}
+
+    <div class="ons-grid__col ons-col-4@m">
+         
+         <div class="search__filter__content">
+            {{ template "partials/filter-results" . }}
+          </div>
+          <div class="search__filter__content">
+            {{ template "partials/archived-release-message" . }}
+          </div>
+    </div>
 
   </div>
 </div>

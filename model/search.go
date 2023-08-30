@@ -11,8 +11,9 @@ type SearchPage struct {
 
 // Search represents all search parameters and response data of the search
 type Search struct {
-	Query                string                 `json:"query"`
-	ErrorMessage         string                 `json:"error_message,omitempty"`
+	Query                string `json:"query"`
+	ErrorMessage         string `json:"error_message,omitempty"`
+	EnabledFilters       []string
 	Filter               []string               `json:"filter,omitempty"`
 	Filters              []Filter               `json:"filters"`
 	TopicFilters         []TopicFilter          `json:"topic_filters"`

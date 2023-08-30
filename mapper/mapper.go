@@ -58,6 +58,82 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	return page
 }
 
+// CreateDataAggregationPage maps type searchC.Response to model.Page
+func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
+	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
+	navigationContent *topicModel.Navigation,
+	template string,
+) model.SearchPage {
+	page := model.SearchPage{
+		Page: basePage,
+	}
+
+	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
+
+	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template)
+
+	mapQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
+
+	mapResponse(&page, respC, categories)
+
+	mapFilters(&page, categories, validatedQueryParams)
+
+	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
+
+	return page
+}
+
+func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string) {
+
+	switch template {
+	case "all-adhocs":
+		page.Metadata.Title = "User requested data"
+		page.Data.EnabledFilters = []string{"keywords", "published"}
+	case "home-datalist":
+		page.Metadata.Title = "All data related to home"
+		page.Data.EnabledFilters = []string{"keywords", "published", "content-type"}
+	case "all-methodologies":
+		page.Metadata.Title = "All methodology"
+		page.Data.EnabledFilters = []string{"keywords", "topic-filter"}
+	case "published-requests":
+		page.Metadata.Title = "Freedom of Information (FOI) requests"
+		page.Data.EnabledFilters = []string{"keywords", "published"}
+	case "home-list":
+		page.Metadata.Title = "List of all home"
+		page.Data.EnabledFilters = []string{"keywords"}
+	case "home-publications":
+		page.Metadata.Title = "All publications related to home"
+		page.Data.EnabledFilters = []string{"keywords", "content-type", "previous-releases"}
+	case "home-methodology":
+		page.Metadata.Title = "Methodology related to home"
+		page.Data.EnabledFilters = []string{"keywords"}
+	case "time-series-tool":
+		page.Metadata.Title = "Time series explorer"
+		page.Data.EnabledFilters = []string{"keywords", "topic-filter", "updated"}
+	default:
+		page.Metadata.Title = template
+	}
+	// page.Metadata.Title = "Aint no search" //nolint:goconst //The strings aren't actually the same.
+	page.Type = "search" //nolint:goconst //The strings aren't actually the same.
+	page.Title.LocaliseKeyName = "SearchResults"
+	page.Data.TermLocalKey = "Results"
+	page.Count = respC.Count
+	page.Language = lang
+	page.BetaBannerEnabled = true
+	page.SearchDisabled = false
+	page.URI = req.URL.RequestURI()
+	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath
+	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
+	page.ServiceMessage = homepageResponse.ServiceMessage
+	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
+	page.SearchNoIndexEnabled = true
+	page.FeatureFlags.IsPublishing = cfg.IsPublishing
+	if navigationContent != nil {
+		page.NavigationContent = mapNavigationContent(*navigationContent)
+	}
+}
+
 // CreateSearchPage maps type searchC.Response to model.Page
 func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
 	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
