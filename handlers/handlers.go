@@ -25,9 +25,9 @@ const (
 )
 
 // Read Handler
-func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List) http.HandlerFunc {
+func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		read(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList)
+		read(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList, template)
 	})
 }
 
@@ -182,7 +182,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 }
 
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
-	accessToken, collectionID, lang string, cacheList cache.List,
+	accessToken, collectionID, lang string, cacheList cache.List, template string,
 ) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
@@ -303,8 +303,15 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, errorMessage, navigationCache)
-	rend.BuildPage(w, m, "search")
+	if template == "search" {
+		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, errorMessage, navigationCache)
+		rend.BuildPage(w, m, template)
+		return
+	} else {
+		m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, errorMessage, navigationCache, template)
+		rend.BuildPage(w, m, template)
+		return
+	}
 }
 
 // validateCurrentPage checks if the current page exceeds the total pages which is a bad request

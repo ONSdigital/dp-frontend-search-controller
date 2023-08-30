@@ -261,3 +261,35 @@ one = "Find Census Data"
 [SearchResults]
 description = "Search results"
 one = "Search results"
+
+[AllMethodology]
+description = "All methodology"
+one = "All methodology"
+
+[DataList]
+description = "All data related to home"
+one = "All data related to home"
+
+[HomePublications]
+description = "All publications related to home"
+one = "All publications related to home"
+
+[FOIRequests]
+description = "Freedom of Information (FOI) requests"
+one = "Freedom of Information (FOI) requests"
+
+[HomeList]
+description = "List of all home"
+one = "List of all home"
+
+[HomeMethodology]
+description = "Methodology related to home"
+one = "Methodology related to home"
+
+[TimeSeriesExplorer]
+description = "Time series explorer"
+one = "Time series explorer"
+
+[Topics]
+description = "Topics"
+one = "Topics"
