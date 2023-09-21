@@ -548,14 +548,14 @@ func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.N
 			if rootContent.SubtopicItems != nil {
 				for _, subtopicContent := range *rootContent.SubtopicItems {
 					subItems = append(subItems, coreModel.NavigationItem{
-						Uri:   subtopicContent.Uri,
+						Uri:   subtopicContent.URI,
 						Label: subtopicContent.Label,
 					})
 				}
 			}
 
 			mappedNavigationContent = append(mappedNavigationContent, coreModel.NavigationItem{
-				Uri:      rootContent.Uri,
+				Uri:      rootContent.URI,
 				Label:    rootContent.Label,
 				SubItems: subItems,
 			})

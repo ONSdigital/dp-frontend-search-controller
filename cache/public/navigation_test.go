@@ -43,7 +43,7 @@ var (
 			Links:       testTopicLinks,
 			Name:        "Item name.",
 			Title:       "Item title.",
-			Uri:         "Item URI.",
+			URI:         "Item URI.",
 		},
 	}
 )
@@ -81,7 +81,7 @@ func TestUpdateNavigationData(t *testing.T) {
 		})
 
 		Convey("When UpdateNavigationData is called with Welsh specified", func() {
-			respNavigationCache := UpdateNavigationData(ctx, cfg, topicCli.Welsh, mockedNavigationClient)()
+			respNavigationCache := UpdateNavigationData(ctx, cfg, string(topicCli.Welsh), mockedNavigationClient)()
 
 			Convey("Then the navigation data is returned", func() {
 				So(respNavigationCache, ShouldNotBeNil)

@@ -85,31 +85,31 @@ var (
 	testCensusRootTopic = models.Topic{
 		ID:          cache.CensusTopicID,
 		Title:       testCensusTitle,
-		SubtopicIds: []string{"5678", "1235"},
+		SubtopicIds: &[]string{"5678", "1235"},
 	}
 
 	testEconomyRootTopic = models.Topic{
 		ID:          "1458",
 		Title:       "Economy",
-		SubtopicIds: []string{},
+		SubtopicIds: &[]string{},
 	}
 
 	testCensusSubTopic1 = models.Topic{
 		ID:          testCensusSubTopicID1,
 		Title:       "Census Sub 1",
-		SubtopicIds: []string{"8901"},
+		SubtopicIds: &[]string{"8901"},
 	}
 
 	testCensusSubTopic2 = models.Topic{
 		ID:          testCensusSubTopicID2,
 		Title:       "Census Sub 2",
-		SubtopicIds: []string{},
+		SubtopicIds: &[]string{},
 	}
 
 	testCensusSubTopic1Sub = models.Topic{
 		ID:          testCensusSubSubTopicID,
 		Title:       "Census Sub 1 - Sub",
-		SubtopicIds: []string{},
+		SubtopicIds: &[]string{},
 	}
 
 	expectedCensusTopicCache = &cache.Topic{
