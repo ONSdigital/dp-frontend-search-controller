@@ -1,7 +1,6 @@
 package data
 
 import (
-	"context"
 	"net/url"
 	"sort"
 	"strings"
@@ -17,7 +16,7 @@ type PopulationTypes struct {
 	ShowInWebUI     bool   `json:"show_in_web_ui"`
 }
 
-func reviewPopulationTypeFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
+func reviewPopulationTypeFilters(urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
 	populationTypeFilters := urlQuery.Get("population_types")
 	populationTypes := strings.Split(populationTypeFilters, ",")
 	validatedPopulationTypeFilters := []string{}

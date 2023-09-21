@@ -380,9 +380,6 @@ func TestUnitGetFirstAndLastPagesSuccess(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given validated query parameters and total pages", t, func() {
-		cfg, err := config.Get()
-		So(err, ShouldBeNil)
-
 		validatedQueryParams := SearchURLParams{
 			Query: "housing",
 			Filter: Filter{
@@ -402,7 +399,7 @@ func TestUnitGetFirstAndLastPagesSuccess(t *testing.T) {
 		req := *httptest.NewRequest("", "/search", nil)
 
 		Convey("When GetFirstAndLastPages is called", func() {
-			firstAndLastPages := GetFirstAndLastPages(cfg, req, validatedQueryParams, totalPages)
+			firstAndLastPages := GetFirstAndLastPages(req, validatedQueryParams, totalPages)
 
 			Convey("Then return the first and last page numbers with their respective URLs", func() {
 				So(firstAndLastPages, ShouldResemble, []model.PageToDisplay{

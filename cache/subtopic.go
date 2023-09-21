@@ -37,7 +37,7 @@ func (t *Subtopics) Get(key string) Subtopic {
 }
 
 // GetSubtopics returns an array of subtopics
-func (t *Subtopics) GetSubtopics(key string) (subtopics []Subtopic) {
+func (t *Subtopics) GetSubtopics() (subtopics []Subtopic) {
 	if t.subtopicsMap == nil {
 		return
 	}

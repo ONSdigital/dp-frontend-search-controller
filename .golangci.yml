@@ -80,7 +80,7 @@ issues:
         - errcheck
         - dupl
         - gosec
-    - path: service/service.go
+    - path: main.go|service|component.go
       linters:
         - typecheck
   new: false

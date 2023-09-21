@@ -55,8 +55,6 @@ func TestUnitCreateSearchPage(t *testing.T) {
 		categories[0].ContentTypes[1].Count = 1
 
 		topicCategories := mockTopicCategories
-		populationTypes := []data.PopulationTypes{}
-		dimensions := []data.Dimensions{}
 
 		respH, err := GetMockHomepageContent()
 		So(err, ShouldBeNil)
@@ -68,7 +66,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 			// NOTE: temporary measure until topic filter feature flag is removed
 			cfg.EnableCensusTopicFilterOption = true
 
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, respC, englishLang, respH, "", &models.Navigation{})
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &models.Navigation{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")

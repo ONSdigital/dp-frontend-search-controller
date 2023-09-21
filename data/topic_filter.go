@@ -35,7 +35,7 @@ type Subtopic struct {
 func GetTopics(censusTopicCache *cache.Topic, countResp *searchModels.SearchResponse) []Topic {
 	var cachedSubtopics []cache.Subtopic
 	if censusTopicCache != nil || censusTopicCache.List != nil {
-		cachedSubtopics = censusTopicCache.List.GetSubtopics(censusTopicCache.LocaliseKeyName)
+		cachedSubtopics = censusTopicCache.List.GetSubtopics()
 	}
 
 	subtopics := make([]Subtopic, 0, len(cachedSubtopics))

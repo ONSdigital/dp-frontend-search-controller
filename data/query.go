@@ -48,12 +48,12 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 		log.Error(ctx, "invalid topic filters set", topicFilterErr)
 		return validatedQueryParams, topicFilterErr
 	}
-	populationTypeFilterErr := reviewPopulationTypeFilters(ctx, urlQuery, &validatedQueryParams)
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
 	if populationTypeFilterErr != nil {
 		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
 		return validatedQueryParams, populationTypeFilterErr
 	}
-	dimensionsFilterErr := reviewDimensionsFilters(ctx, urlQuery, &validatedQueryParams)
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
 	if dimensionsFilterErr != nil {
 		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
 		return validatedQueryParams, dimensionsFilterErr
@@ -62,7 +62,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	queryStringErr := reviewQueryString(ctx, urlQuery)
 	if queryStringErr == nil {
 		return validatedQueryParams, nil
-	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(ctx, validatedQueryParams) {
+	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(validatedQueryParams) {
 		log.Info(ctx, "the query string did not pass review")
 		return validatedQueryParams, nil
 	}
@@ -93,12 +93,12 @@ func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Va
 		log.Error(ctx, "invalid topic filters set", topicFilterErr)
 		return validatedQueryParams, topicFilterErr
 	}
-	populationTypeFilterErr := reviewPopulationTypeFilters(ctx, urlQuery, &validatedQueryParams)
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
 	if populationTypeFilterErr != nil {
 		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
 		return validatedQueryParams, populationTypeFilterErr
 	}
-	dimensionsFilterErr := reviewDimensionsFilters(ctx, urlQuery, &validatedQueryParams)
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
 	if dimensionsFilterErr != nil {
 		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
 		return validatedQueryParams, dimensionsFilterErr
@@ -120,7 +120,7 @@ func GetSearchAPIQuery(validatedQueryParams SearchURLParams, censusTopicCache *c
 	return apiQuery
 }
 
-func hasFilters(ctx context.Context, validatedQueryParams SearchURLParams) bool {
+func hasFilters(validatedQueryParams SearchURLParams) bool {
 	if len(validatedQueryParams.Filter.Query) > 0 || len(validatedQueryParams.TopicFilter) > 0 {
 		return true
 	}
