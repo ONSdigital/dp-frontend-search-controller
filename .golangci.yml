@@ -48,7 +48,6 @@ linters:
   disable-all: true
   enable:
     - unused
-    - depguard
     - dogsled
     - errcheck
     - gochecknoinits

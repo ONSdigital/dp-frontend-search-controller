@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
@@ -343,7 +344,7 @@ func TestUnitGetPagesToDisplaySuccess(t *testing.T) {
 		}
 
 		totalPages := 5
-		req := *httptest.NewRequest("", "/search", nil)
+		req := *httptest.NewRequest("", "/search", http.NoBody)
 
 		Convey("When GetPagesToDisplay is called", func() {
 			pagesToDisplay := GetPagesToDisplay(cfg, req, validatedQueryParams, totalPages)
@@ -396,7 +397,7 @@ func TestUnitGetFirstAndLastPagesSuccess(t *testing.T) {
 		}
 
 		totalPages := 50
-		req := *httptest.NewRequest("", "/search", nil)
+		req := *httptest.NewRequest("", "/search", http.NoBody)
 
 		Convey("When GetFirstAndLastPages is called", func() {
 			firstAndLastPages := GetFirstAndLastPages(req, validatedQueryParams, totalPages)
@@ -526,7 +527,7 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 
 	Convey("Given search query, page and controller query", t, func() {
 		page := 1
-		req := *httptest.NewRequest("", "/search", nil)
+		req := *httptest.NewRequest("", "/search", http.NoBody)
 		controllerQuery := url.Values{
 			"q":      []string{"housing"},
 			"filter": []string{"article"},
