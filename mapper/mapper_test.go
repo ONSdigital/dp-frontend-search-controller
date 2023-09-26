@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -30,7 +31,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
-		req := httptest.NewRequest("", "/search", nil)
+		req := httptest.NewRequest("", "/search", http.NoBody)
 		mdl := model.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
@@ -163,7 +164,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 		cfg.EnableCensusDimensionsFilterOption = true
 		cfg.EnableCensusPopulationTypesFilterOption = true
 		So(err, ShouldBeNil)
-		req := httptest.NewRequest("GET", "/census/find-a-dataset", nil)
+		req := httptest.NewRequest("GET", "/census/find-a-dataset", http.NoBody)
 		mdl := model.Page{}
 
 		validatedQueryParams := data.SearchURLParams{

@@ -547,7 +547,7 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 
 	Convey("Given no filter, sort, limit in controllerQuery", t, func() {
 		page := 1
-		req := *httptest.NewRequest("", "/search", nil)
+		req := *httptest.NewRequest("", "/search", http.NoBody)
 
 		controllerQuery := url.Values{
 			"q":    []string{housingQuery},
