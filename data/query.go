@@ -120,7 +120,44 @@ func GetSearchAPIQuery(validatedQueryParams SearchURLParams, censusTopicCache *c
 	return apiQuery
 }
 
-func hasFilters(validatedQueryParams SearchURLParams) bool {
+// GetDataAggregationQuery gets the query that needs to be passed to the search-api to get data aggregation results
+func GetDataAggregationQuery(validatedQueryParams SearchURLParams, template string) url.Values {
+	apiQuery := createSearchAPIQuery(validatedQueryParams)
+	var contentTypes = ""
+	switch template {
+	case "all-adhocs":
+		contentTypes = "static_adhoc"
+	case "all-methodologies":
+		contentTypes = "static_qmi," + "static_methodology," + "static_methodology_download"
+	case "home-datalist":
+		contentTypes = "static_adhoc," + "timeseries," + "dataset_landing_page," + "reference_tables"
+	case "home-publications":
+		contentTypes = "bulletin," + "article," + "article_download," + "compendium_landing_page"
+	case "published-requests":
+		contentTypes = "static_foi"
+	case "home-list":
+		contentTypes = "static_page"
+	case "home-methodology":
+		contentTypes = "static_qmi," + "static_methodology," + "static_methodology_download"
+	case "time-series-tool":
+		contentTypes = "timeseries"
+		//compendia
+	}
+
+	log.Info(context.TODO(), "kur", log.Data{
+		"apiqueryyyy": apiQuery.Get("content_type"),
+	})
+	// log.Info(context.TODO(), "kur", log.Data{
+	// 	"apiqueryyyy": apiQuery.Get("content_type"),
+	// })
+	if apiQuery.Get("content_type") == "" {
+		apiQuery.Set("content_type", contentTypes)
+	}
+
+	return apiQuery
+}
+
+func hasFilters(ctx context.Context, validatedQueryParams SearchURLParams) bool {
 	if len(validatedQueryParams.Filter.Query) > 0 || len(validatedQueryParams.TopicFilter) > 0 {
 		return true
 	}

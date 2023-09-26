@@ -7,6 +7,14 @@
         <span class="search__summary__generic">
         {{ localise "DataList" $lang 1 }}
         </span>
+        <ul class="ons-section-nav__list d-flex ml-1">
+          <li class="ons-section-nav__item ">
+            <a class="ons-section-nav__link ons-section-nav__item--active" href="datalist" aria-current="page" aria-label="Data results. Current page.">Data</a>
+          </li>
+          <li class="ons-section-nav__item ml-1">
+            <a class="ons-section-nav__link" href="publications" aria-label="Search results for Publications">Publications</a>
+          </li>
+        </ul>
       </section>
      
       <!-- {{ template "partials/standalone-search" . }} -->
@@ -72,6 +80,19 @@
               </button>
           </div>
           <div class="search__results">
+            <div class="search__sort">
+              <a style="text-decoration: none; color: initial;"  href="/timeseriestool" class="ml-1">
+              <div class="box__content background--iron-light padding-right-sm--1 padding-right-md--1 padding-bottom-md--1  padding-left-sm--1 padding-left-md--1 js-hover-click" style="position: relative;">
+                <span class="float-right margin-top-md--2 margin-top-sm--2">
+                  {{ template "icons/chevron-right" }}
+                </span>
+                <h3>Looking to download time series?</h3>
+                <p>
+                    Try our time series explorer
+                  </p>
+                </div>
+              </a>
+            </div>
             {{ template "partials/testresults" . }}
           </div>
           <div class="search__pagination">
@@ -83,3 +104,13 @@
 
   </div>
 </div>
+
+<style>
+  .d-flex { 
+    display: flex;
+  }
+
+  .ml-1 {
+    margin-left: 1rem;
+  }
+</style>

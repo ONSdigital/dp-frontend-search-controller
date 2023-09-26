@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"context"
 	"net/http"
 	"reflect"
 	"strings"
@@ -14,6 +15,7 @@ import (
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
+	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
@@ -80,6 +82,10 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 	mapFilters(&page, categories, validatedQueryParams)
 
 	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
+
+	log.Info(context.TODO(), "kur", log.Data{
+		"searchresp": respC,
+	})
 
 	return page
 }
