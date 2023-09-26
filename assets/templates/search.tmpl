@@ -38,7 +38,9 @@
             </h3>
             <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
           </div>
-         
+          <div class="search__filter__content">
+            {{ template "partials/filter" . }}
+          </div>
         </section>
       </div>
 
@@ -54,6 +56,9 @@
               <button id="filter-results" type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
                 <span class="ons-btn__inner">Filter results</span>
               </button>
+              <div class="search__filter__content">
+                {{ template "partials/filter" . }}
+              </div>
           </div>
           <div class="search__results">
             {{ template "partials/results" . }}

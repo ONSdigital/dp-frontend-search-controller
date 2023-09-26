@@ -2,11 +2,19 @@
 <div class="ons-container search__container">
   <div class="ons-grid">
     <!-- <h3>Terrrrr</h3> -->
-    <div class="ons-grid__col ons-col-12@m">
+    <div class="background--gallery ons-grid__col ons-col-12@m">
       <section class="search__summary">
         <span class="search__summary__generic">
         {{ localise "HomePublications" $lang 1 }}
         </span>
+        <ul class="ons-section-nav__list d-flex ml-1">
+          <li class="ons-section-nav__item ">
+            <a class="ons-section-nav__link" href="datalist" aria-current="page" aria-label="Data results. Current page.">Data</a>
+          </li>
+          <li class="ons-section-nav__item ons-section-nav__item--active ml-1">
+            <a class="ons-section-nav__link" href="publications" aria-label="Search results for Publications">Publications</a>
+          </li>
+        </ul>
       </section>
      
       <!-- {{ template "partials/standalone-search" . }} -->
@@ -84,3 +92,14 @@
 
   </div>
 </div>
+
+
+<style>
+  .d-flex { 
+    display: flex;
+  }
+
+  .ml-1 {
+    margin-left: 1rem;
+  }
+</style>

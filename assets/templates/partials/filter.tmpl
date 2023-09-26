@@ -8,7 +8,7 @@
 {{ $population_types := .Data.PopulationTypeFilter}}
 {{ $dimensions := .Data.DimensionsFilter}}
 
-{{ if $topicFilters }}
+{{ if $topicFilters }}/
 <div id="accordion" class="ons-accordion">
     <form id="topicsFilterForm" method="get" class="js-auto-submit__form">
         <input type="hidden" name="q" value="{{ $query }}"/>

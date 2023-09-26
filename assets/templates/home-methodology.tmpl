@@ -51,7 +51,7 @@
             <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
           </div>
          
-         <div class="search__filter__content">
+          <div class="search__filter__content">
             {{ template "partials/filter-results" . }}
           </div>
           <div class="search__filter__content">

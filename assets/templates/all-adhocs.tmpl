@@ -4,9 +4,7 @@
     <!-- <h3>Terrrrr</h3> -->
     <div class="ons-grid__col ons-col-12@m">
       <section class="search__summary">
-        <span class="search__summary__generic">
-        {{ localise "UserRequestedData" $lang 1 }}
-        </span>
+        <span class="search__summary__generic">{{ localise "UserRequestedData" $lang 1 }}</span>
       </section>
      
       <!-- {{ template "partials/standalone-search" . }} -->
@@ -15,12 +13,13 @@
     
     {{if .Data.ErrorMessage}}
 
-      <!-- <div class="ons-grid__col ons-col-12@m">
+      <div class="ons-grid__col ons-col-12@m">
         <section class="search__summary">
           <span class="search__summary__generic">{{ localise "EnterSearchTerm" $lang 1 }}</span>
         </section>
         {{ template "partials/standalone-search" . }}
-      </div> -->
+        {{ .Data.ErrorMessage }}
+      </div>
 
     {{else if eq .Data.Response.Count 0}}
       <div class="ons-grid__col ons-col-12@m">
@@ -35,6 +34,12 @@
 
     {{else}}
 
+      <!-- <div class="ons-grid__col ons-col-12@m">
+        <section class="search__summary" role="contentinfo" aria-label="Search summary">
+          {{ template "partials/summary" . }}
+        </section>
+      </div> -->
+
       <div class="ons-grid__col ons-col-4@m">
         <section class="search__filter" role="contentinfo" aria-label="Search filtering" id="search-filter">
           <div class="search__filter__heading">
@@ -43,8 +48,9 @@
             </h3>
             <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
           </div>
+          <!-- -->
           <div class="search__filter__content">
-            {{ template "partials/filter-results" }}
+            {{ template "partials/filter-results" . }}
           </div>
           <div class="search__filter__content">
             {{ template "partials/archived-release-message" . }}
@@ -74,5 +80,6 @@
         </section>
       </div>
     {{end}}
+
   </div>
 </div>
