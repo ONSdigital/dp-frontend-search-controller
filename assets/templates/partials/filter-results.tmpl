@@ -16,17 +16,17 @@
         </summary>
         {{ range $index, $enabledFilter := $enabledFilters }}
             {{if eq $enabledFilter "keywords" }}
-            <form id="searchFilterForm" method="get" class="js-auto-submit__form"></form>
+            <form id="searchFilterForm" method="get" class=""></form>
                 <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                         <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
-                            <div class="tiles__content tiles__content--nav">
+                            <div class="tiles__content tiles__content--nav content-type-filter">
                                 <label for="keywords">
                                     <strong>Search keywords</strong>
                                 </label>
                                 <input
                                 type="search"
                                 autocomplete="off"
-                                class="ons-input search__input search__input--no-results ons-input--block js-auto-submit__input ons-input ons-input--text ons-input-type__input "
+                                class="ons-input search__input search__input--no-results ons-input--block js-auto-submit__input"
                                 id="keywords"
                                 name="q"
                                 value="">
