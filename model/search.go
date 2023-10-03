@@ -1,12 +1,17 @@
 package model
 
-import "github.com/ONSdigital/dp-renderer/v2/model"
+import (
+	"github.com/ONSdigital/dp-renderer/v2/model"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
+)
 
 // Search is the model struct for the cookies preferences form
 type SearchPage struct {
 	model.Page
-	Data  Search `json:"data"`
-	Title Title  `json:"title,omitempty"`
+	Data       Search              `json:"data"`
+	Title      Title               `json:"title,omitempty"`
+	BeforeDate coreModel.InputDate `json:"before_date"`
+	AfterDate  coreModel.InputDate `json:"after_date"`
 }
 
 // Search represents all search parameters and response data of the search
@@ -16,6 +21,8 @@ type Search struct {
 	EnabledFilters       []string
 	Filter               []string               `json:"filter,omitempty"`
 	Filters              []Filter               `json:"filters"`
+	BeforeDate           coreModel.InputDate    `json:"before_date"`
+	AfterDate            coreModel.InputDate    `json:"after_date"`
 	TopicFilters         []TopicFilter          `json:"topic_filters"`
 	CensusFilters        []TopicFilter          `json:"census_filters"`
 	PopulationTypeFilter []PopulationTypeFilter `json:"population_types"`

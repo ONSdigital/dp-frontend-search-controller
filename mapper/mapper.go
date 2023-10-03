@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"context"
 	"net/http"
 	"reflect"
 	"strings"
@@ -15,7 +14,6 @@ import (
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
-	"github.com/ONSdigital/log.go/v2/log"
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
@@ -83,10 +81,6 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 
 	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
 
-	log.Info(context.TODO(), "kur", log.Data{
-		"searchresp": respC,
-	})
-
 	return page
 }
 
@@ -138,6 +132,44 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
+
+	page.AfterDate = coreModel.InputDate{
+		Language:        page.Language,
+		Id:              "after-date",
+		InputNameDay:    "after-day",
+		InputNameMonth:  "after-month",
+		InputNameYear:   "after-year",
+		InputValueDay:   validatedQueryParams.AfterDate.DayString(),
+		InputValueMonth: validatedQueryParams.AfterDate.MonthString(),
+		InputValueYear:  validatedQueryParams.AfterDate.YearString(),
+		Title: coreModel.Localisation{
+			LocaleKey: "ReleasedAfter",
+			Plural:    1,
+		},
+		Description: coreModel.Localisation{
+			LocaleKey: "DateFilterDescription",
+			Plural:    1,
+		},
+	}
+
+	// page.BeforeDate = coreModel.InputDate{
+	// 	Language:        page.Language,
+	// 	Id:              "before-date",
+	// 	InputNameDay:    "before-day",
+	// 	InputNameMonth:  "before-month",
+	// 	InputNameYear:   "before-year",
+	// 	InputValueDay:   validatedQueryParams.BeforeDate.DayString(),
+	// 	InputValueMonth: validatedQueryParams.BeforeDate.MonthString(),
+	// 	InputValueYear:  validatedQueryParams.BeforeDate.YearString(),
+	// 	Title: coreModel.Localisation{
+	// 		LocaleKey: "ReleasedBefore",
+	// 		Plural:    1,
+	// 	},
+	// 	Description: coreModel.Localisation{
+	// 		LocaleKey: "DateFilterDescription",
+	// 		Plural:    1,
+	// 	},
+	// }
 }
 
 // CreateSearchPage maps type searchC.Response to model.Page
