@@ -215,7 +215,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 
-	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
+	validatedQueryParams, err := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
 
 	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
@@ -263,10 +263,6 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	// 	searchQuery["q"][0] = ""
 	// }
 
-	// log.Info(context.TODO(), "kur", log.Data{
-	// 	"apiquer": searchQuery,
-	// })
-
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
@@ -278,6 +274,9 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		defer wg.Done()
 
 		searchResp, respErr = searchC.GetSearch(ctx, options)
+		log.Info(context.TODO(), "kur", log.Data{
+			"searchResp": searchResp,
+		})
 		if respErr != nil {
 			log.Error(ctx, "getting search response from client failed", respErr)
 			cancel()

@@ -3,33 +3,34 @@
 {{ $filters := .Data.Filters }}
 
 <div id="accordion" class="ons-accordion">
+    {{ range $index, $enabledFilter := $enabledFilters }}
+    {{if eq $enabledFilter "keywords" }}
     <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
         <summary class="ons-collapsible__heading ons-js-collapsible-heading">
             <h2 class="ons-collapsible__title">
                 <legend class="block">
-                    Refine results
+                    Search
                 </legend>
             </h2>
             <span class="ons-collapsible__icon">
                 {{ template "icons/chevron-right" }}
             </span>
         </summary>
-        {{ range $index, $enabledFilter := $enabledFilters }}
-            {{if eq $enabledFilter "keywords" }}
             <form id="searchFilterForm" method="get" class=""></form>
                 <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                         <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
                             <div class="tiles__content tiles__content--nav content-type-filter">
-                                <label for="keywords">
-                                    <strong>Search keywords</strong>
-                                </label>
-                                <input
-                                type="search"
-                                autocomplete="off"
-                                class="ons-input search__input search__input--no-results ons-input--block js-auto-submit__input"
-                                id="keywords"
-                                name="q"
-                                value="">
+                                <label class="ons-label ons-u-pb-xs ons-u-fw-n" for="keywords">Search keywords</label>
+                                <div class="ons-compact-search">
+                                    <input
+                                    type="search"
+                                    autocomplete="off"
+                                    class="ons-compact-search__input js-auto-submit__input"
+                                    id="keywords"
+                                    name="q"
+                                    value="">
+                                </div>
+                                
                             </div>
                         </div>
                 </fieldset>
@@ -40,53 +41,74 @@
                     </button>
                 </noscript>
             </form>
+    </details>
             {{end}}
+
             {{if eq $enabledFilter "published"}} 
+            <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+                <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                    <h2 class="ons-collapsible__title">
+                        <legend class="block">
+                            Dates
+                        </legend>
+                    </h2>
+                    <span class="ons-collapsible__icon">
+                        {{ template "icons/chevron-right" }}
+                    </span>
+                </summary>
                 <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-                    <legend class="tiles__content tiles__content--nav">
-                        <strong>
-                            Published after
-                        </strong>
+                    <legend class="ons-fieldset__legend">
+                        Released after
                     </legend>
                     <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid">
-                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding">
+                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
                             <label for="fromDateDay">Day</label>
-                            <input type="number" autocomplete="off" name="fromDateDay"  value="" class="" min="0" max="31" pattern="[0-9]*">
+                            <input type="text" id="fromDateDay" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateDay" min="1" max="31" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
                         </div>
-                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding">
+                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
                             <label for="fromDateMonth">Month</label>
-                            <input type="number" autocomplete="off" name="fromDateMonth" id="fromDateMonth" value="" class="js-auto-submit__input js-auto-submit__input--date" min="1" max="12" maxlength="2" pattern="[0-9]*">
+                            <input type="text" id="fromDateMonth" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateMonth" min="1" max="12" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
                         </div>
-                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding">
+                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
                             <label for="fromDateYear">Year</label>
-                            <input type="number" autocomplete="off" name="fromDateYear" id="fromDateYear" value="" class="js-auto-submit__input js-auto-submit__input--date" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
+                            <input type="number" autocomplete="off" name="fromDateYear" id="fromDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
                         </div>
                     </div>
                 </fieldset>
 
                 <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-                    <legend class="filters__title">
-                        <strong>
-                            Published before
-                        </strong>
+                    <legend class="ons-fieldset__legend">
+                        Released before
                     </legend>
-                    <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid">
-                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding">
-                            <label for="fromDateDay">Day</label>
-                            <input type="number" autocomplete="off" name="fromDateDay" id="fromDateDay" value="" class="js-auto-submit__input js-auto-submit__input--date" min="0" max="31" pattern="[0-9]*">
+                    <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid ">
+                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+                            <label for="toDateDay">Day</label>
+                            <input type="number" autocomplete="off" name="toDateDay" id="toDateDay" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="0" max="31" pattern="[0-9]*">
                         </div>
-                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding">
-                            <label for="fromDateMonth">Month</label>
-                            <input type="number" autocomplete="off" name="fromDateMonth" id="fromDateMonth" value="" class="js-auto-submit__input js-auto-submit__input--date" min="1" max="12" maxlength="2" pattern="[0-9]*">
+                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+                            <label for="toDateMonth">Month</label>
+                            <input type="number" autocomplete="off" name="toDateMonth" id="toDateMonth" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="1" max="12" maxlength="2" pattern="[0-9]*">
                         </div>
-                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding">
-                            <label for="fromDateYear">Year</label>
-                            <input type="number" autocomplete="off" name="fromDateYear" id="fromDateYear" value="" class="js-auto-submit__input js-auto-submit__input--date" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
+                        <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+                            <label for="toDateYear">Year</label>
+                            <input type="number" autocomplete="off" name="toDateYear" id="toDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
                         </div>
                     </div>
                 </fieldset>
+            </details>
             {{end}}
             {{if eq $enabledFilter "previous-releases"}} 
+            <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+                <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                    <h2 class="ons-collapsible__title">
+                        <legend class="block">
+                            Previous releases
+                        </legend>
+                    </h2>
+                    <span class="ons-collapsible__icon">
+                        {{ template "icons/chevron-right" }}
+                    </span>
+                </summary>
                 <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                     <legend class="filters__title">
                         <strong>
@@ -102,13 +124,25 @@
                         </div>
                     </div>
                 </fieldset>
+            </details>
             {{end}}
 
             {{if eq $enabledFilter "topic-filter"}} 
+            <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+                <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                    <h2 class="ons-collapsible__title">
+                        <legend class="block">
+                            Topics
+                        </legend>
+                    </h2>
+                    <span class="ons-collapsible__icon">
+                        {{ template "icons/chevron-right" }}
+                    </span>
+                </summary>
                 <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                     <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
                         <div class="tiles__content tiles__content--nav">
-                            <label class="" for="topic-select">
+                            <label class="hidden" for="topic-select">
                                 <strong>Topics</strong>
                             </label>
                             <select id="topic-select" name="topic-select" class="ons-input ons-input--select ons-input--block">
@@ -118,76 +152,100 @@
                         </div>
                     </div>
                 </fieldset>
+            </details>
             {{end}}
             {{if eq $enabledFilter "content-type"}} 
                 {{ if $filters }}
-                <form id="filterForm" method="get" class="js-auto-submit__form">
-                        <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+                    <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                        <h2 class="ons-collapsible__title">
                             <legend class="block">
-                                <strong>
-                                    {{ localise "ContentType" $lang 1 }}
-                                </strong>
+                                Content type
                             </legend>
-                                {{ range $index, $topFilter := $filters}}
-                                    <div class="ons-checkboxes__items">
-                                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                            <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
-                                                <input type="checkbox" id="group-{{ $index }}"
-                                                    class="ons-checkbox__input ons-js-checkbox"
-                                                    value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
-                                                    data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
-                                                    {{ if $topFilter.IsChecked }}
-                                                        checked
-                                                    {{ end }}
-                                                >
-                                                <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
-                                                    {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
-                                                </label>
-                                                <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
-                                                    <fieldset class="ons-fieldset ons-js-other-fieldset">
-                                                        <legend class="ons-u-vh">{{ localise "Select" $lang 1 }}{{ localise $topFilter.LocaliseKeyName $lang 4 }}</legend>
-                                                            {{ range $index, $childFilter := $topFilter.Types }}
-                                                                {{ $id := index $childFilter.FilterKey 0 }}
-                                                                <div class="ons-checkboxes__items">
-                                                                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                                                        <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                                            <input id="{{ $id }}"
-                                                                                class="ons-checkbox__input ons-js-checkbox"
-                                                                                type="checkbox" name="filter"
-                                                                                {{ if $childFilter.IsChecked }}checked{{ end }}
-                                                                                data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
-                                                                                value="{{ $id }}"
-                                                                            />
-                                                                            <label class="ons-checkbox__label" for="{{ $id }}"
-                                                                                id="{{ $id }}-label">
-                                                                                {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
-                                                                            </label>
+                        </h2>
+                        <span class="ons-collapsible__icon">
+                            {{ template "icons/chevron-right" }}
+                        </span>
+                    </summary>
+                    <form id="filterForm" method="get" class="js-auto-submit__form">
+                            <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                                <legend class="block">
+                                    <strong>
+                                        {{ localise "ContentType" $lang 1 }}
+                                    </strong>
+                                </legend>
+                                    {{ range $index, $topFilter := $filters}}
+                                        <div class="ons-checkboxes__items">
+                                            <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                                                <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
+                                                    <input type="checkbox" id="group-{{ $index }}"
+                                                        class="ons-checkbox__input ons-js-checkbox"
+                                                        value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
+                                                        data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
+                                                        {{ if $topFilter.IsChecked }}
+                                                            checked
+                                                        {{ end }}
+                                                    >
+                                                    <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
+                                                        {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
+                                                    </label>
+                                                    <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
+                                                        <fieldset class="ons-fieldset ons-js-other-fieldset">
+                                                            <legend class="ons-u-vh">{{ localise "Select" $lang 1 }}{{ localise $topFilter.LocaliseKeyName $lang 4 }}</legend>
+                                                                {{ range $index, $childFilter := $topFilter.Types }}
+                                                                    {{ $id := index $childFilter.FilterKey 0 }}
+                                                                    <div class="ons-checkboxes__items">
+                                                                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                                                                            <span class="ons-checkbox ons-checkbox--no-border child-filter">
+                                                                                <input id="{{ $id }}"
+                                                                                    class="ons-checkbox__input ons-js-checkbox"
+                                                                                    type="checkbox" name="filter"
+                                                                                    {{ if $childFilter.IsChecked }}checked{{ end }}
+                                                                                    data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
+                                                                                    value="{{ $id }}"
+                                                                                />
+                                                                                <label class="ons-checkbox__label" for="{{ $id }}"
+                                                                                    id="{{ $id }}-label">
+                                                                                    {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
+                                                                                </label>
+                                                                            </span>
                                                                         </span>
-                                                                    </span>
-                                                                </div>
-                                                            {{ end }}
-                                                    </fieldset>
+                                                                    </div>
+                                                                {{ end }}
+                                                        </fieldset>
+                                                    </span>
                                                 </span>
                                             </span>
-                                        </span>
-                                    </div>
-                                {{ end }}
-                        </fieldset>
-                        <noscript>
-                            <button type="submit"
-                                    class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                                    <span class="ons-btn__inner"><span class="ons-btn__text">Filter</span></span>
-                            </button>
-                        </noscript>
-                </form>
+                                        </div>
+                                    {{ end }}
+                            </fieldset>
+                            <noscript>
+                                <button type="submit"
+                                        class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
+                                        <span class="ons-btn__inner"><span class="ons-btn__text">Filter</span></span>
+                                </button>
+                            </noscript>
+                    </form>
+                </details>
                 {{ end }}
             {{ end }}
             {{if eq $enabledFilter "updated"}} 
+            <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+                <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                    <h2 class="ons-collapsible__title">
+                        <legend class="block">
+                            Last update
+                        </legend>
+                    </h2>
+                    <span class="ons-collapsible__icon">
+                        {{ template "icons/chevron-right" }}
+                    </span>
+                </summary>
                 <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                     <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
                         <div class="tiles__content tiles__content--nav">
-                            <label for="select-wide">
-                                <strong>Updated</strong>
+                            <label class="hidden" for="select-wide">
+                                Updated
                             </label>
                             <select id="select-wide" name="select" class="ons-input ons-input--select ons-input--block">
                                 <option value="select" selected>Select last updated</option>
@@ -199,7 +257,7 @@
                         </div>
                     </div>
                 </fieldset>
+            </details>
             {{ end }} 
         {{ end }}
-    </details>
 </div>
