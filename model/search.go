@@ -19,6 +19,7 @@ type Search struct {
 	Query                string `json:"query"`
 	ErrorMessage         string `json:"error_message,omitempty"`
 	EnabledFilters       []string
+	DataFilterEnabled    bool
 	Filter               []string               `json:"filter,omitempty"`
 	Filters              []Filter               `json:"filters"`
 	BeforeDate           coreModel.InputDate    `json:"before_date"`

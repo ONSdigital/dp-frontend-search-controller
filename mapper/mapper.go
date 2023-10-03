@@ -90,15 +90,18 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	case "all-adhocs":
 		page.Metadata.Title = "User requested data"
 		page.Data.EnabledFilters = []string{"keywords", "published"}
+		page.Data.DataFilterEnabled = true
 	case "home-datalist":
 		page.Metadata.Title = "All data related to home"
 		page.Data.EnabledFilters = []string{"keywords", "published", "content-type"}
+		page.Data.DataFilterEnabled = true
 	case "all-methodologies":
 		page.Metadata.Title = "All methodology"
 		page.Data.EnabledFilters = []string{"keywords", "topic-filter"}
 	case "published-requests":
 		page.Metadata.Title = "Freedom of Information (FOI) requests"
 		page.Data.EnabledFilters = []string{"keywords", "published"}
+		page.Data.DataFilterEnabled = true
 	case "home-list":
 		page.Metadata.Title = "List of all home"
 		page.Data.EnabledFilters = []string{"keywords"}
