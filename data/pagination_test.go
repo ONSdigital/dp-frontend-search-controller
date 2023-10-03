@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"strconv"
@@ -343,7 +344,7 @@ func TestUnitGetPagesToDisplaySuccess(t *testing.T) {
 		}
 
 		totalPages := 5
-		req := *httptest.NewRequest("", "/search", nil)
+		req := *httptest.NewRequest("", "/search", http.NoBody)
 
 		Convey("When GetPagesToDisplay is called", func() {
 			pagesToDisplay := GetPagesToDisplay(cfg, req, validatedQueryParams, totalPages)
@@ -380,9 +381,6 @@ func TestUnitGetFirstAndLastPagesSuccess(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given validated query parameters and total pages", t, func() {
-		cfg, err := config.Get()
-		So(err, ShouldBeNil)
-
 		validatedQueryParams := SearchURLParams{
 			Query: "housing",
 			Filter: Filter{
@@ -399,10 +397,10 @@ func TestUnitGetFirstAndLastPagesSuccess(t *testing.T) {
 		}
 
 		totalPages := 50
-		req := *httptest.NewRequest("", "/search", nil)
+		req := *httptest.NewRequest("", "/search", http.NoBody)
 
 		Convey("When GetFirstAndLastPages is called", func() {
-			firstAndLastPages := GetFirstAndLastPages(cfg, req, validatedQueryParams, totalPages)
+			firstAndLastPages := GetFirstAndLastPages(req, validatedQueryParams, totalPages)
 
 			Convey("Then return the first and last page numbers with their respective URLs", func() {
 				So(firstAndLastPages, ShouldResemble, []model.PageToDisplay{
@@ -529,7 +527,7 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 
 	Convey("Given search query, page and controller query", t, func() {
 		page := 1
-		req := *httptest.NewRequest("", "/search", nil)
+		req := *httptest.NewRequest("", "/search", http.NoBody)
 		controllerQuery := url.Values{
 			"q":      []string{"housing"},
 			"filter": []string{"article"},
@@ -549,7 +547,7 @@ func TestUnitGetPageURLSuccess(t *testing.T) {
 
 	Convey("Given no filter, sort, limit in controllerQuery", t, func() {
 		page := 1
-		req := *httptest.NewRequest("", "/search", nil)
+		req := *httptest.NewRequest("", "/search", http.NoBody)
 
 		controllerQuery := url.Values{
 			"q":    []string{housingQuery},

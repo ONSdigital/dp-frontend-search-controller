@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -30,7 +31,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
-		req := httptest.NewRequest("", "/search", nil)
+		req := httptest.NewRequest("", "/search", http.NoBody)
 		mdl := model.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
@@ -55,8 +56,6 @@ func TestUnitCreateSearchPage(t *testing.T) {
 		categories[0].ContentTypes[1].Count = 1
 
 		topicCategories := mockTopicCategories
-		populationTypes := []data.PopulationTypes{}
-		dimensions := []data.Dimensions{}
 
 		respH, err := GetMockHomepageContent()
 		So(err, ShouldBeNil)
@@ -68,7 +67,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 			// NOTE: temporary measure until topic filter feature flag is removed
 			cfg.EnableCensusTopicFilterOption = true
 
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, respC, englishLang, respH, "", &models.Navigation{})
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &models.Navigation{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -165,7 +164,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 		cfg.EnableCensusDimensionsFilterOption = true
 		cfg.EnableCensusPopulationTypesFilterOption = true
 		So(err, ShouldBeNil)
-		req := httptest.NewRequest("GET", "/census/find-a-dataset", nil)
+		req := httptest.NewRequest("GET", "/census/find-a-dataset", http.NoBody)
 		mdl := model.Page{}
 
 		validatedQueryParams := data.SearchURLParams{

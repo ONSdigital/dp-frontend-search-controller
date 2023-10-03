@@ -18,7 +18,7 @@ import (
 
 // CreateSearchPage maps type searchC.Response to model.Page
 func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
-	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation,
 ) model.SearchPage {
@@ -47,7 +47,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
 
-	mapQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
+	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, categories)
 
@@ -88,7 +88,7 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
-	mapDatasetQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
+	mapDatasetQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, categories)
 
@@ -101,7 +101,7 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 	return page
 }
 
-func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC *searchModels.SearchResponse, req http.Request, errorMessage string) {
+func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, req http.Request, errorMessage string) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
@@ -113,7 +113,7 @@ func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams d
 	mapPagination(cfg, req, page, validatedQueryParams, respC)
 }
 
-func mapDatasetQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, categories []data.Category, respC *searchModels.SearchResponse, req http.Request, errorMessage string) {
+func mapDatasetQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, req http.Request, errorMessage string) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
@@ -168,7 +168,7 @@ func mapPagination(cfg *config.Config, req http.Request, page *model.SearchPage,
 	page.Data.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.Data.Pagination.TotalPages = data.GetTotalPages(cfg, validatedQueryParams.Limit, respC.Count)
 	page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, req, validatedQueryParams, page.Data.Pagination.TotalPages)
-	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(cfg, req, validatedQueryParams, page.Data.Pagination.TotalPages)
+	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(req, validatedQueryParams, page.Data.Pagination.TotalPages)
 }
 
 func mapResponse(page *model.SearchPage, respC *searchModels.SearchResponse, categories []data.Category) {
@@ -548,14 +548,14 @@ func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.N
 			if rootContent.SubtopicItems != nil {
 				for _, subtopicContent := range *rootContent.SubtopicItems {
 					subItems = append(subItems, coreModel.NavigationItem{
-						Uri:   subtopicContent.Uri,
+						Uri:   subtopicContent.URI,
 						Label: subtopicContent.Label,
 					})
 				}
 			}
 
 			mappedNavigationContent = append(mappedNavigationContent, coreModel.NavigationItem{
-				Uri:      rootContent.Uri,
+				Uri:      rootContent.URI,
 				Label:    rootContent.Label,
 				SubItems: subItems,
 			})

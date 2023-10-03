@@ -41,9 +41,6 @@ linters-settings:
       - ifElseChain
       - octalLiteral
       - hugeParam
-  funlen:
-  # lines: 100
-  # statements: 100
 
 linters:
   # please, do not use `enable-all`: it's deprecated and will be removed soon.
@@ -51,7 +48,6 @@ linters:
   disable-all: true
   enable:
     - unused
-    - depguard
     - dogsled
     - errcheck
     - gochecknoinits
@@ -83,7 +79,7 @@ issues:
         - errcheck
         - dupl
         - gosec
-    - path: service/service.go
+    - path: main.go|service|component.go
       linters:
         - typecheck
   new: false
@@ -91,6 +87,6 @@ issues:
 # golangci.com configuration
 # https://github.com/golangci/golangci/wiki/Configuration
 service:
-  golangci-lint-version: 1.43.x # use the fixed version to not introduce new linters unexpectedly
+  golangci-lint-version: 1.54.x # use the fixed version to not introduce new linters unexpectedly
   prepare:
     - echo "here I can run custom commands, but no preparation needed for this repo"

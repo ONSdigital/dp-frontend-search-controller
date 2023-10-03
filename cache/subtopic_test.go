@@ -11,15 +11,15 @@ import (
 var (
 	subtopic1 = Subtopic{
 		LocaliseKeyName: "International Migration",
-		ReleaseDate:     "2022-10-10T08:30:00Z",
+		ReleaseDate:     timeHelper("2022-10-10T08:30:00Z"),
 	}
 	subtopic2 = Subtopic{
 		LocaliseKeyName: "Age",
-		ReleaseDate:     "2022-11-09T09:30:00Z",
+		ReleaseDate:     timeHelper("2022-11-09T09:30:00Z"),
 	}
 	subtopic3 = Subtopic{
 		LocaliseKeyName: "Health",
-		ReleaseDate:     "2023-01-07T09:30:00Z",
+		ReleaseDate:     timeHelper("2023-01-07T09:30:00Z"),
 	}
 )
 

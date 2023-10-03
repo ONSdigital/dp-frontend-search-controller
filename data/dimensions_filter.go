@@ -1,7 +1,6 @@
 package data
 
 import (
-	"context"
 	"net/url"
 	"sort"
 	"strings"
@@ -17,7 +16,7 @@ type Dimensions struct {
 	ShowInWebUI     bool   `json:"show_in_web_ui"`
 }
 
-func reviewDimensionsFilters(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
+func reviewDimensionsFilters(urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
 	dimensionFilters := urlQuery.Get("dimensions")
 	dimensions := strings.Split(dimensionFilters, ",")
 	validatedDimensionFilters := []string{}
