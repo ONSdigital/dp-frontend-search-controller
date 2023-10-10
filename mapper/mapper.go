@@ -114,6 +114,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	case "time-series-tool":
 		page.Metadata.Title = "Time series explorer"
 		page.Data.EnabledFilters = []string{"keywords", "topic-filter", "updated"}
+		page.Data.EnableTimeSeriesExport = true
 	default:
 		page.Metadata.Title = template
 	}
