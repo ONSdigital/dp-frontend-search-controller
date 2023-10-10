@@ -4,6 +4,7 @@
 {{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
 {{ $response := .Data.Response }}
 {{ $datasetFinder := .Data.PopulationTypeFilter }}
+{{ $enabledTimeSeriesExport := .Data.EnableTimeSeriesExport }}
 
 <div id="results">
     <div id="results-loading" class="ons-panel ons-panel--info ons-panel--no-title hide">
@@ -24,6 +25,9 @@
         {{ $currentPosition := add $i 1 }}
         <li class="search__results__item{{if eq $item.Type.Type `product_page`}} search__results__item--product-page{{end}}">
             <h3>
+                {{if $enabledTimeSeriesExport }}
+                <input id="select-time-series" type="checkbox" name="" value="" aria-label="select time series">
+                {{end}}
                 <a href="{{ .URI }}"
                     data-gtm-search-result-title="{{ .Description.Title }}"
                     data-gtm-search-result-page="{{ $currentPage }}"
