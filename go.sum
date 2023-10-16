@@ -581,6 +581,8 @@ github.com/ONSdigital/dp-rchttp v1.0.0 h1:K/1/gDtfMZCX1Mbmq80nZxzDirzneqA1c89ea2
 github.com/ONSdigital/dp-rchttp v1.0.0/go.mod h1:821jZtK0oBsV8hjIkNr8vhAWuv0FxJBPJuAHa2B70Gk=
 github.com/ONSdigital/dp-renderer/v2 v2.4.0 h1:FKZdsu0+smrWHSGiDaCP77kqKVRJh3FDGyeLMctyLPU=
 github.com/ONSdigital/dp-renderer/v2 v2.4.0/go.mod h1:HezPp8MwD+w+iRcBYLpAy5HgzOIeTc8sVShjYyvVn9E=
+github.com/ONSdigital/dp-renderer/v2 v2.5.0 h1:PBsoTUVIej6xJy0wvy5vLCKaXhW2Y85vwBxWW/26dSg=
+github.com/ONSdigital/dp-renderer/v2 v2.5.0/go.mod h1:ZwG/qCwZhAubggp2c5tHBQK8tjuV0AE4ng3ZQGAXMXY=
 github.com/ONSdigital/dp-search-api v1.39.0 h1:ceHW9BR0kAudfqU30bHEZrzWxib6m+HKTE5Z5exysYU=
 github.com/ONSdigital/dp-search-api v1.39.0/go.mod h1:Pr9dBkdRWY3+hyP5h7iW+Pn3DNf5PLWgg8xzWs4Oj4g=
 github.com/ONSdigital/dp-topic-api v0.20.0 h1:fPrBjdcMryIeyWOfGfuAxEiuR0R6/1aUasDz6I8O24w=

@@ -18,7 +18,7 @@ require (
 	github.com/ONSdigital/dp-cookies v0.4.0
 	github.com/ONSdigital/dp-healthcheck v1.6.1
 	github.com/ONSdigital/dp-net/v2 v2.11.0
-	github.com/ONSdigital/dp-renderer/v2 v2.4.0
+	github.com/ONSdigital/dp-renderer/v2 v2.5.0
 	github.com/ONSdigital/dp-search-api v1.39.0
 	github.com/ONSdigital/dp-topic-api v0.20.0
 	github.com/ONSdigital/log.go/v2 v2.4.1
