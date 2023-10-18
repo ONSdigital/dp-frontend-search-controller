@@ -17,12 +17,14 @@ import (
 // SearchURLParams is a struct which contains all information of search url parameters and values
 type SearchURLParams struct {
 	Query                string
+	ToggleNlp            string
 	PopulationTypeFilter string
 	DimensionsFilter     string
 	Filter               Filter
 	AfterDate            Date
 	BeforeDate           Date
 	TopicFilter          string
+	LatestRelease        bool
 	Sort                 Sort
 	Limit                int
 	CurrentPage          int
@@ -59,6 +61,7 @@ func getIntValidator(minValue, maxValue int) intValidator {
 func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
+	validatedQueryParams.ToggleNlp = urlQuery.Get("c")
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
 	if paginationErr != nil {
@@ -204,9 +207,6 @@ func GetSearchAPIQuery(validatedQueryParams SearchURLParams, censusTopicCache *c
 
 // GetDataAggregationQuery gets the query that needs to be passed to the search-api to get data aggregation results
 func GetDataAggregationQuery(validatedQueryParams SearchURLParams, template string) url.Values {
-	log.Info(context.TODO(), "kur", log.Data{
-		"validatedQueryParams": validatedQueryParams,
-	})
 	apiQuery := createSearchAPIQuery(validatedQueryParams)
 	var contentTypes = ""
 	switch template {
@@ -258,23 +258,14 @@ func GetDates(ctx context.Context, params url.Values) (startDate, endDate Date, 
 	)
 
 	const (
-		Limit       = "limit"
-		Page        = "page"
-		Offset      = "offset"
-		SortName    = "sort"
 		DayBefore   = "before-day"
 		DayAfter    = "after-day"
 		MonthBefore = "before-month"
 		MonthAfter  = "after-month"
 		YearBefore  = "before-year"
 		YearAfter   = "after-year"
-		Keywords    = "keywords"
-		Query       = "query"
 		DateFrom    = "fromDate"
 		DateTo      = "toDate"
-		Type        = "release-type"
-		Census      = "census"
-		Highlight   = "highlight"
 	)
 
 	yearAfterString, monthAfterString, dayAfterString := params.Get(YearAfter), params.Get(MonthAfter), params.Get(DayAfter)
@@ -350,6 +341,7 @@ func hasFilters(ctx context.Context, validatedQueryParams SearchURLParams) bool 
 func createSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
 	return url.Values{
 		"q":                []string{validatedQueryParams.Query},
+		"c":                []string{validatedQueryParams.ToggleNlp},
 		"population_types": []string{validatedQueryParams.PopulationTypeFilter},
 		"dimensions":       []string{validatedQueryParams.DimensionsFilter},
 		"content_type":     validatedQueryParams.Filter.Query,
