@@ -150,6 +150,33 @@
                 </noscript>
             </details>
     </form>
+    <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion"
+        data-btn-close="Hide this" data-open="true">
+        <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+            <h2 class="ons-collapsible__title">
+                <legend class="block">
+                    Enable NLP
+                </legend>
+            </h2>
+            <span class="ons-collapsible__icon">
+                {{ template "icons/chevron-right" }}
+            </span>
+        </summary>
+        <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+            <div class="js-checkbox-container">
+                    <div class="ons-checkboxes__items">
+                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                            <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
+                    <input type="checkbox" id="checkbox-nlp-categories" class="ons-checkbox__input js-auto-submit__input" name="c" value="1">
+                    <label class="ons-checkbox__label" for="checkbox-nlp-categories">
+                        Enable NLP Categories
+                    </label>
+                    </span>
+                    </span>
+                </div>
+            </div>
+        </fieldset>
+    </details>
     {{ end }}
 
     {{ if $censusFilters }}
