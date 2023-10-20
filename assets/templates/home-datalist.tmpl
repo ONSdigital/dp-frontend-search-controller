@@ -58,7 +58,7 @@
             <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
           </div>
           <div class="search__filter__content">
-            {{ template "partials/filter-results" . }}
+            {{ template "partials/data-aggregation-filters" . }}
           </div>
           <div class="search__filter__content">
             {{ template "partials/archived-release-message" . }}
@@ -79,10 +79,9 @@
                 <span class="ons-btn__inner">Filter results</span>
               </button>
           </div>
-          <div class="search__results">
-            <div class="search__sort">
-              <a style="text-decoration: none; color: initial;"  href="/timeseriestool" class="ml-1">
-              <div class="box__content background--iron-light padding-right-sm--1 padding-right-md--1 padding-bottom-md--1  padding-left-sm--1 padding-left-md--1 js-hover-click" style="position: relative;">
+          <div class="border-bottom">
+            <a style="text-decoration: none; color: initial;"  href="/timeseriestool" class="ml-1">
+              <div class="box__content background--iron-light padding-right-sm--1 padding-right-md--1 padding-bottom-md--0  padding-left-sm--1 padding-left-md--1 js-hover-click" style="position: relative;">
                 <span class="float-right margin-top-md--2 margin-top-sm--2">
                   {{ template "icons/chevron-right" }}
                 </span>
@@ -92,8 +91,9 @@
                   </p>
                 </div>
               </a>
-            </div>
-            {{ template "partials/testresults" . }}
+          </div>
+          <div class="search__results">
+            {{ template "partials/data-aggregation-results" . }}
           </div>
           <div class="search__pagination">
             {{ template "partials/search-pagination" . }}

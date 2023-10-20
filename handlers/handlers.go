@@ -252,13 +252,6 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	}()
 
 	var options searchSDK.Options
-	// log.Info(context.TODO(), "kur", log.Data{
-	// 	"apiqueryyyy": urlQuery,
-	// })
-
-	// if searchQuery["q"][0] == nil {
-	// 	searchQuery["q"][0] = ""
-	// }
 
 	options.Query = searchQuery
 
@@ -271,9 +264,6 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		defer wg.Done()
 
 		searchResp, respErr = searchC.GetSearch(ctx, options)
-		log.Info(context.TODO(), "kur", log.Data{
-			"searchResp": searchResp,
-		})
 		if respErr != nil {
 			log.Error(ctx, "getting search response from client failed", respErr)
 			cancel()

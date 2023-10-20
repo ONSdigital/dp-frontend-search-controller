@@ -1,0 +1,95 @@
+{{ $lang := .Language }}
+{{ $currentPage := .Data.Pagination.CurrentPage }}
+{{ $itemsPerPage := .Data.Pagination.Limit }}
+{{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
+{{ $response := .Data.Response }}
+{{ $datasetFinder := .Data.PopulationTypeFilter }}
+{{ $enabledTimeSeriesExport := .Data.EnableTimeSeriesExport }}
+
+<div id="results">
+    <div id="results-loading" class="ons-panel ons-panel--info ons-panel--no-title hide">
+        <span class="ons-u-vh">Important information: </span>
+        <div class="ons-panel__body">
+        <p data-error-message="The results failed to load, please refresh.">
+            Loading search results.
+        </p>
+        </div>
+    </div>
+    <div id="results-zero" class="hide">
+        <h3>{{ localise "NoResultsHeader" $lang 1 }}</h3>
+        <p>{{ localise "NoResultsSelectAnother" $lang 1 }} {{ localise "Or" $lang 1 }} <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search-zero">{{ localise "ClearAllFilters" $lang 1 }}</a>.</p>
+        <p>{{ localise "NoResultsBody" $lang 1 | safeHTML}}</p>
+    </div>
+    <ul class="flush--padding">
+        {{if $enabledTimeSeriesExport }}
+            <input id="select-all-time-series" type="checkbox" class="js-timeseriestool-select" name="" value="" aria-label="select time series">
+            <label for="select-all-time-series">Select all</label>
+        {{end}}
+        {{ range $i, $item := $response.Items }}
+            {{ $currentPosition := add $i 1 }}
+            <li class="{{if $enabledTimeSeriesExport }} border-bottom {{end}} search__results__item{{if eq $item.Type.Type `product_page`}} search__results__item--product-page{{end}}">
+                <h3>
+                    {{if $enabledTimeSeriesExport }}
+                    <input type="checkbox" class="select-time-series js-timeseriestool-select" name="" value="" aria-label="select time series" data-title="{{ .Description.Title }}" data-uri="{{ .URI }}" >
+                    {{end}}
+                    <a href="{{ .URI }}"
+                        data-gtm-search-result-title="{{ .Description.Title }}"
+                        data-gtm-search-result-page="{{ $currentPage }}"
+                        data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
+                        data-gtm-search-result-url="{{ .URI }}"
+                        data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
+                    >
+                        {{ .Description.Title | safeHTML }}
+                        {{ if .Description.Edition }}:{{ end }}
+                        {{ .Description.Edition | safeHTML }}
+                    </a>
+                </h3>
+                {{ if not $datasetFinder }} 
+                    {{ if eq $item.Type.Type `product_page` }}
+                        <p class="search__results__meta font-size--16">
+                            <b>Topic</b>
+                        </p>
+                    {{ else }}
+                        <p class="search__results__meta font-size--16">
+                            <b>{{ localise "ReleasedOn" $lang 1 }}:</b> {{ dateFormat .Description.ReleaseDate }}
+                            |
+                            <b>{{ localise .Type.LocaliseKeyName $lang 1 }}</b>
+                        </p>
+                    {{ end }}
+                {{ end }}
+                <p class="search__results__summary font-size--16">
+                    {{ if .Description.Highlight.Summary }} {{ .Description.Highlight.Summary | safeHTML }} {{ else }} {{ .Description.Summary | safeHTML }} {{ end }}
+                </p>
+                {{ if $datasetFinder }} 
+                    {{ $dlTermClasses := "ons-metadata__term ons-grid__col ons-col-3@m font-size--16" }}
+                    {{ $dlValueClasses := "ons-metadata__value ons-grid__col ons-col-9@m font-size--16" }}
+
+                    <dl class="ons-metadata ons-metadata__list ons-u-cf ons-grid ons-grid--gutterless font-size--16">
+                        <dt class="{{ $dlTermClasses }}">{{ localise "ReleasedOn" $lang 1 }}:</dt>
+                        <dd class="{{ $dlValueClasses }}">{{ .Description }}</dd>
+                        {{ if .Dataset.PopulationType }}
+                            <dt class="{{ $dlTermClasses }}">{{ localise "PopulationTypes" $lang 1 }}:</dt>
+                            <dd class="{{ $dlValueClasses }}">{{ .Dataset.PopulationType }}</dd>
+                        {{ end }}
+                    </dl>
+                {{ end }}
+                {{if eq $item.Type.Type `product_page`}}
+                    <p class="search__results__summary--product-page font-size--16">
+                        View all <a href="{{ .URI }}#datasets">datasets</a> or <a href="{{ .URI }}#publications">publications</a> related to 
+                        <a href="{{ .URI }}"
+                            data-gtm-search-result-title="{{ .Description.Title }}"
+                            data-gtm-search-result-page="{{ $currentPage }}"
+                            data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
+                            data-gtm-search-result-url="{{ .URI }}"
+                            data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
+                        >
+                            {{ .Description.Title | safeHTML }}
+                            {{ if .Description.Edition }}:{{ end }}
+                            {{ .Description.Edition | safeHTML }}
+                        </a>
+                    </p>
+                {{end}}
+            </li>
+        {{end}}
+    </ul>
+</div>
