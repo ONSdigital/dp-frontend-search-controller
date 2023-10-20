@@ -118,8 +118,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	default:
 		page.Metadata.Title = template
 	}
-	// page.Metadata.Title = "Aint no search" //nolint:goconst //The strings aren't actually the same.
-	page.Type = "search" //nolint:goconst //The strings aren't actually the same.
+	page.Type = "Data Aggregation Page"
 	page.Title.LocaliseKeyName = "SearchResults"
 	page.Data.TermLocalKey = "Results"
 	page.Count = respC.Count
