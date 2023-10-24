@@ -30,7 +30,7 @@
             <li class="{{if $enabledTimeSeriesExport }} border-bottom {{end}} search__results__item{{if eq $item.Type.Type `product_page`}} search__results__item--product-page{{end}}">
                 <h3>
                     {{if $enabledTimeSeriesExport }}
-                    <input type="checkbox" class="select-time-series js-timeseriestool-select" name="" value="" aria-label="select time series" data-title="{{ .Description.Title }}" data-uri="{{ .URI }}" >
+                    <input type="checkbox" class="select-time-series js-timeseriestool-select" name="" value="" aria-label="select time series" data-title="{{ .Description.Title }}" data-uri="{{ .URI }}"  data-dataset-id="{{ .Description.DatasetID }}" >
                     {{end}}
                     <a href="{{ .URI }}"
                         data-gtm-search-result-title="{{ .Description.Title }}"
