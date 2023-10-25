@@ -107,7 +107,8 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Data.EnabledFilters = []string{"keywords"}
 	case "home-publications":
 		page.Metadata.Title = "All publications related to home"
-		page.Data.EnabledFilters = []string{"keywords", "content-type", "previous-releases"}
+		// add "previous-releases" to enable the allReleases checkbox (needs API changes to work)
+		page.Data.EnabledFilters = []string{"keywords", "content-type"}
 	case "home-methodology":
 		page.Metadata.Title = "Methodology related to home"
 		page.Data.EnabledFilters = []string{"keywords"}
