@@ -51,17 +51,6 @@
                         <a href={{ $nextURL }} class="ons-pagination__link" rel="next" aria-label="Go to the next page (Page {{ add $pagination.CurrentPage 1 }})" data-target-page={{ add $pagination.CurrentPage 1 }}>Next</a>
                     </li>
                 {{ end }}
-                <li class="ons-pagination__item margin-left-md--3">
-                    <div>
-                        <input id="page-size-value" type="hidden" value="{{ $pagination.Limit }}" name="">
-                        <label for="page-size">Results per page:</label>
-                        <select name="size" id="page-size" class="ons-input ons-input--select inline-block results-per-page">
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                        </select>
-                    </div>
-                </li>
             </ul>
         </nav>
     {{end}}
