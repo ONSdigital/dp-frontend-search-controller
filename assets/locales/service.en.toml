@@ -386,3 +386,7 @@ one = "Important information: "
 [SelectAll]
 description = "Select all"
 one = "Select all"
+
+[ShowResults]
+description = "Show results"
+one = "Show results"
