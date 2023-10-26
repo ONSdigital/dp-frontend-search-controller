@@ -373,3 +373,15 @@ one = "Year"
 [ReleasedBefore]
 description = "Released before"
 one = "Released before"
+
+[LoadingResults]
+description = "Loading search results"
+one = "Loading search results"
+
+[ImportantInformation]
+description = "Important information: "
+one = "Important information: "
+
+[SelectAll]
+description = "Select all"
+one = "Select all"
