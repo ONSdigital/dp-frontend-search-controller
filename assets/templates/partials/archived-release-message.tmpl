@@ -6,7 +6,7 @@
                 <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                     <h2 class="ons-collapsible__title">
                         <legend class="block">
-                            Need an earlier release?
+                            {{ localise "EarlierReleases" $lang 1 }}
                         </legend>
                     </h2>
                     <span class="ons-collapsible__icon">
@@ -18,10 +18,10 @@
                         <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
                             <div class="tiles__content tiles__content--nav">
                                 <p>
-                                    We moved them to <a href="http://webarchive.nationalarchives.gov.uk/20160105160709/http://www.ons.gov.uk/ons/index.html">The National Archives</a> website, to keep this website as responsive as possible.
+                                    {{ localise "NationalArchives" $lang 1 | safeHTML}}
                                 </p>
                                 <p>
-                                    <strong>Please note: </strong>all historical data is still on this website.
+                                    {{ localise "HistoricalDataNote" $lang 1 | safeHTML}}
                                 </p>
                             </div>
                         </div>
