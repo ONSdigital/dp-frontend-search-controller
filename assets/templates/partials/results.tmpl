@@ -7,10 +7,10 @@
 
 <div id="results">
     <div id="results-loading" class="ons-panel ons-panel--info ons-panel--no-title hide">
-        <span class="ons-u-vh">Important information: </span>
+        <span class="ons-u-vh">{{ localise "ImportantInformation" $lang 1 }}</span>
         <div class="ons-panel__body">
         <p data-error-message="The results failed to load, please refresh.">
-            Loading search results.
+            {{ localise "LoadingResults" $lang 1 }}
         </p>
         </div>
     </div>

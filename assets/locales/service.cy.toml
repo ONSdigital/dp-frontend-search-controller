@@ -209,6 +209,10 @@ other = "Allweddeiriau"
 description = "Next"
 one = "Nesaf" 
 
+[Previous]
+description = "Previous"
+one = "Previous" 
+
 [DidYouKnow]
 description = "Did you know?"
 one = "Did you know?" 
@@ -389,3 +393,31 @@ one = "Select all"
 [ShowResults]
 description = "Show results"
 one = "Show results"
+
+[Selection]
+description = "Selection"
+one = "Selection"
+
+[RememberSelection]
+description = "Remember selection"
+one = "Remember selection"
+
+[DownloadSelectedTimeSeries]
+description = "Download selected time series"
+one = "Download selected time series"
+
+[DownloadXls]
+description = "Download .xls"
+one = "Download .xls"
+
+[DownloadCsv]
+description = "Download .csv"
+one = "Download .csv"
+
+[NoTimeSeriesSelected]
+description = "You have no timeseries selected"
+one = "You have no timeseries selected"
+
+[CheckTimeseries]
+description = "Check the time series that you'd like to download"
+one = "Check the time series that you'd like to download"
