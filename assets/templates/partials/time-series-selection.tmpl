@@ -1,39 +1,39 @@
 <!-- jQuery Reference -->
 <div class="d-flex">
     <button id="timeseries__basket" class="timeseries__basket ml-auto margin-right-sm--1 margin-right-md--1" aria-live="polite">
-        Selection (<span id="timeseries__count">0</span>)
+        {{ localise "Selection" $lang 1 }} (<span id="timeseries__count">0</span>)
     </button>
 </div>
 <div id="timeseriesListContainer" class="hidden timeseries__list-container">
     <div class="timeseries__remember">
         <input id="remember-selection" type="checkbox" name="" data-uri="/timeseriestool" value=""
             aria-label="remember selection">
-        <label for="remember-selection">Remember selection</label>
+        <label for="remember-selection">{{ localise "Remember Selection" $lang 1 }}</label>
     </div>
     <div class="timeseries__list--exit" aria-label="close time series selection modal" tabindex="0">✕</div>
     <ul class="timeseries__list list--neutral margin-top-md--0">
     </ul>
     <div class="timeseries__download">
         <p class="flush" id="timeseries__download-label">
-            Download selected time series
+            {{ localise "DownloadSelectedTimeSeries" $lang 1 }}
         </p>
         <form id="xls-form" method="post" action="/export" class="inline print--hide">
             <button type="submit" title="Download XLS" aria-labelledby="timeseries__download-label"
                 class="btn btn--primary download-analytics">
-                Download .xls
+                {{ localise "DownloadXls" $lang 1 }}
             </button>
             <input type="hidden" name="format" value="xls">
         </form>
         <form id="csv-form" method="post" action="/export" class="inline print--hide">
             <button type="submit" title="Download CSV" aria-labelledby="timeseries__download-label"
                 class="btn btn--primary download-analytics">
-                Download .csv
+                {{ localise "DownloadCsv" $lang 1 }}
             </button>
             <input type="hidden" name="format" value="csv">
         </form>
     </div>
     <div class="timeseries__empty margin-top-sm--4 margin-top-md--4 margin-left-sm--2 margin-left-md--2 margin-right-sm--2 margin-right-md--2">
-        <h2>You have no timeseries selected</h2>
-        <p>Check the time series that you'd like to download</p>
+        <h2>{{ localise "NoTimeSeriesSelected" $lang 1 }}</h2>
+        <p>{{ localise "CheckTimeseries" $lang 1 }}</p>
     </div>
 </div>

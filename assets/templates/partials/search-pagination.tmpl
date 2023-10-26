@@ -16,7 +16,7 @@
 
                 {{ if gt  $pagination.CurrentPage 1 }}
                     <li class="ons-pagination__item ons-pagination__item--previous">
-                        <a href={{ $prevURL }} class="ons-pagination__link" rel="prev" aria-label="Go to the previous page (Page {{subtract $pagination.CurrentPage 1}})" data-target-page={{subtract $pagination.CurrentPage 1}}>Previous</a>
+                        <a href={{ $prevURL }} class="ons-pagination__link" rel="prev" aria-label="Go to the previous page (Page {{subtract $pagination.CurrentPage 1}})" data-target-page={{subtract $pagination.CurrentPage 1}}>{{ localise "Previous" $lang 1 }}</a>
                     </li>
                 {{end}}
 
@@ -48,7 +48,7 @@
 
                 {{ if lt $pagination.CurrentPage $pagination.TotalPages }}
                     <li class="ons-pagination__item ons-pagination__item--next">
-                        <a href={{ $nextURL }} class="ons-pagination__link" rel="next" aria-label="Go to the next page (Page {{ add $pagination.CurrentPage 1 }})" data-target-page={{ add $pagination.CurrentPage 1 }}>Next</a>
+                        <a href={{ $nextURL }} class="ons-pagination__link" rel="next" aria-label="Go to the next page (Page {{ add $pagination.CurrentPage 1 }})" data-target-page={{ add $pagination.CurrentPage 1 }}>{{ localise "Next" $lang 1 }}</a>
                     </li>
                 {{ end }}
             </ul>
