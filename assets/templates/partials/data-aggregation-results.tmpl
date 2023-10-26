@@ -8,10 +8,11 @@
 
 <div id="results">
     <div id="results-loading" class="ons-panel ons-panel--info ons-panel--no-title hide">
-        <span class="ons-u-vh">Important information: </span>
+        <span class="ons-u-vh">
+            {{ localise "ImportantInformation" $lang 1 }}</span>
         <div class="ons-panel__body">
         <p data-error-message="The results failed to load, please refresh.">
-            Loading search results.
+            {{ localise "LoadingResults" $lang 1 }}
         </p>
         </div>
     </div>
@@ -23,7 +24,7 @@
     <ul class="flush--padding">
         {{if $enabledTimeSeriesExport }}
             <input id="select-all-time-series" type="checkbox" class="js-timeseriestool-select" name="" value="" aria-label="select time series">
-            <label for="select-all-time-series">Select all</label>
+            <label for="select-all-time-series">{{ localise "SelectAll" $lang 1 }}</label>
         {{end}}
         {{ range $i, $item := $response.Items }}
             {{ $currentPosition := add $i 1 }}
@@ -47,7 +48,7 @@
                 {{ if not $datasetFinder }} 
                     {{ if eq $item.Type.Type `product_page` }}
                         <p class="search__results__meta font-size--16">
-                            <b>Topic</b>
+                            <b>{{ localise "Topic" $lang 1 }}</b>
                         </p>
                     {{ else }}
                         <p class="search__results__meta font-size--16">
@@ -73,22 +74,6 @@
                         {{ end }}
                     </dl>
                 {{ end }}
-                {{if eq $item.Type.Type `product_page`}}
-                    <p class="search__results__summary--product-page font-size--16">
-                        View all <a href="{{ .URI }}#datasets">datasets</a> or <a href="{{ .URI }}#publications">publications</a> related to 
-                        <a href="{{ .URI }}"
-                            data-gtm-search-result-title="{{ .Description.Title }}"
-                            data-gtm-search-result-page="{{ $currentPage }}"
-                            data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
-                            data-gtm-search-result-url="{{ .URI }}"
-                            data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
-                        >
-                            {{ .Description.Title | safeHTML }}
-                            {{ if .Description.Edition }}:{{ end }}
-                            {{ .Description.Edition | safeHTML }}
-                        </a>
-                    </p>
-                {{end}}
             </li>
         {{end}}
     </ul>
