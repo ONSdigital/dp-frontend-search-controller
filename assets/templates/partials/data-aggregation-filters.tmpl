@@ -14,7 +14,7 @@
         <summary class="ons-collapsible__heading ons-js-collapsible-heading">
             <h2 class="ons-collapsible__title">
                 <legend class="block">
-                    Search
+                    {{ localise "Search" $lang 1 }}
                 </legend>
             </h2>
             <span class="ons-collapsible__icon">
@@ -25,7 +25,7 @@
                 <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
                         <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
                             <div class="tiles__content tiles__content--nav content-type-filter">
-                                <label class="ons-label ons-u-pb-xs ons-u-fw-n" for="keywords">Search keywords</label>
+                                <label class="ons-label ons-u-pb-xs ons-u-fw-n" for="keywords">{{ localise "SearchKeywords" $lang 1 }}</label>
                                 <div class="ons-compact-search">
                                     <input
                                     type="search"
@@ -42,7 +42,7 @@
                 <noscript>
                     <button type="submit"
                             class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                            <span class="ons-btn__inner"><span class="ons-btn__text">Filter</span></span>
+                            <span class="ons-btn__inner"><span class="ons-btn__text"> {{ localise "Filter" $lang 4 }}</span></span>
                     </button>
                 </noscript>
             </form>
@@ -54,7 +54,7 @@
         <summary class="ons-collapsible__heading ons-js-collapsible-heading">
             <h2 class="ons-collapsible__title">
                 <legend class="block">
-                    Previous releases
+                    {{ localise "PreviousReleases" $lang 1 }}
                 </legend>
             </h2>
             <span class="ons-collapsible__icon">
@@ -64,14 +64,14 @@
         <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
             <legend class="filters__title">
                 <strong>
-                    Previous releases
+                    {{ localise "PreviousReleases" $lang 1 }}
                 </strong>
             </legend>
             <div class="js-checkbox-container">
                 <div class="filters__field">
                     <input type="checkbox" id="all-releases" name="allReleases" value="1">
                     <label for="all-releases">
-                        Show all releases over time (only showing latest one of each by default)
+                        {{ localise "ShowAllReleases" $lang 1 }}
                     </label>
                 </div>
             </div>
@@ -149,7 +149,7 @@
             <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                 <h2 class="ons-collapsible__title">
                     <legend class="block">
-                        Content type
+                        {{ localise "ContentType" $lang 1 }}
                     </legend>
                 </h2>
                 <span class="ons-collapsible__icon">
@@ -209,7 +209,7 @@
                     <noscript>
                         <button type="submit"
                                 class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                                <span class="ons-btn__inner"><span class="ons-btn__text">Filter</span></span>
+                                <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Filter" $lang 4 }}</span></span>
                         </button>
                     </noscript>
             </form>
@@ -221,7 +221,7 @@
         <summary class="ons-collapsible__heading ons-js-collapsible-heading">
             <h2 class="ons-collapsible__title">
                 <legend class="block">
-                    Last update
+                    {{ localise "LastUpdate" $lang 1 }}
                 </legend>
             </h2>
             <span class="ons-collapsible__icon">
@@ -232,14 +232,14 @@
             <div class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
                 <div class="tiles__content tiles__content--nav">
                     <label class="hidden" for="select-wide">
-                        Updated
+                        {{ localise "Updated" $lang 4 }}
                     </label>
                     <select id="lastUpdatedSelect" name="select" class="ons-input ons-input--select ons-input--block updated-select">
-                        <option value="select" selected>Select last updated</option>
-                        <option value="today">Today</option>
-                        <option value="week">Last 7 Days</option>
-                        <option value="month">Last Month</option>
-                        <option value="custom">Custom</option>
+                        <option value="select" selected>{{ localise "SelectLastUpdated" $lang 1 }}</option>
+                        <option value="today">{{ localise "Today" $lang 1 }}</option>
+                        <option value="week">{{ localise "LastSevenDays" $lang 1 }}</option>
+                        <option value="month">{{ localise "LastMonth" $lang 1 }}</option>
+                        <option value="custom">{{ localise "Custom" $lang 1 }}</option>
                     </select>
                 </div>
             </div>
@@ -252,7 +252,7 @@
         <summary class="ons-collapsible__heading ons-js-collapsible-heading">
             <h2 class="ons-collapsible__title">
                 <legend class="block">
-                    Dates
+                    {{ localise "Dates" $lang 1 }}
                 </legend>
             </h2>
             <span class="ons-collapsible__icon">
@@ -261,19 +261,19 @@
         </summary>
         <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
             <legend class="ons-fieldset__legend">
-                Released after
+                {{ localise "ReleasedAfter" $lang 1 }}
             </legend>
             <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid">
                 <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                    <label for="fromDateDay">Day</label>
+                    <label for="fromDateDay">{{ localise "Day" $lang 1 }}</label>
                     <input type="text" id="fromDateDay" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateDay" min="1" max="31" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
                 </div>
                 <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                    <label for="fromDateMonth">Month</label>
+                    <label for="fromDateMonth">{{ localise "Month" $lang 1 }}</label>
                     <input type="text" id="fromDateMonth" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateMonth" min="1" max="12" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
                 </div>
                 <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                    <label for="fromDateYear">Year</label>
+                    <label for="fromDateYear">{{ localise "Year" $lang 1 }}</label>
                     <input type="number" autocomplete="off" name="fromDateYear" id="fromDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
                 </div>
             </div>
@@ -281,30 +281,31 @@
 
         <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
             <legend class="ons-fieldset__legend">
-                Released before
+                {{ localise "ReleasedBefore" $lang 1 }}
             </legend>
             <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid ">
                 <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                    <label for="toDateDay">Day</label>
+                    <label for="toDateDay">{{ localise "Day" $lang 1 }}</label>
                     <input type="number" autocomplete="off" name="toDateDay" id="toDateDay" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="0" max="31" pattern="[0-9]*">
                 </div>
                 <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                    <label for="toDateMonth">Month</label>
+                    <label for="toDateMonth">{{ localise "Month" $lang 1 }}</label>
                     <input type="number" autocomplete="off" name="toDateMonth" id="toDateMonth" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="1" max="12" maxlength="2" pattern="[0-9]*">
                 </div>
                 <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                    <label for="toDateYear">Year</label>
+                    <label for="toDateYear">{{ localise "Year" $lang 1 }}</label>
                     <input type="number" autocomplete="off" name="toDateYear" id="toDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
                 </div>
             </div>
         </fieldset>
     </details>
 {{ else }}
+<!-- Adds hidden date filter to be shown programatically in timeseries explorer -->
 <details id="dateFilters" class="hidden ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
     <summary class="ons-collapsible__heading ons-js-collapsible-heading">
         <h2 class="ons-collapsible__title">
             <legend class="block">
-                Dates
+                {{ localise "Dates" $lang 1 }}
             </legend>
         </h2>
         <span class="ons-collapsible__icon">
@@ -313,19 +314,19 @@
     </summary>
     <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
         <legend class="ons-fieldset__legend">
-            Released after
+            {{ localise "ReleasedAfter" $lang 1 }}
         </legend>
         <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid">
             <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                <label for="fromDateDay">Day</label>
+                <label for="fromDateDay">{{ localise "Day" $lang 1 }}</label>
                 <input type="text" id="fromDateDay" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateDay" min="1" max="31" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
             </div>
             <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                <label for="fromDateMonth">Month</label>
+                <label for="fromDateMonth">{{ localise "Month" $lang 1 }}</label>
                 <input type="text" id="fromDateMonth" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateMonth" min="1" max="12" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
             </div>
             <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                <label for="fromDateYear">Year</label>
+                <label for="fromDateYear">{{ localise "Year" $lang 1 }}</label>
                 <input type="number" autocomplete="off" name="fromDateYear" id="fromDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
             </div>
         </div>
@@ -333,19 +334,19 @@
 
     <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
         <legend class="ons-fieldset__legend">
-            Released before
+            {{ localise "ReleasedBefore" $lang 1 }}
         </legend>
         <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid ">
             <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                <label for="toDateDay">Day</label>
+                <label for="toDateDay">{{ localise "Day" $lang 1 }}</label>
                 <input type="number" autocomplete="off" name="toDateDay" id="toDateDay" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="0" max="31" pattern="[0-9]*">
             </div>
             <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                <label for="toDateMonth">Month</label>
+                <label for="toDateMonth">{{ localise "Month" $lang 1 }}</label>
                 <input type="number" autocomplete="off" name="toDateMonth" id="toDateMonth" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="1" max="12" maxlength="2" pattern="[0-9]*">
             </div>
             <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                <label for="toDateYear">Year</label>
+                <label for="toDateYear">{{ localise "Year" $lang 1 }}</label>
                 <input type="number" autocomplete="off" name="toDateYear" id="toDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
             </div>
         </div>
