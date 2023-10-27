@@ -1,4 +1,5 @@
-<!-- jQuery Reference -->
+{{ $lang := .Language }}
+
 <div class="d-flex">
     <button id="timeseries__basket" class="timeseries__basket ml-auto margin-right-sm--1 margin-right-md--1" aria-live="polite">
         {{ localise "Selection" $lang 1 }} (<span id="timeseries__count">0</span>)
@@ -8,7 +9,7 @@
     <div class="timeseries__remember">
         <input id="remember-selection" type="checkbox" name="" data-uri="/timeseriestool" value=""
             aria-label="remember selection">
-        <label for="remember-selection">{{ localise "Remember Selection" $lang 1 }}</label>
+        <label for="remember-selection">{{ localise "RememberSelection" $lang 1 }}</label>
     </div>
     <div class="timeseries__list--exit" aria-label="close time series selection modal" tabindex="0">✕</div>
     <ul class="timeseries__list list--neutral margin-top-md--0">
