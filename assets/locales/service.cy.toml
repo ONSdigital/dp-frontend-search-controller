@@ -393,6 +393,7 @@ one = "Select all"
 [ShowResults]
 description = "Show results"
 one = "Show results"
+other = "Show results"
 
 [Selection]
 description = "Selection"
