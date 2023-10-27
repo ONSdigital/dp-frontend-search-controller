@@ -1,7 +1,9 @@
+{{ $lang := .Language }}
 {{ $pagination := .Data.Pagination }}
 {{ $showLinkToFirst := gt (index $pagination.PagesToDisplay 0).PageNumber 1}}
 {{ $lastIndexOfPagesToDisplay := subtract (len $pagination.PagesToDisplay) 1 }}
 {{ $showLinkToLast := ne (index $pagination.PagesToDisplay $lastIndexOfPagesToDisplay).PageNumber $pagination.TotalPages}}
+
 <form id="js-pagination-container" class="js-auto-submit__form">
     {{ if ne .Data.Response.Count 0 }}
         <nav class="ons-pagination " arial-label="Pagination (Page {{$pagination.CurrentPage}} of {{$pagination.TotalPages}})">
