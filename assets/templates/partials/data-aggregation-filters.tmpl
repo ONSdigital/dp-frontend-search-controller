@@ -6,7 +6,6 @@
 {{ $query := .Data.Query }}
 {{ $sort := .Data.Sort.Query }}
 
-
 <div id="accordion" class="ons-accordion">
     {{ range $index, $enabledFilter := $enabledFilters }}
     {{if eq $enabledFilter "keywords" }}

@@ -1,0 +1,10 @@
+{{ $lang := .Language }}
+
+<ul class="ons-section-nav__list d-flex ml-1">
+    <li class="ons-section-nav__item ">
+      <a class="ons-section-nav__link" href="datalist" aria-current="page" aria-label="{{ localise "DataResults" $lang 4 }}">{{ localise "Data" $lang 4 }}</a>
+    </li>
+    <li class="ons-section-nav__item ons-section-nav__item--active ml-1">
+      <a class="ons-section-nav__link" href="publications" aria-label="{{ localise "PublicationsSearchResults" $lang 1 }} ">{{ localise "Publications" $lang 1 }}</a>
+    </li>
+  </ul>

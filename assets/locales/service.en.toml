@@ -423,3 +423,30 @@ one = "You have no timeseries selected"
 [CheckTimeseries]
 description = "Check the time series that you'd like to download"
 one = "Check the time series that you'd like to download"
+
+[FilterResults]
+description = "Filter results"
+other = "Filter results"
+
+[SearchFiltering]
+description = "Search filtering"
+other = "Search filtering"
+
+[SearchSummary]
+description = "Search summary"
+other = "Search summary"
+
+[Publications]
+description = "Publications"
+other = "Publications"
+one = "Publications"
+
+[PublicationsSearchResults]
+description = "Search results for publications"
+other = "Search results for publications"
+one = "Search results for publications"
+
+[DataResults]
+description = "Data results. Current page."
+other = "Data results. Current page."
+one = "Data results. Current page."

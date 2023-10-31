@@ -1,107 +1,66 @@
 {{ $lang := .Language }}
 <div class="ons-container search__container">
   <div class="ons-grid">
-    <!-- <h3>Terrrrr</h3> -->
     <div class="ons-grid__col ons-col-12@m">
       <section class="search__summary">
         <span class="search__summary__generic">
-        {{ localise "DataList" $lang 1 }}
+          {{ localise "DataList" $lang 1 }}
         </span>
-        <ul class="ons-section-nav__list d-flex ml-1">
-          <li class="ons-section-nav__item ">
-            <a class="ons-section-nav__link ons-section-nav__item--active" href="datalist" aria-current="page" aria-label="Data results. Current page.">Data</a>
-          </li>
-          <li class="ons-section-nav__item ml-1">
-            <a class="ons-section-nav__link" href="publications" aria-label="Search results for Publications">Publications</a>
-          </li>
-        </ul>
+        {{ template "partials/home-switch" . }}
       </section>
-     
-      <!-- {{ template "partials/standalone-search" . }} -->
     </div>
-
-    
-    {{if .Data.ErrorMessage}}
-
-      <!-- <div class="ons-grid__col ons-col-12@m">
-        <section class="search__summary">
-          <span class="search__summary__generic">{{ localise "EnterSearchTerm" $lang 1 }}</span>
-        </section>
-        {{ template "partials/standalone-search" . }}
-      </div> -->
-
-    {{else if eq .Data.Response.Count 0}}
-      <div class="ons-grid__col ons-col-12@m">
-        <section class="search__summary" role="contentinfo" aria-label="Search summary">
-          {{ template "partials/summary" . }}
-        </section>
-      </div>
-
-      <div class="ons-grid__col ons-col-12@m">
-        {{ template "partials/standalone-search" . }}
-      </div>
-
-    {{else}}
-
-      <!-- <div class="ons-grid__col ons-col-12@m">
-        <section class="search__summary" role="contentinfo" aria-label="Search summary">
-          {{ template "partials/summary" . }}
-        </section>
-      </div> -->
-
-      <div class="ons-grid__col ons-col-4@m">
-        <section class="search__filter" role="contentinfo" aria-label="Search filtering" id="search-filter">
-          <div class="search__filter__heading">
-            <h3 class="font-size--18">
-              {{ localise "Filter" $lang 4 }} {{ localise .Data.TermLocalKey $lang 4 }}
-            </h3>
-            <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
-          </div>
-          <div class="search__filter__content">
-            {{ template "partials/data-aggregation-filters" . }}
-          </div>
-          <div class="search__filter__content">
-            {{ template "partials/archived-release-message" . }}
-          </div>
-        </section>
-      </div>
-
-      <div class="ons-grid__col ons-col-8@m">
-        <section role="contentinfo" aria-label="Search results">
-          <div class="search__count">
-            {{ template "partials/count" . }}
-          </div>
-          <div class="search__sort">
-            {{ template "partials/sort" . }}
-          </div>
-          <div class="search__filter__mobile-filter-toggle hide">
-              <button id="filter-results" type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
-                <span class="ons-btn__inner">Filter results</span>
-              </button>
-          </div>
-          <div class="border-bottom">
-            <a style="text-decoration: none; color: initial;"  href="/timeseriestool" class="ml-1">
-              <div class="box__content background--iron-light padding-right-sm--1 padding-right-md--1 padding-bottom-md--0  padding-left-sm--1 padding-left-md--1 js-hover-click" style="position: relative;">
-                <span class="float-right margin-top-md--2 margin-top-sm--2">
-                  {{ template "icons/chevron-right" }}
-                </span>
-                <h3>Looking to download time series?</h3>
-                <p>
-                    Try our time series explorer
-                  </p>
-                </div>
-              </a>
-          </div>
-          <div class="search__results">
-            {{ template "partials/data-aggregation-results" . }}
-          </div>
+    <div class="ons-grid__col ons-col-4@m">
+      <section class="search__filter" role="contentinfo" aria-label="{{ localise "SearchFiltering" $lang 4 }}" id="search-filter">
+        <div class="search__filter__heading">
+          <h3 class="font-size--18">
+            {{ localise "Filter" $lang 4 }} {{ localise .Data.TermLocalKey $lang 4 }}
+          </h3>
+          <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
+        </div>
+        <div class="search__filter__content">
+          {{ template "partials/data-aggregation-filters" . }}
+        </div>
+        <div class="search__filter__content">
+          {{ template "partials/archived-release-message" . }}
+        </div>
+      </section>
+    </div>
+    <div class="ons-grid__col ons-col-8@m">
+      <section role="contentinfo" aria-label="{{ localise "SearchResults" $lang  1 }}">
+        <div class="search__count">
+          {{ template "partials/count" . }}
+        </div>
+        <div class="search__sort">
+          {{ template "partials/sort" . }}
+        </div>
+        <div class="search__filter__mobile-filter-toggle hide">
+            <button id="filter-results" type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
+              <span class="ons-btn__inner">{{ localise "FilterResults" $lang 4 }}</span>
+            </button>
+        </div>
+        <div class="border-bottom">
+          <a style="text-decoration: none; color: initial;"  href="/timeseriestool" class="ml-1">
+            <div class="box__content background--iron-light padding-right-sm--1 padding-right-md--1 padding-bottom-md--0  padding-left-sm--1 padding-left-md--1 js-hover-click" style="position: relative;">
+              <span class="float-right margin-top-md--2 margin-top-sm--2">
+                {{ template "icons/chevron-right" }}
+              </span>
+              <h3>Looking to download time series?</h3>
+              <p>
+                  Try our time series explorer
+                </p>
+              </div>
+            </a>
+        </div>
+        <div class="search__results">
+          {{ template "partials/data-aggregation-results" . }}
+        </div>
+        {{if ne .Data.Response.Count 0}}
           <div class="search__pagination">
             {{ template "partials/search-pagination" . }}
           </div>
-        </section>
-      </div>
-    {{end}}
-
+        {{end}}
+      </section>
+    </div>
   </div>
 </div>
 

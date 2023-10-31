@@ -13,7 +13,7 @@
 
     {{else if eq .Data.Response.Count 0}}
       <div class="ons-grid__col ons-col-12@m">
-        <section class="search__summary" role="contentinfo" aria-label="Search summary">
+        <section class="search__summary" role="contentinfo"  aria-label="{{ localise "SearchSummary" $lang 4 }}">
           {{ template "partials/summary" . }}
         </section>
       </div>
@@ -25,13 +25,13 @@
     {{else}}
 
       <div class="ons-grid__col ons-col-12@m">
-        <section class="search__summary" role="contentinfo" aria-label="Search summary">
+        <section class="search__summary" role="contentinfo"  aria-label="{{ localise "SearchSummary" $lang 4 }}">
           {{ template "partials/summary" . }}
         </section>
       </div>
 
       <div class="ons-grid__col ons-col-4@m">
-        <section class="search__filter" role="contentinfo" aria-label="Search filtering" id="search-filter">
+        <section class="search__filter" role="contentinfo" aria-label="{{ localise "SearchFiltering" $lang 4 }}" id="search-filter">
           <div class="search__filter__heading">
             <h3 class="font-size--18">
               {{ localise "Filter" $lang 4 }} {{ localise .Data.TermLocalKey $lang 4 }}
@@ -45,7 +45,7 @@
       </div>
 
       <div class="ons-grid__col ons-col-8@m">
-        <section role="contentinfo" aria-label="Search results">
+        <section role="contentinfo" aria-label="{{ localise "SearchResults" $lang  1 }}">
           <div class="search__count">
             {{ template "partials/count" . }}
           </div>
@@ -54,7 +54,7 @@
           </div>
           <div class="search__filter__mobile-filter-toggle hide">
               <button id="filter-results" type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
-                <span class="ons-btn__inner">Filter results</span>
+                <span class="ons-btn__inner">{{ localise "FilterResults" $lang 4 }}</span>
               </button>
               <div class="search__filter__content">
                 {{ template "partials/filter" . }}
