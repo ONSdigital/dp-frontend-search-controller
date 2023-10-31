@@ -1,15 +1,18 @@
 {{ $lang := .Language }}
 
 <div class="d-flex">
-    <button id="timeseries__basket" class="timeseries__basket ml-auto margin-right-sm--1 margin-right-md--1" aria-live="polite">
-        {{ localise "Selection" $lang 1 }} (<span id="timeseries__count">0</span>)
-    </button>
+    <button id="timeseries__basket" type="button" class="ons-btn ons-btn--secondary timeseries__basket ml-auto margin-right-sm--1 margin-right-md--1">
+        <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Selection" $lang 1 }} (<span id="timeseries__count">0</span>)</span>
+        </span>
+      </button>
 </div>
-<div id="timeseriesListContainer" class="hidden timeseries__list-container">
+<div id="timeseriesListContainer" class="hidden timeseries__list-container ons-card">
     <div class="timeseries__remember">
-        <input id="remember-selection" type="checkbox" name="" data-uri="/timeseriestool" value=""
+        <span class="ons-checkbox ons-checkbox--no-border">
+            <input type="checkbox" id="remember-selection" class="ons-checkbox__input ons-js-checkbox"
             aria-label="remember selection">
-        <label for="remember-selection">{{ localise "RememberSelection" $lang 1 }}</label>
+            <label class="ons-checkbox__label" for="remember-selection">{{ localise "RememberSelection" $lang 1 }}</label>
+        </span>
     </div>
     <div class="timeseries__list--exit" aria-label="close time series selection modal" tabindex="0">✕</div>
     <ul class="timeseries__list list--neutral margin-top-md--0">

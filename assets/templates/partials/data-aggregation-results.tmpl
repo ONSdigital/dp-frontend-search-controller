@@ -23,8 +23,11 @@
     <ul class="flush--padding">
         {{if $enabledTimeSeriesExport }}
             {{if ne .Data.Response.Count 0}}
-                <input id="select-all-time-series" type="checkbox" class="js-timeseriestool-select ons-checkbox__input ons-js-checkbox" name="" value="" aria-label="select time series">
-                <label for="select-all-time-series">{{ localise "SelectAll" $lang 1 }}</label>
+                <span class="ons-checkbox ons-checkbox--no-border">
+                    <input type="checkbox" id="select-all-time-series" class="ons-checkbox__input ons-js-checkbox"
+                        aria-label="select time all series">
+                    <label class="ons-checkbox__label" for="select-all-time-series">{{ localise "SelectAll" $lang 1 }}</label>
+                </span>
             {{end}}
         {{end}}
         {{ range $i, $item := $response.Items }}
@@ -32,19 +35,37 @@
             <li class="{{if $enabledTimeSeriesExport }} border-bottom {{end}} search__results__item{{if eq $item.Type.Type `product_page`}} search__results__item--product-page{{end}}">
                 <h3>
                     {{if $enabledTimeSeriesExport }}
-                    <input type="checkbox" class="select-time-series js-timeseriestool-select" name="" value="" aria-label="select time series" data-title="{{ .Description.Title }}" data-uri="{{ .URI }}"  data-dataset-id="{{ .Description.DatasetID }}" >
+                        <span class="ons-checkbox ons-checkbox--no-border">
+                            <input type="checkbox"class="select-time-series ons-checkbox__input ons-js-checkbox" data-title="{{ .Description.Title }}" data-uri="{{ .URI }}"  data-dataset-id="{{ .Description.DatasetID }}"
+                                aria-label="select time series">
+                            <a
+                                href="{{ .URI }}"
+                                class="margin-left--2"
+                                data-gtm-search-result-title="{{ .Description.Title }}"
+                                data-gtm-search-result-page="{{ $currentPage }}"
+                                data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
+                                data-gtm-search-result-url="{{ .URI }}"
+                                data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
+                            >
+                                {{ .Description.Title | safeHTML }}
+                                {{ if .Description.Edition }}:{{ end }}
+                                {{ .Description.Edition | safeHTML }}
+                            </a>
+                        </span>
+                    {{else}}
+                        <a
+                            href="{{ .URI }}"
+                            data-gtm-search-result-title="{{ .Description.Title }}"
+                            data-gtm-search-result-page="{{ $currentPage }}"
+                            data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
+                            data-gtm-search-result-url="{{ .URI }}"
+                            data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
+                        >
+                            {{ .Description.Title | safeHTML }}
+                            {{ if .Description.Edition }}:{{ end }}
+                            {{ .Description.Edition | safeHTML }}
+                        </a>
                     {{end}}
-                    <a href="{{ .URI }}"
-                        data-gtm-search-result-title="{{ .Description.Title }}"
-                        data-gtm-search-result-page="{{ $currentPage }}"
-                        data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
-                        data-gtm-search-result-url="{{ .URI }}"
-                        data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
-                    >
-                        {{ .Description.Title | safeHTML }}
-                        {{ if .Description.Edition }}:{{ end }}
-                        {{ .Description.Edition | safeHTML }}
-                    </a>
                 </h3>
                 {{ if not $datasetFinder }} 
                     {{ if eq $item.Type.Type `product_page` }}
