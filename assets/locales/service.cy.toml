@@ -403,6 +403,18 @@ one = "Selection"
 description = "Remember selection"
 one = "Remember selection"
 
+[CloseTimeSeriesModal]
+description = "Close time series selection modal"
+one = "Close time series selection modal"
+
+[SelectTimeSeries]
+description = "Select time series"
+one = "Select time series"
+
+[ResultsFailedToLoad]
+description = "The results failed to load, please refresh."
+one = "The results failed to load, please refresh."
+
 [DownloadSelectedTimeSeries]
 description = "Download selected time series"
 one = "Download selected time series"

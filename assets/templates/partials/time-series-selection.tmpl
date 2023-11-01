@@ -10,11 +10,11 @@
     <div class="timeseries__remember">
         <span class="ons-checkbox ons-checkbox--no-border">
             <input type="checkbox" id="remember-selection" class="ons-checkbox__input ons-js-checkbox"
-            aria-label="remember selection">
+            aria-label="{{ localise "RememberSelection" $lang 1 }}">
             <label class="ons-checkbox__label" for="remember-selection">{{ localise "RememberSelection" $lang 1 }}</label>
         </span>
     </div>
-    <div class="timeseries__list--exit" aria-label="close time series selection modal" tabindex="0">✕</div>
+    <div class="timeseries__list--exit" aria-label="{{ localise "CloseTimeSeriesModal" $lang 1 }}" tabindex="0">✕</div>
     <ul class="timeseries__list list--neutral margin-top-md--0">
     </ul>
     <div class="timeseries__download">

@@ -11,7 +11,7 @@
         <span class="ons-u-vh">
             {{ localise "ImportantInformation" $lang 1 }}</span>
         <div class="ons-panel__body">
-        <p data-error-message="The results failed to load, please refresh.">
+        <p data-error-message="{{ localise "ResultsFailedToLoad" $lang 1 }}">
             {{ localise "LoadingResults" $lang 1 }}
         </p>
         </div>
@@ -25,7 +25,7 @@
             {{if ne .Data.Response.Count 0}}
                 <span class="ons-checkbox ons-checkbox--no-border">
                     <input type="checkbox" id="select-all-time-series" class="ons-checkbox__input ons-js-checkbox"
-                        aria-label="select time all series">
+                        aria-label="{{ localise "SelectAll" $lang 1 }}">
                     <label class="ons-checkbox__label" for="select-all-time-series">{{ localise "SelectAll" $lang 1 }}</label>
                 </span>
             {{end}}
@@ -37,7 +37,7 @@
                     {{if $enabledTimeSeriesExport }}
                         <span class="ons-checkbox ons-checkbox--no-border">
                             <input type="checkbox"class="select-time-series ons-checkbox__input ons-js-checkbox" data-title="{{ .Description.Title }}" data-uri="{{ .URI }}"  data-dataset-id="{{ .Description.DatasetID }}"
-                                aria-label="select time series">
+                                aria-label="{{ localise "SelectTimeSeries" $lang 1 }}">
                             <a
                                 href="{{ .URI }}"
                                 class="margin-left--2"
