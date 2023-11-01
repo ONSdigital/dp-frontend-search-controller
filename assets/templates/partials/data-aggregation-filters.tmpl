@@ -262,19 +262,22 @@
             <legend class="ons-fieldset__legend">
                 {{ localise "ReleasedAfter" $lang 1 }}
             </legend>
-            <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid">
-                <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                    <label for="fromDateDay">{{ localise "Day" $lang 1 }}</label>
-                    <input type="text" id="fromDateDay" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateDay" min="1" max="31" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
-                </div>
-                <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                    <label for="fromDateMonth">{{ localise "Month" $lang 1 }}</label>
-                    <input type="text" id="fromDateMonth" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateMonth" min="1" max="12" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
-                </div>
-                <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
-                    <label for="fromDateYear">{{ localise "Year" $lang 1 }}</label>
-                    <input type="number" autocomplete="off" name="fromDateYear" id="fromDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
-                </div>
+            <div class="inputs-released-after tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
+                    <p class="ons-panel__error hidden inputs-released-after-error">
+                        <strong class="inputs-released-after-error-text"></strong>
+                    </p>
+                    <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding from-date-filters">
+                        <label for="fromDateDay">{{ localise "Day" $lang 1 }}</label>
+                        <input type="text" id="fromDateDay" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateDay" min="1" max="31" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
+                    </div>
+                    <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding from-date-filters">
+                        <label for="fromDateMonth">{{ localise "Month" $lang 1 }}</label>
+                        <input type="text" id="fromDateMonth" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateMonth" min="1" max="12" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
+                    </div>
+                    <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding from-date-filters">
+                        <label for="fromDateYear">{{ localise "Year" $lang 1 }}</label>
+                        <input type="number" autocomplete="off" name="fromDateYear" id="fromDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
+                    </div>
             </div>
         </fieldset>
 
@@ -282,16 +285,19 @@
             <legend class="ons-fieldset__legend">
                 {{ localise "ReleasedBefore" $lang 1 }}
             </legend>
-            <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid ">
-                <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+            <div class="inputs-released-before tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
+                <p class="ons-panel__error hidden inputs-released-before-error">
+                    <strong class="inputs-released-before-error-text"></strong>
+                </p>
+                <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding to-date-filters">
                     <label for="toDateDay">{{ localise "Day" $lang 1 }}</label>
                     <input type="number" autocomplete="off" name="toDateDay" id="toDateDay" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="0" max="31" pattern="[0-9]*">
                 </div>
-                <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+                <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding to-date-filters">
                     <label for="toDateMonth">{{ localise "Month" $lang 1 }}</label>
                     <input type="number" autocomplete="off" name="toDateMonth" id="toDateMonth" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="1" max="12" maxlength="2" pattern="[0-9]*">
                 </div>
-                <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+                <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding to-date-filters">
                     <label for="toDateYear">{{ localise "Year" $lang 1 }}</label>
                     <input type="number" autocomplete="off" name="toDateYear" id="toDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
                 </div>
@@ -315,16 +321,19 @@
         <legend class="ons-fieldset__legend">
             {{ localise "ReleasedAfter" $lang 1 }}
         </legend>
-        <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid">
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+        <div class="inputs-released-after tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
+            <p class="ons-panel__error hidden inputs-released-after-error">
+                <strong class="inputs-released-after-error-text"></strong>
+            </p>
+            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding from-date-filters">
                 <label for="fromDateDay">{{ localise "Day" $lang 1 }}</label>
                 <input type="text" id="fromDateDay" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateDay" min="1" max="31" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
             </div>
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding from-date-filters">
                 <label for="fromDateMonth">{{ localise "Month" $lang 1 }}</label>
                 <input type="text" id="fromDateMonth" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateMonth" min="1" max="12" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
             </div>
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding from-date-filters">
                 <label for="fromDateYear">{{ localise "Year" $lang 1 }}</label>
                 <input type="number" autocomplete="off" name="fromDateYear" id="fromDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
             </div>
@@ -335,16 +344,19 @@
         <legend class="ons-fieldset__legend">
             {{ localise "ReleasedBefore" $lang 1 }}
         </legend>
-        <div id="inputs-start-date" class="tiles__item tiles__item--nav-type flush-col hide--sm print--hide ons-grid ">
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+        <div class="inputs-released-before  tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
+            <p class="ons-panel__error hidden inputs-released-before-error">
+                <strong class="inputs-released-before-error-text"></strong>
+            </p>
+            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding to-date-filters">
                 <label for="toDateDay">{{ localise "Day" $lang 1 }}</label>
                 <input type="number" autocomplete="off" name="toDateDay" id="toDateDay" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="0" max="31" pattern="[0-9]*">
             </div>
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding to-date-filters">
                 <label for="toDateMonth">{{ localise "Month" $lang 1 }}</label>
                 <input type="number" autocomplete="off" name="toDateMonth" id="toDateMonth" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="1" max="12" maxlength="2" pattern="[0-9]*">
             </div>
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding date-filters">
+            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding to-date-filters">
                 <label for="toDateYear">{{ localise "Year" $lang 1 }}</label>
                 <input type="number" autocomplete="off" name="toDateYear" id="toDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
             </div>
