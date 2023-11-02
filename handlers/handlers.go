@@ -264,7 +264,6 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		defer wg.Done()
 
 		searchResp, respErr = searchC.GetSearch(ctx, options)
-		log.Info(ctx, "searchResp", log.Data{"searchResp": searchResp})
 		if respErr != nil {
 			log.Error(ctx, "getting search response from client failed", respErr)
 			cancel()
