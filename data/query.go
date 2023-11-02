@@ -93,7 +93,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	queryStringErr := reviewQueryString(ctx, urlQuery)
 	if queryStringErr == nil {
 		return validatedQueryParams, nil
-	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(ctx, validatedQueryParams) {
+	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(validatedQueryParams) {
 		log.Info(ctx, "the query string did not pass review")
 		return validatedQueryParams, nil
 	}
@@ -145,7 +145,7 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 	queryStringErr := reviewQueryString(ctx, urlQuery)
 	if queryStringErr == nil {
 		return validatedQueryParams, nil
-	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(ctx, validatedQueryParams) {
+	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(validatedQueryParams) {
 		log.Info(ctx, "the query string did not pass review")
 		return validatedQueryParams, nil
 	}
@@ -312,7 +312,7 @@ func getValidTimestamp(year, month, day string) (time.Time, error) {
 	return timestamp, nil
 }
 
-func hasFilters(ctx context.Context, validatedQueryParams SearchURLParams) bool {
+func hasFilters(validatedQueryParams SearchURLParams) bool {
 	if len(validatedQueryParams.Filter.Query) > 0 || len(validatedQueryParams.TopicFilter) > 0 {
 		return true
 	}
