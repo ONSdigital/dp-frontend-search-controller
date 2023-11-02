@@ -21,7 +21,7 @@ func UpdateNavigationData(ctx context.Context, cfg *config.Config, lang string, 
 		options := topicCli.Options{}
 
 		switch lang {
-		case topicCli.Welsh:
+		case string(topicCli.Welsh):
 			options.Lang = topicCli.Welsh
 		default:
 			options.Lang = topicCli.English

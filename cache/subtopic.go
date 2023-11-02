@@ -3,6 +3,7 @@ package cache
 import (
 	"strings"
 	"sync"
+	"time"
 )
 
 // Subtopics contains a list of subtopics in map form with addition to mutex locking
@@ -16,7 +17,7 @@ type Subtopics struct {
 type Subtopic struct {
 	ID              string
 	LocaliseKeyName string
-	ReleaseDate     string
+	ReleaseDate     *time.Time
 }
 
 // GetNewSubTopicsMap creates a new subtopics id map to store subtopic ids with addition to mutex locking
@@ -36,7 +37,7 @@ func (t *Subtopics) Get(key string) Subtopic {
 }
 
 // GetSubtopics returns an array of subtopics
-func (t *Subtopics) GetSubtopics(key string) (subtopics []Subtopic) {
+func (t *Subtopics) GetSubtopics() (subtopics []Subtopic) {
 	if t.subtopicsMap == nil {
 		return
 	}

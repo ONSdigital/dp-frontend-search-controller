@@ -75,7 +75,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 	}
 
 	Convey("Given a valid request", t, func() {
-		req := httptest.NewRequest("GET", "/search?q=housing&filter=bulletin&topics=1234", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing&filter=bulletin&topics=1234", http.NoBody)
 		req.Header.Set("X-Florence-Token", "testuser")
 
 		cfg, err := config.Get()
@@ -150,7 +150,7 @@ func TestUnitReadSuccess(t *testing.T) {
 
 	Convey("Given a valid request", t, func() {
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/search?q=housing", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing", http.NoBody)
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
@@ -209,7 +209,7 @@ func TestUnitReadFailure(t *testing.T) {
 
 	Convey("Given an error from failing to review query", t, func() {
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/search?q=housing&page=1000000", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing&page=1000000", http.NoBody)
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
@@ -251,7 +251,7 @@ func TestUnitReadFailure(t *testing.T) {
 
 	Convey("Given an error from failing to get search response from search client", t, func() {
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/search?q=housing", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing", http.NoBody)
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
@@ -293,7 +293,7 @@ func TestUnitReadFailure(t *testing.T) {
 
 	Convey("Given an error as current page exceeds total pages", t, func() {
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/search?q=housing&page=2", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing&page=2", http.NoBody)
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
@@ -433,7 +433,7 @@ func TestUnitGetCategoriesTypesCountSuccess(t *testing.T) {
 		}
 
 		Convey("When getCategoriesTypesCount is called", func() {
-			categories, topicCategories, _, _, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient, mockCensusTopic)
+			categories, topicCategories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient, mockCensusTopic)
 
 			Convey("Then return all categories and types with its count", func() {
 				So(categories[0].Count, ShouldEqual, 1)
@@ -473,7 +473,7 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 		}
 
 		Convey("When getCategoriesTypesCount is called", func() {
-			categories, topicCategories, _, _, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient, mockCensusTopic)
+			categories, topicCategories, err := getCategoriesTypesCount(ctx, accessToken, collectionID, apiQuery, mockedSearchClient, mockCensusTopic)
 
 			Convey("Then return an error", func() {
 				So(err, ShouldNotBeNil)
@@ -546,7 +546,7 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 
 	Convey("Given a internal server error", t, func() {
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/search?q=housing&page=1000000", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing&page=1000000", http.NoBody)
 
 		err := errs.ErrInternalServer
 
@@ -561,7 +561,7 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 
 	Convey("Given an client error", t, func() {
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/search?q=housing", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing", http.NoBody)
 
 		err := &mockClientError{}
 
@@ -576,7 +576,7 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 
 	Convey("Given a bad request error", t, func() {
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", "/search?q=housing&page=1000000", nil)
+		req := httptest.NewRequest("GET", "/search?q=housing&page=1000000", http.NoBody)
 
 		err := errs.ErrInvalidPage
 

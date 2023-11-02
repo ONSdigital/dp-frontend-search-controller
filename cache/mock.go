@@ -3,6 +3,7 @@ package cache
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/ONSdigital/dp-topic-api/models"
 )
@@ -48,9 +49,9 @@ func GetMockCensusTopic() *Topic {
 	}
 
 	mockCensusTopic.List = NewSubTopicsMap()
-	mockCensusTopic.List.AppendSubtopicID("1234", Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: "2022-10-10T08:30:00Z"})
-	mockCensusTopic.List.AppendSubtopicID("5678", Subtopic{ID: "5678", LocaliseKeyName: "Age", ReleaseDate: "2022-11-09T09:30:00Z"})
-	mockCensusTopic.List.AppendSubtopicID(CensusTopicID, Subtopic{ID: CensusTopicID, LocaliseKeyName: "Census", ReleaseDate: "2022-10-10T09:30:00Z"})
+	mockCensusTopic.List.AppendSubtopicID("1234", Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
+	mockCensusTopic.List.AppendSubtopicID("5678", Subtopic{ID: "5678", LocaliseKeyName: "Age", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
+	mockCensusTopic.List.AppendSubtopicID(CensusTopicID, Subtopic{ID: CensusTopicID, LocaliseKeyName: "Census", ReleaseDate: timeHelper("2022-10-10T09:30:00Z")})
 
 	return mockCensusTopic
 }
@@ -71,4 +72,10 @@ func getMockNavigationCache(ctx context.Context, lang string) (*NavigationCache,
 	testNavigationCache.Set(navigationlangKey, mockNavigationData)
 
 	return testNavigationCache, nil
+}
+
+// timeHelper is a helper function given a time returns a Time pointer
+func timeHelper(timeFormat string) *time.Time {
+	t, _ := time.Parse(time.RFC3339, timeFormat)
+	return &t
 }

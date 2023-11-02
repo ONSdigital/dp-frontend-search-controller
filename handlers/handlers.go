@@ -151,7 +151,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 			defer wg.Done()
 
 			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
-			categories, topicCategories, populationTypes, dimensions, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 			if countErr != nil {
 				log.Error(ctx, "getting categories, types and its counts failed", countErr)
 				setStatusCode(w, req, countErr)
@@ -359,8 +359,6 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 		categories      []data.Category
 		topicCategories []data.Topic
-		populationTypes []data.PopulationTypes
-		dimensions      []data.Dimensions
 
 		wg sync.WaitGroup
 
@@ -401,7 +399,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 			defer wg.Done()
 
 			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
-			categories, topicCategories, populationTypes, dimensions, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 			if countErr != nil {
 				log.Error(ctx, "getting categories, types and its counts failed", countErr)
 				setStatusCode(w, req, countErr)
@@ -474,7 +472,7 @@ func getCategoriesDatasetCountQuery(searchQuery url.Values) url.Values {
 }
 
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
-func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, query url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, []data.PopulationTypes, []data.Dimensions, error) {
+func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, query url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
 	var options searchSDK.Options
 
 	options.Query = query
@@ -486,17 +484,15 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 	if err != nil {
 		logData := log.Data{"url_values": query}
 		log.Error(ctx, "getting search query count from client failed", err, logData)
-		return nil, nil, nil, nil, err
+		return nil, nil, err
 	}
 
 	categories := data.GetCategories()
 	topicCategories := data.GetTopics(censusTopicCache, countResp)
-	populationTypes := data.GetPopulationTypes(countResp)
-	dimensions := data.GetDimensions(countResp)
 
 	setCountToCategories(ctx, countResp, categories)
 
-	return categories, topicCategories, populationTypes, dimensions, nil
+	return categories, topicCategories, nil
 }
 
 func setCountToCategories(ctx context.Context, countResp *searchModels.SearchResponse, categories []data.Category) {
