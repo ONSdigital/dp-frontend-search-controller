@@ -17,7 +17,6 @@ import (
 // SearchURLParams is a struct which contains all information of search url parameters and values
 type SearchURLParams struct {
 	Query                string
-	ToggleNlp            string
 	PopulationTypeFilter string
 	DimensionsFilter     string
 	Filter               Filter
@@ -61,7 +60,6 @@ func getIntValidator(minValue, maxValue int) intValidator {
 func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
-	validatedQueryParams.ToggleNlp = urlQuery.Get("c")
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
 	if paginationErr != nil {
@@ -226,23 +224,7 @@ func GetDataAggregationQuery(validatedQueryParams SearchURLParams, template stri
 		contentTypes = "static_qmi," + "static_methodology," + "static_methodology_download"
 	case "time-series-tool":
 		contentTypes = "timeseries"
-		//compendia
 	}
-	// apiQuery.Set("dateTo", "2018-01-01")
-	// apiQuery.Set("toDate", "2018-01-01")
-
-	// apiQuery.Set("fromDate", "2021-01-01")
-	// apiQuery.Set("YearBefore", "2020")
-	// apiQuery.Set("fromDateYear", "2020")
-
-	// apiQuery.Set("after-year", "2020")
-
-	// log.Info(context.TODO(), "kur", log.Data{
-	// 	"apiqueryyyy": apiQuery,
-	// })
-	// log.Info(context.TODO(), "kur", log.Data{
-	// 	"apiqueryyyy": apiQuery.Get("content_type"),
-	// })
 
 	if apiQuery.Get("content_type") == "" {
 		apiQuery.Set("content_type", contentTypes)
@@ -341,7 +323,6 @@ func hasFilters(ctx context.Context, validatedQueryParams SearchURLParams) bool 
 func createSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
 	return url.Values{
 		"q":                []string{validatedQueryParams.Query},
-		"c":                []string{validatedQueryParams.ToggleNlp},
 		"population_types": []string{validatedQueryParams.PopulationTypeFilter},
 		"dimensions":       []string{validatedQueryParams.DimensionsFilter},
 		"content_type":     validatedQueryParams.Filter.Query,
