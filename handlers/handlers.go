@@ -127,16 +127,14 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		var options searchSDK.Options
 
 		options.Query = searchQuery
+		options.Headers = http.Header{
+			searchSDK.CollectionID: {collectionID},
+		}
+
 		if strings.HasPrefix(accessToken, "Bearer ") {
-			options.Headers = http.Header{
-				searchSDK.FlorenceToken: {accessToken},
-				searchSDK.CollectionID:  {collectionID},
-			}
+			options.Headers.Set(searchSDK.FlorenceToken, accessToken)
 		} else {
-			options.Headers = http.Header{
-				searchSDK.FlorenceToken: {"Bearer " + accessToken},
-				searchSDK.CollectionID:  {collectionID},
-			}
+			options.Headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
 		}
 
 		go func() {
@@ -269,16 +267,14 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 		options.Query = searchQuery
 
+		options.Headers = http.Header{
+			searchSDK.CollectionID: {collectionID},
+		}
+
 		if strings.HasPrefix(accessToken, "Bearer ") {
-			options.Headers = http.Header{
-				searchSDK.FlorenceToken: {accessToken},
-				searchSDK.CollectionID:  {collectionID},
-			}
+			options.Headers.Set(searchSDK.FlorenceToken, accessToken)
 		} else {
-			options.Headers = http.Header{
-				searchSDK.FlorenceToken: {"Bearer " + accessToken},
-				searchSDK.CollectionID:  {collectionID},
-			}
+			options.Headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
 		}
 		go func() {
 			defer wg.Done()
@@ -371,16 +367,14 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 	var options searchSDK.Options
 
 	options.Query = query
+	options.Headers = http.Header{
+		searchSDK.CollectionID: {collectionID},
+	}
+
 	if strings.HasPrefix(accessToken, "Bearer ") {
-		options.Headers = http.Header{
-			searchSDK.FlorenceToken: {accessToken},
-			searchSDK.CollectionID:  {collectionID},
-		}
+		options.Headers.Set(searchSDK.FlorenceToken, accessToken)
 	} else {
-		options.Headers = http.Header{
-			searchSDK.FlorenceToken: {"Bearer " + accessToken},
-			searchSDK.CollectionID:  {collectionID},
-		}
+		options.Headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
 	}
 	countResp, err := searchC.GetSearch(ctx, options)
 	if err != nil {
