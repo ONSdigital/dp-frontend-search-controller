@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
@@ -126,10 +127,18 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		var options searchSDK.Options
 
 		options.Query = searchQuery
-		options.Headers = http.Header{
-			searchSDK.FlorenceToken: {"Bearer " + accessToken},
-			searchSDK.CollectionID:  {collectionID},
+		if strings.HasPrefix(accessToken, "Bearer ") {
+			options.Headers = http.Header{
+				searchSDK.FlorenceToken: {accessToken},
+				searchSDK.CollectionID:  {collectionID},
+			}
+		} else {
+			options.Headers = http.Header{
+				searchSDK.FlorenceToken: {"Bearer " + accessToken},
+				searchSDK.CollectionID:  {collectionID},
+			}
 		}
+
 		go func() {
 			defer wg.Done()
 
@@ -260,9 +269,16 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 		options.Query = searchQuery
 
-		options.Headers = http.Header{
-			searchSDK.FlorenceToken: {"Bearer " + accessToken},
-			searchSDK.CollectionID:  {collectionID},
+		if strings.HasPrefix(accessToken, "Bearer ") {
+			options.Headers = http.Header{
+				searchSDK.FlorenceToken: {accessToken},
+				searchSDK.CollectionID:  {collectionID},
+			}
+		} else {
+			options.Headers = http.Header{
+				searchSDK.FlorenceToken: {"Bearer " + accessToken},
+				searchSDK.CollectionID:  {collectionID},
+			}
 		}
 		go func() {
 			defer wg.Done()
@@ -355,9 +371,16 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 	var options searchSDK.Options
 
 	options.Query = query
-	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
-		searchSDK.CollectionID:  {collectionID},
+	if strings.HasPrefix(accessToken, "Bearer ") {
+		options.Headers = http.Header{
+			searchSDK.FlorenceToken: {accessToken},
+			searchSDK.CollectionID:  {collectionID},
+		}
+	} else {
+		options.Headers = http.Header{
+			searchSDK.FlorenceToken: {"Bearer " + accessToken},
+			searchSDK.CollectionID:  {collectionID},
+		}
 	}
 	countResp, err := searchC.GetSearch(ctx, options)
 	if err != nil {
