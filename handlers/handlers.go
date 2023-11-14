@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
@@ -127,9 +128,11 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 
 		options.Query = searchQuery
 		options.Headers = http.Header{
-			searchSDK.FlorenceToken: {"Bearer " + accessToken},
-			searchSDK.CollectionID:  {collectionID},
+			searchSDK.CollectionID: {collectionID},
 		}
+
+		setFlorenceTokenHeader(options.Headers, accessToken)
+
 		go func() {
 			defer wg.Done()
 
@@ -261,9 +264,11 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		options.Query = searchQuery
 
 		options.Headers = http.Header{
-			searchSDK.FlorenceToken: {"Bearer " + accessToken},
-			searchSDK.CollectionID:  {collectionID},
+			searchSDK.CollectionID: {collectionID},
 		}
+
+		setFlorenceTokenHeader(options.Headers, accessToken)
+
 		go func() {
 			defer wg.Done()
 
@@ -356,9 +361,11 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 
 	options.Query = query
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
-		searchSDK.CollectionID:  {collectionID},
+		searchSDK.CollectionID: {collectionID},
 	}
+
+	setFlorenceTokenHeader(options.Headers, accessToken)
+
 	countResp, err := searchC.GetSearch(ctx, options)
 	if err != nil {
 		logData := log.Data{"url_values": query}
@@ -424,4 +431,12 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 	log.Error(req.Context(), "setting-response-status", err)
 
 	w.WriteHeader(status)
+}
+
+func setFlorenceTokenHeader(headers http.Header, accessToken string) {
+	if strings.HasPrefix(accessToken, "Bearer ") {
+		headers.Set(searchSDK.FlorenceToken, accessToken)
+	} else {
+		headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
+	}
 }

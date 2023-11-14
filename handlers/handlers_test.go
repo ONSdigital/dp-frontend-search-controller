@@ -589,3 +589,33 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 		})
 	})
 }
+
+func TestSetFlorenceTokenHeader(t *testing.T) {
+	t.Parallel()
+
+	Convey("Given a valid access token without 'Bearer' prefix", t, func() {
+		headers := make(http.Header)
+		accessToken := "accessToken"
+
+		Convey("When setFlorenceTokenHeader is called", func() {
+			setFlorenceTokenHeader(headers, accessToken)
+
+			Convey("Then the FlorenceToken header should be set with 'Bearer' prefix", func() {
+				So(headers.Get(searchSDK.FlorenceToken), ShouldEqual, "Bearer "+accessToken)
+			})
+		})
+	})
+
+	Convey("Given a valid access token with 'Bearer' prefix", t, func() {
+		headers := make(http.Header)
+		accessToken := "Bearer accessToken"
+
+		Convey("When setFlorenceTokenHeader is called", func() {
+			setFlorenceTokenHeader(headers, accessToken)
+
+			Convey("Then the FlorenceToken header should be set with no additional 'Bearer' prefix", func() {
+				So(headers.Get(searchSDK.FlorenceToken), ShouldEqual, accessToken)
+			})
+		})
+	})
+}
