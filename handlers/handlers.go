@@ -131,11 +131,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 			searchSDK.CollectionID: {collectionID},
 		}
 
-		if strings.HasPrefix(accessToken, "Bearer ") {
-			options.Headers.Set(searchSDK.FlorenceToken, accessToken)
-		} else {
-			options.Headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
-		}
+		setFlorenceTokenHeader(options.Headers, accessToken)
 
 		go func() {
 			defer wg.Done()
@@ -271,11 +267,8 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 			searchSDK.CollectionID: {collectionID},
 		}
 
-		if strings.HasPrefix(accessToken, "Bearer ") {
-			options.Headers.Set(searchSDK.FlorenceToken, accessToken)
-		} else {
-			options.Headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
-		}
+		setFlorenceTokenHeader(options.Headers, accessToken)
+
 		go func() {
 			defer wg.Done()
 
@@ -371,11 +364,8 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 		searchSDK.CollectionID: {collectionID},
 	}
 
-	if strings.HasPrefix(accessToken, "Bearer ") {
-		options.Headers.Set(searchSDK.FlorenceToken, accessToken)
-	} else {
-		options.Headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
-	}
+	setFlorenceTokenHeader(options.Headers, accessToken)
+
 	countResp, err := searchC.GetSearch(ctx, options)
 	if err != nil {
 		logData := log.Data{"url_values": query}
@@ -441,4 +431,12 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 	log.Error(req.Context(), "setting-response-status", err)
 
 	w.WriteHeader(status)
+}
+
+func setFlorenceTokenHeader(headers http.Header, accessToken string) {
+	if strings.HasPrefix(accessToken, "Bearer ") {
+		headers.Set(searchSDK.FlorenceToken, accessToken)
+	} else {
+		headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
+	}
 }
