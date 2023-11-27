@@ -22,7 +22,7 @@
     </div>
     <ul class="flush--padding">
         {{if $enabledTimeSeriesExport }}
-            {{if ne .Data.Response.Count 0}}
+            {{if gt .Data.Response.Count 0}}
                 <span class="ons-checkbox ons-checkbox--no-border">
                     <input type="checkbox" id="select-all-time-series" class="ons-checkbox__input ons-js-checkbox"
                         aria-label="{{ localise "SelectAll" $lang 1 }}">
