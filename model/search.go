@@ -15,11 +15,11 @@ type SearchPage struct {
 
 // Search represents all search parameters and response data of the search
 type Search struct {
-	Query                  string `json:"query"`
-	ErrorMessage           string `json:"error_message,omitempty"`
-	EnabledFilters         []string
-	DataFilterEnabled      bool
-	EnableTimeSeriesExport bool
+	Query                  string                 `json:"query"`
+	ErrorMessage           string                 `json:"error_message,omitempty"`
+	EnabledFilters         []string               `json:"enabled_filters,omitempty"`
+	DataFilterEnabled      bool                   `json:"data_filter_enabled,omitempty"`
+	EnableTimeSeriesExport bool                   `json:"enable_time_series_export,omitempty"`
 	Filter                 []string               `json:"filter,omitempty"`
 	Filters                []Filter               `json:"filters"`
 	BeforeDate             model.InputDate        `json:"before_date"`
