@@ -12,6 +12,7 @@ type Date struct {
 
 const DateFormat = "2006-01-02"
 
+// MustParseDate checks if the date format is correct and parsable
 func MustParseDate(dateAsString string) Date {
 	d, err := ParseDate(dateAsString)
 	if err != nil {
@@ -21,6 +22,7 @@ func MustParseDate(dateAsString string) Date {
 	return d
 }
 
+// ParseDate parses the date into the default DateFormat
 func ParseDate(dateAsString string) (Date, error) {
 	if dateAsString == "" {
 		return Date{}, nil
@@ -33,6 +35,7 @@ func ParseDate(dateAsString string) (Date, error) {
 	return DateFromTime(t), nil
 }
 
+// DateFromTime extracts a date from a time object
 func DateFromTime(t time.Time) Date {
 	if t.IsZero() {
 		return Date{}
