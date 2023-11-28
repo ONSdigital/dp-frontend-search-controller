@@ -131,12 +131,12 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 		log.Error(ctx, "invalid topic filters set", topicFilterErr)
 		return validatedQueryParams, topicFilterErr
 	}
-	populationTypeFilterErr := reviewPopulationTypeFilters(ctx, urlQuery, &validatedQueryParams)
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
 	if populationTypeFilterErr != nil {
 		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
 		return validatedQueryParams, populationTypeFilterErr
 	}
-	dimensionsFilterErr := reviewDimensionsFilters(ctx, urlQuery, &validatedQueryParams)
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
 	if dimensionsFilterErr != nil {
 		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
 		return validatedQueryParams, dimensionsFilterErr
