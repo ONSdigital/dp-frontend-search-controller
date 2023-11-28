@@ -21,6 +21,7 @@ type Config struct {
 	DefaultPage                             int           `envconfig:"DEFAULT_PAGE"`
 	DefaultSort                             string        `envconfig:"DEFAULT_SORT"`
 	DefaultDatasetSort                      string        `envconfig:"DEFAULT_DATASET_SORT"`
+	EnableReworkedDataAggregationPages      bool          `envconfig:"ENABLE_REWORKED_DATA_AGGREGATION_PAGES"`
 	EnableCensusDimensionsFilterOption      bool          `envconfig:"ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION"`
 	EnableCensusPopulationTypesFilterOption bool          `envconfig:"ENABLE_CENSUS_POPULATION_TYPE_FILTER_OPTION"`
 	EnableCensusTopicFilterOption           bool          `envconfig:"ENABLE_CENSUS_TOPIC_FILTER_OPTION"`
