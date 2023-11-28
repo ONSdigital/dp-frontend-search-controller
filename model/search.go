@@ -18,7 +18,8 @@ type Search struct {
 	Query                  string                 `json:"query"`
 	ErrorMessage           string                 `json:"error_message,omitempty"`
 	EnabledFilters         []string               `json:"enabled_filters,omitempty"`
-	DataFilterEnabled      bool                   `json:"data_filter_enabled,omitempty"`
+	DateFilterEnabled      bool                   `json:"data_filter_enabled,omitempty"`
+	EnableHomeSwitch       bool                   `json:"enable_home_switch,omitempty"`
 	EnableTimeSeriesExport bool                   `json:"enable_time_series_export,omitempty"`
 	Filter                 []string               `json:"filter,omitempty"`
 	Filters                []Filter               `json:"filters"`

@@ -89,38 +89,47 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	switch template {
 	case "all-adhocs":
 		page.Metadata.Title = "User requested data"
+		page.Title.LocaliseKeyName = "UserRequestedData"
 		page.Data.EnabledFilters = []string{"keywords", "published"}
-		page.Data.DataFilterEnabled = true
+		page.Data.DateFilterEnabled = true
 	case "home-datalist":
 		page.Metadata.Title = "All data related to home"
+		page.Title.LocaliseKeyName = "DataList"
 		page.Data.EnabledFilters = []string{"keywords", "published", "content-type"}
-		page.Data.DataFilterEnabled = true
+		page.Data.DateFilterEnabled = true
+		page.Data.EnableHomeSwitch = true
+	case "home-publications":
+		page.Metadata.Title = "All publications related to home"
+		page.Title.LocaliseKeyName = "HomePublications"
+		page.Data.EnableHomeSwitch = true
+		// add "previous-releases" to enable the allReleases checkbox (needs API changes to work)
+		page.Data.EnabledFilters = []string{"keywords", "content-type"}
 	case "all-methodologies":
 		page.Metadata.Title = "All methodology"
+		page.Title.LocaliseKeyName = "AllMethodology"
 		page.Data.EnabledFilters = []string{"keywords", "topic-filter"}
 	case "published-requests":
 		page.Metadata.Title = "Freedom of Information (FOI) requests"
+		page.Title.LocaliseKeyName = "FOIRequests"
 		page.Data.EnabledFilters = []string{"keywords", "published"}
-		page.Data.DataFilterEnabled = true
+		page.Data.DateFilterEnabled = true
 	case "home-list":
 		page.Metadata.Title = "List of all home"
+		page.Title.LocaliseKeyName = "HomeList"
 		page.Data.EnabledFilters = []string{"keywords"}
-	case "home-publications":
-		page.Metadata.Title = "All publications related to home"
-		// add "previous-releases" to enable the allReleases checkbox (needs API changes to work)
-		page.Data.EnabledFilters = []string{"keywords", "content-type"}
 	case "home-methodology":
 		page.Metadata.Title = "Methodology related to home"
+		page.Title.LocaliseKeyName = "HomeMethodology"
 		page.Data.EnabledFilters = []string{"keywords"}
 	case "time-series-tool":
 		page.Metadata.Title = "Time series explorer"
+		page.Title.LocaliseKeyName = "TimeSeriesExplorer"
 		page.Data.EnabledFilters = []string{"keywords", "topic-filter", "updated"}
 		page.Data.EnableTimeSeriesExport = true
 	default:
 		page.Metadata.Title = template
 	}
 	page.Type = "Data Aggregation Page"
-	page.Title.LocaliseKeyName = "SearchResults"
 	page.Data.TermLocalKey = "Results"
 	page.Count = respC.Count
 	page.Language = lang
