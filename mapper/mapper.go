@@ -73,7 +73,7 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 
 	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template)
 
-	mapQuery(cfg, &page, validatedQueryParams, categories, respC, *req, errorMessage)
+	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, categories)
 
