@@ -1,12 +1,16 @@
 {{ $lang := .Language }}
+{{ $enabledHomeSwitch := .Data.EnableHomeSwitch }}
+
 <div class="ons-container search__container">
   <div class="ons-grid">
     <div class="ons-grid__col ons-col-12@m">
       <section class="search__summary">
         <span class="search__summary__generic">
-          {{ localise "DataList" $lang 1 }}
+          {{ localise .Title.LocaliseKeyName $lang 1 }}
         </span>
-        {{ template "partials/home-switch" . }}
+        {{ if $enabledHomeSwitch }}
+          {{ template "partials/home-switch" . }}
+        {{ end }}
       </section>
     </div>
     <div class="ons-grid__col ons-col-4@m">
@@ -17,6 +21,7 @@
           </h3>
           <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
         </div>
+        <!-- -->
         <div class="search__filter__content">
           {{ template "partials/data-aggregation-filters" . }}
         </div>
@@ -26,7 +31,7 @@
       </section>
     </div>
     <div class="ons-grid__col ons-col-8@m">
-      <section role="contentinfo" aria-label="{{ localise "SearchResults" $lang  1 }}">
+      <section role="contentinfo" aria-label="{{ localise "SearchResults" $lang 1 }}">
         <div class="search__count">
           {{ template "partials/count" . }}
         </div>
@@ -38,27 +43,16 @@
               <span class="ons-btn__inner">{{ localise "FilterResults" $lang 4 }}</span>
             </button>
         </div>
-        <div class="border-bottom">
-          <a href="/timeseriestool" class="col--md-offset-1 ons-u-td-no color-initial">
-            <div class="box__content background--iron-light padding-right-sm--1 padding-right-md--1 padding-bottom-md--0  padding-left-sm--1 padding-left-md--1 js-hover-click">
-              <span class="float-right margin-top-md--2 margin-top-sm--2">
-                {{ template "icons/chevron-right" }}
-              </span>
-              <h3>Looking to download time series?</h3>
-              <p>
-                  Try our time series explorer
-                </p>
-              </div>
-            </a>
-        </div>
+        
         <div class="search__results">
           {{ template "partials/data-aggregation-results" . }}
         </div>
-        {{if ne .Data.Response.Count 0}}
+       
+        {{ if gt .Data.Response.Count 0 }}
           <div class="search__pagination">
             {{ template "partials/search-pagination" . }}
           </div>
-        {{end}}
+        {{ end }}
       </section>
     </div>
   </div>

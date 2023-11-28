@@ -301,7 +301,12 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	}
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template)
-	rend.BuildPage(w, m, template)
+	//time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
+	if template != "time-series-tool" {
+		rend.BuildPage(w, m, "data-aggregation-page")
+	} else {
+		rend.BuildPage(w, m, template)
+	}
 }
 
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,

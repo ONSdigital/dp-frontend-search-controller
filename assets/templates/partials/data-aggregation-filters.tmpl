@@ -1,6 +1,6 @@
 {{ $lang := .Language }}
 {{ $enabledFilters := .Data.EnabledFilters }}
-{{ $dataFilterEnabled := .Data.DataFilterEnabled }}
+{{ $dateFilterEnabled := .Data.DateFilterEnabled }}
 {{ $filters := .Data.Filters }}
 {{ $topicFilters := .Data.TopicFilters }}
 {{ $query := .Data.Query }}
@@ -244,7 +244,7 @@
     </details>
     {{ end }} 
 {{ end }}
-{{ if $dataFilterEnabled }}
+{{ if $dateFilterEnabled }}
     <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
         <summary class="ons-collapsible__heading ons-js-collapsible-heading">
             <h2 class="ons-collapsible__title">
