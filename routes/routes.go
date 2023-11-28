@@ -30,14 +30,16 @@ func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, ca
 	r.StrictSlash(true).Path("/health").HandlerFunc(c.HealthCheckHandler)
 	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "search"))
 
-	r.StrictSlash(true).Path("/alladhocs").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "all-adhocs"))
-	r.StrictSlash(true).Path("/datalist").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "home-datalist"))
-	r.StrictSlash(true).Path("/publishedrequests").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "published-requests"))
-	r.StrictSlash(true).Path("/staticlist").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "home-list"))
-	r.StrictSlash(true).Path("/topicspecificmethodology").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "home-methodology"))
-	r.StrictSlash(true).Path("/timeseriestool").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "time-series-tool"))
-	r.StrictSlash(true).Path("/publications").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "home-publications"))
-	r.StrictSlash(true).Path("/allmethodologies").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "all-methodologies"))
+	if cfg.EnableReworkedDataAggregationPages {
+		r.StrictSlash(true).Path("/alladhocs").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "all-adhocs"))
+		r.StrictSlash(true).Path("/datalist").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "home-datalist"))
+		r.StrictSlash(true).Path("/publishedrequests").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "published-requests"))
+		r.StrictSlash(true).Path("/staticlist").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "home-list"))
+		r.StrictSlash(true).Path("/topicspecificmethodology").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "home-methodology"))
+		r.StrictSlash(true).Path("/timeseriestool").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "time-series-tool"))
+		r.StrictSlash(true).Path("/publications").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "home-publications"))
+		r.StrictSlash(true).Path("/allmethodologies").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, c.Zebedee, c.Renderer, c.Search, cacheList, "all-methodologies"))
+	}
 
 	r.StrictSlash(true).Path("/census/find-a-dataset").Methods("GET").HandlerFunc(handlers.ReadFindDataset(cfg, c.Zebedee, c.Renderer, c.Search, cacheList))
 }
