@@ -95,7 +95,8 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	case "home-datalist":
 		page.Metadata.Title = "All data related to home"
 		page.Title.LocaliseKeyName = "DataList"
-		page.Data.EnabledFilters = []string{"keywords", "published", "content-type"}
+		page.Data.EnabledFilters = []string{"keywords", "published"}
+		page.Data.ContentTypeFilterEnabled = true
 		page.Data.DateFilterEnabled = true
 		page.Data.EnableHomeSwitch = true
 	case "home-publications":
@@ -103,11 +104,13 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Title.LocaliseKeyName = "HomePublications"
 		page.Data.EnableHomeSwitch = true
 		// add "previous-releases" to enable the allReleases checkbox (needs API changes to work)
-		page.Data.EnabledFilters = []string{"keywords", "content-type"}
+		page.Data.EnabledFilters = []string{"keywords"}
+		page.Data.ContentTypeFilterEnabled = true
 	case "all-methodologies":
 		page.Metadata.Title = "All methodology"
 		page.Title.LocaliseKeyName = "AllMethodology"
-		page.Data.EnabledFilters = []string{"keywords", "topic-filter"}
+		page.Data.EnabledFilters = []string{"keywords"}
+		page.Data.TopicFilterEnabled = true
 	case "published-requests":
 		page.Metadata.Title = "Freedom of Information (FOI) requests"
 		page.Title.LocaliseKeyName = "FOIRequests"
@@ -124,7 +127,9 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	case "time-series-tool":
 		page.Metadata.Title = "Time series explorer"
 		page.Title.LocaliseKeyName = "TimeSeriesExplorer"
-		page.Data.EnabledFilters = []string{"keywords", "topic-filter", "updated"}
+		page.Data.EnabledFilters = []string{"keywords", "updated"}
+		page.Data.DateFilterEnabled = true
+		page.Data.TopicFilterEnabled = true
 		page.Data.EnableTimeSeriesExport = true
 	default:
 		page.Metadata.Title = template
