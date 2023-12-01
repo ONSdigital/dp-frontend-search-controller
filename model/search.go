@@ -15,24 +15,26 @@ type SearchPage struct {
 
 // Search represents all search parameters and response data of the search
 type Search struct {
-	Query                  string                 `json:"query"`
-	ErrorMessage           string                 `json:"error_message,omitempty"`
-	EnabledFilters         []string               `json:"enabled_filters,omitempty"`
-	DateFilterEnabled      bool                   `json:"data_filter_enabled,omitempty"`
-	EnableHomeSwitch       bool                   `json:"enable_home_switch,omitempty"`
-	EnableTimeSeriesExport bool                   `json:"enable_time_series_export,omitempty"`
-	Filter                 []string               `json:"filter,omitempty"`
-	Filters                []Filter               `json:"filters"`
-	BeforeDate             model.InputDate        `json:"before_date"`
-	AfterDate              model.InputDate        `json:"after_date"`
-	TopicFilters           []TopicFilter          `json:"topic_filters"`
-	CensusFilters          []TopicFilter          `json:"census_filters"`
-	PopulationTypeFilter   []PopulationTypeFilter `json:"population_types"`
-	DimensionsFilter       []DimensionsFilter     `json:"dimensions"`
-	Sort                   Sort                   `json:"sort,omitempty"`
-	Pagination             model.Pagination       `json:"pagination,omitempty"`
-	Response               Response               `json:"response"`
-	TermLocalKey           string                 `json:"term_localise_key_name,omitempty"`
+	Query                    string                 `json:"query"`
+	ErrorMessage             string                 `json:"error_message,omitempty"`
+	EnabledFilters           []string               `json:"enabled_filters,omitempty"`
+	DateFilterEnabled        bool                   `json:"data_filter_enabled,omitempty"`
+	EnableHomeSwitch         bool                   `json:"enable_home_switch,omitempty"`
+	EnableTimeSeriesExport   bool                   `json:"enable_time_series_export,omitempty"`
+	TopicFilterEnabled       bool                   `json:"topic_filter_enabled,omitempty"`
+	ContentTypeFilterEnabled bool                   `json:"content_type_filter_enabled,omitempty"`
+	Filter                   []string               `json:"filter,omitempty"`
+	Filters                  []Filter               `json:"filters"`
+	BeforeDate               model.InputDate        `json:"before_date"`
+	AfterDate                model.InputDate        `json:"after_date"`
+	TopicFilters             []TopicFilter          `json:"topic_filters"`
+	CensusFilters            []TopicFilter          `json:"census_filters"`
+	PopulationTypeFilter     []PopulationTypeFilter `json:"population_types"`
+	DimensionsFilter         []DimensionsFilter     `json:"dimensions"`
+	Sort                     Sort                   `json:"sort,omitempty"`
+	Pagination               model.Pagination       `json:"pagination,omitempty"`
+	Response                 Response               `json:"response"`
+	TermLocalKey             string                 `json:"term_localise_key_name,omitempty"`
 }
 
 // Filter respresents all filter information needed by templates

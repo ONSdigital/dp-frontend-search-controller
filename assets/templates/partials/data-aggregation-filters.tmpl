@@ -1,220 +1,28 @@
 {{ $enabledFilters := .Data.EnabledFilters }}
 {{ $dateFilterEnabled := .Data.DateFilterEnabled }}
-{{ $filters := .Data.Filters }}
-{{ $topicFilters := .Data.TopicFilters }}
+{{ $topicFilterEnabled := .Data.TopicFilterEnabled }}
+{{ $contentTypeFilterEnabled := .Data.ContentTypeFilterEnabled }}
 {{ $lang := $.Language }}
 
 <div id="accordion" class="ons-accordion">
     {{ range $enabledFilter := $enabledFilters }}
-    {{if eq $enabledFilter "keywords" }}
-        {{ template "partials/data-filters/keywords-filter" $lang }}
-    {{end}}
-
-    {{if eq $enabledFilter "previous-releases"}} 
-        {{ template "partials/data-filters/previous-releases" $lang }}
-    {{end}}
-
-    {{if eq $enabledFilter "topic-filter" }} 
-        {{if $topicFilters}}
-        <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
-            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
-                <h2 class="ons-collapsible__title">
-                    <legend class="block">
-                        {{ localise "Topic" $lang 4 }}
-                    </legend>
-                </h2>
-                <span class="ons-collapsible__icon">
-                    {{ template "icons/chevron-right" }}
-                </span>
-            </summary>
-            <fieldset class="ons-fieldset">
-                <legend class="ons-u-vh">{{ localise "CensusTopic" $lang 1 }}</legend>
-                    {{ range $index, $topicFilter := $topicFilters }}
-                        <div class="ons-checkboxes__items">
-                            <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                <span class="ons-checkbox ons-checkbox--no-border topic-filter">
-                                    <input type="checkbox" id="topic-group-{{ $index }}"
-                                        class="ons-checkbox__input ons-js-checkbox"
-                                        name="topics"
-                                        value="{{ print $topicFilter.Query }}" aria-controls="topic-group-{{ $index }}-other-wrap"
-                                        data-gtm-label="{{ $topicFilter.LocaliseKeyName }}"
-                                        {{ if $topicFilter.IsChecked }}
-                                            checked
-                                        {{ end }}
-                                    >
-                                    <label class="ons-checkbox__label" for="topic-group-{{ $index }}" id="topic-group-{{ $index }}-label">
-                                        {{ localise $topicFilter.LocaliseKeyName $lang 4 }}
-                                    </label>
-                                    <span class="ons-checkbox__other" id="topic-group-{{ $index }}-other-wrap">
-                                        <fieldset class="ons-fieldset ons-js-other-fieldset">
-                                            <legend class="ons-u-vh">{{ localise "CensusSubTopics" $lang 4}}</legend>
-                                                {{ range $index, $childFilter := $topicFilter.Types }}
-                                                    {{ $id := $childFilter.Query }}
-                                                    <div class="ons-checkboxes__items">
-                                                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                                            <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                                <input id="{{ $id }}"
-                                                                    class="ons-checkbox__input ons-js-checkbox"
-                                                                    type="checkbox" name="topics"
-                                                                    {{ if $childFilter.IsChecked }}checked{{ end }}
-                                                                    data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
-                                                                    value="{{ $id }}"
-                                                                />
-                                                                <label class="ons-checkbox__label" for="{{ $id }}"
-                                                                    id="{{ $id }}-label">
-                                                                    {{ $childFilter.LocaliseKeyName }} ({{ $childFilter.NumberOfResults }})
-                                                                </label>
-                                                            </span>
-                                                        </span>
-                                                    </div>
-                                                {{ end }}
-                                        </fieldset>
-                                    </span>
-                                </span>
-                            </span>
-                        </div>
-                    {{ end }}
-            </fieldset>
-        </details>
-        {{end}}
-    {{end}}
-    {{if eq $enabledFilter "content-type"}} 
-        {{ if $filters }}
-        <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
-            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
-                <h2 class="ons-collapsible__title">
-                    <legend class="block">
-                        {{ localise "ContentType" $lang 1 }}
-                    </legend>
-                </h2>
-                <span class="ons-collapsible__icon">
-                    {{ template "icons/chevron-right" }}
-                </span>
-            </summary>
-            <form id="filterForm" method="get" class="js-auto-submit__form">
-                    <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-                        <legend class="block hidden">
-                                {{ localise "ContentType" $lang 1 }}
-                        </legend>
-                            {{ range $index, $topFilter := $filters}}
-                                <div class="ons-checkboxes__items">
-                                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                        <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
-                                            <input type="checkbox" id="group-{{ $index }}"
-                                                class="ons-checkbox__input ons-js-checkbox"
-                                                value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
-                                                data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
-                                                {{ if $topFilter.IsChecked }}
-                                                    checked
-                                                {{ end }}
-                                            >
-                                            <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
-                                                {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
-                                            </label>
-                                            <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
-                                                <fieldset class="ons-fieldset ons-js-other-fieldset">
-                                                    <legend class="ons-u-vh">{{ localise "Select" $lang 1 }}{{ localise $topFilter.LocaliseKeyName $lang 4 }}</legend>
-                                                        {{ range $index, $childFilter := $topFilter.Types }}
-                                                            {{ $id := index $childFilter.FilterKey 0 }}
-                                                            <div class="ons-checkboxes__items">
-                                                                <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                                                    <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                                        <input id="{{ $id }}"
-                                                                            class="ons-checkbox__input ons-js-checkbox"
-                                                                            type="checkbox" name="filter"
-                                                                            {{ if $childFilter.IsChecked }}checked{{ end }}
-                                                                            data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
-                                                                            value="{{ $id }}"
-                                                                        />
-                                                                        <label class="ons-checkbox__label" for="{{ $id }}"
-                                                                            id="{{ $id }}-label">
-                                                                            {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
-                                                                        </label>
-                                                                    </span>
-                                                                </span>
-                                                            </div>
-                                                        {{ end }}
-                                                </fieldset>
-                                            </span>
-                                        </span>
-                                    </span>
-                                </div>
-                            {{ end }}
-                    </fieldset>
-                    <noscript>
-                        <button type="submit"
-                                class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                                <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Filter" $lang 4 }}</span></span>
-                        </button>
-                    </noscript>
-            </form>
-        </details>
+        {{ if eq $enabledFilter "keywords" }}
+            {{ template "partials/data-filters/keywords-filter" $lang }}
         {{ end }}
+        {{ if eq $enabledFilter "previous-releases"}} 
+            {{ template "partials/data-filters/previous-releases" $lang }}
+        {{ end }}
+        {{ if eq $enabledFilter "updated" }} 
+            {{ template "partials/data-filters/updated-filter" $lang }}
+        {{ end }} 
     {{ end }}
-    {{if eq $enabledFilter "updated"}} 
-        {{ template "partials/data-filters/updated-filter" $lang }}
-    {{ end }} 
-{{ end }}
-{{ if $dateFilterEnabled }}
-    {{ template "partials/data-filters/date-filter" . }}
-{{ else }}
-<!-- Adds hidden date filter to be shown programatically in timeseries explorer -->
-<details id="dateFilters" class="hidden ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
-    <summary class="ons-collapsible__heading ons-js-collapsible-heading">
-        <h2 class="ons-collapsible__title">
-            <legend class="block">
-                {{ localise "Dates" $lang 1 }}
-            </legend>
-        </h2>
-        <span class="ons-collapsible__icon">
-            {{ template "icons/chevron-right" }}
-        </span>
-    </summary>
-    <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-        <legend class="ons-fieldset__legend">
-            {{ localise "ReleasedAfter" $lang 1 }}
-        </legend>
-        <div class="inputs-released-after tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
-            <p class="ons-panel__error hidden inputs-released-after-error">
-                <strong class="inputs-released-after-error-text"></strong>
-            </p>
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding from-date-filters">
-                <label for="fromDateDay">{{ localise "Day" $lang 1 }}</label>
-                <input type="text" id="fromDateDay" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateDay" min="1" max="31" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
-            </div>
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding from-date-filters">
-                <label for="fromDateMonth">{{ localise "Month" $lang 1 }}</label>
-                <input type="text" id="fromDateMonth" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input" name="fromDateMonth" min="1" max="12" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
-            </div>
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding from-date-filters">
-                <label for="fromDateYear">{{ localise "Year" $lang 1 }}</label>
-                <input type="number" autocomplete="off" name="fromDateYear" id="fromDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
-            </div>
-        </div>
-    </fieldset>
-
-    <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-        <legend class="ons-fieldset__legend">
-            {{ localise "ReleasedBefore" $lang 1 }}
-        </legend>
-        <div class="inputs-released-before  tiles__item tiles__item--nav-type flush-col hide--sm print--hide">
-            <p class="ons-panel__error hidden inputs-released-before-error">
-                <strong class="inputs-released-before-error-text"></strong>
-            </p>
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding to-date-filters">
-                <label for="toDateDay">{{ localise "Day" $lang 1 }}</label>
-                <input type="number" autocomplete="off" name="toDateDay" id="toDateDay" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="0" max="31" pattern="[0-9]*">
-            </div>
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding to-date-filters">
-                <label for="toDateMonth">{{ localise "Month" $lang 1 }}</label>
-                <input type="number" autocomplete="off" name="toDateMonth" id="toDateMonth" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="1" max="12" maxlength="2" pattern="[0-9]*">
-            </div>
-            <div class="tiles__content tiles__content--nav ons-grid__col ons-col-3@m flush--padding to-date-filters">
-                <label for="toDateYear">{{ localise "Year" $lang 1 }}</label>
-                <input type="number" autocomplete="off" name="toDateYear" id="toDateYear" value="" class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050" maxlength="4" pattern="[0-9]*">
-            </div>
-        </div>
-    </fieldset>
-</details>
-{{ end }}
+    {{ if $topicFilterEnabled }} 
+        {{ template "partials/data-filters/topic-filter" . }}
+    {{ end }}
+    {{ if $contentTypeFilterEnabled }} 
+        {{ template "partials/data-filters/content-type-filter" . }}
+    {{ end }}
+    {{ if $dateFilterEnabled }}
+        {{ template "partials/data-filters/date-filter" . }}
+    {{ end }}
 </div>
