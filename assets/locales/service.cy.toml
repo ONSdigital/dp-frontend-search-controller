@@ -419,13 +419,9 @@ one = "The results failed to load, please refresh."
 description = "Download selected time series"
 one = "Download selected time series"
 
-[DownloadXls]
-description = "Download .xls"
-one = "Download .xls"
-
-[DownloadCsv]
-description = "Download .csv"
-one = "Download .csv"
+[DownloadFile]
+description = "Download {{.FileType}}"
+one = "Download {{.arg0}}"
 
 [NoTimeSeriesSelected]
 description = "You have no timeseries selected"
