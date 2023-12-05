@@ -25,23 +25,39 @@ const (
 	homepagePath = "/"
 )
 
+// HandlerClients represents the handlers for search and data-aggregation
+type HandlerClients struct {
+	Renderer      RenderClient
+	SearchClient  SearchClient
+	ZebedeeClient ZebedeeClient
+}
+
+// NewHandlerClients creates a new instance of FilterFlex
+func NewHandlerClients(rc RenderClient, sc SearchClient, zc ZebedeeClient) *HandlerClients {
+	return &HandlerClients{
+		Renderer:      rc,
+		SearchClient:  sc,
+		ZebedeeClient: zc,
+	}
+}
+
 // Read Handler
-func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List, template string) http.HandlerFunc {
+func Read(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		read(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList, template)
+		read(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
 	})
 }
 
 // Read Handler
-func ReadDataAggregation(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List, template string) http.HandlerFunc {
+func ReadDataAggregation(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readDataAggregation(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList, template)
+		readDataAggregation(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
 	})
 }
 
-func ReadFindDataset(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List) http.HandlerFunc {
+func ReadFindDataset(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readFindDataset(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList)
+		readFindDataset(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
 	})
 }
 
