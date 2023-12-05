@@ -24,14 +24,14 @@
         <form id="xls-form" method="post" action="/export" class="inline print--hide">
             <button type="submit" title="Download XLS" aria-labelledby="timeseries__download-label"
                 class="btn btn--primary download-analytics">
-                {{ localise "DownloadXls" $lang 1 }}
+                {{ localise "DownloadFile" $lang 1 ".xls" }}
             </button>
             <input type="hidden" name="format" value="xls">
         </form>
         <form id="csv-form" method="post" action="/export" class="inline print--hide">
             <button type="submit" title="Download CSV" aria-labelledby="timeseries__download-label"
                 class="btn btn--primary download-analytics">
-                {{ localise "DownloadCsv" $lang 1 }}
+                {{ localise "DownloadFile" $lang 1 ".csv" }}
             </button>
             <input type="hidden" name="format" value="csv">
         </form>
