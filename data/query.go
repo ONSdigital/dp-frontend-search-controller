@@ -106,12 +106,12 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
 
-	fromDate, toDate, err := GetDates(context.TODO(), urlQuery)
-
-	if err == nil {
-		validatedQueryParams.AfterDate = fromDate
-		validatedQueryParams.BeforeDate = toDate
+	fromDate, toDate, err := GetDates(ctx, urlQuery)
+	if err != nil {
+	  // Handle error
 	}
+	validatedQueryParams.AfterDate = fromDate
+	validatedQueryParams.BeforeDate = toDate
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
 	if paginationErr != nil {
