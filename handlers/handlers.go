@@ -232,7 +232,6 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	}
 
 	validatedQueryParams, err := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
-
 	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
