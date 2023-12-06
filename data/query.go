@@ -108,7 +108,8 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 
 	fromDate, toDate, err := GetDates(ctx, urlQuery)
 	if err != nil {
-	  // Handle error
+		log.Error(ctx, "invalid dates set", err)
+		return validatedQueryParams, err
 	}
 	validatedQueryParams.AfterDate = fromDate
 	validatedQueryParams.BeforeDate = toDate
