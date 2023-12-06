@@ -39,7 +39,6 @@ No further dependencies other than those defined in `go.mod`
 | DEFAULT_PAGE                                | 1                         | The default current page of search results                                                                         |
 | DEFAULT_SORT                                | relevance                 | The default sort of search results |
 | ENABLE_REWORKED_DATA_AGGREGATION_PAGES      | false                     | Enable the reworked data aggregation pages  |
-| ENABLE_REWORKED_DATA_AGGREGATION_PAGES      | false                     | Enable the reworked data aggregation pages                                                                |
 | ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION      | false                     | Enable dimensions filter for census dataset finder                                                                 |
 | ENABLE_CENSUS_POPULATION_TYPE_FILTER_OPTION | false                     | Enable populations filter for census dataset finder                                                                |
 | ENABLE_CENSUS_TOPIC_FILTER_OPTION           | false                     | Enable filtering on various census topics                                                                          |
