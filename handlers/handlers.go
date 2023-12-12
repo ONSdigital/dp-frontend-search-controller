@@ -396,7 +396,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 			return
 		}
 	}()
-	makeSearchAPICalls = true
+
 	if makeSearchAPICalls {
 		var options searchSDK.Options
 

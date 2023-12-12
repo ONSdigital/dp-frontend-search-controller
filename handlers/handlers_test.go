@@ -100,11 +100,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 			},
 		}
 
-		mockHandlerClients := &HandlerClients{
-			ZebedeeClient: mockedZebedeeClient,
-			Renderer:      mockedRendererClient,
-			SearchClient:  mockedSearchClient,
-		}
+		mockHandlerClients := NewHandlerClients(mockedRendererClient, mockedSearchClient, mockedZebedeeClient)
 
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
