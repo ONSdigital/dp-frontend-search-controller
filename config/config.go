@@ -49,7 +49,7 @@ func Get() (*Config, error) {
 	if newCfg.Debug {
 		newCfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
 	} else {
-		//would need changed to the hash of the merged required changes for the data-aggregation pages
+		// would need changed to the hash of the merged required changes for the data-aggregation pages
 		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/e0a75c3"
 	}
 

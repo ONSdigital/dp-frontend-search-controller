@@ -85,7 +85,6 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 }
 
 func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string) {
-
 	switch template {
 	case "all-adhocs":
 		page.Metadata.Title = "User requested data"
