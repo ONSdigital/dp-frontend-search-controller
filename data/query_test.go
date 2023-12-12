@@ -279,6 +279,8 @@ func TestUnitCreateSearchAPIQuerySuccess(t *testing.T) {
 					"limit":            []string{"10"},
 					"offset":           []string{"0"},
 					"topics":           []string{"1234,5678"},
+					"fromDate":         []string{""},
+					"toDate":           []string{""},
 				})
 			})
 		})
