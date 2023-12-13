@@ -8,8 +8,10 @@
 {{ $population_types := .Data.PopulationTypeFilter}}
 {{ $dimensions := .Data.DimensionsFilter}}
 
-{{ if $topicFilters }}
+
 <div id="accordion" class="ons-accordion">
+
+    {{ if $topicFilters }}
     <form id="topicsFilterForm" method="get" class="js-auto-submit__form">
         <input type="hidden" name="q" value="{{ $query }}"/>
         <input type="hidden" name="sort" value="{{$sort}}"/>
@@ -296,6 +298,7 @@
             </details>
     </form>
     {{ end }}
+</div>
 <div class="search__filter__mobile-filter-toggle margin-bottom--8 hide">
     <button id="show-results" type="button" class="ons-btn" aria-controls="search-filter">
         <span class="ons-btn__inner">{{ localise "ShowResults" $lang 4}}</span>
