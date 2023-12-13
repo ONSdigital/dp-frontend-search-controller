@@ -8,6 +8,8 @@ import (
 	render "github.com/ONSdigital/dp-renderer/v2"
 	"github.com/ONSdigital/dp-renderer/v2/middleware/renderror"
 	"github.com/justinas/alice"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
+	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
 	"github.com/ONSdigital/dp-frontend-search-controller/assets"
@@ -103,8 +105,10 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise router
 	r := mux.NewRouter()
+	r.Use(otelmux.Middleware(cfg.OTServiceName))
 	middleware := []alice.Constructor{
 		renderror.Handler(clients.Renderer),
+		otelhttp.NewMiddleware(cfg.OTServiceName),
 	}
 	newAlice := alice.New(middleware...).Then(r)
 	routes.Setup(ctx, r, cfg, clients, svc.Cache)
