@@ -289,17 +289,17 @@ func getValidTimestamp(year, month, day string) (time.Time, error) {
 
 	y, err := yearValidator(year)
 	if err != nil {
-		log.Error(context.TODO(), "Invalid parameter", err)
+		return time.Time{}, errors.New("invalid year parameter")
 	}
 
 	m, err := monthValidator(month)
 	if err != nil {
-		log.Error(context.TODO(), "Invalid parameter", err)
+		return time.Time{}, errors.New("invalid month parameter")
 	}
 
 	d, err := dayValidator(day)
 	if err != nil {
-		log.Error(context.TODO(), "Invalid parameter", err)
+		return time.Time{}, errors.New("invalid day parameter")
 	}
 
 	timestamp := time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC)
@@ -307,7 +307,7 @@ func getValidTimestamp(year, month, day string) (time.Time, error) {
 	// Check the day is valid for the month in the year, e.g. day 30 cannot be in month 2 (February)
 	_, mo, _ := timestamp.Date()
 	if mo != time.Month(m) {
-		log.Error(context.TODO(), "Invalid parameter", err)
+		return time.Time{}, errors.New("invalid day month combination of parameters")
 	}
 
 	return timestamp, nil
