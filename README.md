@@ -46,6 +46,7 @@ No further dependencies other than those defined in `go.mod`
 | GRACEFUL_SHUTDOWN_TIMEOUT                   | 5s                              | The graceful shutdown timeout in seconds (`time.Duration` format)                                                  |
 | HEALTHCHECK_CRITICAL_TIMEOUT                | 90s                             | Time to wait until an unhealthy dependent propagates its state to make this app unhealthy (`time.Duration` format) |
 | HEALTHCHECK_INTERVAL                        | 30s                             | Time between self-healthchecks (`time.Duration` format)                                                            |
+| OTEL_BATCH_TIMEOUT                          | 5s                              | Interval between pushes to OT Collector                                                                            |
 | OTEL_EXPORTER_OTLP_ENDPOINT                 | http://localhost:4317           | URL for OpenTelemetry endpoint                                                                                     |
 | OTEL_SERVICE_NAME                           | "dp-frontend-search-controller" | Service name to report to telemetry tools                                                                          |
 | IS_PUBLISHING                               | false                           | Mode in which service is running                                                                                   |
