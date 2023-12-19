@@ -3,9 +3,9 @@
 <h2>
     {{ $numberResults := len .Data.Response.Items}}
     <span class="search__summary__count">{{ .Data.Response.Count}} </span>
-    {{ if eq $numberResults 1 }}
-        {{ localise .Data.TermLocalKey $lang 1 }}
-    {{ else }}
-        {{ localise .Data.TermLocalKey $lang 4 }}
-    {{ end }}
+    {{- if eq $numberResults 1 }}
+        {{- localise .Data.TermLocalKey $lang 1 }}
+    {{- else }}
+        {{- localise .Data.TermLocalKey $lang 4 }}
+    {{- end }}
 </h2>
