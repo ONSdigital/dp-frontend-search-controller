@@ -26,3 +26,8 @@
         {{ template "partials/data-filters/date-filter" . }}
     {{ end }}
 </div>
+<div class="search__filter__mobile-filter-toggle margin-bottom--8 hide">
+    <button id="show-results" type="button" class="ons-btn" aria-controls="search-filter">
+        <span class="ons-btn__inner">{{ localise "ShowResults" $lang 4}}</span>
+    </button>
+</div>
