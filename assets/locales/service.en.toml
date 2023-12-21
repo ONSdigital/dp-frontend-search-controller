@@ -458,3 +458,13 @@ one = "Search results for publications"
 description = "Data results. Current page."
 other = "Data results. Current page."
 one = "Data results. Current page."
+
+[SeriesID]
+description = "Series ID"
+other = "Series ID"
+one = "Series ID"
+
+[DatasetID]
+description = "Dataset ID"
+other = "Dataset ID"
+one = "Dataset ID"

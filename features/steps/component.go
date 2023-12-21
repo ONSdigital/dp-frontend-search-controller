@@ -176,10 +176,14 @@ func generateSearchItem(num int) searchModels.Item {
 
 	title := fmt.Sprintf("Test Bulletin %d", num)
 	uri := fmt.Sprintf("http://localhost://test-bulletin-%d", num)
+	cdid := fmt.Sprintf("AA%d", num)
+	datasetID := fmt.Sprintf("DD%d", num)
 
 	searchItem := searchModels.Item{
-		Title: title,
-		URI:   uri,
+		Title:     title,
+		URI:       uri,
+		CDID:      cdid,
+		DatasetID: datasetID,
 	}
 	return searchItem
 }

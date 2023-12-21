@@ -317,6 +317,7 @@ func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse
 
 func mapItemDescription(item *model.ContentItem, itemC *searchModels.Item) {
 	item.Description = model.Description{
+		CDID:            itemC.CDID,
 		DatasetID:       itemC.DatasetID,
 		Language:        itemC.Language,
 		MetaDescription: itemC.MetaDescription,

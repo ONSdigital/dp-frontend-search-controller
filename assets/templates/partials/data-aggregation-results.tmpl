@@ -3,7 +3,6 @@
 {{ $itemsPerPage := .Data.Pagination.Limit }}
 {{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
 {{ $response := .Data.Response }}
-{{ $datasetFinder := .Data.PopulationTypeFilter }}
 {{ $enabledTimeSeriesExport := .Data.EnableTimeSeriesExport }}
 
 <div id="results">
@@ -67,35 +66,33 @@
                         </a>
                     {{end}}
                 </h3>
-                {{ if not $datasetFinder }} 
-                    {{ if eq $item.Type.Type `product_page` }}
-                        <p class="search__results__meta font-size--16">
-                            <b>{{ localise "Topic" $lang 1 }}</b>
-                        </p>
-                    {{ else }}
-                        <p class="search__results__meta font-size--16">
-                            <b>{{ localise "ReleasedOn" $lang 1 }}:</b> {{ dateFormat .Description.ReleaseDate }}
-                            |
-                            <b>{{ localise .Type.LocaliseKeyName $lang 1 }}</b>
-                        </p>
+                <ul class="ons-document-list__item-metadata">
+                    <li class="ons-document-list__item-attribute">
+                        <span class="ons-u-fw-b">{{ localise "ReleasedOn" $lang 1 }}:</span>
+                        <span> {{ dateFormat .Description.ReleaseDate }}</span>
+                    </li>
+                    {{/* Don't show type on timeseries page as they're all timeseries */}}
+                    {{ if not $enabledTimeSeriesExport }} 
+                    <li class="ons-document-list__item-attribute">
+                        <span class="ons-u-fw-b">{{ localise .Type.LocaliseKeyName $lang 1 }}</span>
+                    </li>
                     {{ end }}
-                {{ end }}
+                    {{ if .Description.CDID }}
+                    <li class="ons-document-list__item-attribute">
+                        <span class="ons-u-fw-b">{{ localise "SeriesID" $lang 1 }}:</span>
+                        <span> {{ dateFormat .Description.CDID }}</span>
+                    </li>
+                    {{ end }}
+                    {{ if .Description.DatasetID }}
+                    <li class="ons-document-list__item-attribute">
+                        <span class="ons-u-fw-b">{{ localise "DatasetID" $lang 1 }}:</span>
+                        <span> {{ dateFormat .Description.DatasetID }}</span>
+                    </li>
+                    {{ end }}
+                </ul>
                 <p class="search__results__summary font-size--16">
                     {{ if .Description.Highlight.Summary }} {{ .Description.Highlight.Summary | safeHTML }} {{ else }} {{ .Description.Summary | safeHTML }} {{ end }}
                 </p>
-                {{ if $datasetFinder }} 
-                    {{ $dlTermClasses := "ons-metadata__term ons-grid__col ons-col-3@m font-size--16" }}
-                    {{ $dlValueClasses := "ons-metadata__value ons-grid__col ons-col-9@m font-size--16" }}
-
-                    <dl class="ons-metadata ons-metadata__list ons-u-cf ons-grid ons-grid--gutterless font-size--16">
-                        <dt class="{{ $dlTermClasses }}">{{ localise "ReleasedOn" $lang 1 }}:</dt>
-                        <dd class="{{ $dlValueClasses }}">{{ .Description }}</dd>
-                        {{ if .Dataset.PopulationType }}
-                            <dt class="{{ $dlTermClasses }}">{{ localise "PopulationTypes" $lang 1 }}:</dt>
-                            <dd class="{{ $dlValueClasses }}">{{ .Dataset.PopulationType }}</dd>
-                        {{ end }}
-                    </dl>
-                {{ end }}
             </li>
         {{end}}
     </ul>

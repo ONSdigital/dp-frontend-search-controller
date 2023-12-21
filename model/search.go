@@ -135,6 +135,7 @@ type Dataset struct {
 // Description represents each search result description
 type Description struct {
 	Contact           *Contact  `json:"contact,omitempty"`
+	CDID              string    `json:"cdid,omitempty"`
 	DatasetID         string    `json:"dataset_id,omitempty"`
 	Edition           string    `json:"edition,omitempty"`
 	Headline1         string    `json:"headline1,omitempty"`
