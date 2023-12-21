@@ -1,25 +1,27 @@
+{{ $lang := .Language }}
+
 <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
     <summary class="ons-collapsible__heading ons-js-collapsible-heading">
         <h2 class="ons-collapsible__title">
             <legend class="block">
-                {{ localise "PreviousReleases" . 1 }}
+                {{ localise "PreviousReleases" $lang 1 }}
             </legend>
         </h2>
         <span class="ons-collapsible__icon">
-            {{ template "icons/chevron-right" }}
+            {{ template "icons/chevron-right" $lang }}
         </span>
     </summary>
     <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
         <legend class="filters__title">
             <strong>
-                {{ localise "PreviousReleases" . 1 }}
+                {{ localise "PreviousReleases" $lang 1 }}
             </strong>
         </legend>
         <div class="js-checkbox-container">
             <div class="filters__field">
                 <input type="checkbox" id="all-releases" name="allReleases" value="1">
                 <label for="all-releases">
-                    {{ localise "ShowAllReleases" . 1 }}
+                    {{ localise "ShowAllReleases" $lang 1 }}
                 </label>
             </div>
         </div>

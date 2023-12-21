@@ -2,19 +2,16 @@
 {{ $dateFilterEnabled := .Data.DateFilterEnabled }}
 {{ $topicFilterEnabled := .Data.TopicFilterEnabled }}
 {{ $contentTypeFilterEnabled := .Data.ContentTypeFilterEnabled }}
+{{ $keywordFilterEnabled := .Data.KeywordFilterEnabled }}
+{{ $updatedFilterEnabled := .Data.UpdatedFilterEnabled }}
 {{ $lang := $.Language }}
 
 <div id="accordion" class="ons-accordion">
-    {{ range $enabledFilter := $enabledFilters }}
-        {{ if eq $enabledFilter "keywords" }}
-            {{ template "partials/data-filters/keywords-filter" $lang }}
-        {{ end }}
-        {{ if eq $enabledFilter "previous-releases"}} 
-            {{ template "partials/data-filters/previous-releases" $lang }}
-        {{ end }}
-        {{ if eq $enabledFilter "updated" }} 
-            {{ template "partials/data-filters/updated-filter" $lang }}
-        {{ end }} 
+    {{ if $keywordFilterEnabled }}
+        {{ template "partials/data-filters/keywords-filter" . }}
+    {{ end }}
+    {{ if $updatedFilterEnabled }}
+        {{ template "partials/data-filters/updated-filter" . }}
     {{ end }}
     {{ if $topicFilterEnabled }} 
         {{ template "partials/data-filters/topic-filter" . }}
