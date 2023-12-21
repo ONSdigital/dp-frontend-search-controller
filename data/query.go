@@ -67,7 +67,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 		return validatedQueryParams, paginationErr
 	}
 
-	reviewSort(ctx, cfg, urlQuery, &validatedQueryParams)
+	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultSort)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	if contentTypeFilterError != nil {
@@ -120,7 +120,7 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 		return validatedQueryParams, paginationErr
 	}
 
-	reviewSort(ctx, cfg, urlQuery, &validatedQueryParams)
+	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultAggregationSort)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	if contentTypeFilterError != nil {
@@ -165,7 +165,7 @@ func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Va
 		return validatedQueryParams, paginationErr
 	}
 
-	reviewDatasetSort(ctx, cfg, urlQuery, &validatedQueryParams)
+	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultDatasetSort)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	if contentTypeFilterError != nil {

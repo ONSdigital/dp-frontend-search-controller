@@ -88,7 +88,7 @@ func healthCheckStatusHandle(status int) httpfake.Responder {
 func (c *Component) iShouldReceiveTheFollowingHealthJSONResponse(expectedResponse *godog.DocString) error {
 	var healthResponse, expectedHealth HealthCheckTest
 
-	responseBody, err := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
+	responseBody, err := ioutil.ReadAll(c.APIFeature.HTTPResponse.Body)
 	if err != nil {
 		return fmt.Errorf("failed to read response of search controller component - error: %v", err)
 	}

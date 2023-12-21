@@ -19,6 +19,7 @@ type Config struct {
 	DefaultMaximumSearchResults             int           `envconfig:"DEFAULT_MAXIMUM_SEARCH_RESULTS"`
 	DefaultOffset                           int           `envconfig:"DEFAULT_OFFSET"`
 	DefaultPage                             int           `envconfig:"DEFAULT_PAGE"`
+	DefaultAggregationSort                  string        `envconfig:"DEFAULT_AGGREGATION_SORT"`
 	DefaultSort                             string        `envconfig:"DEFAULT_SORT"`
 	DefaultDatasetSort                      string        `envconfig:"DEFAULT_DATASET_SORT"`
 	EnableReworkedDataAggregationPages      bool          `envconfig:"ENABLE_REWORKED_DATA_AGGREGATION_PAGES"`
@@ -75,12 +76,13 @@ func get() (*Config, error) {
 		DefaultMaximumSearchResults:             500,
 		DefaultOffset:                           0,
 		DefaultPage:                             1,
+		DefaultAggregationSort:                  "release_date",
 		DefaultSort:                             "relevance",
 		DefaultDatasetSort:                      "release_date",
 		EnableCensusTopicFilterOption:           false,
 		EnableCensusPopulationTypesFilterOption: false,
 		EnableCensusDimensionsFilterOption:      false,
-		EnableReworkedDataAggregationPages:      false,
+		EnableReworkedDataAggregationPages:      true,
 		EnableNewNavBar:                         false,
 		GracefulShutdownTimeout:                 5 * time.Second,
 		HealthCheckCriticalTimeout:              90 * time.Second,

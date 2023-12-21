@@ -43,3 +43,12 @@ Feature: Aggregated Data Pages
             ".ons-pagination__position": "Page 1 of 2"
         }
     """
+  Scenario: GET /alladhocs and check default sort
+    Given there is a Search API that gives a successful response and returns 10 results
+    When I navigate to "/alladhocs"
+    Then input element "#sort" has value "release_date"
+
+  Scenario: GET /alladhocs and check param driven sort
+    Given there is a Search API that gives a successful response and returns 10 results
+    When I navigate to "/alladhocs?sort=relevance"
+    Then input element "#sort" has value "relevance"
