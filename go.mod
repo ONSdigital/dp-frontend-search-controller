@@ -21,7 +21,7 @@ require (
 	github.com/ONSdigital/dp-otel-go v0.0.6
 	github.com/ONSdigital/dp-renderer/v2 v2.5.1
 	github.com/ONSdigital/dp-search-api v1.39.0
-	github.com/ONSdigital/dp-topic-api v0.20.0
+	github.com/ONSdigital/dp-topic-api v0.22.0
 	github.com/ONSdigital/log.go/v2 v2.4.1
 	github.com/cucumber/godog v0.13.0
 	github.com/gorilla/mux v1.8.1
