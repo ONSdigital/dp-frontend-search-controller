@@ -42,12 +42,6 @@ var (
 		ReleaseDate.Query: ReleaseDate,
 		Title.Query:       Title,
 	}
-
-	datasetSortOptions = map[string]Sort{
-		Relevance.Query:   Relevance,
-		ReleaseDate.Query: ReleaseDate,
-		Title.Query:       Title,
-	}
 )
 
 // reviewSort retrieves sort from query and checks if it is one of the sort options
