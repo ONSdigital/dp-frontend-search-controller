@@ -82,7 +82,7 @@ func get() (*Config, error) {
 		EnableCensusTopicFilterOption:           false,
 		EnableCensusPopulationTypesFilterOption: false,
 		EnableCensusDimensionsFilterOption:      false,
-		EnableReworkedDataAggregationPages:      true,
+		EnableReworkedDataAggregationPages:      false,
 		EnableNewNavBar:                         false,
 		GracefulShutdownTimeout:                 5 * time.Second,
 		HealthCheckCriticalTimeout:              90 * time.Second,
