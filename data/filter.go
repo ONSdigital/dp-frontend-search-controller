@@ -158,6 +158,7 @@ var (
 		Datasets.Group:             Datasets,
 		DatasetLandingPage.Group:   DatasetLandingPage,
 		Methodology.Group:          Methodology,
+		ProductPage.Group:          ProductPage,
 		TimeSeries.Group:           TimeSeries,
 		UserRequestedData.Group:    UserRequestedData,
 	}

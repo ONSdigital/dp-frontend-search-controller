@@ -8,6 +8,9 @@ import (
 type FakeAPI struct {
 	fakeHTTP                     *httpfake.HTTPFake
 	healthRequest                *httpfake.Request
+	searchRequest                *httpfake.Request
+	topicRequest                 *httpfake.Request
+	navigationRequest            *httpfake.Request
 	outboundRequests             []string
 	collectOutboundRequestBodies httpfake.CustomAssertor
 }

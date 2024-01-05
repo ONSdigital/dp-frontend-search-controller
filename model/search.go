@@ -1,28 +1,42 @@
 package model
 
-import "github.com/ONSdigital/dp-renderer/v2/model"
+import (
+	"github.com/ONSdigital/dp-renderer/v2/model"
+)
 
 // Search is the model struct for the cookies preferences form
 type SearchPage struct {
 	model.Page
-	Data  Search `json:"data"`
-	Title Title  `json:"title,omitempty"`
+	Data       Search          `json:"data"`
+	Title      Title           `json:"title,omitempty"`
+	BeforeDate model.InputDate `json:"before_date"`
+	AfterDate  model.InputDate `json:"after_date"`
 }
 
 // Search represents all search parameters and response data of the search
 type Search struct {
-	Query                string                 `json:"query"`
-	ErrorMessage         string                 `json:"error_message,omitempty"`
-	Filter               []string               `json:"filter,omitempty"`
-	Filters              []Filter               `json:"filters"`
-	TopicFilters         []TopicFilter          `json:"topic_filters"`
-	CensusFilters        []TopicFilter          `json:"census_filters"`
-	PopulationTypeFilter []PopulationTypeFilter `json:"population_types"`
-	DimensionsFilter     []DimensionsFilter     `json:"dimensions"`
-	Sort                 Sort                   `json:"sort,omitempty"`
-	Pagination           model.Pagination       `json:"pagination,omitempty"`
-	Response             Response               `json:"response"`
-	TermLocalKey         string                 `json:"term_localise_key_name,omitempty"`
+	Query                    string                 `json:"query"`
+	ErrorMessage             string                 `json:"error_message,omitempty"`
+	EnabledFilters           []string               `json:"enabled_filters,omitempty"`
+	DateFilterEnabled        bool                   `json:"data_filter_enabled,omitempty"`
+	EnableHomeSwitch         bool                   `json:"enable_home_switch,omitempty"`
+	EnableTimeSeriesExport   bool                   `json:"enable_time_series_export,omitempty"`
+	TopicFilterEnabled       bool                   `json:"topic_filter_enabled,omitempty"`
+	KeywordFilterEnabled     bool                   `json:"keyword_filter_enabled,omitempty"`
+	ContentTypeFilterEnabled bool                   `json:"content_type_filter_enabled,omitempty"`
+	UpdatedFilterEnabled     bool                   `json:"updated_filter_enabled,omitempty"`
+	Filter                   []string               `json:"filter,omitempty"`
+	Filters                  []Filter               `json:"filters"`
+	BeforeDate               model.InputDate        `json:"before_date"`
+	AfterDate                model.InputDate        `json:"after_date"`
+	TopicFilters             []TopicFilter          `json:"topic_filters"`
+	CensusFilters            []TopicFilter          `json:"census_filters"`
+	PopulationTypeFilter     []PopulationTypeFilter `json:"population_types"`
+	DimensionsFilter         []DimensionsFilter     `json:"dimensions"`
+	Sort                     Sort                   `json:"sort,omitempty"`
+	Pagination               model.Pagination       `json:"pagination,omitempty"`
+	Response                 Response               `json:"response"`
+	TermLocalKey             string                 `json:"term_localise_key_name,omitempty"`
 }
 
 // Filter respresents all filter information needed by templates
@@ -123,6 +137,7 @@ type Dataset struct {
 // Description represents each search result description
 type Description struct {
 	Contact           *Contact  `json:"contact,omitempty"`
+	CDID              string    `json:"cdid,omitempty"`
 	DatasetID         string    `json:"dataset_id,omitempty"`
 	Edition           string    `json:"edition,omitempty"`
 	Headline1         string    `json:"headline1,omitempty"`

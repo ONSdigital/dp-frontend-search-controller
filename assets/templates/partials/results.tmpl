@@ -7,10 +7,10 @@
 
 <div id="results">
     <div id="results-loading" class="ons-panel ons-panel--info ons-panel--no-title hide">
-        <span class="ons-u-vh">Important information: </span>
+        <span class="ons-u-vh">{{ localise "ImportantInformation" $lang 1 }}</span>
         <div class="ons-panel__body">
-        <p data-error-message="The results failed to load, please refresh.">
-            Loading search results.
+        <p data-error-message="{{ localise "ResultsFailedToLoad" $lang 1 }}">
+            {{ localise "LoadingResults" $lang 1 }}
         </p>
         </div>
     </div>
@@ -43,7 +43,7 @@
                     </p>
                 {{ else }}
                     <p class="search__results__meta font-size--16">
-                        <b>{{ localise "ReleasedOn" $lang 1 }}:</b> {{dateFormat .Description.ReleaseDate}}
+                        <b>{{ localise "ReleasedOn" $lang 1 }}:</b> {{ dateFormat .Description.ReleaseDate }}
                         |
                         <b>{{ localise .Type.LocaliseKeyName $lang 1 }}</b>
                     </p>
@@ -58,7 +58,7 @@
 
                 <dl class="ons-metadata ons-metadata__list ons-u-cf ons-grid ons-grid--gutterless font-size--16">
                     <dt class="{{ $dlTermClasses }}">{{ localise "ReleasedOn" $lang 1 }}:</dt>
-                    <dd class="{{ $dlValueClasses }}">{{dateFormat .Description.ReleaseDate}}</dd>
+                    <dd class="{{ $dlValueClasses }}">{{ .Description }}</dd>
                     {{ if .Dataset.PopulationType }}
                         <dt class="{{ $dlTermClasses }}">{{ localise "PopulationTypes" $lang 1 }}:</dt>
                         <dd class="{{ $dlValueClasses }}">{{ .Dataset.PopulationType }}</dd>

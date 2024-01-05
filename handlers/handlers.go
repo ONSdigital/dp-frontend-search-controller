@@ -25,16 +25,39 @@ const (
 	homepagePath = "/"
 )
 
+// HandlerClients represents the handlers for search and data-aggregation
+type HandlerClients struct {
+	Renderer      RenderClient
+	SearchClient  SearchClient
+	ZebedeeClient ZebedeeClient
+}
+
+// NewHandlerClients creates a new instance of FilterFlex
+func NewHandlerClients(rc RenderClient, sc SearchClient, zc ZebedeeClient) *HandlerClients {
+	return &HandlerClients{
+		Renderer:      rc,
+		SearchClient:  sc,
+		ZebedeeClient: zc,
+	}
+}
+
 // Read Handler
-func Read(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List) http.HandlerFunc {
+func Read(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		read(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList)
+		read(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
 	})
 }
 
-func ReadFindDataset(cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, cacheList cache.List) http.HandlerFunc {
+// Read Handler
+func ReadDataAggregation(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readFindDataset(w, req, cfg, zc, rend, searchC, accessToken, collectionID, lang, cacheList)
+		readDataAggregation(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
+	})
+}
+
+func ReadFindDataset(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
+	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		readFindDataset(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
 	})
 }
 
@@ -184,8 +207,125 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	rend.BuildPage(w, m, "search")
 }
 
+func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
+	accessToken, collectionID, lang string, cacheList cache.List, template string,
+) {
+	ctx, cancel := context.WithCancel(req.Context())
+	defer cancel()
+
+	urlQuery := req.URL.Query()
+
+	// get cached census topic and its subtopics
+	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
+	if err != nil {
+		log.Error(ctx, "failed to get census topic cache", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	// get cached navigation data
+	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
+	if err != nil {
+		log.Error(ctx, "failed to get navigation cache", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	validatedQueryParams, err := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
+	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
+		log.Error(ctx, "unable to review query", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	// counter used to keep track of the number of concurrent API calls
+	var counter = 3
+
+	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
+	categoriesCountQuery := getCategoriesCountQuery(searchQuery)
+
+	var (
+		homepageResp zebedeeCli.HomepageContent
+		searchResp   = &searchModels.SearchResponse{}
+
+		categories      []data.Category
+		topicCategories []data.Topic
+		populationTypes []data.PopulationTypes
+		dimensions      []data.Dimensions
+
+		wg sync.WaitGroup
+
+		respErr, countErr error
+	)
+	wg.Add(counter)
+
+	go func() {
+		defer wg.Done()
+		var homeErr error
+		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+		if homeErr != nil {
+			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
+			return
+		}
+	}()
+
+	var options searchSDK.Options
+
+	options.Query = searchQuery
+
+	options.Headers = http.Header{
+		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.CollectionID:  {collectionID},
+	}
+
+	go func() {
+		defer wg.Done()
+
+		searchResp, respErr = searchC.GetSearch(ctx, options)
+		if respErr != nil {
+			log.Error(ctx, "getting search response from client failed", respErr)
+			cancel()
+			return
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+		if countErr != nil {
+			log.Error(ctx, "getting categories, types and its counts failed", countErr)
+			setStatusCode(w, req, countErr)
+			cancel()
+			return
+		}
+	}()
+
+	wg.Wait()
+	if respErr != nil || countErr != nil {
+		setStatusCode(w, req, respErr)
+		return
+	}
+
+	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
+	if err != nil {
+		log.Error(ctx, "unable to validate current page", err)
+		setStatusCode(w, req, err)
+		return
+	}
+	basePage := rend.NewBasePageModel()
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template)
+	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
+	if template != "time-series-tool" {
+		rend.BuildPage(w, m, "data-aggregation-page")
+	} else {
+		rend.BuildPage(w, m, template)
+	}
+}
+
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
-	accessToken, collectionID, lang string, cacheList cache.List,
+	accessToken, collectionID, lang string, cacheList cache.List, template string,
 ) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
@@ -241,12 +381,10 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 		categories      []data.Category
 		topicCategories []data.Topic
-
-		wg sync.WaitGroup
+		wg              sync.WaitGroup
 
 		respErr, countErr error
 	)
-
 	wg.Add(counter)
 
 	go func() {
@@ -258,6 +396,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 			return
 		}
 	}()
+
 	if makeSearchAPICalls {
 		var options searchSDK.Options
 
@@ -307,7 +446,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	}
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, errorMessage, navigationCache)
-	rend.BuildPage(w, m, "search")
+	rend.BuildPage(w, m, template)
 }
 
 // validateCurrentPage checks if the current page exceeds the total pages which is a bad request

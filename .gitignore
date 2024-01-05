@@ -16,3 +16,4 @@ coverage.txt
 assets/data.go
 
 /.go
+/go

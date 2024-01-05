@@ -25,7 +25,7 @@ func TestUnitReviewSortSuccess(t *testing.T) {
 		validatedQueryParams := &SearchURLParams{}
 
 		Convey("When reviewSort is called", func() {
-			reviewSort(ctx, cfg, urlQuery, validatedQueryParams)
+			reviewSort(ctx, urlQuery, validatedQueryParams, cfg.DefaultSort)
 
 			Convey("Then set default sort and localisation key for default to validatedQueryParams", func() {
 				So(validatedQueryParams.Sort.Query, ShouldEqual, cfg.DefaultSort)
@@ -45,7 +45,7 @@ func TestUnitReviewSortSuccess(t *testing.T) {
 		validatedQueryParams := &SearchURLParams{}
 
 		Convey("When reviewSort is called", func() {
-			reviewSort(ctx, cfg, urlQuery, validatedQueryParams)
+			reviewSort(ctx, urlQuery, validatedQueryParams, cfg.DefaultSort)
 
 			Convey("Then set sort query and localisation key for sort value to validatedQueryParams", func() {
 				So(validatedQueryParams.Sort.Query, ShouldEqual, "relevance")
@@ -65,7 +65,7 @@ func TestUnitReviewSortSuccess(t *testing.T) {
 		validatedQueryParams := &SearchURLParams{}
 
 		Convey("When reviewSort is called", func() {
-			reviewSort(ctx, cfg, urlQuery, validatedQueryParams)
+			reviewSort(ctx, urlQuery, validatedQueryParams, cfg.DefaultSort)
 
 			Convey("Then set default sort and localisation key for default to validatedQueryParams", func() {
 				So(validatedQueryParams.Sort.Query, ShouldEqual, cfg.DefaultSort)

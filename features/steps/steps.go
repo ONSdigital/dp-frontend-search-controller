@@ -41,6 +41,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^one of the downstream services is warning`, c.oneOfTheDownstreamServicesIsWarning)
 	ctx.Step(`^one of the downstream services is failing`, c.oneOfTheDownstreamServicesIsFailing)
 	ctx.Step(`^I should receive the following health JSON response:$`, c.iShouldReceiveTheFollowingHealthJSONResponse)
+	ctx.Step(`^there is a Search API that gives a successful response and returns ([1-9]\d*|0) results`, c.thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResults)
 }
 
 // delayTimeBySeconds pauses the goroutine for the given seconds
@@ -87,7 +88,7 @@ func healthCheckStatusHandle(status int) httpfake.Responder {
 func (c *Component) iShouldReceiveTheFollowingHealthJSONResponse(expectedResponse *godog.DocString) error {
 	var healthResponse, expectedHealth HealthCheckTest
 
-	responseBody, err := ioutil.ReadAll(c.APIFeature.HttpResponse.Body)
+	responseBody, err := ioutil.ReadAll(c.APIFeature.HTTPResponse.Body)
 	if err != nil {
 		return fmt.Errorf("failed to read response of search controller component - error: %v", err)
 	}
@@ -147,4 +148,13 @@ func (c *Component) validateHealthCheck(checkResponse, expectedCheck *Check) {
 		assert.True(&c.ErrorFeature, checkResponse.LastFailure.Before(maxExpectedHealthCheckTime))
 		assert.True(&c.ErrorFeature, checkResponse.LastFailure.After(c.StartTime))
 	}
+}
+
+func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResults(count int) error {
+	c.FakeAPIRouter.searchRequest.Lock()
+	defer c.FakeAPIRouter.searchRequest.Unlock()
+
+	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(count)
+
+	return nil
 }

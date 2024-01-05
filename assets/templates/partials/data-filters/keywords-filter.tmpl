@@ -1,0 +1,36 @@
+{{ $lang := .Language }}
+
+<details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+    <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+        <h2 class="ons-collapsible__title">
+            <legend class="block">
+                {{ localise "Search" $lang 1 }}
+            </legend>
+        </h2>
+        <span class="ons-collapsible__icon">
+            {{ template "icons/chevron-right" }}
+        </span>
+    </summary>
+    <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+            <div class="tiles__item tiles__item--nav-type flush-col print--hide">
+                <div class="tiles__content tiles__content--nav content-type-filter">
+                    <label class="ons-label ons-u-pb-xs ons-u-fw-n" for="keywords">{{ localise "SearchKeywords" $lang 1 }}</label>
+                    <div class="ons-compact-search">
+                        <input
+                        type="search"
+                        autocomplete="off"
+                        class="ons-compact-search__input js-auto-submit__input"
+                        id="keywords"
+                        name="q"
+                        value="{{ .Data.Query }}">
+                    </div>
+                </div>
+            </div>
+    </fieldset>
+    <noscript>
+        <button type="submit"
+                class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
+                <span class="ons-btn__inner"><span class="ons-btn__text"> {{ localise "Filter" $lang 4 }}</span></span>
+        </button>
+    </noscript>
+</details>

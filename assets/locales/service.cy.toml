@@ -17,6 +17,11 @@
 description = "Filter"
 other = "Mireinio'r"
 
+[Updated]
+one = "Updated"
+description = "Updated"
+other = "Updated"
+
 [ContentTypesToShow]
 description = "Content types to show"
 other = "Mathau o gynnwys i'w dangos"
@@ -204,6 +209,10 @@ other = "Allweddeiriau"
 description = "Next"
 one = "Nesaf" 
 
+[Previous]
+description = "Previous"
+one = "Previous" 
+
 [DidYouKnow]
 description = "Did you know?"
 one = "Did you know?" 
@@ -224,6 +233,10 @@ one = "Chwilio am ddata, gwaith dadansoddi a chyhoeddiadau eraill."
 description = "results"
 one = "canlyniadau" 
 other = "canlyniadau"
+
+[Search]
+description = "Search"
+one = "Search" 
 
 [For]
 description = "for"
@@ -260,3 +273,197 @@ one = "Cael setiau data’r cyfrifiad"
 [SearchResults]
 description = "Search results"
 one = "Canlyniadau chwilio"
+
+[AllMethodology]
+description = "All methodology"
+one = "All methodology"
+
+[DataList]
+description = "All data related to home"
+one = "All data related to home"
+
+[HomePublications]
+description = "All publications related to home"
+one = "All publications related to home"
+
+[FOIRequests]
+description = "Freedom of Information (FOI) requests"
+one = "Freedom of Information (FOI) requests"
+
+[HomeList]
+description = "List of all home"
+one = "List of all home"
+
+[HomeMethodology]
+description = "Methodology related to home"
+one = "Methodology related to home"
+
+[TimeSeriesExplorer]
+description = "Time series explorer"
+one = "Time series explorer"
+
+[Topics]
+description = "Topics"
+one = "Topics"
+
+[EarlierReleases]
+description = "Need an earlier release?"
+one = "Need an earlier release?"
+
+[NationalArchives]
+description = "We moved them to <a href=\"http://webarchive.nationalarchives.gov.uk/20160105160709/http://www.ons.gov.uk/ons/index.html\">The National Archives</a> website, to keep this website as responsive as possible."
+one = "We moved them to <a href=\"http://webarchive.nationalarchives.gov.uk/20160105160709/http://www.ons.gov.uk/ons/index.html\">The National Archives</a> website, to keep this website as responsive as possible."
+
+[HistoricalDataNote]
+description = "<strong>Please note: </strong>all historical data is still on this website."
+one = "<strong>Please note: </strong>all historical data is still on this website."
+
+[SearchKeywords]
+description = "Search keywords"
+one = "Search keywords"
+
+[PreviousReleases]
+description = "Previous releases"
+one = "Previous releases"
+
+[ShowAllReleases]
+description = "Show all releases over time (only showing latest one of each by default)"
+one = "Show all releases over time (only showing latest one of each by default)"
+
+[LastUpdate]
+description = "Last update"
+one = "Last update"
+
+[SelectLastUpdated]
+description = "Select last updated"
+one = "Select last updated"
+
+[Today]
+description = "Today"
+one = "Today"
+
+[LastSevenDays]
+description = "Last 7 Days"
+one = "Last 7 Days"
+
+[LastMonth]
+description = "Last Month"
+one = "Last Month"
+
+[Custom]
+description = "Custom"
+one = "Custom"
+
+[Dates]
+description = "Dates"
+one = "Dates"
+
+[ReleasedAfter]
+description = "Released after"
+one = "Released after"
+
+[Day]
+description = "Day"
+one = "Day"
+
+[Month]
+description = "Month"
+one = "Month"
+
+[Year]
+description = "Year"
+one = "Year"
+
+[ReleasedBefore]
+description = "Released before"
+one = "Released before"
+
+[LoadingResults]
+description = "Loading search results"
+one = "Loading search results"
+
+[ImportantInformation]
+description = "Important information: "
+one = "Important information: "
+
+[SelectAll]
+description = "Select all"
+one = "Select all"
+
+[ShowResults]
+description = "Show results"
+one = "Show results"
+other = "Show results"
+
+[Selection]
+description = "Selection"
+one = "Selection"
+
+[RememberSelection]
+description = "Remember selection"
+one = "Remember selection"
+
+[CloseTimeSeriesModal]
+description = "Close time series selection modal"
+one = "Close time series selection modal"
+
+[SelectTimeSeries]
+description = "Select time series"
+one = "Select time series"
+
+[ResultsFailedToLoad]
+description = "The results failed to load, please refresh."
+one = "The results failed to load, please refresh."
+
+[DownloadSelectedTimeSeries]
+description = "Download selected time series"
+one = "Download selected time series"
+
+[DownloadFile]
+description = "Download {{.FileType}}"
+one = "Download {{.arg0}}"
+
+[NoTimeSeriesSelected]
+description = "You have no timeseries selected"
+one = "You have no timeseries selected"
+
+[CheckTimeseries]
+description = "Check the time series that you'd like to download"
+one = "Check the time series that you'd like to download"
+
+[FilterResults]
+description = "Filter results"
+other = "Hidlo'r canlyniadau"
+
+[SearchFiltering]
+description = "Search filtering"
+other = "Search filtering"
+
+[SearchSummary]
+description = "Search summary"
+other = "Search summary"
+
+[Publications]
+description = "Publications"
+other = "Publications"
+one = "Publications"
+
+[PublicationsSearchResults]
+description = "Search results for publications"
+other = "Search results for publications"
+one = "Search results for publications"
+
+[DataResults]
+description = "Data results. Current page."
+other = "Data results. Current page."
+one = "Data results. Current page."
+
+[SeriesID]
+description = "Series ID"
+other = "ID y gyfres"
+one = "ID y gyfres"
+
+[DatasetID]
+description = "Series ID"
+other = "ID y set ddata"
+one = "ID y set ddata"

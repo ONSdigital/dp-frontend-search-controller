@@ -11,7 +11,6 @@ import (
 	rend "github.com/ONSdigital/dp-renderer/v2"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	topic "github.com/ONSdigital/dp-topic-api/sdk"
-
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"
 )
@@ -29,6 +28,19 @@ type Clients struct {
 func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, cacheList cache.List) {
 	log.Info(ctx, "adding routes")
 	r.StrictSlash(true).Path("/health").HandlerFunc(c.HealthCheckHandler)
-	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, c.Zebedee, c.Renderer, c.Search, cacheList))
-	r.StrictSlash(true).Path("/census/find-a-dataset").Methods("GET").HandlerFunc(handlers.ReadFindDataset(cfg, c.Zebedee, c.Renderer, c.Search, cacheList))
+	hc := handlers.NewHandlerClients(c.Renderer, c.Search, c.Zebedee)
+	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, hc, cacheList, "search"))
+
+	if cfg.EnableReworkedDataAggregationPages {
+		r.StrictSlash(true).Path("/alladhocs").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "all-adhocs"))
+		r.StrictSlash(true).Path("/datalist").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "home-datalist"))
+		r.StrictSlash(true).Path("/publishedrequests").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "published-requests"))
+		r.StrictSlash(true).Path("/staticlist").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "home-list"))
+		r.StrictSlash(true).Path("/topicspecificmethodology").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "home-methodology"))
+		r.StrictSlash(true).Path("/timeseriestool").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "time-series-tool"))
+		r.StrictSlash(true).Path("/publications").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "home-publications"))
+		r.StrictSlash(true).Path("/allmethodologies").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "all-methodologies"))
+	}
+
+	r.StrictSlash(true).Path("/census/find-a-dataset").Methods("GET").HandlerFunc(handlers.ReadFindDataset(cfg, hc, cacheList))
 }

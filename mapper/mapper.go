@@ -58,6 +58,118 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	return page
 }
 
+// CreateDataAggregationPage maps type searchC.Response to model.Page
+func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, _ []data.PopulationTypes, _ []data.Dimensions,
+	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
+	navigationContent *topicModel.Navigation,
+	template string,
+) model.SearchPage {
+	page := model.SearchPage{
+		Page: basePage,
+	}
+
+	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
+
+	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template)
+
+	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
+
+	mapResponse(&page, respC, categories)
+
+	mapFilters(&page, categories, validatedQueryParams)
+
+	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
+
+	return page
+}
+
+func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string) {
+	switch template {
+	case "all-adhocs":
+		page.Metadata.Title = "User requested data"
+		page.Title.LocaliseKeyName = "UserRequestedData"
+		page.Data.KeywordFilterEnabled = true
+		page.Data.DateFilterEnabled = true
+	case "home-datalist":
+		page.Metadata.Title = "All data related to home"
+		page.Title.LocaliseKeyName = "DataList"
+		page.Data.KeywordFilterEnabled = true
+		page.Data.ContentTypeFilterEnabled = true
+		page.Data.DateFilterEnabled = true
+		page.Data.EnableHomeSwitch = true
+	case "home-publications":
+		page.Metadata.Title = "All publications related to home"
+		page.Title.LocaliseKeyName = "HomePublications"
+		page.Data.EnableHomeSwitch = true
+		page.Data.KeywordFilterEnabled = true
+		page.Data.ContentTypeFilterEnabled = true
+	case "all-methodologies":
+		page.Metadata.Title = "All methodology"
+		page.Title.LocaliseKeyName = "AllMethodology"
+		page.Data.KeywordFilterEnabled = true
+		page.Data.TopicFilterEnabled = true
+	case "published-requests":
+		page.Metadata.Title = "Freedom of Information (FOI) requests"
+		page.Title.LocaliseKeyName = "FOIRequests"
+		page.Data.KeywordFilterEnabled = true
+		page.Data.DateFilterEnabled = true
+	case "home-list":
+		page.Metadata.Title = "List of all home"
+		page.Title.LocaliseKeyName = "HomeList"
+		page.Data.KeywordFilterEnabled = true
+	case "home-methodology":
+		page.Metadata.Title = "Methodology related to home"
+		page.Title.LocaliseKeyName = "HomeMethodology"
+		page.Data.KeywordFilterEnabled = true
+	case "time-series-tool":
+		page.Metadata.Title = "Time series explorer"
+		page.Title.LocaliseKeyName = "TimeSeriesExplorer"
+		page.Data.KeywordFilterEnabled = true
+		page.Data.UpdatedFilterEnabled = true
+		page.Data.DateFilterEnabled = true
+		page.Data.TopicFilterEnabled = true
+		page.Data.EnableTimeSeriesExport = true
+	default:
+		page.Metadata.Title = template
+	}
+	page.Type = "Data Aggregation Page"
+	page.Data.TermLocalKey = "Results"
+	page.Count = respC.Count
+	page.Language = lang
+	page.BetaBannerEnabled = true
+	page.SearchDisabled = false
+	page.URI = req.URL.RequestURI()
+	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath
+	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
+	page.ServiceMessage = homepageResponse.ServiceMessage
+	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
+	page.SearchNoIndexEnabled = true
+	page.FeatureFlags.IsPublishing = cfg.IsPublishing
+	if navigationContent != nil {
+		page.NavigationContent = mapNavigationContent(*navigationContent)
+	}
+
+	page.AfterDate = coreModel.InputDate{
+		Language:        page.Language,
+		Id:              "after-date",
+		InputNameDay:    "after-day",
+		InputNameMonth:  "after-month",
+		InputNameYear:   "after-year",
+		InputValueDay:   validatedQueryParams.AfterDate.DayString(),
+		InputValueMonth: validatedQueryParams.AfterDate.MonthString(),
+		InputValueYear:  validatedQueryParams.AfterDate.YearString(),
+		Title: coreModel.Localisation{
+			LocaleKey: "ReleasedAfter",
+			Plural:    1,
+		},
+		Description: coreModel.Localisation{
+			LocaleKey: "DateFilterDescription",
+			Plural:    1,
+		},
+	}
+}
+
 // CreateSearchPage maps type searchC.Response to model.Page
 func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
 	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
@@ -205,6 +317,7 @@ func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse
 
 func mapItemDescription(item *model.ContentItem, itemC *searchModels.Item) {
 	item.Description = model.Description{
+		CDID:            itemC.CDID,
 		DatasetID:       itemC.DatasetID,
 		Language:        itemC.Language,
 		MetaDescription: itemC.MetaDescription,

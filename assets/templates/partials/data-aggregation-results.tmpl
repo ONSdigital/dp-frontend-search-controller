@@ -1,0 +1,99 @@
+{{ $lang := .Language }}
+{{ $currentPage := .Data.Pagination.CurrentPage }}
+{{ $itemsPerPage := .Data.Pagination.Limit }}
+{{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
+{{ $response := .Data.Response }}
+{{ $enabledTimeSeriesExport := .Data.EnableTimeSeriesExport }}
+
+<div id="results">
+    <div id="results-loading" class="ons-panel ons-panel--info ons-panel--no-title hide">
+        <span class="ons-u-vh">
+            {{ localise "ImportantInformation" $lang 1 }}</span>
+        <div class="ons-panel__body">
+        <p data-error-message="{{ localise "ResultsFailedToLoad" $lang 1 }}">
+            {{ localise "LoadingResults" $lang 1 }}
+        </p>
+        </div>
+    </div>
+    <div id="results-zero" class="hide">
+        <h3>{{ localise "NoResultsHeader" $lang 1 }}</h3>
+        <p>{{ localise "NoResultsSelectAnother" $lang 1 }} {{ localise "Or" $lang 1 }} <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search-zero">{{ localise "ClearAllFilters" $lang 1 }}</a>.</p>
+    </div>
+    <ul class="flush--padding">
+        {{if $enabledTimeSeriesExport }}
+            {{if gt .Data.Response.Count 0}}
+                <span class="ons-checkbox ons-checkbox--no-border">
+                    <input type="checkbox" id="select-all-time-series" class="ons-checkbox__input ons-js-checkbox"
+                        aria-label="{{ localise "SelectAll" $lang 1 }}">
+                    <label class="ons-checkbox__label" for="select-all-time-series">{{ localise "SelectAll" $lang 1 }}</label>
+                </span>
+            {{end}}
+        {{end}}
+        {{ range $i, $item := $response.Items }}
+            {{ $currentPosition := add $i 1 }}
+            <li class="{{if $enabledTimeSeriesExport }} border-bottom {{end}} search__results__item{{if eq $item.Type.Type `product_page`}} search__results__item--product-page{{end}}">
+                <h3>
+                    {{if $enabledTimeSeriesExport }}
+                        <span class="ons-checkbox ons-checkbox--no-border">
+                            <input type="checkbox"class="select-time-series ons-checkbox__input ons-js-checkbox" data-title="{{ .Description.Title }}" data-uri="{{ .URI }}"  data-dataset-id="{{ .Description.DatasetID }}"
+                                aria-label="{{ localise "SelectTimeSeries" $lang 1 }}">
+                            <a
+                                href="{{ .URI }}"
+                                class="margin-left--2"
+                                data-gtm-search-result-title="{{ .Description.Title }}"
+                                data-gtm-search-result-page="{{ $currentPage }}"
+                                data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
+                                data-gtm-search-result-url="{{ .URI }}"
+                                data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
+                            >
+                                {{ .Description.Title | safeHTML }}
+                                {{ if .Description.Edition }}:{{ end }}
+                                {{ .Description.Edition | safeHTML }}
+                            </a>
+                        </span>
+                    {{else}}
+                        <a
+                            href="{{ .URI }}"
+                            data-gtm-search-result-title="{{ .Description.Title }}"
+                            data-gtm-search-result-page="{{ $currentPage }}"
+                            data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
+                            data-gtm-search-result-url="{{ .URI }}"
+                            data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
+                        >
+                            {{ .Description.Title | safeHTML }}
+                            {{ if .Description.Edition }}:{{ end }}
+                            {{ .Description.Edition | safeHTML }}
+                        </a>
+                    {{end}}
+                </h3>
+                <ul class="ons-document-list__item-metadata">
+                    <li class="ons-document-list__item-attribute">
+                        <span class="ons-u-fw-b">{{ localise "ReleasedOn" $lang 1 }}:</span>
+                        <span> {{ dateFormat .Description.ReleaseDate }}</span>
+                    </li>
+                    {{/* Don't show type on timeseries page as they're all timeseries */}}
+                    {{ if not $enabledTimeSeriesExport }} 
+                    <li class="ons-document-list__item-attribute">
+                        <span class="ons-u-fw-b">{{ localise .Type.LocaliseKeyName $lang 1 }}</span>
+                    </li>
+                    {{ end }}
+                    {{ if .Description.CDID }}
+                    <li class="ons-document-list__item-attribute">
+                        <span class="ons-u-fw-b">{{ localise "SeriesID" $lang 1 }}:</span>
+                        <span> {{ dateFormat .Description.CDID }}</span>
+                    </li>
+                    {{ end }}
+                    {{ if .Description.DatasetID }}
+                    <li class="ons-document-list__item-attribute">
+                        <span class="ons-u-fw-b">{{ localise "DatasetID" $lang 1 }}:</span>
+                        <span> {{ dateFormat .Description.DatasetID }}</span>
+                    </li>
+                    {{ end }}
+                </ul>
+                <p class="search__results__summary font-size--16">
+                    {{ if .Description.Highlight.Summary }} {{ .Description.Highlight.Summary | safeHTML }} {{ else }} {{ .Description.Summary | safeHTML }} {{ end }}
+                </p>
+            </li>
+        {{end}}
+    </ul>
+</div>

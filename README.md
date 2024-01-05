@@ -23,33 +23,37 @@ No further dependencies other than those defined in `go.mod`
 
 ## Configuration
 
-| Environment variable                        | Default                   |                                                                                                                    |
-|---------------------------------------------|---------------------------|--------------------------------------------------------------------------------------------------------------------|
-| API_ROUTER_URL                              | http://localhost:23200/v1 | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)                                        |
-| BIND_ADDR                                   | :25000                    | The port to bind to                                                                                                |
-| CACHE_CENSUS_TOPICS_UPDATE_INTERVAL         | 30m                       | The time interval to update cache for census topics (`time.Duration` format)                                       |
-| CACHE_NAVIGATION_UPDATE_INTERVAL            | 30m                       | The time interval to update cache for navigation bar (`time.Duration` format)                                      |
-| CENSUS_TOPIC_ID                             | 4445                      | Unique identifer for the census topic, used to get census topics from Topics API                                   |
-| DEBUG                                       | false                     | Enable debug mode                                                                                                  |
-| DEFAULT_DATASET_SORT                        | release_date              | The default sort for census dataset finder                                                                         |
-| DEFAULT_LIMIT                               | 10                        | The default limit of search results in a page                                                                      |
-| DEFAULT_MAXIMUM_LIMIT                       | 50                        | The default maximum limit of search results in a page                                                              |
-| DEFAULT_MAXIMUM_SEARCH_RESULTS              | 500                       | The default maximum search results                                                                                 |
-| DEFAULT_OFFSET                              | 0                         | The default offset of search results                                                                               |
-| DEFAULT_PAGE                                | 1                         | The default current page of search results                                                                         |
-| DEFAULT_SORT                                | relevance                 | The default sort of search results                                                                                 |
-| ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION      | false                     | Enable dimensions filter for census dataset finder                                                                 |
-| ENABLE_CENSUS_POPULATION_TYPE_FILTER_OPTION | false                     | Enable populations filter for census dataset finder                                                                |
-| ENABLE_CENSUS_TOPIC_FILTER_OPTION           | false                     | Enable filtering on various census topics                                                                          |
-| ENABLE_NEW_NAV_BAR                          | false                     | Enable new dynamic navigation bar                                                                                  |
-| GRACEFUL_SHUTDOWN_TIMEOUT                   | 5s                        | The graceful shutdown timeout in seconds (`time.Duration` format)                                                  |
-| HEALTHCHECK_CRITICAL_TIMEOUT                | 90s                       | Time to wait until an unhealthy dependent propagates its state to make this app unhealthy (`time.Duration` format) |
-| HEALTHCHECK_INTERVAL                        | 30s                       | Time between self-healthchecks (`time.Duration` format)                                                            |
-| IS_PUBLISHING                               | false                     | Mode in which service is running                                                                                   |
-| PATTERN_LIBRARY_ASSETS_PATH                 | ""                        | Pattern library location                                                                                           |
-| SERVICE_AUTH_TOKEN                          | ""                        | This is required to identify the controller when it calls the topic API via the API router in publishing mode      |
-| SITE_DOMAIN                                 | localhost                 |                                                                                                                    |
-| SUPPORTED_LANGUAGES                         | [2]string{"en", "cy"}     | Supported languages                                                                                                |
+| Environment variable                        | Default                         |                                                                                                                    |
+|---------------------------------------------|---------------------------------|--------------------------------------------------------------------------------------------------------------------|
+| API_ROUTER_URL                              | http://localhost:23200/v1       | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)                                        |
+| BIND_ADDR                                   | :25000                          | The port to bind to                                                                                                |
+| CACHE_CENSUS_TOPICS_UPDATE_INTERVAL         | 30m                             | The time interval to update cache for census topics (`time.Duration` format)                                       |
+| CACHE_NAVIGATION_UPDATE_INTERVAL            | 30m                             | The time interval to update cache for navigation bar (`time.Duration` format)                                      |
+| CENSUS_TOPIC_ID                             | 4445                            | Unique identifer for the census topic, used to get census topics from Topics API                                   |
+| DEBUG                                       | false                           | Enable debug mode                                                                                                  |
+| DEFAULT_DATASET_SORT                        | release_date                    | The default sort for census dataset finder                                                                         |
+| DEFAULT_LIMIT                               | 10                              | The default limit of search results in a page                                                                      |
+| DEFAULT_MAXIMUM_LIMIT                       | 50                              | The default maximum limit of search results in a page                                                              |
+| DEFAULT_MAXIMUM_SEARCH_RESULTS              | 500                             | The default maximum search results                                                                                 |
+| DEFAULT_OFFSET                              | 0                               | The default offset of search results                                                                               |
+| DEFAULT_PAGE                                | 1                               | The default current page of search results                                                                         |
+| DEFAULT_SORT                                | relevance                       | The default sort of search results                                                                                 |
+| ENABLE_REWORKED_DATA_AGGREGATION_PAGES      | false                           | Enable the reworked data aggregation pages                                                                         |
+| ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION      | false                           | Enable dimensions filter for census dataset finder                                                                 |
+| ENABLE_CENSUS_POPULATION_TYPE_FILTER_OPTION | false                           | Enable populations filter for census dataset finder                                                                |
+| ENABLE_CENSUS_TOPIC_FILTER_OPTION           | false                           | Enable filtering on various census topics                                                                          |
+| ENABLE_NEW_NAV_BAR                          | false                           | Enable new dynamic navigation bar                                                                                  |
+| GRACEFUL_SHUTDOWN_TIMEOUT                   | 5s                              | The graceful shutdown timeout in seconds (`time.Duration` format)                                                  |
+| HEALTHCHECK_CRITICAL_TIMEOUT                | 90s                             | Time to wait until an unhealthy dependent propagates its state to make this app unhealthy (`time.Duration` format) |
+| HEALTHCHECK_INTERVAL                        | 30s                             | Time between self-healthchecks (`time.Duration` format)                                                            |
+| OTEL_BATCH_TIMEOUT                          | 5s                              | Interval between pushes to OT Collector                                                                            |
+| OTEL_EXPORTER_OTLP_ENDPOINT                 | http://localhost:4317           | URL for OpenTelemetry endpoint                                                                                     |
+| OTEL_SERVICE_NAME                           | "dp-frontend-search-controller" | Service name to report to telemetry tools                                                                          |
+| IS_PUBLISHING                               | false                           | Mode in which service is running                                                                                   |
+| PATTERN_LIBRARY_ASSETS_PATH                 | ""                              | Pattern library location                                                                                           |
+| SERVICE_AUTH_TOKEN                          | ""                              | This is required to identify the controller when it calls the topic API via the API router in publishing mode      |
+| SITE_DOMAIN                                 | localhost                       |                                                                                                                    |
+| SUPPORTED_LANGUAGES                         | [2]string{"en", "cy"}           | Supported languages                                                                                                |
 
 ## Contributing
 

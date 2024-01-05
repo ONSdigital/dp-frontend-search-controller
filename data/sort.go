@@ -4,7 +4,6 @@ import (
 	"context"
 	"net/url"
 
-	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
@@ -43,40 +42,18 @@ var (
 		ReleaseDate.Query: ReleaseDate,
 		Title.Query:       Title,
 	}
-
-	datasetSortOptions = map[string]Sort{
-		Relevance.Query:   Relevance,
-		ReleaseDate.Query: ReleaseDate,
-		Title.Query:       Title,
-	}
 )
 
 // reviewSort retrieves sort from query and checks if it is one of the sort options
-func reviewSort(ctx context.Context, cfg *config.Config, urlQuery url.Values, validatedQueryParams *SearchURLParams) {
+func reviewSort(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams, defaultSort string) {
 	sortQuery := urlQuery.Get("sort")
 
 	sort, found := sortOptions[sortQuery]
 
 	if !found {
-		log.Warn(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultSort)
-		sort.Query = cfg.DefaultSort
-		sort.LocaliseKeyName = sortOptions[cfg.DefaultSort].LocaliseKeyName
-	}
-
-	validatedQueryParams.Sort.Query = sort.Query
-	validatedQueryParams.Sort.LocaliseKeyName = sort.LocaliseKeyName
-}
-
-// reviewSort retrieves sort from query and checks if it is one of the sort options
-func reviewDatasetSort(ctx context.Context, cfg *config.Config, urlQuery url.Values, validatedQueryParams *SearchURLParams) {
-	sortQuery := urlQuery.Get("sort")
-
-	sort, found := datasetSortOptions[sortQuery]
-
-	if !found {
-		log.Warn(ctx, "sort chosen not available in sort options - default to sort "+cfg.DefaultDatasetSort)
-		sort.Query = cfg.DefaultDatasetSort
-		sort.LocaliseKeyName = datasetSortOptions[cfg.DefaultSort].LocaliseKeyName
+		log.Warn(ctx, "sort chosen not available in sort options - default to sort "+defaultSort)
+		sort.Query = defaultSort
+		sort.LocaliseKeyName = sortOptions[defaultSort].LocaliseKeyName
 	}
 
 	validatedQueryParams.Sort.Query = sort.Query

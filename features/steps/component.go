@@ -2,6 +2,7 @@ package steps
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -13,6 +14,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/v2/http"
+	searchModels "github.com/ONSdigital/dp-search-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/maxcnunes/httpfake"
 )
@@ -52,6 +54,10 @@ func NewSearchControllerComponent() (c *Component, err error) {
 		return nil, err
 	}
 
+	c.Config.EnableReworkedDataAggregationPages = true
+
+	log.Info(ctx, "configuration for component test", log.Data{"config": c.Config})
+
 	c.FakeAPIRouter = NewFakeAPI()
 	c.Config.APIRouterURL = c.FakeAPIRouter.fakeHTTP.ResolveURL("")
 
@@ -60,6 +66,13 @@ func NewSearchControllerComponent() (c *Component, err error) {
 
 	c.FakeAPIRouter.healthRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/health")
 	c.FakeAPIRouter.healthRequest.CustomHandle = healthCheckStatusHandle(200)
+
+	c.FakeAPIRouter.searchRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/search")
+	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
+
+	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics")
+
+	c.FakeAPIRouter.navigationRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/data")
 
 	initFunctions := &mocks.InitialiserMock{
 		DoGetHTTPServerFunc:   c.getHTTPServer,
@@ -139,4 +152,38 @@ func (c *Component) getHTTPServer(bindAddr string, router http.Handler) service.
 	c.HTTPServer.Addr = bindAddr
 	c.HTTPServer.Handler = router
 	return c.HTTPServer
+}
+
+func generateSearchResponse(count int) *httpfake.Response {
+	searchAPIResponse := searchModels.SearchResponse{
+		Count: count,
+		Items: []searchModels.Item{},
+	}
+
+	for i := 0; i < count; i++ {
+		newSearchItem := generateSearchItem(i)
+		searchAPIResponse.Items = append(searchAPIResponse.Items, newSearchItem)
+	}
+
+	fakeAPIResponse := httpfake.NewResponse()
+	fakeAPIResponse.Status(200)
+	fakeAPIResponse.BodyStruct(searchAPIResponse)
+
+	return fakeAPIResponse
+}
+
+func generateSearchItem(num int) searchModels.Item {
+
+	title := fmt.Sprintf("Test Bulletin %d", num)
+	uri := fmt.Sprintf("http://localhost://test-bulletin-%d", num)
+	cdid := fmt.Sprintf("AA%d", num)
+	datasetID := fmt.Sprintf("DD%d", num)
+
+	searchItem := searchModels.Item{
+		Title:     title,
+		URI:       uri,
+		CDID:      cdid,
+		DatasetID: datasetID,
+	}
+	return searchItem
 }

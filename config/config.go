@@ -19,8 +19,10 @@ type Config struct {
 	DefaultMaximumSearchResults             int           `envconfig:"DEFAULT_MAXIMUM_SEARCH_RESULTS"`
 	DefaultOffset                           int           `envconfig:"DEFAULT_OFFSET"`
 	DefaultPage                             int           `envconfig:"DEFAULT_PAGE"`
+	DefaultAggregationSort                  string        `envconfig:"DEFAULT_AGGREGATION_SORT"`
 	DefaultSort                             string        `envconfig:"DEFAULT_SORT"`
 	DefaultDatasetSort                      string        `envconfig:"DEFAULT_DATASET_SORT"`
+	EnableReworkedDataAggregationPages      bool          `envconfig:"ENABLE_REWORKED_DATA_AGGREGATION_PAGES"`
 	EnableCensusDimensionsFilterOption      bool          `envconfig:"ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION"`
 	EnableCensusPopulationTypesFilterOption bool          `envconfig:"ENABLE_CENSUS_POPULATION_TYPE_FILTER_OPTION"`
 	EnableCensusTopicFilterOption           bool          `envconfig:"ENABLE_CENSUS_TOPIC_FILTER_OPTION"`
@@ -28,6 +30,9 @@ type Config struct {
 	GracefulShutdownTimeout                 time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
 	HealthCheckCriticalTimeout              time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
 	HealthCheckInterval                     time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
+	OTBatchTimeout                          time.Duration `encconfig:"OTEL_BATCH_TIMEOUT"`
+	OTExporterOTLPEndpoint                  string        `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
+	OTServiceName                           string        `envconfig:"OTEL_SERVICE_NAME"`
 	IsPublishing                            bool          `envconfig:"IS_PUBLISHING"`
 	PatternLibraryAssetsPath                string        `envconfig:"PATTERN_LIBRARY_ASSETS_PATH"`
 	ServiceAuthToken                        string        `envconfig:"SERVICE_AUTH_TOKEN"   json:"-"`
@@ -48,7 +53,7 @@ func Get() (*Config, error) {
 	if newCfg.Debug {
 		newCfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
 	} else {
-		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/e0a75c3"
+		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/589d938"
 	}
 
 	return newCfg, nil
@@ -71,15 +76,20 @@ func get() (*Config, error) {
 		DefaultMaximumSearchResults:             500,
 		DefaultOffset:                           0,
 		DefaultPage:                             1,
+		DefaultAggregationSort:                  "release_date",
 		DefaultSort:                             "relevance",
 		DefaultDatasetSort:                      "release_date",
 		EnableCensusTopicFilterOption:           false,
 		EnableCensusPopulationTypesFilterOption: false,
 		EnableCensusDimensionsFilterOption:      false,
+		EnableReworkedDataAggregationPages:      false,
 		EnableNewNavBar:                         false,
 		GracefulShutdownTimeout:                 5 * time.Second,
 		HealthCheckCriticalTimeout:              90 * time.Second,
 		HealthCheckInterval:                     30 * time.Second,
+		OTBatchTimeout:                          5 * time.Second,
+		OTExporterOTLPEndpoint:                  "localhost:4317",
+		OTServiceName:                           "dp-frontend-search-controller",
 		IsPublishing:                            false,
 		ServiceAuthToken:                        "",
 		SiteDomain:                              "localhost",

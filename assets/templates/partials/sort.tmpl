@@ -7,6 +7,7 @@
     {{ range $theFilter := .Data.Filter }}
         <input type="hidden" name="filter" value="{{ $theFilter }}"/>
     {{end}}
+    <!-- rss feed here -->
     <div class="ons-field--search-sort search__sort__select">
         <label for="sort" class="ons-label sort__label font-size--16">Sort by</label>
         <select class="ons-input ons-input--select ons-input--sort-select input select font-size--16" id="sort" name="sort">

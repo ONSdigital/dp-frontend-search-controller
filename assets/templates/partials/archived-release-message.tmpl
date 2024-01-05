@@ -1,0 +1,31 @@
+{{ $lang := .Language }}
+
+<div id="accordion" class="ons-accordion">
+    <form id="filterForm" method="get" class="js-auto-submit__form">
+            <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+                <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                    <h2 class="ons-collapsible__title">
+                        <legend class="block">
+                            {{ localise "EarlierReleases" $lang 1 }}
+                        </legend>
+                    </h2>
+                    <span class="ons-collapsible__icon">
+                        {{ template "icons/chevron-right" }}
+                    </span>
+                </summary>
+                <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                    <legend class="ons-u-vh">{{ localise "SelectContentType" $lang 1 }}</legend>
+                        <div class="tiles__item tiles__item--nav-type flush-col print--hide">
+                            <div class="tiles__content tiles__content--nav">
+                                <p>
+                                    {{ localise "NationalArchives" $lang 1 | safeHTML}}
+                                </p>
+                                <p>
+                                    {{ localise "HistoricalDataNote" $lang 1 | safeHTML}}
+                                </p>
+                            </div>
+                        </div>
+                </fieldset>
+            </details>
+    </form>
+</div>

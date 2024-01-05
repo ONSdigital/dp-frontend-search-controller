@@ -1,0 +1,43 @@
+{{ $lang := .Language }}
+
+<div class="d-flex">
+    <button id="timeseries__basket" type="button" class="ons-btn ons-btn--secondary timeseries__basket ml-auto margin-right-sm--1 margin-right-md--1">
+        <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Selection" $lang 1 }} (<span id="timeseries__count">0</span>)</span>
+        </span>
+      </button>
+</div>
+<div id="timeseriesListContainer" class="hidden timeseries__list-container ons-card">
+    <div class="timeseries__remember">
+        <span class="ons-checkbox ons-checkbox--no-border">
+            <input type="checkbox" id="remember-selection" class="ons-checkbox__input ons-js-checkbox"
+            aria-label="{{ localise "RememberSelection" $lang 1 }}">
+            <label class="ons-checkbox__label" for="remember-selection">{{ localise "RememberSelection" $lang 1 }}</label>
+        </span>
+    </div>
+    <div class="timeseries__list--exit" aria-label="{{ localise "CloseTimeSeriesModal" $lang 1 }}" tabindex="0">✕</div>
+    <ul class="timeseries__list list--neutral margin-top-md--0">
+    </ul>
+    <div class="timeseries__download">
+        <p class="flush" id="timeseries__download-label">
+            {{ localise "DownloadSelectedTimeSeries" $lang 1 }}
+        </p>
+        <form id="xls-form" method="post" action="/export" class="inline print--hide">
+            <button type="submit" title="Download XLS" aria-labelledby="timeseries__download-label"
+                class="btn btn--primary download-analytics">
+                {{ localise "DownloadFile" $lang 1 ".xls" }}
+            </button>
+            <input type="hidden" name="format" value="xls">
+        </form>
+        <form id="csv-form" method="post" action="/export" class="inline print--hide">
+            <button type="submit" title="Download CSV" aria-labelledby="timeseries__download-label"
+                class="btn btn--primary download-analytics">
+                {{ localise "DownloadFile" $lang 1 ".csv" }}
+            </button>
+            <input type="hidden" name="format" value="csv">
+        </form>
+    </div>
+    <div class="timeseries__empty margin-top-sm--4 margin-top-md--4 margin-left-sm--2 margin-left-md--2 margin-right-sm--2 margin-right-md--2">
+        <h2>{{ localise "NoTimeSeriesSelected" $lang 1 }}</h2>
+        <p>{{ localise "CheckTimeseries" $lang 1 }}</p>
+    </div>
+</div>
