@@ -180,7 +180,7 @@ func TestUnitReadSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search")
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -188,6 +188,22 @@ func TestUnitReadSuccess(t *testing.T) {
 				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 1)
 				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
 				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
+
+				So(mockedSearchClient.GetSearchCalls()[0].Options.Query.Get("nlp_weighting"), ShouldEqual, "false")
+			})
+		})
+
+		Convey("When read is called with NLP switched on", func() {
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", true)
+
+			Convey("Then a 200 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusOK)
+
+				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 1)
+				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
+				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
+
+				So(mockedSearchClient.GetSearchCalls()[0].Options.Query.Get("nlp_weighting"), ShouldEqual, "true")
 			})
 		})
 	})
@@ -239,7 +255,7 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search")
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
@@ -281,7 +297,7 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search")
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
 
 			Convey("Then a 500 internal server error status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -323,7 +339,7 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search")
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)

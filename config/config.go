@@ -8,6 +8,7 @@ import (
 
 // Config represents service configuration for dp-frontend-search-controller
 type Config struct {
+	*ABTest
 	APIRouterURL                            string        `envconfig:"API_ROUTER_URL"`
 	BindAddr                                string        `envconfig:"BIND_ADDR"`
 	CacheCensusTopicUpdateInterval          time.Duration `envconfig:"CACHE_CENSUS_TOPICS_UPDATE_INTERVAL"`
@@ -40,6 +41,13 @@ type Config struct {
 	SupportedLanguages                      []string      `envconfig:"SUPPORTED_LANGUAGES"`
 }
 
+type ABTest struct {
+	AspectID   string `envconfig:"AB_TEST_ASPECT_ID"`
+	Enabled    bool   `envconfig:"AB_TEST_ENABLED"`
+	Percentage int    `envconfig:"AB_TEST_PERCENTAGE"`
+	Exit       string `envconfig:"AB_TEST_EXIT"`
+}
+
 var cfg *Config
 
 // Get returns the default config with any modifications through environment
@@ -65,7 +73,13 @@ func get() (*Config, error) {
 	}
 
 	cfg := &Config{
-		APIRouterURL:                            "http://localhost:23200/v1",
+		APIRouterURL: "http://localhost:23200/v1",
+		ABTest: &ABTest{
+			AspectID:   "dp-frontend-search-controller",
+			Enabled:    true,
+			Exit:       "search-ab-exit",
+			Percentage: 0,
+		},
 		BindAddr:                                ":25000",
 		CacheCensusTopicUpdateInterval:          30 * time.Minute,
 		CacheNavigationUpdateInterval:           30 * time.Minute,

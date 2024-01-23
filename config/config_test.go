@@ -42,6 +42,10 @@ func TestConfig(t *testing.T) {
 				So(cfg.IsPublishing, ShouldBeFalse)
 				So(cfg.SiteDomain, ShouldEqual, "localhost")
 				So(cfg.SupportedLanguages, ShouldResemble, []string{"en", "cy"})
+				So(cfg.ABTest.AspectID, ShouldEqual, "dp-frontend-search-controller")
+				So(cfg.ABTest.Enabled, ShouldEqual, true)
+				So(cfg.ABTest.Percentage, ShouldEqual, 0)
+				So(cfg.ABTest.Exit, ShouldEqual, "search-ab-exit")
 			})
 
 			Convey("Then a second call to config should return the same config", func() {

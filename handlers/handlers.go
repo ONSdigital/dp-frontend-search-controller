@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-cookies/cookies"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
@@ -43,9 +44,15 @@ func NewHandlerClients(rc RenderClient, sc SearchClient, zc ZebedeeClient) *Hand
 
 // Read Handler
 func Read(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
-	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		read(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
+	oldHandler := dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		read(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template, false)
 	})
+
+	newHandler := dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		read(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template, true)
+	})
+
+	return cookies.Handler(cfg.ABTest.Enabled, newHandler, oldHandler, cfg.ABTest.Percentage, cfg.ABTest.AspectID, cfg.SiteDomain, cfg.ABTest.Exit)
 }
 
 // Read Handler
@@ -325,7 +332,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 }
 
 func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
-	accessToken, collectionID, lang string, cacheList cache.List, template string,
+	accessToken, collectionID, lang string, cacheList cache.List, template string, nlpWeightingEnabled bool,
 ) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
@@ -354,6 +361,12 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		setStatusCode(w, req, err)
 		return
 	}
+
+	validatedQueryParams.NLPWeightingEnabled = nlpWeightingEnabled
+
+	log.Info(ctx, "NLP Weighting for query", log.Data{
+		"nlp_weighting": nlpWeightingEnabled,
+	})
 
 	var (
 		// counter used to keep track of the number of concurrent API calls
