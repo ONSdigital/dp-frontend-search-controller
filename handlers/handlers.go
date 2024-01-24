@@ -363,7 +363,6 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	}
 
 	validatedQueryParams.NLPWeightingEnabled = nlpWeightingEnabled
-
 	log.Info(ctx, "NLP Weighting for query", log.Data{
 		"nlp_weighting": nlpWeightingEnabled,
 	})
