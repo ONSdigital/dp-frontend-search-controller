@@ -47,6 +47,12 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
 
+	if validatedQueryParams.NLPWeightingEnabled {
+		page.ABTest.GTMKey = "nlpSearch"
+	} else {
+		page.ABTest.GTMKey = "search"
+	}
+
 	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, categories)

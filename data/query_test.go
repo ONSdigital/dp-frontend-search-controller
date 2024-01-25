@@ -281,6 +281,7 @@ func TestUnitCreateSearchAPIQuerySuccess(t *testing.T) {
 					"topics":           []string{"1234,5678"},
 					"fromDate":         []string{""},
 					"toDate":           []string{""},
+					"nlp_weighting":    []string{"false"},
 				})
 			})
 		})

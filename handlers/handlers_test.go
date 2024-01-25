@@ -111,9 +111,9 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
 
-				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 1)
-				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
 
 				if mockedSearchClient.calls.GetSearch[0].Options.Query.Has("topics") {
 					So(mockedSearchClient.calls.GetSearch[0].Options.Query.Get("topics"), ShouldEqual, "1234")
@@ -180,14 +180,30 @@ func TestUnitReadSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search")
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
 
-				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 1)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
-				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
+
+				So(mockedSearchClient.GetSearchCalls()[0].Options.Query.Get("nlp_weighting"), ShouldEqual, "false")
+			})
+		})
+
+		Convey("When read is called with NLP switched on", func() {
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", true)
+
+			Convey("Then a 200 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusOK)
+
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
+
+				So(mockedSearchClient.GetSearchCalls()[0].Options.Query.Get("nlp_weighting"), ShouldEqual, "true")
 			})
 		})
 	})
@@ -239,14 +255,14 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search")
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 
-				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 0)
-				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 0)
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 0)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 0)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 0)
 			})
 		})
 	})
@@ -281,14 +297,14 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search")
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
 
 			Convey("Then a 500 internal server error status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
 
-				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
-				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 0)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
 			})
 		})
 	})
@@ -323,14 +339,14 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search")
+			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
 
 			Convey("Then a 400 bad request status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusBadRequest)
 
-				So(len(mockedRendererClient.BuildPageCalls()), ShouldEqual, 0)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 2)
-				So(len(mockedZebedeeClient.GetHomepageContentCalls()), ShouldEqual, 1)
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 0)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
 			})
 		})
 	})
@@ -448,7 +464,7 @@ func TestUnitGetCategoriesTypesCountSuccess(t *testing.T) {
 			Convey("And return no error", func() {
 				So(err, ShouldBeNil)
 
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 1)
 			})
 		})
 	})
@@ -484,7 +500,7 @@ func TestUnitGetCategoriesTypesCountFailure(t *testing.T) {
 			Convey("And return nil categories", func() {
 				So(categories, ShouldBeNil)
 				So(topicCategories, ShouldBeNil)
-				So(len(mockedSearchClient.GetSearchCalls()), ShouldEqual, 1)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 1)
 			})
 		})
 	})

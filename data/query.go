@@ -28,6 +28,7 @@ type SearchURLParams struct {
 	Limit                int
 	CurrentPage          int
 	Offset               int
+	NLPWeightingEnabled  bool
 }
 
 var (
@@ -333,6 +334,7 @@ func createSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
 		"limit":            []string{strconv.Itoa(validatedQueryParams.Limit)},
 		"offset":           []string{strconv.Itoa(validatedQueryParams.Offset)},
 		"topics":           []string{validatedQueryParams.TopicFilter},
+		"nlp_weighting":    []string{strconv.FormatBool(validatedQueryParams.NLPWeightingEnabled)},
 	}
 }
 

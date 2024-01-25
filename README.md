@@ -23,9 +23,13 @@ No further dependencies other than those defined in `go.mod`
 
 ## Configuration
 
-| Environment variable                        | Default                         |                                                                                                                    |
+| Environment variable                        | Default                         | Description                                                                                                        |
 |---------------------------------------------|---------------------------------|--------------------------------------------------------------------------------------------------------------------|
 | API_ROUTER_URL                              | http://localhost:23200/v1       | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)                                        |
+| AB_TEST_ASPECT_ID                           | dp-frontend-search-controller   | Unique Aspect ID for AB test cookie                                                                                |
+| AB_TEST_ENABLED                             | true                            | If AB testing is switched on - if false, this will default to the new handler                                      |
+| AB_TEST_PERCENTAGE                          | 0                               | What percentage of traffic goes to the new handler                                                                 |
+| AB_TEST_EXIT                                | search-ab-exit                  | Param to purge the cookie if a user enters in browser                                                              |
 | BIND_ADDR                                   | :25000                          | The port to bind to                                                                                                |
 | CACHE_CENSUS_TOPICS_UPDATE_INTERVAL         | 30m                             | The time interval to update cache for census topics (`time.Duration` format)                                       |
 | CACHE_NAVIGATION_UPDATE_INTERVAL            | 30m                             | The time interval to update cache for navigation bar (`time.Duration` format)                                      |
