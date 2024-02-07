@@ -53,6 +53,7 @@ No further dependencies other than those defined in `go.mod`
 | OTEL_BATCH_TIMEOUT                          | 5s                              | Interval between pushes to OT Collector                                                                            |
 | OTEL_EXPORTER_OTLP_ENDPOINT                 | http://localhost:4317           | URL for OpenTelemetry endpoint                                                                                     |
 | OTEL_SERVICE_NAME                           | "dp-frontend-search-controller" | Service name to report to telemetry tools                                                                          |
+| OTEL_ENABLED                                | false                           | Feature flag to enable OpenTelemetry
 | IS_PUBLISHING                               | false                           | Mode in which service is running                                                                                   |
 | PATTERN_LIBRARY_ASSETS_PATH                 | ""                              | Pattern library location                                                                                           |
 | SERVICE_AUTH_TOKEN                          | ""                              | This is required to identify the controller when it calls the topic API via the API router in publishing mode      |

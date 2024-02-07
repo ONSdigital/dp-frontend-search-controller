@@ -105,11 +105,17 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise router
 	r := mux.NewRouter()
-	r.Use(otelmux.Middleware(cfg.OTServiceName))
+	if cfg.OtelEnabled {
+		r.Use(otelmux.Middleware(cfg.OTServiceName))
+	}
 	middleware := []alice.Constructor{
 		renderror.Handler(clients.Renderer),
-		otelhttp.NewMiddleware(cfg.OTServiceName),
 	}
+
+	if cfg.OtelEnabled {
+		middleware = append(middleware, otelhttp.NewMiddleware(cfg.OTServiceName))
+	}
+
 	newAlice := alice.New(middleware...).Then(r)
 	routes.Setup(ctx, r, cfg, clients, svc.Cache)
 	svc.Server = serviceList.GetHTTPServer(cfg.BindAddr, newAlice)
