@@ -95,6 +95,19 @@ func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 	return censusTopicCache, nil
 }
 
+func (dc *TopicCache) GetDataAggregationData(ctx context.Context) (*Topic, error) {
+	dataTopicCache, err := dc.GetData(ctx, CensusTopicID)
+	if err != nil {
+		logData := log.Data{
+			"key": CensusTopicID,
+		}
+		log.Error(ctx, "failed to get cached census topic data", err, logData)
+		return GetEmptyCensusTopic(), err
+	}
+
+	return dataTopicCache, nil
+}
+
 // GetEmptyCensusTopic returns an empty census topic cache in the event when updating the cache of the census topic fails
 func GetEmptyCensusTopic() *Topic {
 	return &Topic{
