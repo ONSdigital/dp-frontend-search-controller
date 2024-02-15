@@ -123,6 +123,38 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 	return nil
 }
 
+// reviewTopicFiltersForDataAggregation retrieves subtopic ids from query, checks if they are one of the subtopics, and updates reviewTopicFiltersForDataAggregation
+func reviewTopicFiltersForDataAggregation(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams, censusTopicCache *cache.Topic) error {
+	topicFilters := urlQuery.Get("topics")
+	topicIDs := strings.Split(topicFilters, ",")
+
+	// log.Info(ctx, "this the topic ids", log.Data{"topics": topicIDs})
+
+	validatedTopicFilters := []string{}
+
+	for i := range topicIDs {
+		topicFilterQuery := strings.ToLower(topicIDs[i])
+
+		if topicFilterQuery == "" {
+			continue
+		}
+
+		// if ok := censusTopicCache.List.CheckTopicIDExists(topicFilterQuery); !ok {
+		// 	err := errs.ErrTopicNotFound
+		// 	logData := log.Data{"subtopic id not found": topicFilterQuery}
+		// 	log.Error(ctx, "failed to find subtopic id in census topic data", err, logData)
+		// 	return err
+		// }
+
+		validatedTopicFilters = append(validatedTopicFilters, topicIDs[i])
+		// log.Info(ctx, "this the validated topic filters", log.Data{"topics": validatedTopicFilters})
+	}
+
+	validatedQueryParams.TopicFilter = strings.Join(validatedTopicFilters, ",")
+
+	return nil
+}
+
 // updateTopicsQueryForSearchAPI updates the topics query with subtopic ids if one of the topic is a root id
 func updateTopicsQueryForSearchAPI(apiQuery url.Values, censusTopicCache *cache.Topic) {
 	topicFilters := apiQuery.Get("topics")
