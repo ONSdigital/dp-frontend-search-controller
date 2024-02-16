@@ -355,22 +355,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
-	// log.Info(ctx, "this the root topics", log.Data{"topics": respRootTopics})
-
-	//TODO Loop through topics and compare with vars["topic"]
-	// get the topic to see if subtpic exists GetTopicPublic
-	// if vars["subTopic"] is defined search through the subtopics of the topic
-	// add topic to query and return matched data for topic/subtopic
-	// if topic or subtopic is invalid return defualt data
-
-	// clearTopics := false
-	// if urlQuery.Get("topics") == "" {
-	// 	urlQuery.Add("topics", censusTopicCache.Query)
-	// 	clearTopics = true
-	// }
-
 	rootTopicItems := *respRootTopics.PublicItems
-	// log.Info(ctx, "this the topic items", log.Data{"topics": rootTopicItems})
 	topics := []string{}
 	topLevelTopicID := ""
 
@@ -390,24 +375,16 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
-	// log.Info(ctx, "this the subtopics", log.Data{"subtopics": subTopics})
-
-	// log.Info(ctx, "this the subtopic", log.Data{"subtopic": vars["subTopic"]})
-
 	rootSubTopicItems := *subTopics.PublicItems
 
-	//REMOVE SPACES FROM TITLE WHEN COMAPRING
 	for i := range rootSubTopicItems {
 		if strings.ReplaceAll(strings.ToLower(rootSubTopicItems[i].Title), " ", "") == strings.ToLower(vars["subTopic"]) {
-			// log.Info(ctx, "this the found subtopic", log.Data{"subtopics": rootSubTopicItems[i]})
 			topics = append(topics, rootSubTopicItems[i].ID)
 			break
 		}
 	}
 
 	defer cancel()
-
-	// log.Info(ctx, "this the topics to be applied to query", log.Data{"topicsids": strings.Join(topics, ",")})
 
 	urlQuery := req.URL.Query()
 
