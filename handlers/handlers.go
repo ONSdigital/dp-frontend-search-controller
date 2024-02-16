@@ -61,6 +61,7 @@ func Read(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template
 	return cookies.Handler(cfg.ABTest.Enabled, newHandler, oldHandler, cfg.ABTest.Percentage, cfg.ABTest.AspectID, cfg.SiteDomain, cfg.ABTest.Exit)
 }
 
+//Read Handler for data aggregation routes with topic/subtopics
 func ReadDataAggregationWithTopics(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readDataAggregationWithTopics(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, hc.TopicClient, accessToken, collectionID, lang, cacheList, template)
@@ -380,10 +381,10 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		}
 	}
 
-	subTopics, errrrr := topicC.GetSubtopicsPublic(ctx, topic.Headers{}, topLevelTopicID)
-	if errrrr != nil {
-		log.Error(ctx, "failed to subtopics", errrrr)
-		setStatusCode(w, req, errrrr)
+	subTopics, err := topicC.GetSubtopicsPublic(ctx, topic.Headers{}, topLevelTopicID)
+	if err != nil {
+		log.Error(ctx, "failed to subtopics", err)
+		setStatusCode(w, req, err)
 		return
 	}
 
