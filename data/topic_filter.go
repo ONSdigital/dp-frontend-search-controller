@@ -128,8 +128,6 @@ func reviewTopicFiltersForDataAggregation(ctx context.Context, urlQuery url.Valu
 	topicFilters := urlQuery.Get("topics")
 	topicIDs := strings.Split(topicFilters, ",")
 
-	// log.Info(ctx, "this the topic ids", log.Data{"topics": topicIDs})
-
 	validatedTopicFilters := []string{}
 
 	for i := range topicIDs {
@@ -139,15 +137,7 @@ func reviewTopicFiltersForDataAggregation(ctx context.Context, urlQuery url.Valu
 			continue
 		}
 
-		// if ok := censusTopicCache.List.CheckTopicIDExists(topicFilterQuery); !ok {
-		// 	err := errs.ErrTopicNotFound
-		// 	logData := log.Data{"subtopic id not found": topicFilterQuery}
-		// 	log.Error(ctx, "failed to find subtopic id in census topic data", err, logData)
-		// 	return err
-		// }
-
 		validatedTopicFilters = append(validatedTopicFilters, topicIDs[i])
-		// log.Info(ctx, "this the validated topic filters", log.Data{"topics": validatedTopicFilters})
 	}
 
 	validatedQueryParams.TopicFilter = strings.Join(validatedTopicFilters, ",")
