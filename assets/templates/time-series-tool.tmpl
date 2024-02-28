@@ -8,47 +8,53 @@
         </h1>
       </section>
     </div>
-    <div class="ons-grid__col ons-col-4@m">
-      <section class="search__filter" role="contentinfo" aria-label="{{ localise "SearchFiltering" $lang 4 }}" id="search-filter">
-        <div class="search__filter__heading">
-          <h3 class="font-size--18">
-            {{ localise "Filter" $lang 4 }} {{ localise .Data.TermLocalKey $lang 4 }}
-          </h3>
-          <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
-        </div>
-        
-        <div class="search__filter__content">
-          {{ template "partials/data-aggregation-filters" . }}
-        </div>
-        <div class="search__filter__content hide--sm">
-          {{ template "partials/archived-release-message" . }}
-        </div>
-      </section>
-    </div>
-    <div class="ons-grid__col ons-col-8@m">
-      <section role="contentinfo" aria-label="{{ localise "SearchResults" $lang  1 }}">
-        <div class="search__count">
-          {{ template "partials/count" . }}
-        </div>
-        <div class="search__sort">
-          {{ template "partials/time-series-selection" . }}
-        </div>
-        <div class="search__filter__mobile-filter-toggle hide">
-            <button id="filter-results" type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
-              <span class="ons-btn__inner">{{ localise "FilterResults" $lang 4 }}</span>
-            </button>
-        </div>
-        <div class="time-series-results">
-          <div class="search__results">
-            {{ template "partials/data-aggregation-results" . }}
+    <form
+      id="filterForm"
+      class="ons-grid ons-grid__col ons-grid__col-12"
+      novalidate
+    >
+      <div class="ons-grid__col ons-col-4@m">
+        <section class="search__filter" role="contentinfo" aria-label="{{ localise "SearchFiltering" $lang 4 }}" id="search-filter">
+          <div class="search__filter__heading">
+            <h3 class="font-size--18">
+              {{ localise "Filter" $lang 4 }} {{ localise .Data.TermLocalKey $lang 4 }}
+            </h3>
+            <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
           </div>
-        </div>
-        {{if ne .Data.Response.Count 0}}
-          <div class="search__pagination">
-            {{ template "partials/search-pagination" . }}
+          
+          <div class="search__filter__content">
+            {{ template "partials/data-aggregation-filters" . }}
           </div>
-        {{end}}
-      </section>
-    </div>
+          <div class="search__filter__content hide--sm">
+            {{ template "partials/archived-release-message" . }}
+          </div>
+        </section>
+      </div>
+      <div class="ons-grid__col ons-col-8@m">
+        <section role="contentinfo" aria-label="{{ localise "SearchResults" $lang  1 }}">
+          <div class="search__count">
+            {{ template "partials/count" . }}
+          </div>
+          <div class="search__sort">
+            {{ template "partials/time-series-selection" . }}
+          </div>
+          <div class="search__filter__mobile-filter-toggle hide">
+              <button id="filter-results" type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
+                <span class="ons-btn__inner">{{ localise "FilterResults" $lang 4 }}</span>
+              </button>
+          </div>
+          <div class="time-series-results">
+            <div class="search__results">
+              {{ template "partials/data-aggregation-results" . }}
+            </div>
+          </div>
+          {{if ne .Data.Response.Count 0}}
+            <div class="search__pagination">
+              {{ template "partials/search-pagination" . }}
+            </div>
+          {{end}}
+        </section>
+      </div>
+    </form>
   </div>
 </div>
