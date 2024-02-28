@@ -13,62 +13,61 @@
                 {{ template "icons/chevron-right" }}
             </span>
         </summary>
-        <form id="filterForm" method="get" class="js-auto-submit__form">
-                <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-                    <legend class="block hidden">
-                            {{ localise "ContentType" $lang 1 }}
-                    </legend>
-                        {{ range $index, $topFilter := $filters}}
-                            <div class="ons-checkboxes__items">
-                                <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                    <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
-                                        <input type="checkbox" id="group-{{ $index }}"
-                                            class="ons-checkbox__input ons-js-checkbox"
-                                            value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
-                                            data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
-                                            {{ if $topFilter.IsChecked }}
-                                                checked
+
+        <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+            <legend class="block hidden">
+                    {{ localise "ContentType" $lang 1 }}
+            </legend>
+                {{ range $index, $topFilter := $filters}}
+                    <div class="ons-checkboxes__items">
+                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                            <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
+                                <input type="checkbox" id="group-{{ $index }}"
+                                    class="ons-checkbox__input ons-js-checkbox"
+                                    value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
+                                    data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
+                                    {{ if $topFilter.IsChecked }}
+                                        checked
+                                    {{ end }}
+                                >
+                                <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
+                                    {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
+                                </label>
+                                <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
+                                    <fieldset class="ons-fieldset ons-js-other-fieldset">
+                                        <legend class="ons-u-vh">{{ localise "Select" $lang 1 }}{{ localise $topFilter.LocaliseKeyName $lang 4 }}</legend>
+                                            {{ range $index, $childFilter := $topFilter.Types }}
+                                                {{ $id := index $childFilter.FilterKey 0 }}
+                                                <div class="ons-checkboxes__items">
+                                                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                                                        <span class="ons-checkbox ons-checkbox--no-border child-filter">
+                                                            <input id="{{ $id }}"
+                                                                class="ons-checkbox__input ons-js-checkbox"
+                                                                type="checkbox" name="filter"
+                                                                {{ if $childFilter.IsChecked }}checked{{ end }}
+                                                                data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
+                                                                value="{{ $id }}"
+                                                            />
+                                                            <label class="ons-checkbox__label" for="{{ $id }}"
+                                                                id="{{ $id }}-label">
+                                                                {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
+                                                            </label>
+                                                        </span>
+                                                    </span>
+                                                </div>
                                             {{ end }}
-                                        >
-                                        <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
-                                            {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
-                                        </label>
-                                        <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
-                                            <fieldset class="ons-fieldset ons-js-other-fieldset">
-                                                <legend class="ons-u-vh">{{ localise "Select" $lang 1 }}{{ localise $topFilter.LocaliseKeyName $lang 4 }}</legend>
-                                                    {{ range $index, $childFilter := $topFilter.Types }}
-                                                        {{ $id := index $childFilter.FilterKey 0 }}
-                                                        <div class="ons-checkboxes__items">
-                                                            <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                                                <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                                    <input id="{{ $id }}"
-                                                                        class="ons-checkbox__input ons-js-checkbox"
-                                                                        type="checkbox" name="filter"
-                                                                        {{ if $childFilter.IsChecked }}checked{{ end }}
-                                                                        data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
-                                                                        value="{{ $id }}"
-                                                                    />
-                                                                    <label class="ons-checkbox__label" for="{{ $id }}"
-                                                                        id="{{ $id }}-label">
-                                                                        {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
-                                                                    </label>
-                                                                </span>
-                                                            </span>
-                                                        </div>
-                                                    {{ end }}
-                                            </fieldset>
-                                        </span>
-                                    </span>
+                                    </fieldset>
                                 </span>
-                            </div>
-                        {{ end }}
-                </fieldset>
-                <noscript>
-                    <button type="submit"
-                            class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                            <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Filter" $lang 4 }}</span></span>
-                    </button>
-                </noscript>
-        </form>
+                            </span>
+                        </span>
+                    </div>
+                {{ end }}
+        </fieldset>
+        <noscript>
+            <button type="submit"
+                    class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
+                    <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Filter" $lang 4 }}</span></span>
+            </button>
+        </noscript>
     </details>
 {{ end }}

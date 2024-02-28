@@ -2,26 +2,24 @@
 {{ $query := .Data.Query }}
 {{ $filter := .Data.Filter }}
 
-<form id="form-sort" class="js-auto-submit__form">
-    <input type="hidden" name="q" value="{{ $query }}"/>
-    {{ range $theFilter := .Data.Filter }}
-        <input type="hidden" name="filter" value="{{ $theFilter }}"/>
-    {{end}}
-    <!-- rss feed here -->
-    <div class="ons-field--search-sort search__sort__select">
-        <label for="sort" class="ons-label sort__label font-size--16">Sort by</label>
-        <select class="ons-input ons-input--select ons-input--sort-select input select font-size--16" id="sort" name="sort">
-            {{ $sortQuery := .Data.Sort.Query }}
-            {{ range $sort := .Data.Sort.Options }}
-                <option class="sort__option"
-                        value={{ .Query}} 
-                        {{ if eq .Query $sortQuery }}selected{{end}}>
-                    {{ localise .LocaliseKeyName $lang 1 }}
-                </option>
-            {{ end }}
-        </select>
-        <button type="submit" class="ons-btn ons-btn--secondary ons-btn--small js--hide font-size--16">
-            <span class="ons-btn__inner"><span class="ons-btn__text">Sort</span></span>
-        </button>
-    </div>
-</form>
+<input type="hidden" name="q" value="{{ $query }}"/>
+{{ range $theFilter := .Data.Filter }}
+    <input type="hidden" name="filter" value="{{ $theFilter }}"/>
+{{end}}
+<!-- rss feed here -->
+<div class="ons-field--search-sort search__sort__select">
+    <label for="sort" class="ons-label sort__label font-size--16">Sort by</label>
+    <select class="ons-input ons-input--select ons-input--sort-select input select font-size--16" id="sort" name="sort">
+        {{ $sortQuery := .Data.Sort.Query }}
+        {{ range $sort := .Data.Sort.Options }}
+            <option class="sort__option"
+                    value={{ .Query}} 
+                    {{ if eq .Query $sortQuery }}selected{{end}}>
+                {{ localise .LocaliseKeyName $lang 1 }}
+            </option>
+        {{ end }}
+    </select>
+    <button type="submit" class="ons-btn ons-btn--secondary ons-btn--small js--hide font-size--16">
+        <span class="ons-btn__inner"><span class="ons-btn__text">Sort</span></span>
+    </button>
+</div>
