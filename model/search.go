@@ -22,7 +22,6 @@ type Search struct {
 	EnableHomeSwitch         bool                   `json:"enable_home_switch,omitempty"`
 	EnableTimeSeriesExport   bool                   `json:"enable_time_series_export,omitempty"`
 	TopicFilterEnabled       bool                   `json:"topic_filter_enabled,omitempty"`
-	KeywordFilterEnabled     bool                   `json:"keyword_filter_enabled,omitempty"`
 	KeywordFilter            model.CompactSearch    `json:"keyword_filter"`
 	ContentTypeFilterEnabled bool                   `json:"content_type_filter_enabled,omitempty"`
 	UpdatedFilterEnabled     bool                   `json:"updated_filter_enabled,omitempty"`
