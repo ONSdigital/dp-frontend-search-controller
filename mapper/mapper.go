@@ -139,6 +139,18 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	default:
 		page.Metadata.Title = template
 	}
+
+	page.Data.KeywordFilter = coreModel.CompactSearch{
+		ElementId: "keywords",
+		InputName: "q",
+		Language:  lang,
+		Label: coreModel.Localisation{
+			LocaleKey: "SearchKeywords",
+			Plural:    1,
+		},
+		SearchTerm: validatedQueryParams.Query,
+	}
+
 	page.Type = "Data Aggregation Page"
 	page.Data.TermLocalKey = "Results"
 	page.Count = respC.Count
