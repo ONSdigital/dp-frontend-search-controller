@@ -25,6 +25,7 @@ type Search struct {
 	KeywordFilterEnabled     bool                   `json:"keyword_filter_enabled,omitempty"`
 	ContentTypeFilterEnabled bool                   `json:"content_type_filter_enabled,omitempty"`
 	UpdatedFilterEnabled     bool                   `json:"updated_filter_enabled,omitempty"`
+	LastUpdatedValue         string                 `json:"last_updated_value,omitempty"`
 	Filter                   []string               `json:"filter,omitempty"`
 	Filters                  []Filter               `json:"filters"`
 	BeforeDate               model.InputDate        `json:"before_date"`
