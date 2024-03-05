@@ -20,11 +20,11 @@
                 </label>
                 <select id="lastUpdatedSelect" name="select"
                     class="ons-input ons-input--select ons-input--block updated-select">
-                    <option value="select" selected>{{ localise "SelectLastUpdated" $lang 1 }}</option>
-                    <option value="today">{{ localise "Today" $lang 1 }}</option>
-                    <option value="week">{{ localise "LastSevenDays" $lang 1 }}</option>
-                    <option value="month">{{ localise "LastMonth" $lang 1 }}</option>
-                    <option value="custom">{{ localise "Custom" $lang 1 }}</option>
+                    <option value="select" {{if eq .Data.LastUpdatedValue "select"}}selected{{end}}>{{ localise "SelectLastUpdated" $lang 1 }}</option>
+                    <option value="today" {{if eq .Data.LastUpdatedValue "today"}}selected{{end}}>{{ localise "Today" $lang 1 }}</option>
+                    <option value="week" {{if eq .Data.LastUpdatedValue "week"}}selected{{end}}>{{ localise "LastSevenDays" $lang 1 }}</option>
+                    <option value="month" {{if eq .Data.LastUpdatedValue "month"}}selected{{end}}>{{ localise "LastMonth" $lang 1 }}</option>
+                    <option value="custom" {{if eq .Data.LastUpdatedValue "custom"}}selected{{end}}>{{ localise "Custom" $lang 1 }}</option>
                 </select>
             </div>
         </div>
