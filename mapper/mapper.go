@@ -174,6 +174,25 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 			Plural:    1,
 		},
 	}
+
+	page.BeforeDate = coreModel.InputDate{
+		Language:        page.Language,
+		Id:              "before-date",
+		InputNameDay:    "before-day",
+		InputNameMonth:  "before-month",
+		InputNameYear:   "before-year",
+		InputValueDay:   validatedQueryParams.BeforeDate.DayString(),
+		InputValueMonth: validatedQueryParams.BeforeDate.MonthString(),
+		InputValueYear:  validatedQueryParams.BeforeDate.YearString(),
+		Title: coreModel.Localisation{
+			LocaleKey: "ReleasedBefore",
+			Plural:    1,
+		},
+		Description: coreModel.Localisation{
+			LocaleKey: "DateFilterDescription",
+			Plural:    1,
+		},
+	}
 }
 
 // CreateSearchPage maps type searchC.Response to model.Page
