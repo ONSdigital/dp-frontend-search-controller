@@ -358,6 +358,10 @@ one = "Custom"
 description = "Dates"
 one = "Dates"
 
+[DateFilterDescription]
+description = "For example: 2006 or 19 07 2010"
+one = "Er enghraifft: 2006 neu 19 07 2010"
+
 [ReleasedAfter]
 description = "Released after"
 one = "Released after"
