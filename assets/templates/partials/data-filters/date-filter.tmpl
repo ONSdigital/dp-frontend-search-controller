@@ -1,9 +1,8 @@
 {{ $lang := .Language }}
-{{ $enabledTimeSeriesExport := .Data.EnableTimeSeriesExport }}
 
 <!-- Hide date input in the timeseries so it can be shown programmatically when needed -->
 <details id="dateFilters"
-    class="{{ if $enabledTimeSeriesExport }} hidden {{ end }} ons-collapsible ons-js-collapsible ons-collapsible--accordion"
+    class="ons-collapsible ons-js-collapsible ons-collapsible--accordion"
     data-group="accordion" data-btn-close="Hide this" data-open="true">
     <summary class="ons-collapsible__heading ons-js-collapsible-heading">
         <h2 class="ons-collapsible__title">
