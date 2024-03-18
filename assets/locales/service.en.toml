@@ -280,24 +280,24 @@ description = "All methodology"
 one = "All methodology"
 
 [DataList]
-description = "All data related to home"
-one = "All data related to home"
+description = "Published data"
+one = "Published data"
 
 [HomePublications]
-description = "All publications related to home"
-one = "All publications related to home"
+description = "Publications"
+one = "Publications"
 
 [FOIRequests]
 description = "Freedom of Information (FOI) requests"
 one = "Freedom of Information (FOI) requests"
 
 [HomeList]
-description = "List of all home"
-one = "List of all home"
+description = "Information pages"
+one = "Information pages"
 
 [HomeMethodology]
-description = "Methodology related to home"
-one = "Methodology related to home"
+description = "Methodology"
+one = "Methodology"
 
 [TimeSeriesExplorer]
 description = "Time series explorer"
