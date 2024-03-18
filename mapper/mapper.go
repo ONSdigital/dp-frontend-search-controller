@@ -97,13 +97,13 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Title.LocaliseKeyName = "UserRequestedData"
 		page.Data.DateFilterEnabled = true
 	case "home-datalist":
-		page.Metadata.Title = "All data related to home"
+		page.Metadata.Title = "Published data"
 		page.Title.LocaliseKeyName = "DataList"
 		page.Data.ContentTypeFilterEnabled = true
 		page.Data.DateFilterEnabled = true
 		page.Data.EnableHomeSwitch = true
 	case "home-publications":
-		page.Metadata.Title = "All publications related to home"
+		page.Metadata.Title = "Publications"
 		page.Title.LocaliseKeyName = "HomePublications"
 		page.Data.EnableHomeSwitch = true
 		page.Data.ContentTypeFilterEnabled = true
@@ -116,10 +116,10 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Title.LocaliseKeyName = "FOIRequests"
 		page.Data.DateFilterEnabled = true
 	case "home-list":
-		page.Metadata.Title = "List of all home"
+		page.Metadata.Title = "Information pages"
 		page.Title.LocaliseKeyName = "HomeList"
 	case "home-methodology":
-		page.Metadata.Title = "Methodology related to home"
+		page.Metadata.Title = "Methodology"
 		page.Title.LocaliseKeyName = "HomeMethodology"
 	case "time-series-tool":
 		page.Metadata.Title = "Time series explorer"
