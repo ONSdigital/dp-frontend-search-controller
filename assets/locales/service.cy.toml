@@ -54,6 +54,10 @@ one = "Clirio'r cyfan"
 description = "clear all filters"
 one = "clirio pob hidlydd"
 
+[ApplyFilters]
+description = "Apply filters"
+one = "Apply filters"
+
 [Publication]
 description = "Cyhoeddiadau"
 other = "Cyhoeddiadau"

@@ -54,6 +54,10 @@ one = "Clear all"
 description = "clear all filters"
 one = "clear all filters"
 
+[ApplyFilters]
+description = "Apply filters"
+one = "Apply filters"
+
 [Publication]
 description = "Publications"
 one="publication"
