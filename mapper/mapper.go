@@ -706,25 +706,25 @@ func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.N
 	return mappedNavigationContent
 }
 
-func mapLastUpdated(data data.SearchURLParams) string {
+func mapLastUpdated(queryParams data.SearchURLParams) string {
 	const DateFormat = "2006-01-02"
-    fromDate, _ := time.Parse(DateFormat, data.AfterDate.String())
-    toDate, _ := time.Parse(DateFormat, data.BeforeDate.String())
+	fromDate, _ := time.Parse(DateFormat, queryParams.AfterDate.String())
+	toDate, _ := time.Parse(DateFormat, queryParams.BeforeDate.String())
 
-    if fromDate.IsZero() && toDate.IsZero() {
-        return "select"
-    }
+	if fromDate.IsZero() && toDate.IsZero() {
+		return "select"
+	}
 
-    diff := toDate.Sub(fromDate)
-    diffDays := int(diff.Hours() / 24)
+	diff := toDate.Sub(fromDate)
+	diffDays := int(diff.Hours() / 24)
 
-    if diffDays == 1 {
-        return "today"
-    } else if diffDays == 7 {
-        return "week"
-    } else if toDate.Month() - fromDate.Month() == 1 || (fromDate.Month() == 12 && toDate.Month() == 1) {
-        return "month"
-    } else {
-        return "custom"
-    }
+	if diffDays == 1 {
+		return "today"
+	} else if diffDays == 7 {
+		return "week"
+	} else if toDate.Month()-fromDate.Month() == 1 || (fromDate.Month() == 12 && toDate.Month() == 1) {
+		return "month"
+	} else {
+		return "custom"
+	}
 }
