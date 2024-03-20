@@ -2,21 +2,22 @@
 {{ $dateFilterEnabled := .Data.DateFilterEnabled }}
 {{ $topicFilterEnabled := .Data.TopicFilterEnabled }}
 {{ $contentTypeFilterEnabled := .Data.ContentTypeFilterEnabled }}
-{{ $keywordFilterEnabled := .Data.KeywordFilterEnabled }}
 {{ $updatedFilterEnabled := .Data.UpdatedFilterEnabled }}
 {{ $lang := $.Language }}
 
-<div id="accordion" class="ons-accordion">
-    {{ if $keywordFilterEnabled }}
-        {{ template "partials/data-filters/keywords-filter" . }}
-    {{ end }}
+<div
+    id="accordion"
+    class="ons-accordion"
+>
+    {{ template "partials/data-filters/keywords-filter" . }}
+
     {{ if $updatedFilterEnabled }}
         {{ template "partials/data-filters/updated-filter" . }}
     {{ end }}
-    {{ if $topicFilterEnabled }} 
+    {{ if $topicFilterEnabled }}
         {{ template "partials/data-filters/topic-filter" . }}
     {{ end }}
-    {{ if $contentTypeFilterEnabled }} 
+    {{ if $contentTypeFilterEnabled }}
         {{ template "partials/data-filters/content-type-filter" . }}
     {{ end }}
     {{ if $dateFilterEnabled }}
@@ -24,7 +25,12 @@
     {{ end }}
 </div>
 <div class="search__filter__mobile-filter-toggle margin-bottom--8 hide">
-    <button id="show-results" type="button" class="ons-btn" aria-controls="search-filter">
+    <button
+        id="show-results"
+        type="button"
+        class="ons-btn"
+        aria-controls="search-filter"
+    >
         <span class="ons-btn__inner">{{ localise "ShowResults" $lang 4}}</span>
     </button>
 </div>

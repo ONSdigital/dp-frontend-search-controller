@@ -96,50 +96,52 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	case "all-adhocs":
 		page.Metadata.Title = "User requested data"
 		page.Title.LocaliseKeyName = "UserRequestedData"
-		page.Data.KeywordFilterEnabled = true
 		page.Data.DateFilterEnabled = true
 	case "home-datalist":
-		page.Metadata.Title = "All data related to home"
+		page.Metadata.Title = "Published data"
 		page.Title.LocaliseKeyName = "DataList"
-		page.Data.KeywordFilterEnabled = true
 		page.Data.ContentTypeFilterEnabled = true
 		page.Data.DateFilterEnabled = true
 		page.Data.EnableHomeSwitch = true
 	case "home-publications":
-		page.Metadata.Title = "All publications related to home"
+		page.Metadata.Title = "Publications"
 		page.Title.LocaliseKeyName = "HomePublications"
 		page.Data.EnableHomeSwitch = true
-		page.Data.KeywordFilterEnabled = true
 		page.Data.ContentTypeFilterEnabled = true
 	case "all-methodologies":
 		page.Metadata.Title = "All methodology"
 		page.Title.LocaliseKeyName = "AllMethodology"
-		page.Data.KeywordFilterEnabled = true
 		page.Data.TopicFilterEnabled = true
 	case "published-requests":
 		page.Metadata.Title = "Freedom of Information (FOI) requests"
 		page.Title.LocaliseKeyName = "FOIRequests"
-		page.Data.KeywordFilterEnabled = true
 		page.Data.DateFilterEnabled = true
 	case "home-list":
-		page.Metadata.Title = "List of all home"
+		page.Metadata.Title = "Information pages"
 		page.Title.LocaliseKeyName = "HomeList"
-		page.Data.KeywordFilterEnabled = true
 	case "home-methodology":
-		page.Metadata.Title = "Methodology related to home"
+		page.Metadata.Title = "Methodology"
 		page.Title.LocaliseKeyName = "HomeMethodology"
-		page.Data.KeywordFilterEnabled = true
 	case "time-series-tool":
 		page.Metadata.Title = "Time series explorer"
 		page.Title.LocaliseKeyName = "TimeSeriesExplorer"
-		page.Data.KeywordFilterEnabled = true
 		page.Data.UpdatedFilterEnabled = true
 		page.Data.DateFilterEnabled = true
 		page.Data.TopicFilterEnabled = true
 		page.Data.EnableTimeSeriesExport = true
-	default:
-		page.Metadata.Title = template
 	}
+
+	page.Data.KeywordFilter = coreModel.CompactSearch{
+		ElementId: "keywords",
+		InputName: "q",
+		Language:  lang,
+		Label: coreModel.Localisation{
+			LocaleKey: "SearchKeywords",
+			Plural:    1,
+		},
+		SearchTerm: validatedQueryParams.Query,
+	}
+
 	page.Type = "Data Aggregation Page"
 	page.Data.TermLocalKey = "Results"
 	page.Count = respC.Count

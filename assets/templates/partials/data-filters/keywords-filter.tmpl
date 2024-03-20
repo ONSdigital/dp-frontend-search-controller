@@ -1,6 +1,11 @@
 {{ $lang := .Language }}
 
-<details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+<details
+    class="ons-collapsible ons-js-collapsible ons-collapsible--accordion"
+    data-group="accordion"
+    data-btn-close="Hide this"
+    data-open="true"
+>
     <summary class="ons-collapsible__heading ons-js-collapsible-heading">
         <h2 class="ons-collapsible__title">
             <legend class="block">
@@ -11,20 +16,11 @@
             {{ template "icons/chevron-right" }}
         </span>
     </summary>
-    <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-            <div class="tiles__item tiles__item--nav-type flush-col print--hide">
-                <div class="tiles__content tiles__content--nav content-type-filter">
-                    <label class="ons-label ons-u-pb-xs ons-u-fw-n" for="keywords">{{ localise "SearchKeywords" $lang 1 }}</label>
-                    <div class="ons-compact-search">
-                        <input
-                        type="search"
-                        autocomplete="off"
-                        class="ons-compact-search__input js-auto-submit__input"
-                        id="keywords"
-                        name="q"
-                        value="{{ .Data.Query }}">
-                    </div>
-                </div>
+    <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+        <div class="tiles__item tiles__item--nav-type flush-col print--hide">
+            <div class="tiles__content tiles__content--nav content-type-filter">
+                {{ template "partials/compact-search" .Data.KeywordFilter }}
             </div>
-    </fieldset>
+        </div>
+    </div>
 </details>
