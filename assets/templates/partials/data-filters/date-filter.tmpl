@@ -2,9 +2,13 @@
 {{ $enabledTimeSeriesExport := .Data.EnableTimeSeriesExport }}
 
 <!-- Hide date input in the timeseries so it can be shown programmatically when needed -->
-<details id="dateFilters"
+<details
+    id="dateFilters"
     class="{{ if $enabledTimeSeriesExport }} hidden {{ end }} ons-collapsible ons-js-collapsible ons-collapsible--accordion"
-    data-group="accordion" data-btn-close="Hide this" data-open="true">
+    data-group="accordion"
+    data-btn-close="Hide this"
+    data-open="true"
+>
     <summary class="ons-collapsible__heading ons-js-collapsible-heading">
         <h2 class="ons-collapsible__title">
             <legend class="block">
@@ -15,65 +19,9 @@
             {{ template "icons/chevron-right" }}
         </span>
     </summary>
-    <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-        <legend class="ons-fieldset__legend">
-            {{ localise "ReleasedAfter" $lang 1 }}
-        </legend>
-        <div class="inputs-released-after tiles__item tiles__item--nav-type flush-col print--hide">
-            <p class="ons-panel__error hidden inputs-released-after-error">
-                <strong class="inputs-released-after-error-text"></strong>
-            </p>
-            <div class="ons-field-group">
-                <div class="ons-field from-date-filters">
-                    <label class="ons-label" for="fromDateDay">{{ localise "Day" $lang 1 }}</label>
-                    <input type="text" id="fromDateDay"
-                        class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input"
-                        name="fromDateDay" min="1" max="31" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
-                </div>
-                <div class="ons-field from-date-filters">
-                    <label class="ons-label" for="fromDateMonth">{{ localise "Month" $lang 1 }}</label>
-                    <input type="text" id="fromDateMonth"
-                        class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2 js-auto-submit__input"
-                        name="fromDateMonth" min="1" max="12" maxlength="2" pattern="[0-9]*" inputmode="numeric" value="">
-                </div>
-                <div class="ons-field from-date-filters">
-                    <label class="ons-label" for="fromDateYear">{{ localise "Year" $lang 1 }}</label>
-                    <input type="number" autocomplete="off" name="fromDateYear" id="fromDateYear" value=""
-                        class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050"
-                        maxlength="4" pattern="[0-9]*">
-                </div>
-            </div>
-        </div>
-    </fieldset>
 
-    <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-        <legend class="ons-fieldset__legend">
-            {{ localise "ReleasedBefore" $lang 1 }}
-        </legend>
-        <div class="inputs-released-before tiles__item tiles__item--nav-type flush-col print--hide">
-            <p class="ons-panel__error hidden inputs-released-before-error">
-                <strong class="inputs-released-before-error-text"></strong>
-            </p>
-            <div class="ons-field-group">
-                <div class="ons-field to-date-filters">
-                    <label class="ons-label" for="toDateDay">{{ localise "Day" $lang 1 }}</label>
-                    <input type="number" autocomplete="off" name="toDateDay" id="toDateDay" value=""
-                        class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="0" max="31"
-                        pattern="[0-9]*">
-                </div>
-                <div class="ons-field to-date-filters">
-                    <label class="ons-label" for="toDateMonth">{{ localise "Month" $lang 1 }}</label>
-                    <input type="number" autocomplete="off" name="toDateMonth" id="toDateMonth" value=""
-                        class="ons-input ons-input--text ons-input-type__input ons-input-number--w-2" min="1" max="12"
-                        maxlength="2" pattern="[0-9]*">
-                </div>
-                <div class="ons-field to-date-filters">
-                    <label class="ons-label" for="toDateYear">{{ localise "Year" $lang 1 }}</label>
-                    <input type="number" autocomplete="off" name="toDateYear" id="toDateYear" value=""
-                        class="ons-input ons-input--text ons-input-type__input ons-input-number--w-4" min="1900" max="2050"
-                        maxlength="4" pattern="[0-9]*">
-                </div>
-            </div>
-        </div>
-    </fieldset>
+    <div class="ons-u-mb-s">
+        {{ template "partials/fields/fieldset-date" .Data.BeforeDate }}
+        {{ template "partials/fields/fieldset-date" .Data.AfterDate }}
+    </div>
 </details>
