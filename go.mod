@@ -1,6 +1,6 @@
 module github.com/ONSdigital/dp-frontend-search-controller
 
-go 1.22
+go 1.22.1
 
 // to fix: [CVE-2023-32731] CWE-Other
 replace google.golang.org/grpc => google.golang.org/grpc v1.55.0
