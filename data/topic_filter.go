@@ -123,6 +123,28 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 	return nil
 }
 
+// reviewTopicFiltersForDataAggregation retrieves subtopic ids from query, checks if they are one of the subtopics, and updates reviewTopicFiltersForDataAggregation
+func reviewTopicFiltersForDataAggregation(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams, censusTopicCache *cache.Topic) error {
+	topicFilters := urlQuery.Get("topics")
+	topicIDs := strings.Split(topicFilters, ",")
+
+	validatedTopicFilters := []string{}
+
+	for i := range topicIDs {
+		topicFilterQuery := strings.ToLower(topicIDs[i])
+
+		if topicFilterQuery == "" {
+			continue
+		}
+
+		validatedTopicFilters = append(validatedTopicFilters, topicIDs[i])
+	}
+
+	validatedQueryParams.TopicFilter = strings.Join(validatedTopicFilters, ",")
+
+	return nil
+}
+
 // updateTopicsQueryForSearchAPI updates the topics query with subtopic ids if one of the topic is a root id
 func updateTopicsQueryForSearchAPI(apiQuery url.Values, censusTopicCache *cache.Topic) {
 	topicFilters := apiQuery.Get("topics")
