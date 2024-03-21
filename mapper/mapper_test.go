@@ -400,7 +400,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				},
 				{
 					template:                   "home-datalist",
-					exTitle:                    "All data related to home",
+					exTitle:                    "Published data",
 					exLocaliseKeyName:          "DataList",
 					exEnableHomeSwitch:         true,
 					exContentTypeFilterEnabled: true,
@@ -408,7 +408,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				},
 				{
 					template:                   "home-publications",
-					exTitle:                    "All publications related to home",
+					exTitle:                    "Publications",
 					exLocaliseKeyName:          "HomePublications",
 					exEnableHomeSwitch:         true,
 					exContentTypeFilterEnabled: true,
@@ -427,12 +427,12 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				},
 				{
 					template:          "home-list",
-					exTitle:           "List of all home",
+					exTitle:           "Information pages",
 					exLocaliseKeyName: "HomeList",
 				},
 				{
 					template:          "home-methodology",
-					exTitle:           "Methodology related to home",
+					exTitle:           "Methodology",
 					exLocaliseKeyName: "HomeMethodology",
 				},
 				{
