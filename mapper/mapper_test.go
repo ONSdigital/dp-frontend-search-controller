@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -266,6 +267,197 @@ func TestUnitFindDatasetPage(t *testing.T) {
 
 				So(sp.SearchNoIndexEnabled, ShouldEqual, true)
 			})
+		})
+	})
+}
+
+func TestCreateDataAggregationPage(t *testing.T) {
+	t.Parallel()
+
+	Convey("Given validated query and response from search-api", t, func() {
+		cfg, err := config.Get()
+		cfg.EnableReworkedDataAggregationPages = true
+		So(err, ShouldBeNil)
+		req := httptest.NewRequest("GET", "/alladhocs", http.NoBody)
+		mdl := model.Page{}
+
+		validatedQueryParams := data.SearchURLParams{
+			Query: "housing",
+
+			Sort: data.Sort{
+				Query:           "release_date",
+				LocaliseKeyName: "Release Date",
+			},
+
+			Limit:       10,
+			CurrentPage: 1,
+			TopicFilter: "1234",
+		}
+
+		categories := data.GetCategories()
+		categories[0].Count = 1
+		categories[0].ContentTypes[1].Count = 1
+
+		topicCategories := mockTopicCategories
+
+		respC, err := GetFindADatasetResponse()
+		So(err, ShouldBeNil)
+
+		respH, err := GetMockHomepageContent()
+		So(err, ShouldBeNil)
+
+		mockKeywordFilter := model.CompactSearch{
+			ElementId: "keywords",
+			InputName: "q",
+			Language:  englishLang,
+			Label: model.Localisation{
+				LocaleKey: "SearchKeywords",
+				Plural:    1,
+			},
+			SearchTerm: validatedQueryParams.Query,
+		}
+
+		mockBeforeDate := model.DateFieldset{
+			Input: model.InputDate{
+				Language:        englishLang,
+				Id:              "from-date-filters",
+				InputNameDay:    "fromDateDay",
+				InputNameMonth:  "fromDateMonth",
+				InputNameYear:   "fromDateYear",
+				InputValueDay:   validatedQueryParams.AfterDate.DayString(),
+				InputValueMonth: validatedQueryParams.AfterDate.MonthString(),
+				InputValueYear:  validatedQueryParams.AfterDate.YearString(),
+
+				Title: model.Localisation{
+					LocaleKey: "ReleasedAfter",
+					Plural:    1,
+				},
+				Description: model.Localisation{
+					LocaleKey: "ReleasedAfterDescription",
+					Plural:    1,
+				},
+			},
+		}
+
+		mockAfterDate := model.DateFieldset{
+			Input: model.InputDate{
+				Language:        englishLang,
+				Id:              "to-date-filters",
+				InputNameDay:    "toDateDay",
+				InputNameMonth:  "toDateMonth",
+				InputNameYear:   "toDateYear",
+				InputValueDay:   validatedQueryParams.BeforeDate.DayString(),
+				InputValueMonth: validatedQueryParams.BeforeDate.MonthString(),
+				InputValueYear:  validatedQueryParams.BeforeDate.YearString(),
+				Title: model.Localisation{
+					LocaleKey: "ReleasedBefore",
+					Plural:    1,
+				},
+				Description: model.Localisation{
+					LocaleKey: "ReleasedBeforeDescription",
+					Plural:    1,
+				},
+			},
+		}
+
+		Convey("When CreateDataAggregationPage is called", func() {
+			sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, "")
+
+			Convey("Then successfully map core features to the page model", func() {
+				// keyword search
+				So(sp.Data.KeywordFilter, ShouldResemble, mockKeywordFilter)
+				// date fieldsets
+				So(sp.Data.BeforeDate, ShouldResemble, mockBeforeDate)
+				So(sp.Data.AfterDate, ShouldResemble, mockAfterDate)
+				// emergency banner
+				So(sp.EmergencyBanner.Type, ShouldEqual, strings.Replace(respH.EmergencyBanner.Type, "_", "-", -1))
+				So(sp.EmergencyBanner.Title, ShouldEqual, respH.EmergencyBanner.Title)
+				So(sp.EmergencyBanner.Description, ShouldEqual, respH.EmergencyBanner.Description)
+				So(sp.EmergencyBanner.URI, ShouldEqual, respH.EmergencyBanner.URI)
+				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
+				// no index setting
+				So(sp.SearchNoIndexEnabled, ShouldEqual, true)
+			})
+		})
+
+		Convey("When CreateDataAggregationPage is called with different page templates", func() {
+			testcases := []struct {
+				template                   string
+				exTitle                    string
+				exLocaliseKeyName          string
+				exEnableHomeSwitch         bool
+				exContentTypeFilterEnabled bool
+				exTopicFilterEnabled       bool
+				exDateFilterEnabled        bool
+				exUpdatedFilterEnabled     bool
+				exEnableTimeSeriesExport   bool
+			}{
+				{
+					template:            "all-adhocs",
+					exTitle:             "User requested data",
+					exLocaliseKeyName:   "UserRequestedData",
+					exDateFilterEnabled: true,
+				},
+				{
+					template:                   "home-datalist",
+					exTitle:                    "All data related to home",
+					exLocaliseKeyName:          "DataList",
+					exEnableHomeSwitch:         true,
+					exContentTypeFilterEnabled: true,
+					exDateFilterEnabled:        true,
+				},
+				{
+					template:                   "home-publications",
+					exTitle:                    "All publications related to home",
+					exLocaliseKeyName:          "HomePublications",
+					exEnableHomeSwitch:         true,
+					exContentTypeFilterEnabled: true,
+				},
+				{
+					template:             "all-methodologies",
+					exTitle:              "All methodology",
+					exLocaliseKeyName:    "AllMethodology",
+					exTopicFilterEnabled: true,
+				},
+				{
+					template:            "published-requests",
+					exTitle:             "Freedom of Information (FOI) requests",
+					exLocaliseKeyName:   "FOIRequests",
+					exDateFilterEnabled: true,
+				},
+				{
+					template:          "home-list",
+					exTitle:           "List of all home",
+					exLocaliseKeyName: "HomeList",
+				},
+				{
+					template:          "home-methodology",
+					exTitle:           "Methodology related to home",
+					exLocaliseKeyName: "HomeMethodology",
+				},
+				{
+					template:                 "time-series-tool",
+					exTitle:                  "Time series explorer",
+					exLocaliseKeyName:        "TimeSeriesExplorer",
+					exUpdatedFilterEnabled:   true,
+					exDateFilterEnabled:      true,
+					exTopicFilterEnabled:     true,
+					exEnableTimeSeriesExport: true,
+				},
+			}
+
+			for _, tc := range testcases {
+				Convey(fmt.Sprintf("Then page template: %s maps the page features correctly", tc.template), func() {
+					sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, tc.template)
+					So(sp.Metadata.Title, ShouldEqual, tc.exTitle)
+					So(sp.Title.LocaliseKeyName, ShouldEqual, tc.exLocaliseKeyName)
+					So(sp.Data.EnableHomeSwitch, ShouldEqual, tc.exEnableHomeSwitch)
+					So(sp.Data.ContentTypeFilterEnabled, ShouldEqual, tc.exContentTypeFilterEnabled)
+					So(sp.Data.TopicFilterEnabled, ShouldEqual, tc.exTopicFilterEnabled)
+					So(sp.Data.DateFilterEnabled, ShouldEqual, tc.exDateFilterEnabled)
+					So(sp.Data.UpdatedFilterEnabled, ShouldEqual, tc.exUpdatedFilterEnabled)
+				})
+			}
 		})
 	})
 }
