@@ -362,21 +362,17 @@ one = "Dates"
 description = "Released after"
 one = "Released after"
 
-[Day]
-description = "Day"
-one = "Day"
-
-[Month]
-description = "Month"
-one = "Month"
-
-[Year]
-description = "Year"
-one = "Year"
+[ReleasedAfterDescription]
+description = "Released after description"
+one = "For example: 2018 or 13 04 2020"
 
 [ReleasedBefore]
 description = "Released before"
 one = "Released before"
+
+[ReleasedBeforeDescription]
+description = "Released before description"
+one = "For example: 2019 or 16 07 2021"
 
 [LoadingResults]
 description = "Loading search results"
