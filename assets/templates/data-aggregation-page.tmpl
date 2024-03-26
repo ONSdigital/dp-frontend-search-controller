@@ -26,7 +26,7 @@
             </h3>
             <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
           </div>
-          <div class="search__filter__content ons-u-bb">
+          <div class="search__filter__content">
             {{ template "partials/data-aggregation-filters" . }}
           </div>
           <button
@@ -40,7 +40,7 @@
           </div>
         </section>
       </div>
-      <div class="ons-grid__col ons-col-8@m">
+      <div class="ons-grid__col ons-col-8@m" aria-live="polite">
         <section role="contentinfo" aria-label="{{ localise "SearchResults" $lang 1 }}">
           <div class="search__count">
             {{ template "partials/count" . }}
