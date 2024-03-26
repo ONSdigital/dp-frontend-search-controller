@@ -174,7 +174,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 		return validatedQueryParams, paginationErr
 	}
 
-	reviewSort(ctx, cfg, urlQuery, &validatedQueryParams)
+	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultAggregationSort)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	if contentTypeFilterError != nil {
