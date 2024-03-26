@@ -315,7 +315,7 @@ func getValidTimestamp(year, month, day string) (time.Time, error) {
 }
 
 func hasFilters(validatedQueryParams SearchURLParams) bool {
-	if len(validatedQueryParams.Filter.Query) > 0 || len(validatedQueryParams.TopicFilter) > 0 {
+	if len(validatedQueryParams.Filter.Query) > 0 || validatedQueryParams.TopicFilter != "" {
 		return true
 	}
 
