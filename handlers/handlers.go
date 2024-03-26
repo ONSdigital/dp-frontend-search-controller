@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -884,8 +883,6 @@ func getTopicByURLString(topicURLString string, topics []topicModels.Topic) (top
 	nonAlphanumericRegex := regexp.MustCompile(`[^a-zA-Z0-9]+`)
 
 	for _, topic := range topics {
-		fmt.Println(nonAlphanumericRegex.ReplaceAllString(strings.ToLower(topic.Title), ""))
-
 		if nonAlphanumericRegex.ReplaceAllString(strings.ToLower(topic.Title), "") == strings.ToLower(topicURLString) {
 			return topic, nil
 		}
