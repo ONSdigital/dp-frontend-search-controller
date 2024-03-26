@@ -26,8 +26,8 @@ type Search struct {
 	ContentTypeFilterEnabled bool                   `json:"content_type_filter_enabled,omitempty"`
 	Filter                   []string               `json:"filter,omitempty"`
 	Filters                  []Filter               `json:"filters"`
-	BeforeDate               model.InputDate        `json:"before_date"`
-	AfterDate                model.InputDate        `json:"after_date"`
+	BeforeDate               model.DateFieldset     `json:"before_date"`
+	AfterDate                model.DateFieldset     `json:"after_date"`
 	TopicFilters             []TopicFilter          `json:"topic_filters"`
 	CensusFilters            []TopicFilter          `json:"census_filters"`
 	PopulationTypeFilter     []PopulationTypeFilter `json:"population_types"`

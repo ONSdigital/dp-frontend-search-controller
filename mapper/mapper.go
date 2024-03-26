@@ -140,6 +140,48 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		SearchTerm: validatedQueryParams.Query,
 	}
 
+	page.Data.BeforeDate = coreModel.DateFieldset{
+		Input: coreModel.InputDate{
+			Language:        lang,
+			Id:              "from-date-filters",
+			InputNameDay:    "fromDateDay",
+			InputNameMonth:  "fromDateMonth",
+			InputNameYear:   "fromDateYear",
+			InputValueDay:   validatedQueryParams.AfterDate.DayString(),
+			InputValueMonth: validatedQueryParams.AfterDate.MonthString(),
+			InputValueYear:  validatedQueryParams.AfterDate.YearString(),
+			Title: coreModel.Localisation{
+				LocaleKey: "ReleasedAfter",
+				Plural:    1,
+			},
+			Description: coreModel.Localisation{
+				LocaleKey: "ReleasedAfterDescription",
+				Plural:    1,
+			},
+		},
+	}
+
+	page.Data.AfterDate = coreModel.DateFieldset{
+		Input: coreModel.InputDate{
+			Language:        lang,
+			Id:              "to-date-filters",
+			InputNameDay:    "toDateDay",
+			InputNameMonth:  "toDateMonth",
+			InputNameYear:   "toDateYear",
+			InputValueDay:   validatedQueryParams.BeforeDate.DayString(),
+			InputValueMonth: validatedQueryParams.BeforeDate.MonthString(),
+			InputValueYear:  validatedQueryParams.BeforeDate.YearString(),
+			Title: coreModel.Localisation{
+				LocaleKey: "ReleasedBefore",
+				Plural:    1,
+			},
+			Description: coreModel.Localisation{
+				LocaleKey: "ReleasedBeforeDescription",
+				Plural:    1,
+			},
+		},
+	}
+
 	page.Type = "Data Aggregation Page"
 	page.Data.TermLocalKey = "Results"
 	page.Count = respC.Count
@@ -155,43 +197,6 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	page.FeatureFlags.IsPublishing = cfg.IsPublishing
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
-	}
-	page.AfterDate = coreModel.InputDate{
-		Language:        page.Language,
-		Id:              "after-date",
-		InputNameDay:    "after-day",
-		InputNameMonth:  "after-month",
-		InputNameYear:   "after-year",
-		InputValueDay:   validatedQueryParams.AfterDate.DayString(),
-		InputValueMonth: validatedQueryParams.AfterDate.MonthString(),
-		InputValueYear:  validatedQueryParams.AfterDate.YearString(),
-		Title: coreModel.Localisation{
-			LocaleKey: "ReleasedAfter",
-			Plural:    1,
-		},
-		Description: coreModel.Localisation{
-			LocaleKey: "DateFilterDescription",
-			Plural:    1,
-		},
-	}
-
-	page.BeforeDate = coreModel.InputDate{
-		Language:        page.Language,
-		Id:              "before-date",
-		InputNameDay:    "before-day",
-		InputNameMonth:  "before-month",
-		InputNameYear:   "before-year",
-		InputValueDay:   validatedQueryParams.BeforeDate.DayString(),
-		InputValueMonth: validatedQueryParams.BeforeDate.MonthString(),
-		InputValueYear:  validatedQueryParams.BeforeDate.YearString(),
-		Title: coreModel.Localisation{
-			LocaleKey: "ReleasedBefore",
-			Plural:    1,
-		},
-		Description: coreModel.Localisation{
-			LocaleKey: "DateFilterDescription",
-			Plural:    1,
-		},
 	}
 }
 

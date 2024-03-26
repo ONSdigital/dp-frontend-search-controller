@@ -35,7 +35,7 @@ func reviewDimensionsFilters(urlQuery url.Values, validatedQueryParams *SearchUR
 
 func GetDimensions(countResp *searchModels.SearchResponse) (dimensions []Dimensions) {
 	for _, dimension := range countResp.Dimensions {
-		if len(dimension.Label) > 0 && len(dimension.Type) > 0 {
+		if dimension.Label != "" && dimension.Type != "" {
 			dimensions = append(dimensions, Dimensions{
 				/*
 				* TODO - Get translations

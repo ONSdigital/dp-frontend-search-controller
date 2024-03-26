@@ -1,9 +1,13 @@
 {{ $lang := .Language }}
 
 <!-- Hide date input in the timeseries so it can be shown programmatically when needed -->
-<details id="dateFilters"
-    class="ons-collapsible ons-js-collapsible ons-collapsible--accordion"
-    data-group="accordion" data-btn-close="Hide this" data-open="true">
+<details
+    id="dateFilters"
+    class="{{ if $enabledTimeSeriesExport }} hidden {{ end }} ons-collapsible ons-js-collapsible ons-collapsible--accordion"
+    data-group="accordion"
+    data-btn-close="Hide this"
+    data-open="true"
+>
     <summary class="ons-collapsible__heading ons-js-collapsible-heading">
         <h2 class="ons-collapsible__title">
             <legend class="block">
@@ -14,8 +18,8 @@
             {{ template "icons/chevron-right" }}
         </span>
     </summary>
-    <div class="ons-collapsible__content ons-js-collapsible-content ons-u-mb-s">
-        {{ template "partials/inputs/input-date" .AfterDate }}
-        {{ template "partials/inputs/input-date" .BeforeDate }}
+    <div class="ons-u-mb-s">
+        {{ template "partials/fields/fieldset-date" .Data.AfterDate }}
+        {{ template "partials/fields/fieldset-date" .Data.BeforeDate }}
     </div>
 </details>

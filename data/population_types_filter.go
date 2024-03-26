@@ -39,7 +39,7 @@ func reviewPopulationTypeFilters(urlQuery url.Values, validatedQueryParams *Sear
 
 func GetPopulationTypes(countResp *searchModels.SearchResponse) (populationTypes []PopulationTypes) {
 	for _, populationType := range countResp.PopulationType {
-		if len(populationType.Label) > 0 && len(populationType.Type) > 0 {
+		if populationType.Label != "" && populationType.Type != "" {
 			populationTypes = append(populationTypes, PopulationTypes{
 				/*
 				* TODO - Get translations
