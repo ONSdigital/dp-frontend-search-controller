@@ -71,6 +71,7 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
 
 	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics")
+	c.FakeAPIRouter.subtopicsRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*/subtopics")
 
 	c.FakeAPIRouter.navigationRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/data")
 
