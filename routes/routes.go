@@ -41,19 +41,19 @@ func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, ca
 		r.StrictSlash(true).Path("/publications").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "home-publications"))
 		r.StrictSlash(true).Path("/allmethodologies").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "all-methodologies"))
 
-		//datalist
+		// datalist
 		r.StrictSlash(true).Path("/{topic}/datalist").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-datalist"))
 		r.StrictSlash(true).Path("/{topic}/{subTopic}/datalist").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-datalist"))
 
-		//publications
+		// publications
 		r.StrictSlash(true).Path("/{topic}/publications").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-publications"))
 		r.StrictSlash(true).Path("/{topic}/{subTopic}/publications").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-publications"))
 
-		//staticlist
+		// staticlist
 		r.StrictSlash(true).Path("/{topic}/staticlist").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-list"))
 		r.StrictSlash(true).Path("/{topic}/{subTopic}/staticlist").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-list"))
 
-		//topicspecificmethodology
+		// topicspecificmethodology
 		r.StrictSlash(true).Path("/{topic}/topicspecificmethodology").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-methodology"))
 		r.StrictSlash(true).Path("/{topic}/{subTopic}/topicspecificmethodology").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-methodology"))
 	}
