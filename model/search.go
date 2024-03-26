@@ -37,6 +37,7 @@ type Search struct {
 	Pagination               model.Pagination       `json:"pagination,omitempty"`
 	Response                 Response               `json:"response"`
 	TermLocalKey             string                 `json:"term_localise_key_name,omitempty"`
+	Topic                    string                 `json:"topic,omitempty"`
 }
 
 // Filter respresents all filter information needed by templates
