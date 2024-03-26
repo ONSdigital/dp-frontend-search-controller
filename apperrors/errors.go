@@ -12,6 +12,7 @@ var (
 	ErrInvalidQueryCharLengthString = errors.New("the query string is less than the required character length")
 	ErrPageExceedsTotalPages        = errors.New("invalid page value, exceeding the total page value")
 	ErrTopicNotFound                = errors.New("topic not found")
+	ErrTopicPathNotFound            = errors.New("topic path not found")
 
 	BadRequestMap = map[error]bool{
 		ErrContentTypeNotFound:   true,
@@ -19,6 +20,10 @@ var (
 		ErrInvalidQueryString:    true,
 		ErrPageExceedsTotalPages: true,
 		ErrTopicNotFound:         true,
+	}
+
+	NotFoundMap = map[error]bool{
+		ErrTopicPathNotFound: true,
 	}
 
 	// ErrMapForRenderBeforeAPICalls is a list of errors which leads to the search page being rendered before making any API calls
