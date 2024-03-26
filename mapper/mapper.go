@@ -4,7 +4,6 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
-	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 
@@ -157,7 +156,6 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
-	page.Data.LastUpdatedValue = mapLastUpdated(validatedQueryParams)
 	page.AfterDate = coreModel.InputDate{
 		Language:        page.Language,
 		Id:              "after-date",
@@ -703,27 +701,4 @@ func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.N
 	}
 
 	return mappedNavigationContent
-}
-
-func mapLastUpdated(queryParams data.SearchURLParams) string {
-	const DateFormat = "2006-01-02"
-	fromDate, _ := time.Parse(DateFormat, queryParams.AfterDate.String())
-	toDate, _ := time.Parse(DateFormat, queryParams.BeforeDate.String())
-
-	if fromDate.IsZero() && toDate.IsZero() {
-		return "select"
-	}
-
-	diff := toDate.Sub(fromDate)
-	diffDays := int(diff.Hours() / 24)
-
-	if diffDays == 1 {
-		return "today"
-	} else if diffDays == 7 {
-		return "week"
-	} else if toDate.Month()-fromDate.Month() == 1 || (fromDate.Month() == 12 && toDate.Month() == 1) {
-		return "month"
-	} else {
-		return "custom"
-	}
 }

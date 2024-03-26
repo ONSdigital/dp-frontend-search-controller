@@ -339,10 +339,6 @@ one = "Show all releases over time (only showing latest one of each by default)"
 description = "Last update"
 one = "Last update"
 
-[SelectLastUpdated]
-description = "Select last updated"
-one = "Select last updated"
-
 [Today]
 description = "Today"
 one = "Today"
