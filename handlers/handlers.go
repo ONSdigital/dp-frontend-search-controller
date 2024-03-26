@@ -12,7 +12,6 @@ import (
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
-	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -118,7 +117,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	}
 
 	validatedQueryParams, err := data.ReviewDatasetQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
+	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
 		return
@@ -132,7 +131,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	)
 
 	// avoid making unecessary search API calls
-	if errs.ErrMapForRenderBeforeAPICalls[err] {
+	if apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		makeSearchAPICalls = false
 
 		// reduce counter by the number of concurrent search API calls that would be
@@ -255,7 +254,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	}
 
 	validatedQueryParams, err := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
+	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
 		return
@@ -425,7 +424,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	}
 
 	validatedQueryParams, err := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
+	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
 		return
@@ -542,7 +541,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	}
 
 	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
+	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
 		return
@@ -561,7 +560,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	)
 
 	// avoid making unecessary search API calls
-	if errs.ErrMapForRenderBeforeAPICalls[err] {
+	if apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		makeSearchAPICalls = false
 
 		// reduce counter by the number of concurrent search API calls that would be
@@ -653,7 +652,7 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 		totalPages := data.GetTotalPages(cfg, validatedQueryParams.Limit, resultsCount)
 
 		if validatedQueryParams.CurrentPage > totalPages {
-			err := errs.ErrPageExceedsTotalPages
+			err := apperrors.ErrPageExceedsTotalPages
 			log.Error(ctx, "current page exceeds total pages", err)
 
 			return err
@@ -761,11 +760,11 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 		}
 	}
 
-	if errs.BadRequestMap[err] {
+	if apperrors.BadRequestMap[err] {
 		status = http.StatusBadRequest
 	}
 
-	if errs.NotFoundMap[err] {
+	if apperrors.NotFoundMap[err] {
 		status = http.StatusNotFound
 	}
 

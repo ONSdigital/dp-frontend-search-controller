@@ -18,7 +18,6 @@ import (
 
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
-	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -702,7 +701,7 @@ func TestUnitValidateCurrentPageFailure(t *testing.T) {
 
 				Convey("Then return no error", func() {
 					So(err, ShouldNotBeNil)
-					So(err, ShouldResemble, errs.ErrPageExceedsTotalPages)
+					So(err, ShouldResemble, apperrors.ErrPageExceedsTotalPages)
 				})
 			})
 		})
@@ -851,7 +850,7 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/search?q=housing&page=1000000", http.NoBody)
 
-		err := errs.ErrInternalServer
+		err := apperrors.ErrInternalServer
 
 		Convey("When setStatusCode is called", func() {
 			setStatusCode(w, req, err)
@@ -881,7 +880,7 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", "/search?q=housing&page=1000000", http.NoBody)
 
-		err := errs.ErrInvalidPage
+		err := apperrors.ErrInvalidPage
 
 		Convey("When setStatusCode is called", func() {
 			setStatusCode(w, req, err)
