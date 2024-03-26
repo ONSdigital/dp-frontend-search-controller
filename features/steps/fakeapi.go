@@ -10,6 +10,7 @@ type FakeAPI struct {
 	healthRequest                *httpfake.Request
 	searchRequest                *httpfake.Request
 	topicRequest                 *httpfake.Request
+	subtopicsRequest             *httpfake.Request
 	navigationRequest            *httpfake.Request
 	outboundRequests             []string
 	collectOutboundRequestBodies httpfake.CustomAssertor
