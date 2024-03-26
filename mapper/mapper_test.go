@@ -389,7 +389,6 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				exContentTypeFilterEnabled bool
 				exTopicFilterEnabled       bool
 				exDateFilterEnabled        bool
-				exUpdatedFilterEnabled     bool
 				exEnableTimeSeriesExport   bool
 			}{
 				{
@@ -439,7 +438,6 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					template:                 "time-series-tool",
 					exTitle:                  "Time series explorer",
 					exLocaliseKeyName:        "TimeSeriesExplorer",
-					exUpdatedFilterEnabled:   true,
 					exDateFilterEnabled:      true,
 					exTopicFilterEnabled:     true,
 					exEnableTimeSeriesExport: true,
@@ -455,7 +453,6 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					So(sp.Data.ContentTypeFilterEnabled, ShouldEqual, tc.exContentTypeFilterEnabled)
 					So(sp.Data.TopicFilterEnabled, ShouldEqual, tc.exTopicFilterEnabled)
 					So(sp.Data.DateFilterEnabled, ShouldEqual, tc.exDateFilterEnabled)
-					So(sp.Data.UpdatedFilterEnabled, ShouldEqual, tc.exUpdatedFilterEnabled)
 				})
 			}
 		})
