@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
+	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
@@ -19,7 +21,10 @@ import (
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
-	topic "github.com/ONSdigital/dp-topic-api/sdk"
+	topicModels "github.com/ONSdigital/dp-topic-api/models"
+	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"
+
+	"github.com/gorilla/mux"
 
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/feeds"
@@ -35,11 +40,11 @@ type HandlerClients struct {
 	Renderer      RenderClient
 	SearchClient  SearchClient
 	ZebedeeClient ZebedeeClient
-	TopicClient   *topic.Client
+	TopicClient   TopicClient
 }
 
 // NewHandlerClients creates a new instance of FilterFlex
-func NewHandlerClients(rc RenderClient, sc SearchClient, zc ZebedeeClient, tc *topic.Client) *HandlerClients {
+func NewHandlerClients(rc RenderClient, sc SearchClient, zc ZebedeeClient, tc TopicClient) *HandlerClients {
 	return &HandlerClients{
 		Renderer:      rc,
 		SearchClient:  sc,
@@ -61,7 +66,7 @@ func Read(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template
 	return cookies.Handler(cfg.ABTest.Enabled, newHandler, oldHandler, cfg.ABTest.Percentage, cfg.ABTest.AspectID, cfg.SiteDomain, cfg.ABTest.Exit)
 }
 
-//Read Handler for data aggregation routes with topic/subtopics
+// Read Handler for data aggregation routes with topic/subtopics
 func ReadDataAggregationWithTopics(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readDataAggregationWithTopics(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, hc.TopicClient, accessToken, collectionID, lang, cacheList, template)
@@ -344,7 +349,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{})
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
@@ -353,55 +358,64 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	}
 }
 
-func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, topicC *topic.Client,
+func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, topicC TopicClient,
 	accessToken, collectionID, lang string, cacheList cache.List, template string,
 ) {
 	ctx, cancel := context.WithCancel(req.Context())
+	defer cancel()
+
 	vars := mux.Vars(req)
 
-	respRootTopics, errorrr := topicC.GetRootTopicsPublic(ctx, topic.Headers{})
-	if errorrr != nil {
+	respRootTopics, topicAPIError := topicC.GetRootTopicsPublic(ctx, topicSDK.Headers{})
+	if topicAPIError != nil {
 		logData := log.Data{
-			"req_headers": topic.Headers{},
+			"req_headers": topicSDK.Headers{},
 		}
-		log.Error(ctx, "failed to get root topics from topic-api", errorrr, logData)
+		log.Error(ctx, "failed to get root topics from topic api", topicAPIError, logData)
 		return
 	}
 
 	rootTopicItems := *respRootTopics.PublicItems
-	topics := []string{}
-	topLevelTopicID := ""
+	selectedTopic := topicModels.Topic{}
 
-	for i := range rootTopicItems {
-		if strings.ReplaceAll(strings.ToLower(rootTopicItems[i].Title), " ", "") == strings.ToLower(vars["topic"]) {
-			log.Info(ctx, "this the found topic", log.Data{"topics": rootTopicItems[i]})
-			topics = append(topics, rootTopicItems[i].ID)
-			topLevelTopicID = rootTopicItems[i].ID
-			break
-		}
-	}
-
-	subTopics, err := topicC.GetSubtopicsPublic(ctx, topic.Headers{}, topLevelTopicID)
+	topicPath := vars["topic"]
+	topic, err := getTopicByURLString(topicPath, rootTopicItems)
 	if err != nil {
-		log.Error(ctx, "failed to subtopics", err)
+		log.Error(ctx, "could not match topicPath to topics", err, log.Data{
+			"topicPath": topicPath,
+		})
 		setStatusCode(w, req, err)
 		return
 	}
 
-	rootSubTopicItems := *subTopics.PublicItems
-
-	for i := range rootSubTopicItems {
-		if strings.ReplaceAll(strings.ToLower(rootSubTopicItems[i].Title), " ", "") == strings.ToLower(vars["subTopic"]) {
-			topics = append(topics, rootSubTopicItems[i].ID)
-			break
+	subtopicPath := vars["subTopic"]
+	if subtopicPath != "" {
+		subTopics, topicAPIError := topicC.GetSubtopicsPublic(ctx, topicSDK.Headers{}, topic.ID)
+		if topicAPIError != nil {
+			log.Error(ctx, "failed to get subtopics", topicAPIError)
+			setStatusCode(w, req, topicAPIError)
+			return
 		}
-	}
 
-	defer cancel()
+		subtopicItems := *subTopics.PublicItems
+
+		subtopic, matchingErr := getTopicByURLString(subtopicPath, subtopicItems)
+		if matchingErr != nil {
+			log.Error(ctx, "could not match subtopicPath to subtopics", matchingErr, log.Data{
+				"subtopicPath": subtopicPath,
+			})
+			setStatusCode(w, req, matchingErr)
+			return
+		}
+
+		selectedTopic = subtopic
+	} else {
+		selectedTopic = topic
+	}
 
 	urlQuery := req.URL.Query()
 
-	urlQuery.Add("topics", strings.Join(topics, ","))
+	urlQuery.Add("topics", selectedTopic.ID)
 
 	// replace with new cache
 	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
@@ -505,8 +519,8 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template)
-	//time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic)
+	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
 	} else {
@@ -762,6 +776,10 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 		status = http.StatusBadRequest
 	}
 
+	if errs.NotFoundMap[err] {
+		status = http.StatusNotFound
+	}
+
 	log.Error(req.Context(), "setting-response-status", err)
 
 	w.WriteHeader(status)
@@ -860,4 +878,18 @@ func getPageTitle(template string) (pageTitle, pageTag string) {
 	}
 
 	return "", ""
+// getTopicByURLString matches a URL string, e.g. businessindustryandtrade against
+// a Topic retrieved from the Topic API, using it's Title attribute, e.g.
+// "Business, industry and trade"
+func getTopicByURLString(topicURLString string, topics []topicModels.Topic) (topicModels.Topic, error) {
+	nonAlphanumericRegex := regexp.MustCompile(`[^a-zA-Z0-9]+`)
+
+	for _, topic := range topics {
+		fmt.Println(nonAlphanumericRegex.ReplaceAllString(strings.ToLower(topic.Title), ""))
+
+		if nonAlphanumericRegex.ReplaceAllString(strings.ToLower(topic.Title), "") == strings.ToLower(topicURLString) {
+			return topic, nil
+		}
+	}
+	return topicModels.Topic{}, apperrors.ErrTopicPathNotFound
 }
