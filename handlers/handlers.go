@@ -2,14 +2,16 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"sync"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
-	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
+	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -17,6 +19,10 @@ import (
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
+	topicModels "github.com/ONSdigital/dp-topic-api/models"
+	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"
+
+	"github.com/gorilla/mux"
 
 	"github.com/ONSdigital/log.go/v2/log"
 )
@@ -31,14 +37,16 @@ type HandlerClients struct {
 	Renderer      RenderClient
 	SearchClient  SearchClient
 	ZebedeeClient ZebedeeClient
+	TopicClient   TopicClient
 }
 
 // NewHandlerClients creates a new instance of FilterFlex
-func NewHandlerClients(rc RenderClient, sc SearchClient, zc ZebedeeClient) *HandlerClients {
+func NewHandlerClients(rc RenderClient, sc SearchClient, zc ZebedeeClient, tc TopicClient) *HandlerClients {
 	return &HandlerClients{
 		Renderer:      rc,
 		SearchClient:  sc,
 		ZebedeeClient: zc,
+		TopicClient:   tc,
 	}
 }
 
@@ -53,6 +61,13 @@ func Read(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template
 	})
 
 	return cookies.Handler(cfg.ABTest.Enabled, newHandler, oldHandler, cfg.ABTest.Percentage, cfg.ABTest.AspectID, cfg.SiteDomain, cfg.ABTest.Exit)
+}
+
+// Read Handler for data aggregation routes with topic/subtopics
+func ReadDataAggregationWithTopics(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
+	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		readDataAggregationWithTopics(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, hc.TopicClient, accessToken, collectionID, lang, cacheList, template)
+	})
 }
 
 // Read Handler
@@ -102,7 +117,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	}
 
 	validatedQueryParams, err := data.ReviewDatasetQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
+	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
 		return
@@ -116,7 +131,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	)
 
 	// avoid making unecessary search API calls
-	if errs.ErrMapForRenderBeforeAPICalls[err] {
+	if apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		makeSearchAPICalls = false
 
 		// reduce counter by the number of concurrent search API calls that would be
@@ -239,7 +254,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	}
 
 	validatedQueryParams, err := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
+	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
 		return
@@ -322,7 +337,177 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{})
+	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
+	if template != "time-series-tool" {
+		rend.BuildPage(w, m, "data-aggregation-page")
+	} else {
+		rend.BuildPage(w, m, template)
+	}
+}
+
+func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, topicC TopicClient,
+	accessToken, collectionID, lang string, cacheList cache.List, template string,
+) {
+	ctx, cancel := context.WithCancel(req.Context())
+	defer cancel()
+
+	vars := mux.Vars(req)
+
+	respRootTopics, topicAPIError := topicC.GetRootTopicsPublic(ctx, topicSDK.Headers{})
+	if topicAPIError != nil {
+		logData := log.Data{
+			"req_headers": topicSDK.Headers{},
+		}
+		log.Error(ctx, "failed to get root topics from topic api", topicAPIError, logData)
+		return
+	}
+
+	rootTopicItems := *respRootTopics.PublicItems
+	selectedTopic := topicModels.Topic{}
+
+	topicPath := vars["topic"]
+	topic, err := getTopicByURLString(topicPath, rootTopicItems)
+	if err != nil {
+		log.Error(ctx, "could not match topicPath to topics", err, log.Data{
+			"topicPath": topicPath,
+		})
+		setStatusCode(w, req, err)
+		return
+	}
+
+	subtopicPath := vars["subTopic"]
+	if subtopicPath != "" {
+		subTopics, topicAPIError := topicC.GetSubtopicsPublic(ctx, topicSDK.Headers{}, topic.ID)
+		if topicAPIError != nil {
+			log.Error(ctx, "failed to get subtopics", topicAPIError)
+			setStatusCode(w, req, topicAPIError)
+			return
+		}
+
+		subtopicItems := *subTopics.PublicItems
+
+		subtopic, matchingErr := getTopicByURLString(subtopicPath, subtopicItems)
+		if matchingErr != nil {
+			log.Error(ctx, "could not match subtopicPath to subtopics", matchingErr, log.Data{
+				"subtopicPath": subtopicPath,
+			})
+			setStatusCode(w, req, matchingErr)
+			return
+		}
+
+		selectedTopic = subtopic
+	} else {
+		selectedTopic = topic
+	}
+
+	urlQuery := req.URL.Query()
+
+	urlQuery.Add("topics", selectedTopic.ID)
+
+	// replace with new cache
+	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
+	if err != nil {
+		log.Error(ctx, "failed to get census topic cache", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	log.Info(ctx, "this the census cache topics", log.Data{"topics": censusTopicCache})
+
+	// get cached navigation data
+	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
+	if err != nil {
+		log.Error(ctx, "failed to get navigation cache", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	validatedQueryParams, err := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, censusTopicCache)
+	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
+		log.Error(ctx, "unable to review query", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	// counter used to keep track of the number of concurrent API calls
+	var counter = 3
+
+	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
+	categoriesCountQuery := getCategoriesCountQuery(searchQuery)
+
+	var (
+		homepageResp zebedeeCli.HomepageContent
+		searchResp   = &searchModels.SearchResponse{}
+
+		categories      []data.Category
+		topicCategories []data.Topic
+		populationTypes []data.PopulationTypes
+		dimensions      []data.Dimensions
+
+		wg sync.WaitGroup
+
+		respErr, countErr error
+	)
+	wg.Add(counter)
+
+	go func() {
+		defer wg.Done()
+		var homeErr error
+		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+		if homeErr != nil {
+			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
+			return
+		}
+	}()
+
+	var options searchSDK.Options
+
+	options.Query = searchQuery
+
+	options.Headers = http.Header{
+		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.CollectionID:  {collectionID},
+	}
+
+	go func() {
+		defer wg.Done()
+
+		searchResp, respErr = searchC.GetSearch(ctx, options)
+		if respErr != nil {
+			log.Error(ctx, "getting search response from client failed", respErr)
+			cancel()
+			return
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+
+		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+		if countErr != nil {
+			log.Error(ctx, "getting categories, types and its counts failed", countErr)
+			setStatusCode(w, req, countErr)
+			cancel()
+			return
+		}
+	}()
+
+	wg.Wait()
+	if respErr != nil || countErr != nil {
+		setStatusCode(w, req, respErr)
+		return
+	}
+
+	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
+	if err != nil {
+		log.Error(ctx, "unable to validate current page", err)
+		setStatusCode(w, req, err)
+		return
+	}
+	basePage := rend.NewBasePageModel()
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic)
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
@@ -356,7 +541,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	}
 
 	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
+	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
 		return
@@ -375,7 +560,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 	)
 
 	// avoid making unecessary search API calls
-	if errs.ErrMapForRenderBeforeAPICalls[err] {
+	if apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		makeSearchAPICalls = false
 
 		// reduce counter by the number of concurrent search API calls that would be
@@ -467,7 +652,7 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 		totalPages := data.GetTotalPages(cfg, validatedQueryParams.Limit, resultsCount)
 
 		if validatedQueryParams.CurrentPage > totalPages {
-			err := errs.ErrPageExceedsTotalPages
+			err := apperrors.ErrPageExceedsTotalPages
 			log.Error(ctx, "current page exceeds total pages", err)
 
 			return err
@@ -575,8 +760,12 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 		}
 	}
 
-	if errs.BadRequestMap[err] {
+	if apperrors.BadRequestMap[err] {
 		status = http.StatusBadRequest
+	}
+
+	if apperrors.NotFoundMap[err] {
+		status = http.StatusNotFound
 	}
 
 	log.Error(req.Context(), "setting-response-status", err)
@@ -590,4 +779,20 @@ func setFlorenceTokenHeader(headers http.Header, accessToken string) {
 	} else {
 		headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
 	}
+}
+
+// getTopicByURLString matches a URL string, e.g. businessindustryandtrade against
+// a Topic retrieved from the Topic API, using it's Title attribute, e.g.
+// "Business, industry and trade"
+func getTopicByURLString(topicURLString string, topics []topicModels.Topic) (topicModels.Topic, error) {
+	nonAlphanumericRegex := regexp.MustCompile(`[^a-zA-Z0-9]+`)
+
+	for _, topic := range topics {
+		fmt.Println(nonAlphanumericRegex.ReplaceAllString(strings.ToLower(topic.Title), ""))
+
+		if nonAlphanumericRegex.ReplaceAllString(strings.ToLower(topic.Title), "") == strings.ToLower(topicURLString) {
+			return topic, nil
+		}
+	}
+	return topicModels.Topic{}, apperrors.ErrTopicPathNotFound
 }
