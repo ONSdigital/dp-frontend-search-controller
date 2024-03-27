@@ -140,7 +140,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		SearchTerm: validatedQueryParams.Query,
 	}
 
-	page.Data.BeforeDate = coreModel.DateFieldset{
+	page.Data.AfterDate = coreModel.DateFieldset{
 		Input: coreModel.InputDate{
 			Language:        lang,
 			Id:              "from-date-filters",
@@ -161,7 +161,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		},
 	}
 
-	page.Data.AfterDate = coreModel.DateFieldset{
+	page.Data.BeforeDate = coreModel.DateFieldset{
 		Input: coreModel.InputDate{
 			Language:        lang,
 			Id:              "to-date-filters",
