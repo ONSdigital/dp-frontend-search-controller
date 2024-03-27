@@ -242,12 +242,12 @@ func GetDates(ctx context.Context, params url.Values) (startDate, endDate Date, 
 	)
 
 	const (
-		DayBefore   = "before-day"
-		DayAfter    = "after-day"
-		MonthBefore = "before-month"
-		MonthAfter  = "after-month"
-		YearBefore  = "before-year"
-		YearAfter   = "after-year"
+		DayBefore   = "toDateDay"
+		DayAfter    = "fromDateDay"
+		MonthBefore = "toDateMonth"
+		MonthAfter  = "fromDateMonth"
+		YearBefore  = "toDateYear"
+		YearAfter   = "fromDateYear"
 		DateFrom    = "fromDate"
 		DateTo      = "toDate"
 	)
