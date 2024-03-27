@@ -317,7 +317,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 			SearchTerm: validatedQueryParams.Query,
 		}
 
-		mockBeforeDate := model.DateFieldset{
+		mockAfterDate := model.DateFieldset{
 			Input: model.InputDate{
 				Language:        englishLang,
 				Id:              "from-date-filters",
@@ -339,7 +339,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 			},
 		}
 
-		mockAfterDate := model.DateFieldset{
+		mockBeforeDate := model.DateFieldset{
 			Input: model.InputDate{
 				Language:        englishLang,
 				Id:              "to-date-filters",
