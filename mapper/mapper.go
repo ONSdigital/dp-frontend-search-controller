@@ -97,13 +97,13 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Title.LocaliseKeyName = "UserRequestedData"
 		page.Data.DateFilterEnabled = true
 	case "home-datalist":
-		page.Metadata.Title = "All data related to home"
+		page.Metadata.Title = "Published data"
 		page.Title.LocaliseKeyName = "DataList"
 		page.Data.ContentTypeFilterEnabled = true
 		page.Data.DateFilterEnabled = true
 		page.Data.EnableHomeSwitch = true
 	case "home-publications":
-		page.Metadata.Title = "All publications related to home"
+		page.Metadata.Title = "Publications"
 		page.Title.LocaliseKeyName = "HomePublications"
 		page.Data.EnableHomeSwitch = true
 		page.Data.ContentTypeFilterEnabled = true
@@ -116,15 +116,14 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Title.LocaliseKeyName = "FOIRequests"
 		page.Data.DateFilterEnabled = true
 	case "home-list":
-		page.Metadata.Title = "List of all home"
+		page.Metadata.Title = "Information pages"
 		page.Title.LocaliseKeyName = "HomeList"
 	case "home-methodology":
-		page.Metadata.Title = "Methodology related to home"
+		page.Metadata.Title = "Methodology"
 		page.Title.LocaliseKeyName = "HomeMethodology"
 	case "time-series-tool":
 		page.Metadata.Title = "Time series explorer"
 		page.Title.LocaliseKeyName = "TimeSeriesExplorer"
-		page.Data.UpdatedFilterEnabled = true
 		page.Data.DateFilterEnabled = true
 		page.Data.TopicFilterEnabled = true
 		page.Data.EnableTimeSeriesExport = true
@@ -139,6 +138,48 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 			Plural:    1,
 		},
 		SearchTerm: validatedQueryParams.Query,
+	}
+
+	page.Data.AfterDate = coreModel.DateFieldset{
+		Input: coreModel.InputDate{
+			Language:        lang,
+			Id:              "from-date-filters",
+			InputNameDay:    "fromDateDay",
+			InputNameMonth:  "fromDateMonth",
+			InputNameYear:   "fromDateYear",
+			InputValueDay:   validatedQueryParams.AfterDate.DayString(),
+			InputValueMonth: validatedQueryParams.AfterDate.MonthString(),
+			InputValueYear:  validatedQueryParams.AfterDate.YearString(),
+			Title: coreModel.Localisation{
+				LocaleKey: "ReleasedAfter",
+				Plural:    1,
+			},
+			Description: coreModel.Localisation{
+				LocaleKey: "ReleasedAfterDescription",
+				Plural:    1,
+			},
+		},
+	}
+
+	page.Data.BeforeDate = coreModel.DateFieldset{
+		Input: coreModel.InputDate{
+			Language:        lang,
+			Id:              "to-date-filters",
+			InputNameDay:    "toDateDay",
+			InputNameMonth:  "toDateMonth",
+			InputNameYear:   "toDateYear",
+			InputValueDay:   validatedQueryParams.BeforeDate.DayString(),
+			InputValueMonth: validatedQueryParams.BeforeDate.MonthString(),
+			InputValueYear:  validatedQueryParams.BeforeDate.YearString(),
+			Title: coreModel.Localisation{
+				LocaleKey: "ReleasedBefore",
+				Plural:    1,
+			},
+			Description: coreModel.Localisation{
+				LocaleKey: "ReleasedBeforeDescription",
+				Plural:    1,
+			},
+		},
 	}
 
 	page.Type = "Data Aggregation Page"
@@ -156,25 +197,6 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	page.FeatureFlags.IsPublishing = cfg.IsPublishing
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
-	}
-
-	page.AfterDate = coreModel.InputDate{
-		Language:        page.Language,
-		Id:              "after-date",
-		InputNameDay:    "after-day",
-		InputNameMonth:  "after-month",
-		InputNameYear:   "after-year",
-		InputValueDay:   validatedQueryParams.AfterDate.DayString(),
-		InputValueMonth: validatedQueryParams.AfterDate.MonthString(),
-		InputValueYear:  validatedQueryParams.AfterDate.YearString(),
-		Title: coreModel.Localisation{
-			LocaleKey: "ReleasedAfter",
-			Plural:    1,
-		},
-		Description: coreModel.Localisation{
-			LocaleKey: "DateFilterDescription",
-			Plural:    1,
-		},
 	}
 }
 

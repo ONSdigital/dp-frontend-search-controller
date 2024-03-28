@@ -2,7 +2,6 @@
 {{ $dateFilterEnabled := .Data.DateFilterEnabled }}
 {{ $topicFilterEnabled := .Data.TopicFilterEnabled }}
 {{ $contentTypeFilterEnabled := .Data.ContentTypeFilterEnabled }}
-{{ $updatedFilterEnabled := .Data.UpdatedFilterEnabled }}
 {{ $lang := $.Language }}
 
 <div
@@ -11,9 +10,6 @@
 >
     {{ template "partials/data-filters/keywords-filter" . }}
 
-    {{ if $updatedFilterEnabled }}
-        {{ template "partials/data-filters/updated-filter" . }}
-    {{ end }}
     {{ if $topicFilterEnabled }}
         {{ template "partials/data-filters/topic-filter" . }}
     {{ end }}

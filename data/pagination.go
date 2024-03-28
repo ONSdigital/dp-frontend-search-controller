@@ -209,10 +209,10 @@ func buildQueryString(query, populationTypes, dimensions string) string {
 	var u url.URL
 	q := u.Query()
 	q.Set("q", query)
-	if len(populationTypes) > 0 {
+	if populationTypes != "" {
 		q.Set("population_types", populationTypes)
 	}
-	if len(dimensions) > 0 {
+	if dimensions != "" {
 		q.Set("dimensions", dimensions)
 	}
 	return q.Encode()
