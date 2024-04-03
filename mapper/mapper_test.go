@@ -385,7 +385,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				template                   string
 				exTitle                    string
 				exLocaliseKeyName          string
-				exContentTypeFilterEnabled bool
+				exSingleContentTypeFilterEnabled bool
 				exTopicFilterEnabled       bool
 				exDateFilterEnabled        bool
 				exEnableTimeSeriesExport   bool
@@ -400,14 +400,14 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					template:                   "home-datalist",
 					exTitle:                    "Published data",
 					exLocaliseKeyName:          "DataList",
-					exContentTypeFilterEnabled: true,
+					exSingleContentTypeFilterEnabled: true,
 					exDateFilterEnabled:        true,
 				},
 				{
 					template:                   "home-publications",
 					exTitle:                    "Publications",
 					exLocaliseKeyName:          "HomePublications",
-					exContentTypeFilterEnabled: true,
+					exSingleContentTypeFilterEnabled: true,
 				},
 				{
 					template:             "all-methodologies",
@@ -446,7 +446,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, tc.template)
 					So(sp.Metadata.Title, ShouldEqual, tc.exTitle)
 					So(sp.Title.LocaliseKeyName, ShouldEqual, tc.exLocaliseKeyName)
-					So(sp.Data.ContentTypeFilterEnabled, ShouldEqual, tc.exContentTypeFilterEnabled)
+					So(sp.Data.SingleContentTypeFilterEnabled, ShouldEqual, tc.exSingleContentTypeFilterEnabled)
 					So(sp.Data.TopicFilterEnabled, ShouldEqual, tc.exTopicFilterEnabled)
 					So(sp.Data.DateFilterEnabled, ShouldEqual, tc.exDateFilterEnabled)
 				})
