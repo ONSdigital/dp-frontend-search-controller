@@ -19,7 +19,6 @@ type Search struct {
 	ErrorMessage             string                 `json:"error_message,omitempty"`
 	EnabledFilters           []string               `json:"enabled_filters,omitempty"`
 	DateFilterEnabled        bool                   `json:"data_filter_enabled,omitempty"`
-	EnableHomeSwitch         bool                   `json:"enable_home_switch,omitempty"`
 	EnableTimeSeriesExport   bool                   `json:"enable_time_series_export,omitempty"`
 	TopicFilterEnabled       bool                   `json:"topic_filter_enabled,omitempty"`
 	KeywordFilter            model.CompactSearch    `json:"keyword_filter"`

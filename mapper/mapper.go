@@ -101,11 +101,9 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Title.LocaliseKeyName = "DataList"
 		page.Data.ContentTypeFilterEnabled = true
 		page.Data.DateFilterEnabled = true
-		page.Data.EnableHomeSwitch = true
 	case "home-publications":
 		page.Metadata.Title = "Publications"
 		page.Title.LocaliseKeyName = "HomePublications"
-		page.Data.EnableHomeSwitch = true
 		page.Data.ContentTypeFilterEnabled = true
 	case "all-methodologies":
 		page.Metadata.Title = "All methodology"
