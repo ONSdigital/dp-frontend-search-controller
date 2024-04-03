@@ -74,6 +74,7 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 	page := model.SearchPage{
 		Page: basePage,
 	}
+	categories = filterCategoriesByTemplate(template, categories)
 
 	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
 
@@ -99,12 +100,12 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	case "home-datalist":
 		page.Metadata.Title = "Published data"
 		page.Title.LocaliseKeyName = "DataList"
-		page.Data.ContentTypeFilterEnabled = true
+		page.Data.SingleContentTypeFilterEnabled = true
 		page.Data.DateFilterEnabled = true
 	case "home-publications":
 		page.Metadata.Title = "Publications"
 		page.Title.LocaliseKeyName = "HomePublications"
-		page.Data.ContentTypeFilterEnabled = true
+		page.Data.SingleContentTypeFilterEnabled = true
 	case "all-methodologies":
 		page.Metadata.Title = "All methodology"
 		page.Title.LocaliseKeyName = "AllMethodology"
@@ -704,4 +705,18 @@ func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.N
 	}
 
 	return mappedNavigationContent
+}
+
+func filterCategoriesByTemplate(template string, categories []data.Category) []data.Category {
+    if template == "home-datalist" || template == "home-publications" {
+        var filteredCategories []data.Category
+        for _, category := range categories {
+            if (template == "home-datalist" && category.LocaliseKeyName == "Data") ||
+               (template == "home-publications" && category.LocaliseKeyName == "Publication") {
+                filteredCategories = append(filteredCategories, category)
+            }
+        }
+        return filteredCategories
+    }
+    return categories
 }

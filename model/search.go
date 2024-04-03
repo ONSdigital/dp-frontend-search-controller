@@ -23,6 +23,7 @@ type Search struct {
 	TopicFilterEnabled       bool                   `json:"topic_filter_enabled,omitempty"`
 	KeywordFilter            model.CompactSearch    `json:"keyword_filter"`
 	ContentTypeFilterEnabled bool                   `json:"content_type_filter_enabled,omitempty"`
+	SingleContentTypeFilterEnabled bool             `json:"single_content_type_filter_enabled,omitempty"`	
 	Filter                   []string               `json:"filter,omitempty"`
 	Filters                  []Filter               `json:"filters"`
 	BeforeDate               model.DateFieldset     `json:"before_date"`

@@ -2,6 +2,7 @@
 {{ $dateFilterEnabled := .Data.DateFilterEnabled }}
 {{ $topicFilterEnabled := .Data.TopicFilterEnabled }}
 {{ $contentTypeFilterEnabled := .Data.ContentTypeFilterEnabled }}
+{{ $singleContentTypeFilterEnabled := .Data.SingleContentTypeFilterEnabled }}
 {{ $lang := $.Language }}
 
 <div
@@ -15,6 +16,9 @@
     {{ end }}
     {{ if $contentTypeFilterEnabled }}
         {{ template "partials/data-filters/content-type-filter" . }}
+    {{ end }}
+    {{ if $singleContentTypeFilterEnabled }}
+        {{ template "partials/data-filters/single-content-type-filter" . }}
     {{ end }}
     {{ if $dateFilterEnabled }}
         {{ template "partials/data-filters/date-filter" . }}
