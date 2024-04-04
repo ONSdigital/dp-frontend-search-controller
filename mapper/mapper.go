@@ -708,15 +708,15 @@ func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.N
 }
 
 func filterCategoriesByTemplate(template string, categories []data.Category) []data.Category {
-    if template == "home-datalist" || template == "home-publications" {
-        var filteredCategories []data.Category
-        for _, category := range categories {
-            if (template == "home-datalist" && category.LocaliseKeyName == "Data") ||
-               (template == "home-publications" && category.LocaliseKeyName == "Publication") {
-                filteredCategories = append(filteredCategories, category)
-            }
-        }
-        return filteredCategories
-    }
-    return categories
+	if template == "home-datalist" || template == "home-publications" {
+		var filteredCategories []data.Category
+		for _, category := range categories {
+			if (template == "home-datalist" && category.LocaliseKeyName == "Data") ||
+				(template == "home-publications" && category.LocaliseKeyName == "Publication") {
+				filteredCategories = append(filteredCategories, category)
+			}
+		}
+		return filteredCategories
+	}
+	return categories
 }

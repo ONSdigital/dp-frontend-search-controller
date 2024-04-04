@@ -382,13 +382,13 @@ func TestCreateDataAggregationPage(t *testing.T) {
 
 		Convey("When CreateDataAggregationPage is called with different page templates", func() {
 			testcases := []struct {
-				template                   string
-				exTitle                    string
-				exLocaliseKeyName          string
+				template                         string
+				exTitle                          string
+				exLocaliseKeyName                string
 				exSingleContentTypeFilterEnabled bool
-				exTopicFilterEnabled       bool
-				exDateFilterEnabled        bool
-				exEnableTimeSeriesExport   bool
+				exTopicFilterEnabled             bool
+				exDateFilterEnabled              bool
+				exEnableTimeSeriesExport         bool
 			}{
 				{
 					template:            "all-adhocs",
@@ -397,16 +397,16 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					exDateFilterEnabled: true,
 				},
 				{
-					template:                   "home-datalist",
-					exTitle:                    "Published data",
-					exLocaliseKeyName:          "DataList",
+					template:                         "home-datalist",
+					exTitle:                          "Published data",
+					exLocaliseKeyName:                "DataList",
 					exSingleContentTypeFilterEnabled: true,
-					exDateFilterEnabled:        true,
+					exDateFilterEnabled:              true,
 				},
 				{
-					template:                   "home-publications",
-					exTitle:                    "Publications",
-					exLocaliseKeyName:          "HomePublications",
+					template:                         "home-publications",
+					exTitle:                          "Publications",
+					exLocaliseKeyName:                "HomePublications",
 					exSingleContentTypeFilterEnabled: true,
 				},
 				{
