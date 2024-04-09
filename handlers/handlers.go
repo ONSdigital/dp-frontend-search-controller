@@ -2,10 +2,12 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
+	"time"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
@@ -17,8 +19,8 @@ import (
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
-
 	"github.com/ONSdigital/log.go/v2/log"
+	"github.com/gorilla/feeds"
 )
 
 // Constants...
@@ -219,7 +221,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 ) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
-
+	var err error
 	urlQuery := req.URL.Query()
 
 	// get cached census topic and its subtopics
@@ -242,6 +244,15 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
+		return
+	}
+
+	if _, rssParam := urlQuery["rss"]; rssParam {
+		req.Header.Set("Accept", "application/rss+xml")
+		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
+			setStatusCode(w, req, err)
+			return
+		}
 		return
 	}
 
@@ -590,4 +601,91 @@ func setFlorenceTokenHeader(headers http.Header, accessToken string) {
 	} else {
 		headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
 	}
+}
+
+func createRSSFeed(ctx context.Context, w http.ResponseWriter, r *http.Request, collectionID, accessToken string, api SearchClient, validatedParams data.SearchURLParams, template string) error {
+	var err error
+	uriPrefix := "https://www.ons.gov.uk"
+
+	var options searchSDK.Options
+
+	options.Query = data.GetDataAggregationQuery(validatedParams, template)
+
+	options.Headers = http.Header{
+		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.CollectionID:  {collectionID},
+	}
+
+	searchResponse, respErr := api.GetSearch(ctx, options)
+	if respErr != nil {
+		log.Error(ctx, "getting search response from client for rss feed failed", respErr)
+		setStatusCode(w, r, respErr)
+		return respErr
+	}
+
+	w.Header().Set("Content-Type", "application/rss+xml")
+
+	pageTitle, pageTag := getPageTitle(template)
+
+	feed := &feeds.Feed{
+		Title: pageTitle + " - Office for National Statistics",
+		Link:  &feeds.Link{Href: "https://www.ons.gov.uk/" + pageTag},
+	}
+
+	feed.Items = []*feeds.Item{}
+	for i := range searchResponse.Items {
+		resp := &searchResponse.Items[i]
+		date, parseErr := time.Parse("2006-01-02T15:04:05.000Z", resp.ReleaseDate)
+		if parseErr != nil {
+			return fmt.Errorf("error parsing time: %s", parseErr)
+		}
+		item := &feeds.Item{
+			Title:       resp.Title,
+			Link:        &feeds.Link{Href: uriPrefix + resp.URI},
+			Description: resp.Summary,
+			Id:          uriPrefix + resp.URI,
+			Created:     date,
+		}
+
+		feed.Items = append(feed.Items, item)
+	}
+
+	rss, err := feed.ToRss()
+	if err != nil {
+		log.Error(ctx, "Error converting feed to RSS", err)
+		return fmt.Errorf("error converting to rss: %s", err)
+	}
+
+	w.WriteHeader(http.StatusOK)
+
+	_, err = w.Write([]byte(rss))
+	if err != nil {
+		log.Error(ctx, "Error writing RSS to response", err)
+		return fmt.Errorf("error writing rss to response: %s", err)
+	}
+
+	return nil
+}
+
+func getPageTitle(template string) (pageTitle, pageTag string) {
+	switch template {
+	case "all-adhocs":
+		return "User requested data", "UserRequestedData"
+	case "home-datalist":
+		return "Published data", "DataList"
+	case "home-publications":
+		return "Publications", "HomePublications"
+	case "all-methodologies":
+		return "All methodology", "AllMethodology"
+	case "published-requests":
+		return "Freedom of Information (FOI) requests", "FOIRequests"
+	case "home-list":
+		return "Information pages", "HomeList"
+	case "home-methodology":
+		return "Methodology", "HomeMethodology"
+	case "time-series-tool":
+		return "Time series explorer", "TimeSeriesExplorer"
+	}
+
+	return "", ""
 }
