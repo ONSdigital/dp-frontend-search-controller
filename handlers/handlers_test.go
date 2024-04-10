@@ -442,7 +442,18 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 			})
 
 			Convey("And the Search Client should be called with the topic id from the topic API", func() {
-				So(mockedSearchClient.calls.GetSearch[1].Options.Query.Get("topics"), ShouldEqual, testTopic.ID)
+				// calls go to client in parallel, so we need to work out which is which.
+				firstSearchCall := mockedSearchClient.GetSearchCalls()[0]
+				secondSearchCall := mockedSearchClient.GetSearchCalls()[1]
+
+				firstCallTopic := firstSearchCall.Options.Query.Get("topics")
+				secondCallTopic := secondSearchCall.Options.Query.Get("topics")
+
+				if firstCallTopic != "" {
+					So(firstCallTopic, ShouldEqual, testTopic.ID)
+				} else {
+					So(secondCallTopic, ShouldEqual, testTopic.ID)
+				}
 			})
 		})
 	})
@@ -507,7 +518,18 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 			})
 
 			Convey("And the Search Client should be called with the subtopic id from the topic API", func() {
-				So(mockedSearchClient.calls.GetSearch[1].Options.Query.Get("topics"), ShouldEqual, testSubtopic.ID)
+				// calls go to client in parallel, so we need to work out which is which.
+				firstSearchCall := mockedSearchClient.GetSearchCalls()[0]
+				secondSearchCall := mockedSearchClient.GetSearchCalls()[1]
+
+				firstCallTopic := firstSearchCall.Options.Query.Get("topics")
+				secondCallTopic := secondSearchCall.Options.Query.Get("topics")
+
+				if firstCallTopic != "" {
+					So(firstCallTopic, ShouldEqual, testSubtopic.ID)
+				} else {
+					So(secondCallTopic, ShouldEqual, testSubtopic.ID)
+				}
 			})
 		})
 	})

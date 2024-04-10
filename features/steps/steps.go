@@ -44,9 +44,9 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^one of the downstream services is failing`, c.oneOfTheDownstreamServicesIsFailing)
 	ctx.Step(`^I should receive the following health JSON response:$`, c.iShouldReceiveTheFollowingHealthJSONResponse)
 	ctx.Step(`^there is a Search API that gives a successful response and returns ([1-9]\d*|0) results`, c.thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResults)
-	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic`, c.thereIsATopicAPIThatReturnsARootTopic)
+	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic$`, c.thereIsATopicAPIThatReturnsARootTopic)
 	ctx.Step(`^there is a Topic API returns no topics`, c.thereIsATopicAPIThatReturnsNoTopics)
-	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic`, c.thereIsATopicAPIThatReturnsARootTopicAndSubtopic)
+	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsARootTopicAndSubtopic)
 }
 
 // delayTimeBySeconds pauses the goroutine for the given seconds
@@ -165,6 +165,9 @@ func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResul
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsARootTopic(topic string) error {
+	c.FakeAPIRouter.topicRequest.Lock()
+	defer c.FakeAPIRouter.topicRequest.Unlock()
+
 	topicAPIResponse := &topicModels.PublicSubtopics{
 		Count: 1,
 		PublicItems: &[]topicModels.Topic{
@@ -184,6 +187,11 @@ func (c *Component) thereIsATopicAPIThatReturnsARootTopic(topic string) error {
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsARootTopicAndSubtopic(topic string, subTopic string) error {
+	c.FakeAPIRouter.topicRequest.Lock()
+	defer c.FakeAPIRouter.topicRequest.Unlock()
+
+	c.FakeAPIRouter.subtopicsRequest.Lock()
+	defer c.FakeAPIRouter.subtopicsRequest.Unlock()
 
 	topicID := "6646"
 
@@ -215,13 +223,19 @@ func (c *Component) thereIsATopicAPIThatReturnsARootTopicAndSubtopic(topic strin
 	fakeAPISubtopicResponse := httpfake.NewResponse()
 	fakeAPISubtopicResponse.Status(200)
 	fakeAPISubtopicResponse.BodyStruct(topicAPISubtopicResponse)
-	c.FakeAPIRouter.subtopicsRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get(fmt.Sprintf("/topics/%s/subtopics", topicID))
+
+	fakeTopicRequestPath := fmt.Sprintf("/topics/%s/subtopics", topicID)
+
+	c.FakeAPIRouter.subtopicsRequest.Get(fakeTopicRequestPath)
 	c.FakeAPIRouter.subtopicsRequest.Response = fakeAPISubtopicResponse
 
 	return nil
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsNoTopics() error {
+	c.FakeAPIRouter.topicRequest.Lock()
+	defer c.FakeAPIRouter.topicRequest.Unlock()
+
 	topicAPIResponse := &topicModels.PublicSubtopics{
 		Count:       0,
 		PublicItems: &[]topicModels.Topic{},
