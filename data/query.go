@@ -230,6 +230,8 @@ func GetDataAggregationQuery(validatedQueryParams SearchURLParams, template stri
 
 	if apiQuery.Get("content_type") == "" {
 		apiQuery.Set("content_type", contentTypes)
+	} else {
+		updateQueryWithAPIFilters(apiQuery)
 	}
 
 	return apiQuery
