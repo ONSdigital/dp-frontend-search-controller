@@ -66,7 +66,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 // CreateDataAggregationPage maps type searchC.Response to model.Page
 func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
-	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, _ []data.PopulationTypes, _ []data.Dimensions,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation,
 	template string, topic topicModel.Topic,

@@ -283,8 +283,6 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 
 		categories      []data.Category
 		topicCategories []data.Topic
-		populationTypes []data.PopulationTypes
-		dimensions      []data.Dimensions
 
 		wg sync.WaitGroup
 
@@ -348,7 +346,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{})
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{})
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
@@ -453,8 +451,6 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 
 		categories      []data.Category
 		topicCategories []data.Topic
-		populationTypes []data.PopulationTypes
-		dimensions      []data.Dimensions
 
 		wg sync.WaitGroup
 
@@ -518,7 +514,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic)
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
