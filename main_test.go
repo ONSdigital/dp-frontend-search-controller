@@ -42,7 +42,7 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 	})
 }
 
-func TestMain(t *testing.T) {
+func TestMainFunc(t *testing.T) {
 	if *componentFlag {
 		log.SetDestination(io.Discard, io.Discard)
 		golog.SetOutput(io.Discard)

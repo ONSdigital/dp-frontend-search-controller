@@ -637,3 +637,52 @@ func TestSetFlorenceTokenHeader(t *testing.T) {
 		})
 	})
 }
+
+func TestCreateRSSFeed(t *testing.T) {
+	t.Parallel()
+	// Prepare test data
+	req := httptest.NewRequest("GET", "http://localhost:27700", http.NoBody)
+	w := httptest.NewRecorder()
+	collectionID := "collection"
+	accessToken := "token"
+	validatedParams := data.SearchURLParams{}
+	template := "all-adhocs"
+
+	// Create a mock SearchClient
+	mockSearchClient := &SearchClientMock{}
+
+	Convey("when Search returns success", t, func() {
+		// Define expected behavior for the mock SearchClient
+		mockSearchResponse := &searchModels.SearchResponse{} // Create a mock response
+		mockSearchClient.GetSearchFunc = func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+			return mockSearchResponse, nil
+		}
+
+		// Call the function under test
+		err := createRSSFeed(context.Background(), w, req, collectionID, accessToken, mockSearchClient, validatedParams, template)
+
+		Convey("it should not return an error", func() {
+			So(err, ShouldBeNil)
+		})
+
+		Convey("it should set the Content-Type header to 'application/rss+xml'", func() {
+			contentType := w.Header().Get("Content-Type")
+			So(contentType, ShouldEqual, "application/rss+xml")
+		})
+	})
+
+	Convey("when Search returns an error", t, func() {
+		// Define expected behavior for the mock SearchClient
+		// Create a mock response
+		mockSearchClient.GetSearchFunc = func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+			return nil, apiError.StatusError{Code: 500}
+		}
+
+		// Call the function under test
+		err := createRSSFeed(context.Background(), w, req, collectionID, accessToken, mockSearchClient, validatedParams, "template")
+
+		Convey("it should return an error", func() {
+			So(err, ShouldNotBeNil)
+		})
+	})
+}
