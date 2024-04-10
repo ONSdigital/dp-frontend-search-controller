@@ -81,11 +81,6 @@ func generateTopicClientMock(topic topicModels.Topic, subTopics []topicModels.To
 	return mockedTopicClient
 }
 
-// func setupTopicCache(cacheTopic *cache.Topic) {
-// 	cacheTopic.UpdateCensusTopic{}
-// 	cacheTopic.List.AppendSubtopicID("5678", cache.Subtopic{ID: "5678", LocaliseKeyName: "Ageing", ReleaseDate: "2022-10-10T09:30:00Z"})
-// }
-
 func TestUnitReadHandlerSuccess(t *testing.T) {
 	t.Parallel()
 
