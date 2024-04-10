@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -876,6 +877,8 @@ func getPageTitle(template string) (pageTitle, pageTag string) {
 	}
 
 	return "", ""
+}
+
 // getTopicByURLString matches a URL string, e.g. businessindustryandtrade against
 // a Topic retrieved from the Topic API, using it's Title attribute, e.g.
 // "Business, industry and trade"
