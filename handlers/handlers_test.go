@@ -967,6 +967,10 @@ func TestCreateRSSFeed(t *testing.T) {
 
 		Convey("it should return an error", func() {
 			So(err, ShouldNotBeNil)
+		})
+	})
+}
+
 func TestGetTopicByURLString(t *testing.T) {
 	t.Parallel()
 
