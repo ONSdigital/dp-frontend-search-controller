@@ -11,8 +11,6 @@ import (
 	"github.com/cucumber/godog"
 	"github.com/maxcnunes/httpfake"
 	"github.com/stretchr/testify/assert"
-
-	topicModels "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // HealthCheckTest represents a test healthcheck struct that mimics the real healthcheck struct
@@ -165,28 +163,26 @@ func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResul
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsARootTopic(topic string) error {
+	// under certain conditions, the FakeAPI is accessed too quickly by requests
+	// and then modifying it so a data race is detected. Therefore, wait here for 2 seconds
+	// to prevent this.
+	c.delayTimeBySeconds(2)
+
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	topicAPIResponse := &topicModels.PublicSubtopics{
-		Count: 1,
-		PublicItems: &[]topicModels.Topic{
-			{
-				ID:    "6646",
-				Title: topic,
-			},
-		},
-	}
-
-	fakeAPIResponse := httpfake.NewResponse()
-	fakeAPIResponse.Status(200)
-	fakeAPIResponse.BodyStruct(topicAPIResponse)
-	c.FakeAPIRouter.topicRequest.Response = fakeAPIResponse
+	topicAPIResponse := generateTopicResponse("6646", topic)
+	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
 
 	return nil
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsARootTopicAndSubtopic(topic string, subTopic string) error {
+	// under certain conditions, the FakeAPI is accessed too quickly by requests
+	// and then modifying it so a data race is detected. Therefore, wait here for 2 seconds
+	// to prevent this.
+	c.delayTimeBySeconds(2)
+
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
@@ -195,56 +191,30 @@ func (c *Component) thereIsATopicAPIThatReturnsARootTopicAndSubtopic(topic strin
 
 	topicID := "6646"
 
-	topicAPITopicResponse := &topicModels.PublicSubtopics{
-		Count: 1,
-		PublicItems: &[]topicModels.Topic{
-			{
-				ID:    topicID,
-				Title: topic,
-			},
-		},
-	}
+	topicAPIResponse := generateTopicResponse(topicID, topic)
+	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
 
-	topicAPISubtopicResponse := &topicModels.PublicSubtopics{
-		Count: 1,
-		PublicItems: &[]topicModels.Topic{
-			{
-				ID:    "6647",
-				Title: subTopic,
-			},
-		},
-	}
-
-	fakeAPIResponse := httpfake.NewResponse()
-	fakeAPIResponse.Status(200)
-	fakeAPIResponse.BodyStruct(topicAPITopicResponse)
-	c.FakeAPIRouter.topicRequest.Response = fakeAPIResponse
-
-	fakeAPISubtopicResponse := httpfake.NewResponse()
-	fakeAPISubtopicResponse.Status(200)
-	fakeAPISubtopicResponse.BodyStruct(topicAPISubtopicResponse)
+	subtopicAPIResponse := generateTopicResponse("6647", subTopic)
 
 	fakeTopicRequestPath := fmt.Sprintf("/topics/%s/subtopics", topicID)
 
 	c.FakeAPIRouter.subtopicsRequest.Get(fakeTopicRequestPath)
-	c.FakeAPIRouter.subtopicsRequest.Response = fakeAPISubtopicResponse
+	c.FakeAPIRouter.subtopicsRequest.Response = subtopicAPIResponse
 
 	return nil
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsNoTopics() error {
+	// under certain conditions, the FakeAPI is accessed too quickly by requests
+	// and then modifying it so a data race is detected. Therefore, wait here for 2 seconds
+	// to prevent this.
+	c.delayTimeBySeconds(2)
+
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	topicAPIResponse := &topicModels.PublicSubtopics{
-		Count:       0,
-		PublicItems: &[]topicModels.Topic{},
-	}
-
-	fakeAPIResponse := httpfake.NewResponse()
-	fakeAPIResponse.Status(200)
-	fakeAPIResponse.BodyStruct(topicAPIResponse)
-	c.FakeAPIRouter.topicRequest.Response = fakeAPIResponse
+	topicAPIResponse := generateEmptyTopicResponse()
+	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
 
 	return nil
 }

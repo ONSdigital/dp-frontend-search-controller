@@ -15,6 +15,7 @@ import (
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
+	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/maxcnunes/httpfake"
 )
@@ -187,4 +188,35 @@ func generateSearchItem(num int) searchModels.Item {
 		DatasetID: datasetID,
 	}
 	return searchItem
+}
+
+func generateTopicResponse(id string, title string) *httpfake.Response {
+	topicAPIResponse := &topicModels.PublicSubtopics{
+		Count: 1,
+		PublicItems: &[]topicModels.Topic{
+			{
+				ID:    id,
+				Title: title,
+			},
+		},
+	}
+
+	fakeAPIResponse := httpfake.NewResponse()
+	fakeAPIResponse.Status(200)
+	fakeAPIResponse.BodyStruct(topicAPIResponse)
+
+	return fakeAPIResponse
+}
+
+func generateEmptyTopicResponse() *httpfake.Response {
+	topicAPIResponse := &topicModels.PublicSubtopics{
+		Count:       0,
+		PublicItems: &[]topicModels.Topic{},
+	}
+
+	fakeAPIResponse := httpfake.NewResponse()
+	fakeAPIResponse.Status(200)
+	fakeAPIResponse.BodyStruct(topicAPIResponse)
+
+	return fakeAPIResponse
 }
