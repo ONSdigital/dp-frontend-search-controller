@@ -39,7 +39,8 @@
                                         <span class="ons-checkbox ons-checkbox--no-border child-filter">
                                             <input id="{{ $id }}" class="ons-checkbox__input ons-js-checkbox"
                                                 type="checkbox" name="topics" {{ if $childFilter.IsChecked }}checked{{ end
-                                                }} data-gtm-label="{{ $childFilter.LocaliseKeyName }}" value="{{ $id }}" />
+                                                }} data-gtm-label="{{ $childFilter.LocaliseKeyName }}" value="{{ $id }}"
+                                            >
                                             <label class="ons-checkbox__label" for="{{ $id }}" id="{{ $id }}-label">
                                                 {{ $childFilter.LocaliseKeyName }} ({{ $childFilter.NumberOfResults }})
                                             </label>

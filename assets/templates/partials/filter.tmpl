@@ -13,8 +13,8 @@
 
     {{ if $topicFilters }}
     <form id="topicsFilterForm" method="get" class="js-auto-submit__form">
-        <input type="hidden" name="q" value="{{ $query }}"/>
-        <input type="hidden" name="sort" value="{{$sort}}"/>
+        <input type="hidden" name="q" value="{{ $query }}">
+        <input type="hidden" name="sort" value="{{$sort}}">
         <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
             <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                 <h2 class="ons-collapsible__title">
@@ -58,7 +58,7 @@
                                                                     {{ if $childFilter.IsChecked }}checked{{ end }}
                                                                     data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
                                                                     value="{{ $id }}"
-                                                                />
+                                                                >
                                                                 <label class="ons-checkbox__label" for="{{ $id }}"
                                                                     id="{{ $id }}-label">
                                                                     {{ $childFilter.LocaliseKeyName }} ({{ $childFilter.NumberOfResults }})
@@ -127,7 +127,7 @@
                                                                         {{ if $childFilter.IsChecked }}checked{{ end }}
                                                                         data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
                                                                         value="{{ $id }}"
-                                                                    />
+                                                                    >
                                                                     <label class="ons-checkbox__label" for="{{ $id }}"
                                                                         id="{{ $id }}-label">
                                                                         {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})

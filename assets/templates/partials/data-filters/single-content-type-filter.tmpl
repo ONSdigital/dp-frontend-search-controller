@@ -34,8 +34,7 @@
                                     {{ if $childFilter.IsChecked }}checked{{ end }}
                                     data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
                                     value="{{ $id }}"
-                                    
-                                />
+                                >
                                 <label class="ons-checkbox__label" for="{{ $id }}"
                                     id="{{ $id }}-label">
                                     {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
