@@ -27,10 +27,7 @@
             <button type="submit" title="Download XLS" aria-labelledby="timeseries__download-label"
                 class="ons-btn ons-btn--secondary ons-btn--small ons-btn--download download-analytics">
                 <span class="ons-btn__inner">
-                    <svg class="ons-svg-icon ons-u-mr-xs" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" focusable="false" fill="currentColor">
-                        <path d="M5.6 9a.48.48 0 0 0 .7 0l3-3.2a.48.48 0 0 0 0-.7C9.3 5 9.2 5 9 5H7.5V.5A.47.47 0 0 0 7 0H5a.47.47 0 0 0-.5.5V5H3a.47.47 0 0 0-.5.5.37.37 0 0 0 .1.3Z" />
-                        <path d="M11.5 9H11a.47.47 0 0 0-.5.5v1h-9v-1A.47.47 0 0 0 1 9H.5a.47.47 0 0 0-.5.5v2a.47.47 0 0 0 .5.5h11a.47.47 0 0 0 .5-.5v-2a.47.47 0 0 0-.5-.5Z" />
-                    </svg>
+                    {{ template "icons/download" . }}
                     <span class="ons-btn__text">{{ localise "DownloadFile" $lang 1 ".xls" }}</span>
                 </span>
             </button>
@@ -40,10 +37,7 @@
             <button type="submit" title="Download CSV" aria-labelledby="timeseries__download-label"
                 class="ons-btn ons-btn--secondary ons-btn--small ons-btn--download download-analytics">
                 <span class="ons-btn__inner">
-                    <svg class="ons-svg-icon ons-u-mr-xs" viewBox="0 0 12 12" xmlns="http://www.w3.org/2000/svg" focusable="false" fill="currentColor">
-                        <path d="M5.6 9a.48.48 0 0 0 .7 0l3-3.2a.48.48 0 0 0 0-.7C9.3 5 9.2 5 9 5H7.5V.5A.47.47 0 0 0 7 0H5a.47.47 0 0 0-.5.5V5H3a.47.47 0 0 0-.5.5.37.37 0 0 0 .1.3Z" />
-                        <path d="M11.5 9H11a.47.47 0 0 0-.5.5v1h-9v-1A.47.47 0 0 0 1 9H.5a.47.47 0 0 0-.5.5v2a.47.47 0 0 0 .5.5h11a.47.47 0 0 0 .5-.5v-2a.47.47 0 0 0-.5-.5Z" />
-                    </svg>
+                    {{ template "icons/download" . }}
                     <span class="ons-btn__text">{{ localise "DownloadFile" $lang 1 ".csv" }}</span>
                 </span>
             </button>
