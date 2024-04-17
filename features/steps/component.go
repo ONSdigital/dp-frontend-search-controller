@@ -48,8 +48,6 @@ func NewSearchControllerComponent() (c *Component, err error) {
 
 	ctx := context.Background()
 
-	svcErrors := make(chan error, 1)
-
 	c.Config, err = config.Get()
 	if err != nil {
 		return nil, err
@@ -70,7 +68,6 @@ func NewSearchControllerComponent() (c *Component, err error) {
 
 	c.FakeAPIRouter.searchRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/search")
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
-
 	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics")
 	c.FakeAPIRouter.subtopicsRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*/subtopics")
 
@@ -90,10 +87,9 @@ func NewSearchControllerComponent() (c *Component, err error) {
 		return nil, err
 	}
 
-	c.StartTime = time.Now()
-	c.svc.Run(ctx, svcErrors)
-	c.ServiceRunning = true
-
+	// Please use the step to start the service - this is down to
+	// the auto updates against backing services are hard to predict so
+	// it is easier to provision them first and then start the service.
 	return c, nil
 }
 

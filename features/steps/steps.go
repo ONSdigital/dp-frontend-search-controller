@@ -1,6 +1,7 @@
 package steps
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -36,6 +37,7 @@ type Check struct {
 
 // RegisterSteps registers the specific steps needed to do component tests for the search controller
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
+	ctx.Step(`^the search controller is running$`, c.theSearchControllerIsRunning)
 	ctx.Step(`^I wait (\d+) seconds`, c.delayTimeBySeconds)
 	ctx.Step(`^all of the downstream services are healthy$`, c.allOfTheDownstreamServicesAreHealthy)
 	ctx.Step(`^one of the downstream services is warning`, c.oneOfTheDownstreamServicesIsWarning)
@@ -45,6 +47,18 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic$`, c.thereIsATopicAPIThatReturnsARootTopic)
 	ctx.Step(`^there is a Topic API returns no topics`, c.thereIsATopicAPIThatReturnsNoTopics)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsARootTopicAndSubtopic)
+}
+
+func (c *Component) theSearchControllerIsRunning() error {
+	ctx := context.Background()
+
+	svcErrors := make(chan error, 1)
+
+	c.StartTime = time.Now()
+	c.svc.Run(ctx, svcErrors)
+	c.ServiceRunning = true
+
+	return nil
 }
 
 // delayTimeBySeconds pauses the goroutine for the given seconds
@@ -163,10 +177,6 @@ func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResul
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsARootTopic(topic string) error {
-	// under certain conditions, the FakeAPI is accessed too quickly by requests
-	// and then modifying it so a data race is detected. Therefore, wait here for 2 seconds
-	// to prevent this.
-	c.delayTimeBySeconds(2)
 
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
@@ -178,10 +188,6 @@ func (c *Component) thereIsATopicAPIThatReturnsARootTopic(topic string) error {
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsARootTopicAndSubtopic(topic string, subTopic string) error {
-	// under certain conditions, the FakeAPI is accessed too quickly by requests
-	// and then modifying it so a data race is detected. Therefore, wait here for 2 seconds
-	// to prevent this.
-	c.delayTimeBySeconds(2)
 
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
@@ -205,10 +211,6 @@ func (c *Component) thereIsATopicAPIThatReturnsARootTopicAndSubtopic(topic strin
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsNoTopics() error {
-	// under certain conditions, the FakeAPI is accessed too quickly by requests
-	// and then modifying it so a data race is detected. Therefore, wait here for 2 seconds
-	// to prevent this.
-	c.delayTimeBySeconds(2)
 
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
