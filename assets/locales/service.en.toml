@@ -367,17 +367,9 @@ one = "For example: 2006 or 19 07 2010"
 description = "Released after"
 one = "Released after"
 
-[ReleasedAfterDescription]
-description = "Released after description"
-one = "For example: 2018 or 13 04 2020"
-
 [ReleasedBefore]
 description = "Released before"
 one = "Released before"
-
-[ReleasedBeforeDescription]
-description = "Released before description"
-one = "For example: 2019 or 16 07 2021"
 
 [LoadingResults]
 description = "Loading search results"
