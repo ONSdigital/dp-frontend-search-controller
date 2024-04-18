@@ -317,51 +317,63 @@ func TestCreateDataAggregationPage(t *testing.T) {
 			SearchTerm: validatedQueryParams.Query,
 		}
 
+		lang := "en"
 		mockAfterDate := model.DateFieldset{
+			Language:                 lang,
+			ValidationErrDescription: nil,
+			ErrorID:                  validatedQueryParams.AfterDate.GetFieldsetErrID(),
 			Input: model.InputDate{
-				Language:        englishLang,
-				Id:              "from-date-filters",
-				InputNameDay:    "fromDateDay",
-				InputNameMonth:  "fromDateMonth",
-				InputNameYear:   "fromDateYear",
-				InputValueDay:   validatedQueryParams.AfterDate.DayString(),
-				InputValueMonth: validatedQueryParams.AfterDate.MonthString(),
-				InputValueYear:  validatedQueryParams.AfterDate.YearString(),
-
+				Language:              lang,
+				Id:                    "after-date",
+				InputNameDay:          "after-day",
+				InputNameMonth:        "after-month",
+				InputNameYear:         "after-year",
+				InputValueDay:         validatedQueryParams.AfterDate.DayString(),
+				InputValueMonth:       validatedQueryParams.AfterDate.MonthString(),
+				InputValueYear:        validatedQueryParams.AfterDate.YearString(),
+				HasDayValidationErr:   validatedQueryParams.AfterDate.HasDayValidationErr(),
+				HasMonthValidationErr: validatedQueryParams.AfterDate.HasMonthValidationErr(),
+				HasYearValidationErr:  validatedQueryParams.AfterDate.HasYearValidationErr(),
 				Title: model.Localisation{
 					LocaleKey: "ReleasedAfter",
 					Plural:    1,
 				},
 				Description: model.Localisation{
-					LocaleKey: "ReleasedAfterDescription",
+					LocaleKey: "DateFilterDescription",
 					Plural:    1,
 				},
 			},
 		}
 
 		mockBeforeDate := model.DateFieldset{
+			Language:                 lang,
+			ValidationErrDescription: nil,
+			ErrorID:                  validatedQueryParams.BeforeDate.GetFieldsetErrID(),
 			Input: model.InputDate{
-				Language:        englishLang,
-				Id:              "to-date-filters",
-				InputNameDay:    "toDateDay",
-				InputNameMonth:  "toDateMonth",
-				InputNameYear:   "toDateYear",
-				InputValueDay:   validatedQueryParams.BeforeDate.DayString(),
-				InputValueMonth: validatedQueryParams.BeforeDate.MonthString(),
-				InputValueYear:  validatedQueryParams.BeforeDate.YearString(),
+				Language:              lang,
+				Id:                    "before-date",
+				InputNameDay:          "before-day",
+				InputNameMonth:        "before-month",
+				InputNameYear:         "before-year",
+				InputValueDay:         validatedQueryParams.BeforeDate.DayString(),
+				InputValueMonth:       validatedQueryParams.BeforeDate.MonthString(),
+				InputValueYear:        validatedQueryParams.BeforeDate.YearString(),
+				HasDayValidationErr:   validatedQueryParams.BeforeDate.HasDayValidationErr(),
+				HasMonthValidationErr: validatedQueryParams.BeforeDate.HasMonthValidationErr(),
+				HasYearValidationErr:  validatedQueryParams.BeforeDate.HasYearValidationErr(),
 				Title: model.Localisation{
 					LocaleKey: "ReleasedBefore",
 					Plural:    1,
 				},
 				Description: model.Localisation{
-					LocaleKey: "ReleasedBeforeDescription",
+					LocaleKey: "DateFilterDescription",
 					Plural:    1,
 				},
 			},
 		}
 
 		Convey("When CreateDataAggregationPage is called", func() {
-			sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, "")
+			sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, "", nil)
 
 			Convey("Then successfully map core features to the page model", func() {
 				// keyword search
@@ -377,6 +389,66 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
 				// no index setting
 				So(sp.SearchNoIndexEnabled, ShouldEqual, true)
+			})
+
+			Convey("Then successfully map validation errors correctly to a page model", func() {
+				validatedQueryParams.AfterDate = data.MustSetFieldsetErrID("fromDate-error")
+				validatedQueryParams.BeforeDate = data.MustSetFieldsetErrID("toDate-error")
+	
+				validationErrs := []model.ErrorItem{
+					{
+						Description: model.Localisation{
+							Text: "This is a released AFTER error",
+						},
+						ID:  "fromDate-error",
+						URL: "#fromDate-error",
+					},
+					{
+						Description: model.Localisation{
+							Text: "This is a released BEFORE error",
+						},
+						ID:  "toDate-error",
+						URL: "#toDate-error",
+					},
+					{
+						Description: model.Localisation{
+							Text: "This is another released BEFORE error",
+						},
+						ID:  "toDate-error",
+						URL: "#toDate-error",
+					},
+					{
+						Description: model.Localisation{
+							Text: "This is a non-date page error",
+						},
+						ID:  "input-error",
+						URL: "#input-error",
+					},
+				}
+	
+				expectedAfterErr := model.DateFieldset{
+					ValidationErrDescription: []model.Localisation{
+						{
+							Text: validationErrs[0].Description.Text,
+						},
+					},
+				}
+	
+				expectedBeforeErr := model.DateFieldset{
+					ValidationErrDescription: []model.Localisation{
+						{
+							Text: validationErrs[1].Description.Text,
+						},
+						{
+							Text: validationErrs[2].Description.Text,
+						},
+					},
+				}
+	
+				page := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, "", validationErrs)
+				So(page.Data.AfterDate.ValidationErrDescription, ShouldResemble, expectedAfterErr.ValidationErrDescription)
+				So(page.Data.BeforeDate.ValidationErrDescription, ShouldResemble, expectedBeforeErr.ValidationErrDescription)
+				So(page.Error.ErrorItems, ShouldResemble, validationErrs)
 			})
 		})
 
@@ -443,7 +515,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 
 			for _, tc := range testcases {
 				Convey(fmt.Sprintf("Then page template: %s maps the page features correctly", tc.template), func() {
-					sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, tc.template)
+					sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, tc.template, nil)
 					So(sp.Metadata.Title, ShouldEqual, tc.exTitle)
 					So(sp.Title.LocaliseKeyName, ShouldEqual, tc.exLocaliseKeyName)
 					So(sp.Data.SingleContentTypeFilterEnabled, ShouldEqual, tc.exSingleContentTypeFilterEnabled)
