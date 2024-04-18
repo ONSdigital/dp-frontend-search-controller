@@ -203,24 +203,22 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
         log.Error(ctx, "invalid population types set", dimensionsFilterErr)
     }
 
-	// this throws an error for blank query strings, I'm not sure if this is needed in its
-	// current form, as the search api can handle blank queries, so I'm commenting it out for now
-	// queryStringErr := reviewQueryString(ctx, urlQuery)
-	// if queryStringErr == nil {
-	// 	return validatedQueryParams, nil
-	// } else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(validatedQueryParams) {
-	// 	log.Info(ctx, "the query string did not pass review")
-	// 	return validatedQueryParams, nil
-	// }
-
-	// return validatedQueryParams, queryStringErr
-
-
-    if len(validationErrs) > 0 {
-        return validatedQueryParams, validationErrs
-    }
-
-    return validatedQueryParams, nil
+	queryStringErr := reviewQueryString(ctx, urlQuery)
+	if queryStringErr != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(queryStringErr.Error()),
+			},
+			ID:  QueryStringErr,
+		})
+		log.Error(ctx, "invalid query string", queryStringErr)
+	}
+	
+	if len(validationErrs) > 0 {
+		return validatedQueryParams, validationErrs
+	}
+	
+	return validatedQueryParams, nil
 }
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
