@@ -6,6 +6,7 @@ import (
 	"net/url"
 	"strings"
 	"sync"
+	"errors"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
@@ -24,6 +25,10 @@ import (
 // Constants...
 const (
 	homepagePath = "/"
+	DateFrom    = "fromDate"
+	DateFromErr = DateFrom + "-error"
+	DateTo      = "toDate"
+	DateToErr   = DateTo + "-error"
 )
 
 // HandlerClients represents the handlers for search and data-aggregation
@@ -237,12 +242,13 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		setStatusCode(w, req, err)
 		return
 	}
-
-	validatedQueryParams, err := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !errs.ErrMapForRenderBeforeAPICalls[err] {
-		log.Error(ctx, "unable to review query", err)
-		setStatusCode(w, req, err)
-		return
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
+	for _, vErr := range validationErrs {
+		if vErr.ID != DateFromErr && vErr.ID != DateToErr {
+			log.Error(ctx, "unable to review query", errors.New(vErr.Description.Text))
+			setStatusCode(w, req, errors.New(vErr.Description.Text))
+			return
+		}
 	}
 
 	// counter used to keep track of the number of concurrent API calls
@@ -322,7 +328,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template, validationErrs)
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")

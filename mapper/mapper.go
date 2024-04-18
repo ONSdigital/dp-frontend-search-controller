@@ -69,7 +69,7 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, _ []data.PopulationTypes, _ []data.Dimensions,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation,
-	template string,
+	template string, validationErrs []coreModel.ErrorItem,
 ) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
@@ -78,7 +78,7 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 
 	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
 
-	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template)
+	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template, validationErrs)
 
 	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
@@ -91,7 +91,7 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 	return page
 }
 
-func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string) {
+func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string, validationErrs []coreModel.ErrorItem) {
 	switch template {
 	case "all-adhocs":
 		page.Metadata.Title = "User requested data"
@@ -139,43 +139,73 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		SearchTerm: validatedQueryParams.Query,
 	}
 
+	var fdErrDescription, tdErrDescription []coreModel.Localisation
+	if len(validationErrs) > 0 {
+		page.Error = coreModel.Error{
+			Title:      page.Metadata.Title,
+			ErrorItems: validationErrs,
+			Language:   lang,
+		}
+
+		for _, err := range validationErrs {
+			switch err.ID {
+			case validatedQueryParams.AfterDate.GetFieldsetErrID():
+				fdErrDescription = append(fdErrDescription, err.Description)
+			case validatedQueryParams.BeforeDate.GetFieldsetErrID():
+				tdErrDescription = append(tdErrDescription, err.Description)
+			}
+		}
+	}
+
 	page.Data.AfterDate = coreModel.DateFieldset{
+		Language:                 lang,
+		ValidationErrDescription: fdErrDescription,
+		ErrorID:                  validatedQueryParams.AfterDate.GetFieldsetErrID(),
 		Input: coreModel.InputDate{
-			Language:        lang,
-			Id:              "from-date-filters",
-			InputNameDay:    "fromDateDay",
-			InputNameMonth:  "fromDateMonth",
-			InputNameYear:   "fromDateYear",
-			InputValueDay:   validatedQueryParams.AfterDate.DayString(),
-			InputValueMonth: validatedQueryParams.AfterDate.MonthString(),
-			InputValueYear:  validatedQueryParams.AfterDate.YearString(),
+			Language:              lang,
+			Id:                    "after-date",
+			InputNameDay:          "after-day",
+			InputNameMonth:        "after-month",
+			InputNameYear:         "after-year",
+			InputValueDay:         validatedQueryParams.AfterDate.DayString(),
+			InputValueMonth:       validatedQueryParams.AfterDate.MonthString(),
+			InputValueYear:        validatedQueryParams.AfterDate.YearString(),
+			HasDayValidationErr:   validatedQueryParams.AfterDate.HasDayValidationErr(),
+			HasMonthValidationErr: validatedQueryParams.AfterDate.HasMonthValidationErr(),
+			HasYearValidationErr:  validatedQueryParams.AfterDate.HasYearValidationErr(),
 			Title: coreModel.Localisation{
 				LocaleKey: "ReleasedAfter",
 				Plural:    1,
 			},
 			Description: coreModel.Localisation{
-				LocaleKey: "ReleasedAfterDescription",
+				LocaleKey: "DateFilterDescription",
 				Plural:    1,
 			},
 		},
 	}
 
 	page.Data.BeforeDate = coreModel.DateFieldset{
+		Language:                 lang,
+		ValidationErrDescription: tdErrDescription,
+		ErrorID:                  validatedQueryParams.BeforeDate.GetFieldsetErrID(),
 		Input: coreModel.InputDate{
-			Language:        lang,
-			Id:              "to-date-filters",
-			InputNameDay:    "toDateDay",
-			InputNameMonth:  "toDateMonth",
-			InputNameYear:   "toDateYear",
-			InputValueDay:   validatedQueryParams.BeforeDate.DayString(),
-			InputValueMonth: validatedQueryParams.BeforeDate.MonthString(),
-			InputValueYear:  validatedQueryParams.BeforeDate.YearString(),
+			Language:              lang,
+			Id:                    "before-date",
+			InputNameDay:          "before-day",
+			InputNameMonth:        "before-month",
+			InputNameYear:         "before-year",
+			InputValueDay:         validatedQueryParams.BeforeDate.DayString(),
+			InputValueMonth:       validatedQueryParams.BeforeDate.MonthString(),
+			InputValueYear:        validatedQueryParams.BeforeDate.YearString(),
+			HasDayValidationErr:   validatedQueryParams.BeforeDate.HasDayValidationErr(),
+			HasMonthValidationErr: validatedQueryParams.BeforeDate.HasMonthValidationErr(),
+			HasYearValidationErr:  validatedQueryParams.BeforeDate.HasYearValidationErr(),
 			Title: coreModel.Localisation{
 				LocaleKey: "ReleasedBefore",
 				Plural:    1,
 			},
 			Description: coreModel.Localisation{
-				LocaleKey: "ReleasedBeforeDescription",
+				LocaleKey: "DateFilterDescription",
 				Plural:    1,
 			},
 		},
