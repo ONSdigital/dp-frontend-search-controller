@@ -220,18 +220,18 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (sp SearchURLParams, validationErrs []core.ErrorItem) {
 	var validatedQueryParams SearchURLParams
 
-    validatedQueryParams.Query = urlQuery.Get("q")
+	validatedQueryParams.Query = urlQuery.Get("q")
 
-    paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
-    if paginationErr != nil {
-        log.Error(ctx, "unable to review pagination", paginationErr)
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(paginationErr.Error()),
-            },
-            ID: PaginationErr,
-        })
-    }
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
+	if paginationErr != nil {
+		log.Error(ctx, "unable to review pagination", paginationErr)
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(paginationErr.Error()),
+			},
+			ID: PaginationErr,
+		})
+	}
 
 	fromDate, vErrs := GetStartDate(urlQuery)
 	if len(vErrs) > 0 {
@@ -258,68 +258,68 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	}
 	validatedQueryParams.BeforeDate = toDate
 
-    reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultAggregationSort)
+	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultAggregationSort)
 
-    contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
-    if contentTypeFilterError != nil {
-        log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(contentTypeFilterError.Error()),
-            },
-            ID: ContentTypeFilterErr,
-        })
-    }
+	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	if contentTypeFilterError != nil {
+		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(contentTypeFilterError.Error()),
+			},
+			ID: ContentTypeFilterErr,
+		})
+	}
 
-    topicFilterErr := reviewTopicFiltersForDataAggregation(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
-    if topicFilterErr != nil {
-        log.Error(ctx, "invalid topic filters set", topicFilterErr)
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(topicFilterErr.Error()),
-            },
-            ID: TopicFilterErr,
-        })
-    }
+	topicFilterErr := reviewTopicFiltersForDataAggregation(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+	if topicFilterErr != nil {
+		log.Error(ctx, "invalid topic filters set", topicFilterErr)
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(topicFilterErr.Error()),
+			},
+			ID: TopicFilterErr,
+		})
+	}
 
-    populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
-    if populationTypeFilterErr != nil {
-        log.Error(ctx, "invalid population types set", populationTypeFilterErr)
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(populationTypeFilterErr.Error()),
-            },
-            ID: PopulationTypeFilterErr,
-        })
-    }
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
+	if populationTypeFilterErr != nil {
+		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(populationTypeFilterErr.Error()),
+			},
+			ID: PopulationTypeFilterErr,
+		})
+	}
 
-    dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
-    if dimensionsFilterErr != nil {
-        log.Error(ctx, "invalid population types set", dimensionsFilterErr)
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(dimensionsFilterErr.Error()),
-            },
-            ID: DimensionsFilterErr,
-        })
-    }
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
+	if dimensionsFilterErr != nil {
+		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(dimensionsFilterErr.Error()),
+			},
+			ID: DimensionsFilterErr,
+		})
+	}
 
-    queryStringErr := reviewQueryString(ctx, urlQuery)
-    if queryStringErr != nil {
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(queryStringErr.Error()),
-            },
-            ID: QueryStringErr,
-        })
-        log.Error(ctx, "invalid query string", queryStringErr)
-    }
+	queryStringErr := reviewQueryString(ctx, urlQuery)
+	if queryStringErr != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(queryStringErr.Error()),
+			},
+			ID: QueryStringErr,
+		})
+		log.Error(ctx, "invalid query string", queryStringErr)
+	}
 
-    if len(validationErrs) > 0 {
-        return validatedQueryParams, validationErrs
-    }
+	if len(validationErrs) > 0 {
+		return validatedQueryParams, validationErrs
+	}
 
-    return validatedQueryParams, nil
+	return validatedQueryParams, nil
 }
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed

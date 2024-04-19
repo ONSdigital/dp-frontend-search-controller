@@ -37,6 +37,7 @@ const (
 	DateFromErr  = DateFrom + "-error"
 	DateTo       = "toDate"
 	DateToErr    = DateTo + "-error"
+	Bearer       = "Bearer "
 )
 
 // HandlerClients represents the handlers for search and data-aggregation
@@ -302,7 +303,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.FlorenceToken: {Bearer + accessToken},
 		searchSDK.CollectionID:  {collectionID},
 	}
 
@@ -471,7 +472,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.FlorenceToken: {Bearer + accessToken},
 		searchSDK.CollectionID:  {collectionID},
 	}
 
@@ -779,10 +780,10 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 }
 
 func setFlorenceTokenHeader(headers http.Header, accessToken string) {
-	if strings.HasPrefix(accessToken, "Bearer ") {
+	if strings.HasPrefix(accessToken, Bearer) {
 		headers.Set(searchSDK.FlorenceToken, accessToken)
 	} else {
-		headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
+		headers.Set(searchSDK.FlorenceToken, Bearer+accessToken)
 	}
 }
 
@@ -795,7 +796,7 @@ func createRSSFeed(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 	options.Query = data.GetDataAggregationQuery(validatedParams, template)
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.FlorenceToken: {Bearer + accessToken},
 		searchSDK.CollectionID:  {collectionID},
 	}
 
