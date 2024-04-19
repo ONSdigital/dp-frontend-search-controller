@@ -343,7 +343,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{}, validationErrs)
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
@@ -429,13 +429,14 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
-	validatedQueryParams, err := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
-		log.Error(ctx, "unable to review query", err)
-		setStatusCode(w, req, err)
-		return
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, censusTopicCache)
+	for _, vErr := range validationErrs {
+		if vErr.ID != DateFromErr && vErr.ID != DateToErr && !apperrors.ErrMapForRenderBeforeAPICalls[errors.New(vErr.Description.Text)] {
+			log.Error(ctx, "unable to review query", errors.New(vErr.Description.Text))
+			setStatusCode(w, req, errors.New(vErr.Description.Text))
+			return
+		}
 	}
-
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 3
 
