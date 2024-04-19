@@ -445,7 +445,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					},
 				}
 
-				page := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, "", validationErrs)
+				page := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, "", topicModels.Topic{}, validationErrs)
 				So(page.Data.AfterDate.ValidationErrDescription, ShouldResemble, expectedAfterErr.ValidationErrDescription)
 				So(page.Data.BeforeDate.ValidationErrDescription, ShouldResemble, expectedBeforeErr.ValidationErrDescription)
 				So(page.Error.ErrorItems, ShouldResemble, validationErrs)
