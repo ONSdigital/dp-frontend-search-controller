@@ -9,7 +9,6 @@ import (
 	"time"
 	"strings"
 
-	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -107,9 +106,6 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 
 	queryStringErr := reviewQueryString(ctx, urlQuery)
 	if queryStringErr == nil {
-		return validatedQueryParams, nil
-	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(validatedQueryParams) {
-		log.Info(ctx, "the query string did not pass review")
 		return validatedQueryParams, nil
 	}
 

@@ -9,7 +9,7 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-var regexString = `\S`
+var regexString = `^\s+$`
 
 // reviewQueryString performs basic checks on the string entered by the user
 func reviewQueryString(ctx context.Context, urlQuery url.Values) error {
@@ -29,10 +29,16 @@ func reviewQueryString(ctx context.Context, urlQuery url.Values) error {
 }
 
 func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
-    _, err := regexp.MatchString(regexString, queryString)
+    match, err := regexp.MatchString(regexString, queryString)
     if err != nil {
         log.Error(ctx, "unable to check query string against regex", err)
         errVal := errs.ErrInvalidQueryString
+        return errVal
+    }
+
+    if match {
+        log.Warn(ctx, "the query string consists only of whitespace characters")
+        errVal := errs.ErrQueryOnlyWhitespace
         return errVal
     }
 

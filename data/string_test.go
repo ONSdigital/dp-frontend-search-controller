@@ -43,21 +43,21 @@ func TestUnitReviewQueryStringFailure(t *testing.T) {
 			err := reviewQueryString(ctx, urlQuery)
 
 			Convey("Then return true with a valid query string", func() {
-				So(err, ShouldResemble, errs.ErrInvalidQueryCharLengthString)
+				So(err, ShouldResemble, errs.ErrQueryOnlyWhitespace)
 			})
 		})
 	})
 
-	Convey("Given an invalid query string (too short)", t, func() {
+	Convey("Given an invalid query string (only whitespace)", t, func() {
 		urlQuery := url.Values{
-			"q": []string{"ab"},
+			"q": []string{"   "},
 		}
 
 		Convey("When reviewQueryString is called", func() {
 			err := reviewQueryString(ctx, urlQuery)
 
 			Convey("Then return true with a valid query string", func() {
-				So(err, ShouldResemble, errs.ErrInvalidQueryCharLengthString)
+				So(err, ShouldResemble, errs.ErrQueryOnlyWhitespace)
 			})
 		})
 	})
