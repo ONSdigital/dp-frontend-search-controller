@@ -11,12 +11,12 @@
         </h1>
       </section>
     </div>
-    <form
-      id="filterForm"
-      class="ons-grid ons-grid__col ons-grid__col-12"
-      novalidate
-    >
-      <div class="ons-grid__col ons-col-4@m">
+    <div class="ons-grid ons-grid__col ons-grid__col-12">
+      <form
+        id="filterForm"
+        class="ons-grid__col ons-col-4@m"
+        novalidate
+      >
         <section class="search__filter" role="contentinfo" aria-label="{{ localise "SearchFiltering" $lang 4 }}" id="search-filter">
           <div class="search__filter__heading">
             <h3 class="font-size--18">
@@ -38,7 +38,7 @@
             {{ template "partials/archived-release-message" . }}
           </div>
         </section>
-      </div>
+      </form>
       <div class="ons-grid__col ons-col-8@m" aria-live="polite">
         <section role="contentinfo" aria-label="{{ localise "SearchResults" $lang  1 }}">
           <div class="search__count">
@@ -64,6 +64,6 @@
           {{end}}
         </section>
       </div>
-    </form>
+    </div>
   </div>
 </div>

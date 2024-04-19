@@ -1,6 +1,7 @@
 Feature: Search
   Scenario: GET /search and checking for zero results
     Given there is a Search API that gives a successful response and returns 0 results
+    And the search controller is running
     When I navigate to "/search?q=test+query"
     And the page should have the following content
     """
@@ -11,6 +12,7 @@ Feature: Search
     """
   Scenario: GET /search and checking for one result
     Given there is a Search API that gives a successful response and returns 1 results
+    And the search controller is running
     When I navigate to "/search?q=test+query"
     And the page should have the following content
     """
@@ -23,6 +25,7 @@ Feature: Search
 
   Scenario: GET /search and checking for 10 results
     Given there is a Search API that gives a successful response and returns 10 results
+    And the search controller is running
     When I navigate to "/search?q=test+query"
     And the page should have the following content
     """
@@ -34,6 +37,7 @@ Feature: Search
     """
   Scenario: GET /search and checking for 11 results
     Given there is a Search API that gives a successful response and returns 11 results
+    And the search controller is running
     When I navigate to "/search?q=test+query"
     And the page should have the following content
     """
@@ -44,6 +48,7 @@ Feature: Search
         }
     """
   Scenario: GET /search with no query
+    Given the search controller is running
     When I navigate to "/search"
     And the page should have the following content
     """

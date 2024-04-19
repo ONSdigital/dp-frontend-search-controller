@@ -2,6 +2,7 @@ Feature: Timeseries Tool
 
   Scenario: GET /timeseriestool and checking for zero results
     Given there is a Search API that gives a successful response and returns 0 results
+    And the search controller is running
     When I navigate to "/timeseriestool"
     And the page should have the following content
     """
@@ -10,8 +11,16 @@ Feature: Timeseries Tool
             ".search__count h2": "0 results"
         }
     """
-  Scenario: GET /alladtimeseriestoolhocs and checking for one result
+  Scenario: GET /timeseriestool and checking for date fieldsets
+    Given there is a Search API that gives a successful response and returns 0 results
+    And the search controller is running
+    When I navigate to "/timeseriestool"
+    Then element "#to-date-filters" should be visible
+    Then element "#from-date-filters" should be visible
+
+  Scenario: GET /timeseriestool and checking for one result
     Given there is a Search API that gives a successful response and returns 1 results
+    And the search controller is running
     When I navigate to "/timeseriestool"
     And the page should have the following content
     """

@@ -31,7 +31,6 @@ lint: generate-prod
 
 .PHONY: lint-local
 lint-local: ## Use locally to run linters against Go code
-	go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.57.1
 	golangci-lint run ./...
 
 .PHONY: test

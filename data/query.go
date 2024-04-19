@@ -216,6 +216,60 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 	return validatedQueryParams, nil
 }
 
+// ReviewDataAggregationQueryWithParams ensures that all search parameter values given by the user are reviewed
+func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
+	var validatedQueryParams SearchURLParams
+	validatedQueryParams.Query = urlQuery.Get("q")
+
+	fromDate, toDate, err := GetDates(ctx, urlQuery)
+	if err != nil {
+		log.Error(ctx, "invalid dates set", err)
+		return validatedQueryParams, err
+	}
+	validatedQueryParams.AfterDate = fromDate
+	validatedQueryParams.BeforeDate = toDate
+
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
+	if paginationErr != nil {
+		log.Error(ctx, "unable to review pagination", paginationErr)
+		return validatedQueryParams, paginationErr
+	}
+
+	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultAggregationSort)
+
+	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	if contentTypeFilterError != nil {
+		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
+		return validatedQueryParams, contentTypeFilterError
+	}
+	// TODO pass datatopiccache instead
+	topicFilterErr := reviewTopicFiltersForDataAggregation(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+	if topicFilterErr != nil {
+		log.Error(ctx, "invalid topic filters set", topicFilterErr)
+		return validatedQueryParams, topicFilterErr
+	}
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
+	if populationTypeFilterErr != nil {
+		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
+		return validatedQueryParams, populationTypeFilterErr
+	}
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
+	if dimensionsFilterErr != nil {
+		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
+		return validatedQueryParams, dimensionsFilterErr
+	}
+
+	queryStringErr := reviewQueryString(ctx, urlQuery)
+	if queryStringErr == nil {
+		return validatedQueryParams, nil
+	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(validatedQueryParams) {
+		log.Info(ctx, "the query string did not pass review")
+		return validatedQueryParams, nil
+	}
+
+	return validatedQueryParams, queryStringErr
+}
+
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
 func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
 	var validatedQueryParams SearchURLParams
@@ -291,6 +345,8 @@ func GetDataAggregationQuery(validatedQueryParams SearchURLParams, template stri
 
 	if apiQuery.Get("content_type") == "" {
 		apiQuery.Set("content_type", contentTypes)
+	} else {
+		updateQueryWithAPIFilters(apiQuery)
 	}
 
 	return apiQuery

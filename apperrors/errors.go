@@ -5,13 +5,14 @@ import (
 )
 
 var (
-	ErrContentTypeNotFound   = errors.New("content type not found")
-	ErrInternalServer        = errors.New("internal server error")
-	ErrInvalidPage           = errors.New("invalid page value, exceeding the default maximum search results")
-	ErrInvalidQueryString    = errors.New("the query string did not meet requirements")
-	ErrQueryOnlyWhitespace   = errors.New("the query string consists only of whitespace characters")
-	ErrPageExceedsTotalPages = errors.New("invalid page value, exceeding the total page value")
-	ErrTopicNotFound         = errors.New("topic not found")
+	ErrContentTypeNotFound          = errors.New("content type not found")
+	ErrInternalServer               = errors.New("internal server error")
+	ErrInvalidPage                  = errors.New("invalid page value, exceeding the default maximum search results")
+	ErrInvalidQueryString           = errors.New("the query string did not meet requirements")
+	ErrQueryOnlyWhitespace          = errors.New("the query string is less than the required character length")
+	ErrPageExceedsTotalPages        = errors.New("invalid page value, exceeding the total page value")
+	ErrTopicNotFound                = errors.New("topic not found")
+	ErrTopicPathNotFound            = errors.New("topic path not found")
 
 	BadRequestMap = map[error]bool{
 		ErrContentTypeNotFound:   true,
@@ -19,6 +20,10 @@ var (
 		ErrInvalidQueryString:    true,
 		ErrPageExceedsTotalPages: true,
 		ErrTopicNotFound:         true,
+	}
+
+	NotFoundMap = map[error]bool{
+		ErrTopicPathNotFound: true,
 	}
 
 	// ErrMapForRenderBeforeAPICalls is a list of errors which leads to the search page being rendered before making any API calls
