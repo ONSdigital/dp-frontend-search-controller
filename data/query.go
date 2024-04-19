@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
@@ -344,7 +343,6 @@ func GetStartDate(params url.Values) (startDate Date, validationErrs []core.Erro
 	return startDate, nil
 }
 
-// GetDates returns the validated date to parameters
 func GetEndDate(params url.Values) (endDate Date, validationErrs []core.ErrorItem) {
 	var endTime time.Time
 
@@ -430,85 +428,6 @@ func getIntValidator(minValue, maxValue int) intValidator {
 
 		return value, nil
 	}
-}
-
-// GetDates finds the date from and date to parameters
-func GetDates(ctx context.Context, params url.Values) (startDate, endDate Date, err error) {
-	var (
-		startTime, endTime time.Time
-	)
-
-	const (
-		DayBefore   = "toDateDay"
-		DayAfter    = "fromDateDay"
-		MonthBefore = "toDateMonth"
-		MonthAfter  = "fromDateMonth"
-		YearBefore  = "toDateYear"
-		YearAfter   = "fromDateYear"
-		DateFrom    = "fromDate"
-		DateTo      = "toDate"
-	)
-
-	yearAfterString, monthAfterString, dayAfterString := params.Get(YearAfter), params.Get(MonthAfter), params.Get(DayAfter)
-	yearBeforeString, monthBeforeString, dayBeforeString := params.Get(YearBefore), params.Get(MonthBefore), params.Get(DayBefore)
-	logData := log.Data{
-		"year_after": yearAfterString, "month_after": monthAfterString, "day_after": dayAfterString,
-		"year_before": yearBeforeString, "month_before": monthBeforeString, "day_before": DayBefore,
-	}
-
-	startTime, err = getValidTimestampOld(yearAfterString, monthAfterString, dayAfterString)
-	if err != nil {
-		log.Warn(ctx, "invalid date, startDate", log.FormatErrors([]error{err}), logData)
-		return Date{}, Date{}, err
-	}
-
-	startDate = DateFromTime(startTime)
-
-	endTime, err = getValidTimestampOld(yearBeforeString, monthBeforeString, dayBeforeString)
-	if err != nil {
-		log.Warn(ctx, "invalid date, endDate", log.FormatErrors([]error{err}), logData)
-		return Date{}, Date{}, err
-	}
-
-	endDate = DateFromTime(endTime)
-
-	if !startTime.IsZero() && !endTime.IsZero() && startTime.After(endTime) {
-		log.Warn(ctx, "invalid date range: start date after end date", log.Data{DateFrom: startDate, DateTo: endDate})
-		return Date{}, Date{}, errors.New("invalid dates: start date after end date")
-	}
-
-	return startDate, endDate, nil
-}
-
-func getValidTimestampOld(year, month, day string) (time.Time, error) {
-	if year == "" || month == "" || day == "" {
-		return time.Time{}, nil
-	}
-
-	y, err := yearValidator(year)
-	if err != nil {
-		return time.Time{}, errors.New("invalid year parameter")
-	}
-
-	m, err := monthValidator(month)
-	if err != nil {
-		return time.Time{}, errors.New("invalid month parameter")
-	}
-
-	d, err := dayValidator(day)
-	if err != nil {
-		return time.Time{}, errors.New("invalid day parameter")
-	}
-
-	timestamp := time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC)
-
-	// Check the day is valid for the month in the year, e.g. day 30 cannot be in month 2 (February)
-	_, mo, _ := timestamp.Date()
-	if mo != time.Month(m) {
-		return time.Time{}, errors.New("invalid day month combination of parameters")
-	}
-
-	return timestamp, nil
 }
 
 // getValidTimestamp returns a valid timestamp or an error
