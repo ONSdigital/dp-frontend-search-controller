@@ -29,20 +29,20 @@ func reviewQueryString(ctx context.Context, urlQuery url.Values) error {
 }
 
 func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
-    match, err := regexp.MatchString(regexString, queryString)
-    if err != nil {
-        log.Error(ctx, "unable to check query string against regex", err)
-        errVal := errs.ErrInvalidQueryString
-        return errVal
-    }
+	match, err := regexp.MatchString(regexString, queryString)
+	if err != nil {
+		log.Error(ctx, "unable to check query string against regex", err)
+		errVal := errs.ErrInvalidQueryString
+		return errVal
+	}
 
-    if match {
-        log.Warn(ctx, "the query string consists only of whitespace characters")
-        errVal := errs.ErrQueryOnlyWhitespace
-        return errVal
-    }
+	if match {
+		log.Warn(ctx, "the query string consists only of whitespace characters")
+		errVal := errs.ErrQueryOnlyWhitespace
+		return errVal
+	}
 
-    return nil
+	return nil
 }
 
 func checkForSpecialCharacters(ctx context.Context, str string) error {

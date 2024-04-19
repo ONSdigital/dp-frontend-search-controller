@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
-	"errors"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
@@ -25,10 +25,10 @@ import (
 // Constants...
 const (
 	homepagePath = "/"
-	DateFrom    = "fromDate"
-	DateFromErr = DateFrom + "-error"
-	DateTo      = "toDate"
-	DateToErr   = DateTo + "-error"
+	DateFrom     = "fromDate"
+	DateFromErr  = DateFrom + "-error"
+	DateTo       = "toDate"
+	DateToErr    = DateTo + "-error"
 )
 
 // HandlerClients represents the handlers for search and data-aggregation

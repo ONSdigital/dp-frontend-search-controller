@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
@@ -56,19 +56,19 @@ const (
 	Census      = "census"
 	Highlight   = "highlight"
 
-	PaginationErr = "pagination-error"
-	ContentTypeFilterErr = "filter-error"
-	TopicFilterErr = "topic-error"
+	PaginationErr           = "pagination-error"
+	ContentTypeFilterErr    = "filter-error"
+	TopicFilterErr          = "topic-error"
 	PopulationTypeFilterErr = "population-error"
-	DimensionsFilterErr = "dimensions-error"
-	QueryStringErr = "query-string-error"
+	DimensionsFilterErr     = "dimensions-error"
+	QueryStringErr          = "query-string-error"
 )
+
 var (
 	dayValidator   = getIntValidator(1, 99)
 	monthValidator = getIntValidator(1, 99)
 	yearValidator  = getIntValidator(1900, 2150)
 )
-
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
 func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
@@ -118,15 +118,15 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 	validatedQueryParams.Query = urlQuery.Get("q")
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
-    if paginationErr != nil {
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(paginationErr.Error()),
-            },
-            ID:  PaginationErr,
-        })
-        log.Error(ctx, "unable to review pagination", paginationErr)
-    }
+	if paginationErr != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(paginationErr.Error()),
+			},
+			ID: PaginationErr,
+		})
+		log.Error(ctx, "unable to review pagination", paginationErr)
+	}
 
 	fromDate, vErrs := GetStartDate(urlQuery)
 	if len(vErrs) > 0 {
@@ -156,48 +156,48 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultAggregationSort)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
-    if contentTypeFilterError != nil {
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(contentTypeFilterError.Error()),
-            },
-            ID:  ContentTypeFilterErr,
-        })
-        log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
-    }
+	if contentTypeFilterError != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(contentTypeFilterError.Error()),
+			},
+			ID: ContentTypeFilterErr,
+		})
+		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
+	}
 
-    topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
-    if topicFilterErr != nil {
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(topicFilterErr.Error()),
-            },
-            ID:  TopicFilterErr,
-        })
-        log.Error(ctx, "invalid topic filters set", topicFilterErr)
-    }
+	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+	if topicFilterErr != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(topicFilterErr.Error()),
+			},
+			ID: TopicFilterErr,
+		})
+		log.Error(ctx, "invalid topic filters set", topicFilterErr)
+	}
 
-    populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
-    if populationTypeFilterErr != nil {
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(populationTypeFilterErr.Error()),
-            },
-            ID:  PopulationTypeFilterErr,
-        })
-        log.Error(ctx, "invalid population types set", populationTypeFilterErr)
-    }
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
+	if populationTypeFilterErr != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(populationTypeFilterErr.Error()),
+			},
+			ID: PopulationTypeFilterErr,
+		})
+		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
+	}
 
-    dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
-    if dimensionsFilterErr != nil {
-        validationErrs = append(validationErrs, core.ErrorItem{
-            Description: core.Localisation{
-                Text: CapitalizeFirstLetter(dimensionsFilterErr.Error()),
-            },
-            ID:  DimensionsFilterErr,
-        })
-        log.Error(ctx, "invalid population types set", dimensionsFilterErr)
-    }
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
+	if dimensionsFilterErr != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(dimensionsFilterErr.Error()),
+			},
+			ID: DimensionsFilterErr,
+		})
+		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
+	}
 
 	queryStringErr := reviewQueryString(ctx, urlQuery)
 	if queryStringErr != nil {
@@ -205,15 +205,15 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 			Description: core.Localisation{
 				Text: CapitalizeFirstLetter(queryStringErr.Error()),
 			},
-			ID:  QueryStringErr,
+			ID: QueryStringErr,
 		})
 		log.Error(ctx, "invalid query string", queryStringErr)
 	}
-	
+
 	if len(validationErrs) > 0 {
 		return validatedQueryParams, validationErrs
 	}
-	
+
 	return validatedQueryParams, nil
 }
 
@@ -414,23 +414,6 @@ func ValidateDateRange(from, to Date) (end Date, err error) {
 
 type intValidator func(valueAsString string) (int, error)
 
-func validateAndGetIntParam(ctx context.Context, params url.Values, paramName string, defaultValue int, validator intValidator) (int, error) {
-	var (
-		limit = defaultValue
-		err   error
-	)
-	asString := params.Get(paramName)
-	if asString != "" {
-		limit, err = validator(asString)
-		if err != nil {
-			log.Warn(ctx, err.Error(), log.Data{"param": paramName, "value": asString})
-			return 0, fmt.Errorf("invalid %s parameter: %s", paramName, err.Error())
-		}
-	}
-
-	return limit, nil
-}
-
 // getIntValidator returns an IntValidator object using the min and max values provided
 func getIntValidator(minValue, maxValue int) intValidator {
 	return func(valueAsString string) (int, error) {
@@ -606,14 +589,6 @@ func CapitalizeFirstLetter(input string) string {
 	default:
 		return strings.ToUpper(input[:1]) + input[1:]
 	}
-}
-
-func hasFilters(validatedQueryParams SearchURLParams) bool {
-	if len(validatedQueryParams.Filter.Query) > 0 || validatedQueryParams.TopicFilter != "" {
-		return true
-	}
-
-	return false
 }
 
 func createSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {

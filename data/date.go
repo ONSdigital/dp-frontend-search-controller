@@ -6,8 +6,8 @@ import (
 )
 
 type Date struct {
-	date       time.Time
-	ys, ms, ds string
+	date                                                             time.Time
+	ys, ms, ds                                                       string
 	fieldsetErrID, fieldsetStr                                       string
 	assumedDay, assumedMonth                                         bool
 	hasDayValidationErr, hasMonthValidationErr, hasYearValidationErr bool

@@ -394,7 +394,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 			Convey("Then successfully map validation errors correctly to a page model", func() {
 				validatedQueryParams.AfterDate = data.MustSetFieldsetErrID("fromDate-error")
 				validatedQueryParams.BeforeDate = data.MustSetFieldsetErrID("toDate-error")
-	
+
 				validationErrs := []model.ErrorItem{
 					{
 						Description: model.Localisation{
@@ -425,7 +425,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 						URL: "#input-error",
 					},
 				}
-	
+
 				expectedAfterErr := model.DateFieldset{
 					ValidationErrDescription: []model.Localisation{
 						{
@@ -433,7 +433,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 						},
 					},
 				}
-	
+
 				expectedBeforeErr := model.DateFieldset{
 					ValidationErrDescription: []model.Localisation{
 						{
@@ -444,7 +444,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 						},
 					},
 				}
-	
+
 				page := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, "", validationErrs)
 				So(page.Data.AfterDate.ValidationErrDescription, ShouldResemble, expectedAfterErr.ValidationErrDescription)
 				So(page.Data.BeforeDate.ValidationErrDescription, ShouldResemble, expectedBeforeErr.ValidationErrDescription)
