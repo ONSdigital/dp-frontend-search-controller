@@ -19,7 +19,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.6.3
 	github.com/ONSdigital/dp-net/v2 v2.11.2
 	github.com/ONSdigital/dp-otel-go v0.0.7
-	github.com/ONSdigital/dp-renderer/v2 v2.9.1
+	github.com/ONSdigital/dp-renderer/v2 v2.10.0
 	github.com/ONSdigital/dp-search-api v1.43.1
 	github.com/ONSdigital/dp-topic-api v0.22.0
 	github.com/ONSdigital/log.go/v2 v2.4.3
@@ -46,7 +46,7 @@ require (
 	github.com/ONSdigital/go-ns v0.0.0-20210916104633-ac1c1c52327e // indirect
 	github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
-	github.com/chromedp/cdproto v0.0.0-20240328024531-fe04f09ede24 // indirect
+	github.com/chromedp/cdproto v0.0.0-20240421230201-ab917191657d // indirect
 	github.com/chromedp/chromedp v0.9.5 // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
@@ -91,8 +91,8 @@ require (
 	github.com/xdg-go/pbkdf2 v1.0.0 // indirect
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
-	github.com/youmark/pkcs8 v0.0.0-20201027041543-1326539a0a0a // indirect
-	go.mongodb.org/mongo-driver v1.14.0 // indirect
+	github.com/youmark/pkcs8 v0.0.0-20240424034433-3c2c7870ae76 // indirect
+	go.mongodb.org/mongo-driver v1.15.0 // indirect
 	go.opentelemetry.io/contrib/propagators/autoprop v0.50.0 // indirect
 	go.opentelemetry.io/contrib/propagators/aws v1.25.0 // indirect
 	go.opentelemetry.io/contrib/propagators/b3 v1.25.0 // indirect
@@ -111,8 +111,8 @@ require (
 	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
-	google.golang.org/genproto/googleapis/api v0.0.0-20240401170217-c3f982113cda // indirect
-	google.golang.org/genproto/googleapis/rpc v0.0.0-20240401170217-c3f982113cda // indirect
+	google.golang.org/genproto/googleapis/api v0.0.0-20240415180920-8c6c420018be // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240415180920-8c6c420018be // indirect
 	google.golang.org/grpc v1.63.2 // indirect
 	google.golang.org/protobuf v1.33.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
