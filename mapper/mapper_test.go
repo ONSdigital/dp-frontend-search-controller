@@ -339,7 +339,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					Plural:    1,
 				},
 				Description: model.Localisation{
-					LocaleKey: "DateFilterDescription",
+					LocaleKey: "ReleasedAfterDescription",
 					Plural:    1,
 				},
 			},
@@ -366,7 +366,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					Plural:    1,
 				},
 				Description: model.Localisation{
-					LocaleKey: "DateFilterDescription",
+					LocaleKey: "ReleasedBeforeDescription",
 					Plural:    1,
 				},
 			},

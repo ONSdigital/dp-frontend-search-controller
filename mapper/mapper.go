@@ -178,7 +178,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 				Plural:    1,
 			},
 			Description: coreModel.Localisation{
-				LocaleKey: "DateFilterDescription",
+				LocaleKey: "ReleasedAfterDescription",
 				Plural:    1,
 			},
 		},
@@ -205,7 +205,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 				Plural:    1,
 			},
 			Description: coreModel.Localisation{
-				LocaleKey: "DateFilterDescription",
+				LocaleKey: "ReleasedBeforeDescription",
 				Plural:    1,
 			},
 		},
