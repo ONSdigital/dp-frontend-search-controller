@@ -15,8 +15,8 @@ Feature: Timeseries Tool
     Given there is a Search API that gives a successful response and returns 0 results
     And the search controller is running
     When I navigate to "/timeseriestool"
-    Then element "#to-date-filters" should be visible
-    Then element "#from-date-filters" should be visible
+    Then element "#before-date" should be visible
+    Then element "#after-date" should be visible
 
   Scenario: GET /timeseriestool and checking for one result
     Given there is a Search API that gives a successful response and returns 1 results
