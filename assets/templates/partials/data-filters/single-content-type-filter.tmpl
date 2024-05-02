@@ -1,0 +1,49 @@
+{{ $filters := .Data.Filters }}
+{{ $lang := .Language }}
+
+{{ if $filters }}
+    <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+        <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+            <h2 class="ons-collapsible__title">
+                <legend class="block">
+                    {{ localise "ContentType" $lang 1 }}
+                </legend>
+            </h2>
+            <span class="ons-collapsible__icon">
+                {{ template "icons/chevron-right" }}
+            </span>
+        </summary>
+
+        <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+            <legend class="block hidden">
+                    {{ localise (index $filters 0).LocaliseKeyName $lang 4 }}
+            </legend>
+            <span class="content-type-filter" id="group-0-other-wrap">
+                <input type="checkbox"
+                    class="hidden"
+                    aria-controls="group-0-other-wrap"
+                >
+                {{ range $index, $childFilter := (index $filters 0).Types }}
+                    {{ $id := index $childFilter.FilterKey 0 }}
+                    <div class="ons-checkboxes__items">
+                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                            <span class="ons-checkbox ons-checkbox--no-border child-filter">
+                                <input id="{{ $id }}"
+                                    class="ons-checkbox__input ons-js-checkbox"
+                                    type="checkbox" name="filter"
+                                    {{ if $childFilter.IsChecked }}checked{{ end }}
+                                    data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
+                                    value="{{ $id }}"
+                                >
+                                <label class="ons-checkbox__label" for="{{ $id }}"
+                                    id="{{ $id }}-label">
+                                    {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
+                                </label>
+                            </span>
+                        </span>
+                    </div>
+                {{ end }}
+            </span>
+        </fieldset>
+    </details>
+{{ end }}

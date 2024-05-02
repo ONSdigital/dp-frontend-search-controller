@@ -2,9 +2,9 @@
 {{ $query := .Data.Query }}
 {{ $filter := .Data.Filter }}
 
-<input type="hidden" name="q" value="{{ $query }}"/>
+<input type="hidden" name="q" value="{{ $query }}">
 {{ range $theFilter := .Data.Filter }}
-    <input type="hidden" name="filter" value="{{ $theFilter }}"/>
+    <input type="hidden" name="filter" value="{{ $theFilter }}">
 {{end}}
 <!-- rss feed here -->
 <div class="ons-field--search-sort search__sort__select">

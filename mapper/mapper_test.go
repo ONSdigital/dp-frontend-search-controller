@@ -10,7 +10,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-renderer/v2/model"
-	"github.com/ONSdigital/dp-topic-api/models"
+	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 
@@ -68,7 +68,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 			// NOTE: temporary measure until topic filter feature flag is removed
 			cfg.EnableCensusTopicFilterOption = true
 
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &models.Navigation{})
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -209,7 +209,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 			cfg.EnableCensusPopulationTypesFilterOption = true
 			cfg.EnableCensusDimensionsFilterOption = true
 
-			sp := CreateDataFinderPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, respC, englishLang, respH, "", &models.Navigation{})
+			sp := CreateDataFinderPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, respC, englishLang, respH, "", &topicModels.Navigation{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -361,7 +361,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 		}
 
 		Convey("When CreateDataAggregationPage is called", func() {
-			sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, "")
+			sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, "", topicModels.Topic{})
 
 			Convey("Then successfully map core features to the page model", func() {
 				// keyword search
@@ -382,14 +382,13 @@ func TestCreateDataAggregationPage(t *testing.T) {
 
 		Convey("When CreateDataAggregationPage is called with different page templates", func() {
 			testcases := []struct {
-				template                   string
-				exTitle                    string
-				exLocaliseKeyName          string
-				exEnableHomeSwitch         bool
-				exContentTypeFilterEnabled bool
-				exTopicFilterEnabled       bool
-				exDateFilterEnabled        bool
-				exEnableTimeSeriesExport   bool
+				template                         string
+				exTitle                          string
+				exLocaliseKeyName                string
+				exSingleContentTypeFilterEnabled bool
+				exTopicFilterEnabled             bool
+				exDateFilterEnabled              bool
+				exEnableTimeSeriesExport         bool
 			}{
 				{
 					template:            "all-adhocs",
@@ -398,19 +397,17 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					exDateFilterEnabled: true,
 				},
 				{
-					template:                   "home-datalist",
-					exTitle:                    "Published data",
-					exLocaliseKeyName:          "DataList",
-					exEnableHomeSwitch:         true,
-					exContentTypeFilterEnabled: true,
-					exDateFilterEnabled:        true,
+					template:                         "home-datalist",
+					exTitle:                          "Published data",
+					exLocaliseKeyName:                "DataList",
+					exSingleContentTypeFilterEnabled: true,
+					exDateFilterEnabled:              true,
 				},
 				{
-					template:                   "home-publications",
-					exTitle:                    "Publications",
-					exLocaliseKeyName:          "HomePublications",
-					exEnableHomeSwitch:         true,
-					exContentTypeFilterEnabled: true,
+					template:                         "home-publications",
+					exTitle:                          "Publications",
+					exLocaliseKeyName:                "HomePublications",
+					exSingleContentTypeFilterEnabled: true,
 				},
 				{
 					template:             "all-methodologies",
@@ -446,11 +443,10 @@ func TestCreateDataAggregationPage(t *testing.T) {
 
 			for _, tc := range testcases {
 				Convey(fmt.Sprintf("Then page template: %s maps the page features correctly", tc.template), func() {
-					sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, []data.PopulationTypes{}, []data.Dimensions{}, respC, englishLang, respH, "", &models.Navigation{}, tc.template)
+					sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, tc.template, topicModels.Topic{})
 					So(sp.Metadata.Title, ShouldEqual, tc.exTitle)
 					So(sp.Title.LocaliseKeyName, ShouldEqual, tc.exLocaliseKeyName)
-					So(sp.Data.EnableHomeSwitch, ShouldEqual, tc.exEnableHomeSwitch)
-					So(sp.Data.ContentTypeFilterEnabled, ShouldEqual, tc.exContentTypeFilterEnabled)
+					So(sp.Data.SingleContentTypeFilterEnabled, ShouldEqual, tc.exSingleContentTypeFilterEnabled)
 					So(sp.Data.TopicFilterEnabled, ShouldEqual, tc.exTopicFilterEnabled)
 					So(sp.Data.DateFilterEnabled, ShouldEqual, tc.exDateFilterEnabled)
 				})

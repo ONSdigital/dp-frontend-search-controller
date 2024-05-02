@@ -15,6 +15,7 @@ import (
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
+	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/maxcnunes/httpfake"
 )
@@ -47,8 +48,6 @@ func NewSearchControllerComponent() (c *Component, err error) {
 
 	ctx := context.Background()
 
-	svcErrors := make(chan error, 1)
-
 	c.Config, err = config.Get()
 	if err != nil {
 		return nil, err
@@ -69,8 +68,8 @@ func NewSearchControllerComponent() (c *Component, err error) {
 
 	c.FakeAPIRouter.searchRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/search")
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
-
 	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics")
+	c.FakeAPIRouter.subtopicsRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*/subtopics")
 
 	c.FakeAPIRouter.navigationRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/data")
 
@@ -88,10 +87,9 @@ func NewSearchControllerComponent() (c *Component, err error) {
 		return nil, err
 	}
 
-	c.StartTime = time.Now()
-	c.svc.Run(ctx, svcErrors)
-	c.ServiceRunning = true
-
+	// Please use the step to start the service - this is down to
+	// the auto updates against backing services are hard to predict so
+	// it is easier to provision them first and then start the service.
 	return c, nil
 }
 
@@ -186,4 +184,35 @@ func generateSearchItem(num int) searchModels.Item {
 		DatasetID: datasetID,
 	}
 	return searchItem
+}
+
+func generateTopicResponse(id string, title string) *httpfake.Response {
+	topicAPIResponse := &topicModels.PublicSubtopics{
+		Count: 1,
+		PublicItems: &[]topicModels.Topic{
+			{
+				ID:    id,
+				Title: title,
+			},
+		},
+	}
+
+	fakeAPIResponse := httpfake.NewResponse()
+	fakeAPIResponse.Status(200)
+	fakeAPIResponse.BodyStruct(topicAPIResponse)
+
+	return fakeAPIResponse
+}
+
+func generateEmptyTopicResponse() *httpfake.Response {
+	topicAPIResponse := &topicModels.PublicSubtopics{
+		Count:       0,
+		PublicItems: &[]topicModels.Topic{},
+	}
+
+	fakeAPIResponse := httpfake.NewResponse()
+	fakeAPIResponse.Status(200)
+	fakeAPIResponse.BodyStruct(topicAPIResponse)
+
+	return fakeAPIResponse
 }

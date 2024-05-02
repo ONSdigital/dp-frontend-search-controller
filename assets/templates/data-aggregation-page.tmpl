@@ -1,16 +1,12 @@
 {{ $lang := .Language }}
-{{ $enabledHomeSwitch := .Data.EnableHomeSwitch }}
 
 <div class="ons-container search__container">
   <div class="ons-grid">
     <div class="ons-grid__col ons-col-12@m">
       <section class="search__summary">
         <h1 class="ons-u-fs-xxxl">
-          {{- localise .Title.LocaliseKeyName $lang 1 }}
+          {{- localise .Title.LocaliseKeyName $lang 1 }}{{ if .Data.Topic }} related to {{ .Data.Topic -}}{{ end }}
         </h1>
-        {{ if $enabledHomeSwitch }}
-          {{ template "partials/home-switch" . }}
-        {{ end }}
       </section>
     </div>
     <form

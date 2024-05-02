@@ -66,18 +66,19 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 
 // CreateDataAggregationPage maps type searchC.Response to model.Page
 func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
-	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, _ []data.PopulationTypes, _ []data.Dimensions,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation,
-	template string,
+	template string, topic topicModel.Topic,
 ) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
 	}
+	categories = filterCategoriesByTemplate(template, categories)
 
 	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
 
-	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template)
+	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template, topic)
 
 	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
@@ -90,7 +91,7 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 	return page
 }
 
-func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string) {
+func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string, topic topicModel.Topic) {
 	switch template {
 	case "all-adhocs":
 		page.Metadata.Title = "User requested data"
@@ -99,14 +100,12 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	case "home-datalist":
 		page.Metadata.Title = "Published data"
 		page.Title.LocaliseKeyName = "DataList"
-		page.Data.ContentTypeFilterEnabled = true
+		page.Data.SingleContentTypeFilterEnabled = true
 		page.Data.DateFilterEnabled = true
-		page.Data.EnableHomeSwitch = true
 	case "home-publications":
 		page.Metadata.Title = "Publications"
 		page.Title.LocaliseKeyName = "HomePublications"
-		page.Data.EnableHomeSwitch = true
-		page.Data.ContentTypeFilterEnabled = true
+		page.Data.SingleContentTypeFilterEnabled = true
 	case "all-methodologies":
 		page.Metadata.Title = "All methodology"
 		page.Title.LocaliseKeyName = "AllMethodology"
@@ -183,6 +182,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	}
 
 	page.Type = "Data Aggregation Page"
+	page.Data.Topic = strings.ToLower(topic.Title)
 	page.Data.TermLocalKey = "Results"
 	page.Count = respC.Count
 	page.Language = lang
@@ -706,4 +706,18 @@ func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.N
 	}
 
 	return mappedNavigationContent
+}
+
+func filterCategoriesByTemplate(template string, categories []data.Category) []data.Category {
+	if template == "home-datalist" || template == "home-publications" {
+		var filteredCategories []data.Category
+		for _, category := range categories {
+			if (template == "home-datalist" && category.LocaliseKeyName == "Data") ||
+				(template == "home-publications" && category.LocaliseKeyName == "Publication") {
+				filteredCategories = append(filteredCategories, category)
+			}
+		}
+		return filteredCategories
+	}
+	return categories
 }
