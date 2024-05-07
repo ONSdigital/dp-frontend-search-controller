@@ -581,6 +581,14 @@ func getValidTimestamp(year, month, day string, date *Date) (time.Time, []core.E
 	return timestamp, validationErrs
 }
 
+func hasFilters(validatedQueryParams SearchURLParams) bool {
+	if len(validatedQueryParams.Filter.Query) > 0 || validatedQueryParams.TopicFilter != "" {
+		return true
+	}
+
+	return false
+}
+
 // CapitalizeFirstLetter is a helper function that transforms the first letter of a string to uppercase
 func CapitalizeFirstLetter(input string) string {
 	switch {
