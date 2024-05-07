@@ -102,13 +102,15 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
 		return validatedQueryParams, dimensionsFilterErr
 	}
-
 	queryStringErr := reviewQueryString(ctx, urlQuery)
-	if queryStringErr == nil {
-		return validatedQueryParams, nil
+	if queryStringErr != nil {
+		log.Info(ctx, "the query string did not pass review")
+		if !hasFilters(validatedQueryParams) {
+			return validatedQueryParams, queryStringErr
+		}
 	}
 
-	return validatedQueryParams, queryStringErr
+	return validatedQueryParams, nil
 }
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
