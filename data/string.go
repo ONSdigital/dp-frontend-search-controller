@@ -2,14 +2,18 @@ package data
 
 import (
 	"context"
+	"fmt"
 	"net/url"
 	"regexp"
+	"strings"
 
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-var regexString = `^\s+$`
+const minQueryLength = 3
+
+var regexString = strings.Repeat(`\S\s*`, minQueryLength)
 
 // reviewQueryString performs basic checks on the string entered by the user
 func reviewQueryString(ctx context.Context, urlQuery url.Values) error {
@@ -36,9 +40,9 @@ func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
 		return errVal
 	}
 
-	if match {
-		log.Warn(ctx, "the query string consists only of whitespace characters")
-		errVal := errs.ErrQueryOnlyWhitespace
+	if !match {
+		log.Warn(ctx, fmt.Sprintf("the query string did not match the regex, %v non-space characters required", minQueryLength))
+		errVal := errs.ErrInvalidQueryCharLengthString
 		return errVal
 	}
 

@@ -190,7 +190,7 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		urlQuery := url.Values{
-			"q":                []string{"   "},
+			"q":                []string{"ho"},
 			"population_types": []string{""},
 			"dimensions":       []string{""},
 			"sort":             []string{"relevance"},
@@ -202,7 +202,7 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
 
 			Convey("Then return an error", func() {
-				So(err, ShouldResemble, apperrors.ErrQueryOnlyWhitespace)
+				So(err, ShouldResemble, apperrors.ErrInvalidQueryCharLengthString)
 			})
 		})
 	})

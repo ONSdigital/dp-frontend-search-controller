@@ -64,8 +64,8 @@ const (
 )
 
 var (
-	dayValidator   = getIntValidator(1, 99)
-	monthValidator = getIntValidator(1, 99)
+	dayValidator   = getIntValidator(1, 31)
+	monthValidator = getIntValidator(1, 12)
 	yearValidator  = getIntValidator(1900, 2150)
 )
 
@@ -113,10 +113,9 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
 func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (sp SearchURLParams, validationErrs []core.ErrorItem) {
-	var validatedQueryParams SearchURLParams
-	validatedQueryParams.Query = urlQuery.Get("q")
+	sp.Query = urlQuery.Get("q")
 
-	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	if paginationErr != nil {
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
@@ -131,7 +130,7 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 	if len(vErrs) > 0 {
 		validationErrs = append(validationErrs, vErrs...)
 	}
-	validatedQueryParams.AfterDate = fromDate
+	sp.AfterDate = fromDate
 
 	toDate, vErrs := GetEndDate(urlQuery)
 	if len(vErrs) > 0 {
@@ -150,11 +149,11 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 			})
 		}
 	}
-	validatedQueryParams.BeforeDate = toDate
+	sp.BeforeDate = toDate
 
-	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultAggregationSort)
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultAggregationSort)
 
-	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
 	if contentTypeFilterError != nil {
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
@@ -165,7 +164,7 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
 	}
 
-	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &sp, censusTopicCache)
 	if topicFilterErr != nil {
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
@@ -176,7 +175,7 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 		log.Error(ctx, "invalid topic filters set", topicFilterErr)
 	}
 
-	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &sp)
 	if populationTypeFilterErr != nil {
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
@@ -187,7 +186,7 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
 	}
 
-	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
 	if dimensionsFilterErr != nil {
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
@@ -198,31 +197,18 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
 	}
 
-	queryStringErr := reviewQueryString(ctx, urlQuery)
-	if queryStringErr != nil {
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(queryStringErr.Error()),
-			},
-			ID: QueryStringErr,
-		})
-		log.Error(ctx, "invalid query string", queryStringErr)
-	}
-
 	if len(validationErrs) > 0 {
-		return validatedQueryParams, validationErrs
+		return sp, validationErrs
 	}
 
-	return validatedQueryParams, nil
+	return sp, nil
 }
 
 // ReviewDataAggregationQueryWithParams ensures that all search parameter values given by the user are reviewed
 func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (sp SearchURLParams, validationErrs []core.ErrorItem) {
-	var validatedQueryParams SearchURLParams
+	sp.Query = urlQuery.Get("q")
 
-	validatedQueryParams.Query = urlQuery.Get("q")
-
-	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	if paginationErr != nil {
 		log.Error(ctx, "unable to review pagination", paginationErr)
 		validationErrs = append(validationErrs, core.ErrorItem{
@@ -237,7 +223,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	if len(vErrs) > 0 {
 		validationErrs = append(validationErrs, vErrs...)
 	}
-	validatedQueryParams.AfterDate = fromDate
+	sp.AfterDate = fromDate
 
 	toDate, vErrs := GetEndDate(urlQuery)
 	if len(vErrs) > 0 {
@@ -256,11 +242,11 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 			})
 		}
 	}
-	validatedQueryParams.BeforeDate = toDate
+	sp.BeforeDate = toDate
 
-	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultAggregationSort)
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultAggregationSort)
 
-	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
 	if contentTypeFilterError != nil {
 		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
 		validationErrs = append(validationErrs, core.ErrorItem{
@@ -271,7 +257,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 		})
 	}
 
-	topicFilterErr := reviewTopicFiltersForDataAggregation(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+	topicFilterErr := reviewTopicFiltersForDataAggregation(ctx, urlQuery, &sp, censusTopicCache)
 	if topicFilterErr != nil {
 		log.Error(ctx, "invalid topic filters set", topicFilterErr)
 		validationErrs = append(validationErrs, core.ErrorItem{
@@ -282,7 +268,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 		})
 	}
 
-	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &sp)
 	if populationTypeFilterErr != nil {
 		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
 		validationErrs = append(validationErrs, core.ErrorItem{
@@ -293,7 +279,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 		})
 	}
 
-	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
 	if dimensionsFilterErr != nil {
 		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
 		validationErrs = append(validationErrs, core.ErrorItem{
@@ -304,22 +290,11 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 		})
 	}
 
-	queryStringErr := reviewQueryString(ctx, urlQuery)
-	if queryStringErr != nil {
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(queryStringErr.Error()),
-			},
-			ID: QueryStringErr,
-		})
-		log.Error(ctx, "invalid query string", queryStringErr)
-	}
-
 	if len(validationErrs) > 0 {
-		return validatedQueryParams, validationErrs
+		return sp, validationErrs
 	}
 
-	return validatedQueryParams, nil
+	return sp, nil
 }
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
