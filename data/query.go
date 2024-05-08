@@ -2,16 +2,17 @@ package data
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/url"
 	"strconv"
+	"strings"
 	"time"
 
-	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
+
+	core "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 // SearchURLParams is a struct which contains all information of search url parameters and values
@@ -31,31 +32,42 @@ type SearchURLParams struct {
 	NLPWeightingEnabled  bool
 }
 
+const (
+	Limit       = "limit"
+	Page        = "page"
+	Offset      = "offset"
+	SortName    = "sort"
+	DayBefore   = "before-day"
+	DayAfter    = "after-day"
+	Before      = "before"
+	MonthBefore = Before + "-month"
+	After       = "after"
+	MonthAfter  = After + "-month"
+	YearBefore  = "before-year"
+	YearAfter   = "after-year"
+	Keywords    = "keywords"
+	Query       = "query"
+	DateFrom    = "fromDate"
+	DateFromErr = DateFrom + "-error"
+	DateTo      = "toDate"
+	DateToErr   = DateTo + "-error"
+	Type        = "release-type"
+	Census      = "census"
+	Highlight   = "highlight"
+
+	PaginationErr           = "pagination-error"
+	ContentTypeFilterErr    = "filter-error"
+	TopicFilterErr          = "topic-error"
+	PopulationTypeFilterErr = "population-error"
+	DimensionsFilterErr     = "dimensions-error"
+	QueryStringErr          = "query-string-error"
+)
+
 var (
 	dayValidator   = getIntValidator(1, 31)
 	monthValidator = getIntValidator(1, 12)
 	yearValidator  = getIntValidator(1900, 2150)
 )
-
-type intValidator func(valueAsString string) (int, error)
-
-// getIntValidator returns an IntValidator object using the min and max values provided
-func getIntValidator(minValue, maxValue int) intValidator {
-	return func(valueAsString string) (int, error) {
-		value, err := strconv.Atoi(valueAsString)
-		if err != nil {
-			return 0, fmt.Errorf("value contains non numeric characters")
-		}
-		if value < minValue {
-			return 0, fmt.Errorf("value is below the minimum value (%d)", minValue)
-		}
-		if value > maxValue {
-			return 0, fmt.Errorf("value is above the maximum value (%d)", maxValue)
-		}
-
-		return value, nil
-	}
-}
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
 func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
@@ -90,123 +102,201 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
 		return validatedQueryParams, dimensionsFilterErr
 	}
-
 	queryStringErr := reviewQueryString(ctx, urlQuery)
-	if queryStringErr == nil {
-		return validatedQueryParams, nil
-	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(validatedQueryParams) {
+	if queryStringErr != nil {
 		log.Info(ctx, "the query string did not pass review")
-		return validatedQueryParams, nil
+		if !hasFilters(validatedQueryParams) {
+			return validatedQueryParams, queryStringErr
+		}
 	}
 
-	return validatedQueryParams, queryStringErr
+	return validatedQueryParams, nil
 }
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
-func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
-	var validatedQueryParams SearchURLParams
-	validatedQueryParams.Query = urlQuery.Get("q")
+func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (sp SearchURLParams, validationErrs []core.ErrorItem) {
+	sp.Query = urlQuery.Get("q")
 
-	fromDate, toDate, err := GetDates(ctx, urlQuery)
-	if err != nil {
-		log.Error(ctx, "invalid dates set", err)
-		return validatedQueryParams, err
-	}
-	validatedQueryParams.AfterDate = fromDate
-	validatedQueryParams.BeforeDate = toDate
-
-	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	if paginationErr != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(paginationErr.Error()),
+			},
+			ID: PaginationErr,
+		})
 		log.Error(ctx, "unable to review pagination", paginationErr)
-		return validatedQueryParams, paginationErr
 	}
 
-	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultAggregationSort)
+	fromDate, vErrs := GetStartDate(urlQuery)
+	if len(vErrs) > 0 {
+		validationErrs = append(validationErrs, vErrs...)
+	}
+	sp.AfterDate = fromDate
 
-	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	toDate, vErrs := GetEndDate(urlQuery)
+	if len(vErrs) > 0 {
+		validationErrs = append(validationErrs, vErrs...)
+	}
+	if fromDate.String() != "" && toDate.String() != "" {
+		var err error
+		toDate, err = ValidateDateRange(fromDate, toDate)
+		if err != nil {
+			validationErrs = append(validationErrs, core.ErrorItem{
+				Description: core.Localisation{
+					Text: CapitalizeFirstLetter(err.Error()),
+				},
+				ID:  DateToErr,
+				URL: fmt.Sprintf("#%s", DateToErr),
+			})
+		}
+	}
+	sp.BeforeDate = toDate
+
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultAggregationSort)
+
+	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
 	if contentTypeFilterError != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(contentTypeFilterError.Error()),
+			},
+			ID: ContentTypeFilterErr,
+		})
 		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
-		return validatedQueryParams, contentTypeFilterError
 	}
-	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+
+	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &sp, censusTopicCache)
 	if topicFilterErr != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(topicFilterErr.Error()),
+			},
+			ID: TopicFilterErr,
+		})
 		log.Error(ctx, "invalid topic filters set", topicFilterErr)
-		return validatedQueryParams, topicFilterErr
 	}
-	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
+
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &sp)
 	if populationTypeFilterErr != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(populationTypeFilterErr.Error()),
+			},
+			ID: PopulationTypeFilterErr,
+		})
 		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
-		return validatedQueryParams, populationTypeFilterErr
 	}
-	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
+
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
 	if dimensionsFilterErr != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(dimensionsFilterErr.Error()),
+			},
+			ID: DimensionsFilterErr,
+		})
 		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
-		return validatedQueryParams, dimensionsFilterErr
 	}
 
-	queryStringErr := reviewQueryString(ctx, urlQuery)
-	if queryStringErr == nil {
-		return validatedQueryParams, nil
-	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(validatedQueryParams) {
-		log.Info(ctx, "the query string did not pass review")
-		return validatedQueryParams, nil
+	if len(validationErrs) > 0 {
+		return sp, validationErrs
 	}
 
-	return validatedQueryParams, queryStringErr
+	return sp, nil
 }
 
 // ReviewDataAggregationQueryWithParams ensures that all search parameter values given by the user are reviewed
-func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
-	var validatedQueryParams SearchURLParams
-	validatedQueryParams.Query = urlQuery.Get("q")
+func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (sp SearchURLParams, validationErrs []core.ErrorItem) {
+	sp.Query = urlQuery.Get("q")
 
-	fromDate, toDate, err := GetDates(ctx, urlQuery)
-	if err != nil {
-		log.Error(ctx, "invalid dates set", err)
-		return validatedQueryParams, err
-	}
-	validatedQueryParams.AfterDate = fromDate
-	validatedQueryParams.BeforeDate = toDate
-
-	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	if paginationErr != nil {
 		log.Error(ctx, "unable to review pagination", paginationErr)
-		return validatedQueryParams, paginationErr
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(paginationErr.Error()),
+			},
+			ID: PaginationErr,
+		})
 	}
 
-	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultAggregationSort)
+	fromDate, vErrs := GetStartDate(urlQuery)
+	if len(vErrs) > 0 {
+		validationErrs = append(validationErrs, vErrs...)
+	}
+	sp.AfterDate = fromDate
 
-	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
+	toDate, vErrs := GetEndDate(urlQuery)
+	if len(vErrs) > 0 {
+		validationErrs = append(validationErrs, vErrs...)
+	}
+	if fromDate.String() != "" && toDate.String() != "" {
+		var err error
+		toDate, err = ValidateDateRange(fromDate, toDate)
+		if err != nil {
+			validationErrs = append(validationErrs, core.ErrorItem{
+				Description: core.Localisation{
+					Text: CapitalizeFirstLetter(err.Error()),
+				},
+				ID:  DateToErr,
+				URL: fmt.Sprintf("#%s", DateToErr),
+			})
+		}
+	}
+	sp.BeforeDate = toDate
+
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultAggregationSort)
+
+	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
 	if contentTypeFilterError != nil {
 		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
-		return validatedQueryParams, contentTypeFilterError
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(contentTypeFilterError.Error()),
+			},
+			ID: ContentTypeFilterErr,
+		})
 	}
-	// TODO pass datatopiccache instead
-	topicFilterErr := reviewTopicFiltersForDataAggregation(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+
+	topicFilterErr := reviewTopicFiltersForDataAggregation(ctx, urlQuery, &sp, censusTopicCache)
 	if topicFilterErr != nil {
 		log.Error(ctx, "invalid topic filters set", topicFilterErr)
-		return validatedQueryParams, topicFilterErr
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(topicFilterErr.Error()),
+			},
+			ID: TopicFilterErr,
+		})
 	}
-	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
+
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &sp)
 	if populationTypeFilterErr != nil {
 		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
-		return validatedQueryParams, populationTypeFilterErr
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(populationTypeFilterErr.Error()),
+			},
+			ID: PopulationTypeFilterErr,
+		})
 	}
-	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
+
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
 	if dimensionsFilterErr != nil {
 		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
-		return validatedQueryParams, dimensionsFilterErr
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(dimensionsFilterErr.Error()),
+			},
+			ID: DimensionsFilterErr,
+		})
 	}
 
-	queryStringErr := reviewQueryString(ctx, urlQuery)
-	if queryStringErr == nil {
-		return validatedQueryParams, nil
-	} else if errors.Is(queryStringErr, apperrors.ErrInvalidQueryCharLengthString) && hasFilters(validatedQueryParams) {
-		log.Info(ctx, "the query string did not pass review")
-		return validatedQueryParams, nil
+	if len(validationErrs) > 0 {
+		return sp, validationErrs
 	}
 
-	return validatedQueryParams, queryStringErr
+	return sp, nil
 }
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
@@ -291,72 +381,187 @@ func GetDataAggregationQuery(validatedQueryParams SearchURLParams, template stri
 	return apiQuery
 }
 
-// GetDates finds the date from and date to parameters
-func GetDates(ctx context.Context, params url.Values) (startDate, endDate Date, err error) {
-	var (
-		startTime, endTime time.Time
-	)
+// GetStartDate returns the validated date from parameters
+func GetStartDate(params url.Values) (startDate Date, validationErrs []core.ErrorItem) {
+	var startTime time.Time
 
-	const (
-		DayBefore   = "toDateDay"
-		DayAfter    = "fromDateDay"
-		MonthBefore = "toDateMonth"
-		MonthAfter  = "fromDateMonth"
-		YearBefore  = "toDateYear"
-		YearAfter   = "fromDateYear"
-		DateFrom    = "fromDate"
-		DateTo      = "toDate"
-	)
+	startDate.fieldsetErrID = DateFromErr
+	startDate.fieldsetStr = After
 
 	yearAfterString, monthAfterString, dayAfterString := params.Get(YearAfter), params.Get(MonthAfter), params.Get(DayAfter)
-	yearBeforeString, monthBeforeString, dayBeforeString := params.Get(YearBefore), params.Get(MonthBefore), params.Get(DayBefore)
-	logData := log.Data{
-		"year_after": yearAfterString, "month_after": monthAfterString, "day_after": dayAfterString,
-		"year_before": yearBeforeString, "month_before": monthBeforeString, "day_before": DayBefore,
+	startDate.ds = dayAfterString
+	startDate.ms = monthAfterString
+	startDate.ys = yearAfterString
+
+	if (monthAfterString != "" || dayAfterString != "") && yearAfterString == "" {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: "Enter the released after year",
+			},
+			ID:  DateFromErr,
+			URL: fmt.Sprintf("#%s", DateFromErr),
+		})
+		startDate.hasYearValidationErr = true
+		return startDate, validationErrs
 	}
 
-	startTime, err = getValidTimestamp(yearAfterString, monthAfterString, dayAfterString)
-	if err != nil {
-		log.Warn(ctx, "invalid date, startDate", log.FormatErrors([]error{err}), logData)
-		return Date{}, Date{}, err
+	var assumedDay, assumedMonth bool
+	if yearAfterString != "" && monthAfterString == "" {
+		monthAfterString = "1"
+		assumedMonth = true
+	}
+
+	if yearAfterString != "" && dayAfterString == "" {
+		dayAfterString = "1"
+		assumedDay = true
+	}
+
+	startTime, validationErrs = getValidTimestamp(yearAfterString, monthAfterString, dayAfterString, &startDate)
+	if len(validationErrs) > 0 {
+		return startDate, validationErrs
 	}
 
 	startDate = DateFromTime(startTime)
+	startDate.assumedDay = assumedDay
+	startDate.assumedMonth = assumedMonth
 
-	endTime, err = getValidTimestamp(yearBeforeString, monthBeforeString, dayBeforeString)
-	if err != nil {
-		log.Warn(ctx, "invalid date, endDate", log.FormatErrors([]error{err}), logData)
-		return Date{}, Date{}, err
+	return startDate, nil
+}
+
+func GetEndDate(params url.Values) (endDate Date, validationErrs []core.ErrorItem) {
+	var endTime time.Time
+
+	endDate.fieldsetErrID = DateToErr
+	endDate.fieldsetStr = Before
+
+	yearBeforeString, monthBeforeString, dayBeforeString := params.Get(YearBefore), params.Get(MonthBefore), params.Get(DayBefore)
+	endDate.ds = dayBeforeString
+	endDate.ms = monthBeforeString
+	endDate.ys = yearBeforeString
+
+	if (monthBeforeString != "" || dayBeforeString != "") && yearBeforeString == "" {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: "Enter the released before year",
+			},
+			ID:  DateToErr,
+			URL: fmt.Sprintf("#%s", DateToErr),
+		})
+		endDate.hasYearValidationErr = true
+		return endDate, validationErrs
+	}
+
+	var assumedDay, assumedMonth bool
+	if yearBeforeString != "" && monthBeforeString == "" {
+		monthBeforeString = "1"
+		assumedMonth = true
+	}
+
+	if yearBeforeString != "" && dayBeforeString == "" {
+		dayBeforeString = "1"
+		assumedDay = true
+	}
+
+	endTime, validationErrs = getValidTimestamp(yearBeforeString, monthBeforeString, dayBeforeString, &endDate)
+	if len(validationErrs) > 0 {
+		return endDate, validationErrs
 	}
 
 	endDate = DateFromTime(endTime)
+	endDate.assumedDay = assumedDay
+	endDate.assumedMonth = assumedMonth
 
-	if !startTime.IsZero() && !endTime.IsZero() && startTime.After(endTime) {
-		log.Warn(ctx, "invalid date range: start date after end date", log.Data{DateFrom: startDate, DateTo: endDate})
-		return Date{}, Date{}, errors.New("invalid dates: start date after end date")
-	}
-
-	return startDate, endDate, nil
+	return endDate, nil
 }
 
-func getValidTimestamp(year, month, day string) (time.Time, error) {
-	if year == "" || month == "" || day == "" {
-		return time.Time{}, nil
+// ValidateDateRange returns an error and 'to' date if the 'from' date is after than the 'to' date
+func ValidateDateRange(from, to Date) (end Date, err error) {
+	startDate, err := ParseDate(from.String())
+	if err != nil {
+		return Date{}, err
+	}
+	endDate, err := ParseDate(to.String())
+	if err != nil {
+		return Date{}, err
 	}
 
-	y, err := yearValidator(year)
+	startTime, _ := getValidTimestamp(startDate.YearString(), startDate.MonthString(), startDate.DayString(), &Date{})
+	endTime, _ := getValidTimestamp(endDate.YearString(), endDate.MonthString(), endDate.DayString(), &Date{})
+	if startTime.After(endTime) {
+		end = to
+		end.hasYearValidationErr = true
+		return end, fmt.Errorf("enter a released before year that is later than %s", startDate.YearString())
+	}
+	return to, nil
+}
+
+type intValidator func(valueAsString string) (int, error)
+
+// getIntValidator returns an IntValidator object using the min and max values provided
+func getIntValidator(minValue, maxValue int) intValidator {
+	return func(valueAsString string) (int, error) {
+		value, err := strconv.Atoi(valueAsString)
+		if err != nil {
+			return 0, fmt.Errorf("value contains non numeric characters")
+		}
+		if value < minValue {
+			return 0, fmt.Errorf("value is below the minimum value (%d)", minValue)
+		}
+		if value > maxValue {
+			return 0, fmt.Errorf("value is above the maximum value (%d)", maxValue)
+		}
+
+		return value, nil
+	}
+}
+
+// getValidTimestamp returns a valid timestamp or an error
+func getValidTimestamp(year, month, day string, date *Date) (time.Time, []core.ErrorItem) {
+	if year == "" || month == "" || day == "" {
+		return time.Time{}, []core.ErrorItem{}
+	}
+
+	var validationErrs []core.ErrorItem
+
+	d, err := dayValidator(day)
 	if err != nil {
-		return time.Time{}, errors.New("invalid year parameter")
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: fmt.Sprintf("%s for released %s day", CapitalizeFirstLetter(err.Error()), date.fieldsetStr),
+			},
+			ID:  date.fieldsetErrID,
+			URL: fmt.Sprintf("#%s", date.fieldsetErrID),
+		})
+		date.hasDayValidationErr = true
 	}
 
 	m, err := monthValidator(month)
 	if err != nil {
-		return time.Time{}, errors.New("invalid month parameter")
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: fmt.Sprintf("%s for released %s month", CapitalizeFirstLetter(err.Error()), date.fieldsetStr),
+			},
+			ID:  date.fieldsetErrID,
+			URL: fmt.Sprintf("#%s", date.fieldsetErrID),
+		})
+		date.hasMonthValidationErr = true
 	}
 
-	d, err := dayValidator(day)
+	y, err := yearValidator(year)
 	if err != nil {
-		return time.Time{}, errors.New("invalid day parameter")
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: fmt.Sprintf("%s for released %s year", CapitalizeFirstLetter(err.Error()), date.fieldsetStr),
+			},
+			ID:  date.fieldsetErrID,
+			URL: fmt.Sprintf("#%s", date.fieldsetErrID),
+		})
+		date.hasYearValidationErr = true
+	}
+
+	// Throw errors back to user before further validation
+	if len(validationErrs) > 0 {
+		return time.Time{}, validationErrs
 	}
 
 	timestamp := time.Date(y, time.Month(m), d, 0, 0, 0, 0, time.UTC)
@@ -364,10 +569,18 @@ func getValidTimestamp(year, month, day string) (time.Time, error) {
 	// Check the day is valid for the month in the year, e.g. day 30 cannot be in month 2 (February)
 	_, mo, _ := timestamp.Date()
 	if mo != time.Month(m) {
-		return time.Time{}, errors.New("invalid day month combination of parameters")
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: "Enter a real date",
+			},
+			ID:  date.fieldsetErrID,
+			URL: fmt.Sprintf("#%s", date.fieldsetErrID),
+		})
+		date.hasDayValidationErr = true
+		date.hasMonthValidationErr = true
+		date.hasYearValidationErr = true
 	}
-
-	return timestamp, nil
+	return timestamp, validationErrs
 }
 
 func hasFilters(validatedQueryParams SearchURLParams) bool {
@@ -376,6 +589,18 @@ func hasFilters(validatedQueryParams SearchURLParams) bool {
 	}
 
 	return false
+}
+
+// CapitalizeFirstLetter is a helper function that transforms the first letter of a string to uppercase
+func CapitalizeFirstLetter(input string) string {
+	switch {
+	case input == "":
+		return input
+	case len(input) == 1:
+		return strings.ToUpper(input)
+	default:
+		return strings.ToUpper(input[:1]) + input[1:]
+	}
 }
 
 func createSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {

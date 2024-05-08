@@ -25,6 +25,10 @@ debug: generate-debug
 	go build -tags 'debug' $(LDFLAGS) -o $(BINPATH)/dp-frontend-search-controller
 	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-frontend-search-controller
 
+.PHONY: debug-watch
+debug-watch: 
+	reflex -d none -c ./reflex
+
 .PHONY: lint
 lint: generate-prod
 	golangci-lint run ./...

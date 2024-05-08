@@ -3,6 +3,9 @@
 <div class="ons-container search__container">
   <div class="ons-grid">
     <div class="ons-grid__col ons-col-12@m">
+      {{ if gt (len .Error.ErrorItems) 0 }}
+        {{ template "partials/error-summary" .Error }}
+      {{ end }}
       <section class="search__summary">
         <h1 class="ons-u-fs-xxxl">
           {{- localise .Title.LocaliseKeyName $lang 1 }}{{ if .Data.Topic }} related to {{ .Data.Topic -}}{{ end }}

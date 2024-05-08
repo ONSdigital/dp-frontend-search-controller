@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -32,6 +33,11 @@ import (
 // Constants...
 const (
 	homepagePath = "/"
+	DateFrom     = "fromDate"
+	DateFromErr  = DateFrom + "-error"
+	DateTo       = "toDate"
+	DateToErr    = DateTo + "-error"
+	Bearer       = "Bearer "
 )
 
 // HandlerClients represents the handlers for search and data-aggregation
@@ -255,11 +261,13 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 
-	validatedQueryParams, err := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
-		log.Error(ctx, "unable to review query", err)
-		setStatusCode(w, req, err)
-		return
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
+	for _, vErr := range validationErrs {
+		if vErr.ID != DateFromErr && vErr.ID != DateToErr {
+			log.Error(ctx, "unable to review query", errors.New(vErr.Description.Text))
+			setStatusCode(w, req, errors.New(vErr.Description.Text))
+			return
+		}
 	}
 
 	if _, rssParam := urlQuery["rss"]; rssParam {
@@ -270,6 +278,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		}
 		return
 	}
+
 
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 3
@@ -305,7 +314,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.FlorenceToken: {Bearer + accessToken},
 		searchSDK.CollectionID:  {collectionID},
 	}
 
@@ -346,7 +355,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{})
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{}, validationErrs)
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
@@ -432,13 +441,14 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
-	validatedQueryParams, err := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, dataTopicCache)
-	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
-		log.Error(ctx, "unable to review query", err)
-		setStatusCode(w, req, err)
-		return
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, dataTopicCache)
+	for _, vErr := range validationErrs {
+		if vErr.ID != DateFromErr && vErr.ID != DateToErr && !apperrors.ErrMapForRenderBeforeAPICalls[errors.New(vErr.Description.Text)] {
+			log.Error(ctx, "unable to review query", errors.New(vErr.Description.Text))
+			setStatusCode(w, req, errors.New(vErr.Description.Text))
+			return
+		}
 	}
-
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 3
 
@@ -473,7 +483,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.FlorenceToken: {Bearer + accessToken},
 		searchSDK.CollectionID:  {collectionID},
 	}
 
@@ -514,7 +524,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic, validationErrs)
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
@@ -781,10 +791,10 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 }
 
 func setFlorenceTokenHeader(headers http.Header, accessToken string) {
-	if strings.HasPrefix(accessToken, "Bearer ") {
+	if strings.HasPrefix(accessToken, Bearer) {
 		headers.Set(searchSDK.FlorenceToken, accessToken)
 	} else {
-		headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
+		headers.Set(searchSDK.FlorenceToken, Bearer+accessToken)
 	}
 }
 
@@ -797,7 +807,7 @@ func createRSSFeed(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 	options.Query = data.GetDataAggregationQuery(validatedParams, template)
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.FlorenceToken: {Bearer + accessToken},
 		searchSDK.CollectionID:  {collectionID},
 	}
 

@@ -6,8 +6,11 @@ import (
 )
 
 type Date struct {
-	date       time.Time
-	ys, ms, ds string
+	date                                                             time.Time
+	ys, ms, ds                                                       string
+	fieldsetErrID, fieldsetStr                                       string
+	assumedDay, assumedMonth                                         bool
+	hasDayValidationErr, hasMonthValidationErr, hasYearValidationErr bool
 }
 
 const DateFormat = "2006-01-02"
@@ -19,6 +22,11 @@ func MustParseDate(dateAsString string) Date {
 		panic("invalid date string: " + dateAsString)
 	}
 
+	return d
+}
+
+func MustSetFieldsetErrID(id string) (d Date) {
+	d.fieldsetErrID = id
 	return d
 }
 
@@ -64,4 +72,20 @@ func (d Date) MonthString() string {
 
 func (d Date) DayString() string {
 	return d.ds
+}
+
+func (d Date) GetFieldsetErrID() string {
+	return d.fieldsetErrID
+}
+
+func (d Date) HasDayValidationErr() bool {
+	return d.hasDayValidationErr
+}
+
+func (d Date) HasMonthValidationErr() bool {
+	return d.hasMonthValidationErr
+}
+
+func (d Date) HasYearValidationErr() bool {
+	return d.hasYearValidationErr
 }
