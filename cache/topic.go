@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 	"time"
 
 	dpcache "github.com/ONSdigital/dp-cache"
@@ -12,6 +13,9 @@ import (
 
 // CensusTopicID is the id of the Census topic stored in mongodb which is accessible by using dp-topic-api
 var CensusTopicID string
+
+// RootTopicID is the id of the Root topic stored in mongodb which is accessible by using dp-topic-api
+var RootTopicID string
 
 // TopicCache is a wrapper to dpcache.Cache which has additional fields and methods specifically for caching topics
 type TopicCache struct {
@@ -54,20 +58,21 @@ func (dc *TopicCache) GetData(ctx context.Context, key string) (*Topic, error) {
 	if !ok {
 		err := fmt.Errorf("cached topic data with key %s not found", key)
 		log.Error(ctx, "failed to get cached topic data", err)
-		return getEmptyTopic(), err
+		return GetEmptyTopic(), err
 	}
 
 	topicCacheData, ok := topicCacheInterface.(*Topic)
 	if !ok {
+		log.Info(ctx, reflect.TypeOf(topicCacheInterface).String())
 		err := errors.New("topicCacheInterface is not type *Topic")
 		log.Error(ctx, "failed type assertion on topicCacheInterface", err)
-		return getEmptyTopic(), err
+		return GetEmptyTopic(), err
 	}
 
 	if topicCacheData == nil {
 		err := errors.New("topicCacheData is nil")
 		log.Error(ctx, "cached topic data is nil", err)
-		return getEmptyTopic(), err
+		return GetEmptyTopic(), err
 	}
 
 	return topicCacheData, nil
@@ -96,13 +101,14 @@ func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 }
 
 func (dc *TopicCache) GetDataAggregationData(ctx context.Context) (*Topic, error) {
-	dataTopicCache, err := dc.GetData(ctx, CensusTopicID)
+	fmt.Println("Topic is >>>> ", RootTopicID)
+	dataTopicCache, err := dc.GetData(ctx, RootTopicID)
 	if err != nil {
 		logData := log.Data{
-			"key": CensusTopicID,
+			"key": RootTopicID,
 		}
-		log.Error(ctx, "failed to get cached census topic data", err, logData)
-		return GetEmptyCensusTopic(), err
+		log.Error(ctx, "failed to get cached root topic data", err, logData)
+		return GetEmptyTopic(), err
 	}
 
 	return dataTopicCache, nil
@@ -117,8 +123,9 @@ func GetEmptyCensusTopic() *Topic {
 }
 
 // GetEmptyTopic returns an empty topic cache in the event when updating the cache of the topic fails
-func getEmptyTopic() *Topic {
+func GetEmptyTopic() *Topic {
 	return &Topic{
+		ID:   RootTopicID,
 		List: NewSubTopicsMap(),
 	}
 }

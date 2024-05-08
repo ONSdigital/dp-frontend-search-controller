@@ -414,15 +414,15 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 
 	urlQuery.Add("topics", selectedTopic.ID)
 
-	// replace with new cache
-	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
+	// new cache
+	dataTopicCache, err := cacheList.DataTopic.GetDataAggregationData(ctx)
 	if err != nil {
-		log.Error(ctx, "failed to get census topic cache", err)
+		log.Error(ctx, "failed to get aggregated data pages topic cache", err)
 		setStatusCode(w, req, err)
 		return
 	}
 
-	log.Info(ctx, "this the census cache topics", log.Data{"topics": censusTopicCache})
+	log.Info(ctx, "this the aggregated data pages cache topics", log.Data{"topics": dataTopicCache})
 
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
@@ -432,7 +432,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
-	validatedQueryParams, err := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, censusTopicCache)
+	validatedQueryParams, err := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, dataTopicCache)
 	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
 		setStatusCode(w, req, err)
@@ -492,7 +492,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		defer wg.Done()
 
 		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
-		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, dataTopicCache)
 		if countErr != nil {
 			log.Error(ctx, "getting categories, types and its counts failed", countErr)
 			setStatusCode(w, req, countErr)

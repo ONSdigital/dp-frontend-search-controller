@@ -10,6 +10,11 @@ import (
 
 // GetMockCacheList returns a mocked list of cache which contains the census topic cache and navigation cache
 func GetMockCacheList(ctx context.Context, lang string) (*List, error) {
+	testDataTopicCache, err := getMockDataTopicCache(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	testCensusTopicCache, err := getMockCensusTopicCache(ctx)
 	if err != nil {
 		return nil, err
@@ -21,11 +26,24 @@ func GetMockCacheList(ctx context.Context, lang string) (*List, error) {
 	}
 
 	cacheList := List{
+		DataTopic:   testDataTopicCache,
 		CensusTopic: testCensusTopicCache,
 		Navigation:  testNavigationCache,
 	}
 
 	return &cacheList, nil
+}
+
+// getMockDataTopicCache returns a mocked Data topic which contains all the information for the mock census topic
+func getMockDataTopicCache(ctx context.Context) (*TopicCache, error) {
+	testDataTopicCache, err := NewTopicCache(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	testDataTopicCache.Set(RootTopicID, GetMockDataTopic())
+
+	return testDataTopicCache, nil
 }
 
 // getMockCensusTopicCache returns a mocked Cenus topic which contains all the information for the mock census topic
@@ -38,6 +56,22 @@ func getMockCensusTopicCache(ctx context.Context) (*TopicCache, error) {
 	testCensusTopicCache.Set(CensusTopicID, GetMockCensusTopic())
 
 	return testCensusTopicCache, nil
+}
+
+// GetMockDataTopic returns a mocked Cenus topic which contains all the information for the mock census topic
+func GetMockDataTopic() *Topic {
+	mockCensusTopic := &Topic{
+		ID:              RootTopicID,
+		LocaliseKeyName: "Topic",
+		Query:           fmt.Sprintf("1234,5678,%s", RootTopicID),
+	}
+
+	mockCensusTopic.List = NewSubTopicsMap()
+	mockCensusTopic.List.AppendSubtopicID("1234", Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
+	mockCensusTopic.List.AppendSubtopicID("5678", Subtopic{ID: "5678", LocaliseKeyName: "Age", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
+	mockCensusTopic.List.AppendSubtopicID(RootTopicID, Subtopic{ID: RootTopicID, LocaliseKeyName: "Topic", ReleaseDate: timeHelper("2022-10-10T09:30:00Z")})
+
+	return mockCensusTopic
 }
 
 // GetMockCensusTopic returns a mocked Cenus topic which contains all the information for the mock census topic

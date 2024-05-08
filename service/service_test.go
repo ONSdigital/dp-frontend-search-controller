@@ -87,6 +87,11 @@ var (
 	}
 
 	funcDoGetCacheList = func(ctx context.Context) (cache.List, error) {
+		testDataTopicCache, err := cache.NewTopicCache(ctx, nil)
+		if err != nil {
+			return cache.List{}, err
+		}
+
 		testCensusTopicCache, err := cache.NewTopicCache(ctx, nil)
 		if err != nil {
 			return cache.List{}, err
@@ -98,6 +103,7 @@ var (
 		}
 
 		cacheList := cache.List{
+			DataTopic:   testDataTopicCache,
 			CensusTopic: testCensusTopicCache,
 			Navigation:  testNavigationCache,
 		}

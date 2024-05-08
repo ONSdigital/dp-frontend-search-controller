@@ -13,6 +13,8 @@ type Config struct {
 	BindAddr                                string        `envconfig:"BIND_ADDR"`
 	CacheCensusTopicUpdateInterval          time.Duration `envconfig:"CACHE_CENSUS_TOPICS_UPDATE_INTERVAL"`
 	CacheNavigationUpdateInterval           time.Duration `envconfig:"CACHE_NAVIGATION_UPDATE_INTERVAL"`
+	DataAggregationTopicUpdateInterval      time.Duration `envconfig:"DATA_AGGREGATION_TOPICS_UPDATE_INTERVAL"`
+	RootTopicID                             string        `envconfig:"ROOT_TOPIC_ID"`
 	CensusTopicID                           string        `envconfig:"CENSUS_TOPIC_ID"`
 	Debug                                   bool          `envconfig:"DEBUG"`
 	DefaultLimit                            int           `envconfig:"DEFAULT_LIMIT"`
@@ -59,11 +61,11 @@ func Get() (*Config, error) {
 		return nil, err
 	}
 
-	if newCfg.Debug {
-		newCfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
-	} else {
-		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/7b3664f"
-	}
+	//if newCfg.Debug {
+	//	newCfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
+	//} else {
+	newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/7b3664f"
+	//}
 
 	return newCfg, nil
 }
@@ -84,6 +86,8 @@ func get() (*Config, error) {
 		BindAddr:                                ":25000",
 		CacheCensusTopicUpdateInterval:          30 * time.Minute,
 		CacheNavigationUpdateInterval:           30 * time.Minute,
+		DataAggregationTopicUpdateInterval:      30 * time.Minute,
+		RootTopicID:                             "4445",
 		CensusTopicID:                           "4445",
 		Debug:                                   false,
 		DefaultLimit:                            10,
@@ -97,7 +101,7 @@ func get() (*Config, error) {
 		EnableCensusTopicFilterOption:           false,
 		EnableCensusPopulationTypesFilterOption: false,
 		EnableCensusDimensionsFilterOption:      false,
-		EnableReworkedDataAggregationPages:      false,
+		EnableReworkedDataAggregationPages:      true,
 		EnableNewNavBar:                         false,
 		GracefulShutdownTimeout:                 5 * time.Second,
 		HealthCheckCriticalTimeout:              90 * time.Second,

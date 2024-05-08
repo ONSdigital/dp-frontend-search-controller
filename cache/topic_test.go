@@ -67,14 +67,14 @@ func TestGetData(t *testing.T) {
 
 	mockCacheList, err := GetMockCacheList(ctx, englishLang)
 	if err != nil {
-		t.Error("failed to get mock census topic cache list")
+		t.Error("failed to get mock data topic cache list")
 	}
 
 	Convey("Given a valid topic id which exists", t, func() {
 		id := CensusTopicID
 
 		Convey("When GetData is called", func() {
-			testCacheData, err := mockCacheList.CensusTopic.GetData(ctx, id)
+			testCacheData, err := mockCacheList.DataTopic.GetData(ctx, id)
 
 			Convey("Then a topic cache data should be successfully returned", func() {
 				So(testCacheData, ShouldNotBeNil)
@@ -90,13 +90,13 @@ func TestGetData(t *testing.T) {
 		id := "invalid"
 
 		Convey("When GetData is called", func() {
-			testCacheData, err := mockCacheList.CensusTopic.GetData(ctx, id)
+			testCacheData, err := mockCacheList.DataTopic.GetData(ctx, id)
 
 			Convey("Then an error should be returned", func() {
 				So(err, ShouldNotBeNil)
 
 				Convey("And the cache data returned should be empty", func() {
-					So(testCacheData, ShouldResemble, getEmptyTopic())
+					So(testCacheData, ShouldResemble, GetEmptyTopic())
 				})
 			})
 		})
@@ -116,7 +116,7 @@ func TestGetData(t *testing.T) {
 				So(err, ShouldNotBeNil)
 
 				Convey("And the cache data returned should be empty", func() {
-					So(testCacheData, ShouldResemble, getEmptyTopic())
+					So(testCacheData, ShouldResemble, GetEmptyTopic())
 				})
 			})
 		})
@@ -136,7 +136,7 @@ func TestGetData(t *testing.T) {
 				So(err, ShouldNotBeNil)
 
 				Convey("And the cache data returned should be empty", func() {
-					So(testCacheData, ShouldResemble, getEmptyTopic())
+					So(testCacheData, ShouldResemble, GetEmptyTopic())
 				})
 			})
 		})
