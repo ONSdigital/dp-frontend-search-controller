@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
 	"time"
 
 	dpcache "github.com/ONSdigital/dp-cache"
@@ -63,7 +62,6 @@ func (dc *TopicCache) GetData(ctx context.Context, key string) (*Topic, error) {
 
 	topicCacheData, ok := topicCacheInterface.(*Topic)
 	if !ok {
-		log.Info(ctx, reflect.TypeOf(topicCacheInterface).String())
 		err := errors.New("topicCacheInterface is not type *Topic")
 		log.Error(ctx, "failed type assertion on topicCacheInterface", err)
 		return GetEmptyTopic(), err
@@ -101,7 +99,6 @@ func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 }
 
 func (dc *TopicCache) GetDataAggregationData(ctx context.Context) (*Topic, error) {
-	fmt.Println("Topic is >>>> ", RootTopicID)
 	dataTopicCache, err := dc.GetData(ctx, RootTopicID)
 	if err != nil {
 		logData := log.Data{

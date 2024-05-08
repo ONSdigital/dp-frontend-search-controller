@@ -26,7 +26,7 @@ func TestConfig(t *testing.T) {
 				So(cfg.CacheCensusTopicUpdateInterval, ShouldEqual, 30*time.Minute)
 				So(cfg.CacheNavigationUpdateInterval, ShouldEqual, 30*time.Minute)
 				So(cfg.DataAggregationTopicUpdateInterval, ShouldEqual, 30*time.Minute)
-				So(cfg.RootTopicID, ShouldEqual, "4445")
+				So(cfg.RootTopicID, ShouldEqual, "2257")
 				So(cfg.CensusTopicID, ShouldEqual, "4445")
 				So(cfg.Debug, ShouldBeFalse)
 				So(cfg.DefaultLimit, ShouldEqual, 10)

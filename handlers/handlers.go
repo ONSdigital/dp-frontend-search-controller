@@ -245,8 +245,8 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	var err error
 	urlQuery := req.URL.Query()
 
-	// get cached census topic and its subtopics
-	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
+	// get cached data topic and its subtopics
+	dataTopicCache, err := cacheList.DataTopic.GetDataAggregationData(ctx)
 	if err != nil {
 		log.Error(ctx, "failed to get census topic cache", err)
 		setStatusCode(w, req, err)
@@ -261,7 +261,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 
-	validatedQueryParams, validationErrs := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, dataTopicCache)
 	for _, vErr := range validationErrs {
 		if vErr.ID != DateFromErr && vErr.ID != DateToErr {
 			log.Error(ctx, "unable to review query", errors.New(vErr.Description.Text))
@@ -278,7 +278,6 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		}
 		return
 	}
-
 
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 3
@@ -333,7 +332,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		defer wg.Done()
 
 		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
-		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, dataTopicCache)
 		if countErr != nil {
 			log.Error(ctx, "getting categories, types and its counts failed", countErr)
 			setStatusCode(w, req, countErr)

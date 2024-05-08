@@ -8,7 +8,7 @@ import (
 	"github.com/ONSdigital/dp-topic-api/models"
 )
 
-// GetMockCacheList returns a mocked list of cache which contains the census topic cache and navigation cache
+// GetMockCacheList returns a mocked list of cache which contains the census topic cache, data topic cache and navigation cache
 func GetMockCacheList(ctx context.Context, lang string) (*List, error) {
 	testDataTopicCache, err := getMockDataTopicCache(ctx)
 	if err != nil {
@@ -34,7 +34,7 @@ func GetMockCacheList(ctx context.Context, lang string) (*List, error) {
 	return &cacheList, nil
 }
 
-// getMockDataTopicCache returns a mocked Data topic which contains all the information for the mock census topic
+// getMockDataTopicCache returns a mocked Data topic which contains all the information for the mock data topic
 func getMockDataTopicCache(ctx context.Context) (*TopicCache, error) {
 	testDataTopicCache, err := NewTopicCache(ctx, nil)
 	if err != nil {
@@ -58,7 +58,7 @@ func getMockCensusTopicCache(ctx context.Context) (*TopicCache, error) {
 	return testCensusTopicCache, nil
 }
 
-// GetMockDataTopic returns a mocked Cenus topic which contains all the information for the mock census topic
+// GetMockDataTopic returns a mocked Data topic which contains all the information for the mock data topic
 func GetMockDataTopic() *Topic {
 	mockCensusTopic := &Topic{
 		ID:              RootTopicID,
