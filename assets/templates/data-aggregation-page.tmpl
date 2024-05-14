@@ -44,8 +44,15 @@
           <div class="search__count">
             {{ template "partials/count" . }}
           </div>
-          <div class="search__sort">
-            {{ template "partials/sort" . }}
+          <div class="ons-grid ons-u-mt-s">
+            <div class="ons-pl-grid ons-grid--flex@l ons-grid--between@l ">
+              <div class="ons-grid__col ons-u-wa--@l">
+                {{ template "partials/sort" . }}
+              </div>
+              <div class="ons-grid__col ons-u-wa--@l ons-u-pt-xxs@l">
+                {{ template "partials/rss-feed" . }}
+              </div>
+            </div>
           </div>
           <div class="search__filter__mobile-filter-toggle hide">
               <button id="filter-results" type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
@@ -53,7 +60,7 @@
               </button>
           </div>
           
-          <div class="search__results">
+          <div class="search__results ons-u-bt ons-u-mt-no">
             {{ template "partials/data-aggregation-results" . }}
           </div>
         
