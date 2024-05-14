@@ -11,7 +11,6 @@ import (
 	componentTest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
-	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/v2/http"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
@@ -66,26 +65,15 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.healthRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/health")
 	c.FakeAPIRouter.healthRequest.CustomHandle = healthCheckStatusHandle(200)
 
+	c.FakeAPIRouter.rootTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get(fmt.Sprintf("/topics/%s/subtopics", c.Config.RootTopicID))
+
 	c.FakeAPIRouter.searchRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/search")
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
+
 	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics")
 	c.FakeAPIRouter.subtopicsRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*/subtopics")
 
 	c.FakeAPIRouter.navigationRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/data")
-
-	initFunctions := &mocks.InitialiserMock{
-		DoGetHTTPServerFunc:   c.getHTTPServer,
-		DoGetHealthCheckFunc:  getHealthCheckOK,
-		DoGetHealthClientFunc: c.getHealthClient,
-	}
-
-	serviceList := service.NewServiceList(initFunctions)
-
-	c.svc = service.New()
-	if err := c.svc.Init(ctx, c.Config, serviceList); err != nil {
-		log.Error(ctx, "failed to initialise service", err)
-		return nil, err
-	}
 
 	// Please use the step to start the service - this is down to
 	// the auto updates against backing services are hard to predict so
@@ -186,6 +174,24 @@ func generateSearchItem(num int) searchModels.Item {
 	return searchItem
 }
 
+func generateTopicResponseWithSubtopic(subtopicID string, subtopicTitle string) *httpfake.Response {
+	topicAPIResponse := &topicModels.PublicSubtopics{
+		Count: 1,
+		PublicItems: &[]topicModels.Topic{
+			{
+				ID:    subtopicID,
+				Title: subtopicTitle,
+			},
+		},
+	}
+
+	fakeAPIResponse := httpfake.NewResponse()
+	fakeAPIResponse.Status(200)
+	fakeAPIResponse.BodyStruct(topicAPIResponse)
+
+	return fakeAPIResponse
+}
+
 func generateTopicResponse(id string, title string) *httpfake.Response {
 	topicAPIResponse := &topicModels.PublicSubtopics{
 		Count: 1,
@@ -196,7 +202,6 @@ func generateTopicResponse(id string, title string) *httpfake.Response {
 			},
 		},
 	}
-
 	fakeAPIResponse := httpfake.NewResponse()
 	fakeAPIResponse.Status(200)
 	fakeAPIResponse.BodyStruct(topicAPIResponse)

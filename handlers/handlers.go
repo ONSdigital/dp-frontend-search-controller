@@ -13,6 +13,7 @@ import (
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
+	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -241,10 +242,14 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	var err error
 	urlQuery := req.URL.Query()
 
-	// get cached census topic and its subtopics
-	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
+	vars := mux.Vars(req)
+
+	// get cached topic data
+	topicPath := vars["topic"]
+	topicCache, err := cacheList.DataTopic.GetData(ctx, topicPath)
 	if err != nil {
-		log.Error(ctx, "failed to get census topic cache", err)
+		err = errs.ErrTopicNotFound
+		log.Error(ctx, "could not find topicPath in topic cache", err)
 		setStatusCode(w, req, err)
 		return
 	}
@@ -257,7 +262,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 
-	validatedQueryParams, validationErrs := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, topicCache)
 	for _, vErr := range validationErrs {
 		if vErr.ID != DateFromErr && vErr.ID != DateToErr {
 			log.Error(ctx, "unable to review query", errors.New(vErr.Description.Text))
@@ -319,7 +324,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		defer wg.Done()
 
 		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
-		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, topicCache)
 		if countErr != nil {
 			log.Error(ctx, "getting categories, types and its counts failed", countErr)
 			setStatusCode(w, req, countErr)
@@ -361,17 +366,10 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	selectedTopic := cache.Topic{}
 
 	topicPath := vars["topic"]
-	topicID, _, err := getTopicByURLMapping(topicPath)
-	if err != nil {
-		log.Error(ctx, "could not match topicPath to topics", err, log.Data{
-			"topicPath": topicPath,
-		})
-		setStatusCode(w, req, err)
-		return
-	}
 
-	topic, err := cacheList.DataTopic.GetData(ctx, topicID)
+	topic, err := cacheList.DataTopic.GetData(ctx, topicPath)
 	if err != nil {
+		err = errs.ErrTopicPathNotFound
 		log.Error(ctx, "could not find topicPath in topic cache", err, log.Data{
 			"topicPath": topicPath,
 		})
@@ -381,16 +379,9 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 
 	subtopicPath := vars["subTopic"]
 	if subtopicPath != "" {
-		subTopicID, _, err := getTopicByURLMapping(subtopicPath)
-		if err != nil {
-			log.Error(ctx, "could not match subtopicPath to topics", err, log.Data{
-				"topicPath": subtopicPath,
-			})
-			setStatusCode(w, req, err)
-			return
-		}
-		subtopic, matchingErr := cacheList.DataTopic.GetData(ctx, subTopicID)
+		subtopic, matchingErr := cacheList.DataTopic.GetData(ctx, subtopicPath)
 		if matchingErr != nil {
+			matchingErr = errs.ErrTopicPathNotFound
 			log.Error(ctx, "could not match subtopicPath to subtopics", matchingErr, log.Data{
 				"subtopicPath": subtopicPath,
 			})
@@ -857,112 +848,4 @@ func getPageTitle(template string) (pageTitle, pageTag string) {
 	}
 
 	return "", ""
-}
-
-func getTopicByURLMapping(topicPath string) (topicID, topicKeyName string, err error) {
-	switch topicPath {
-	case "businessindustryandtrade":
-		return "3813", "Business, industry and trade", nil
-	case "business":
-		return "1831", "Business", nil
-	case "changestobusiness":
-		return "4573", "Changes to business", nil
-	case "constructionindustry":
-		return "6661", "Construction industry", nil
-	case "internationaltrade":
-		return "7555", "International trade", nil
-	case "itandinternetindustry":
-		return "8961", "IT and internet industry", nil
-	case "manufacturingandproductionindustry":
-		return "9926", "Manufacturing and production industry", nil
-	case "retailindustry":
-		return "1263", "Retail industry", nil
-	case "tourismindustry":
-		return "7372", "Tourism industry", nil
-	case "economy":
-		return "6734", "Economy", nil
-	case "economicoutputandproductivity":
-		return "8725", "Economic output and productivity", nil
-	case "environmentalaccounts":
-		return "5213", "Environmental accounts", nil
-	case "governmentpublicsectorandtaxes":
-		return "8268", "Government, public sector and taxes", nil
-	case "grossdomesticproductgdp":
-		return "5487", "Gross Domestic Product (GDP)", nil
-	case "grossvalueaddedgva":
-		return "5761", "Gross Value Added (GVA)", nil
-	case "inflationandpriceindices":
-		return "2394", "Inflation and price indices", nil
-	case "investmentspensionsandtrusts":
-		return "7143", "Investments, pensions and trusts", nil
-	case "nationalaccounts":
-		return "8629", "National accounts", nil
-	case "regionalaccounts":
-		return "8533", "Regional accounts", nil
-	case "employmentandlabourmarket":
-		return "5591", "Employment and labour market", nil
-	case "peopleinwork":
-		return "6462", "People in work", nil
-	case "peoplenotinwork":
-		return "7273", "People not in work", nil
-	case "peoplepopulationandcommunity":
-		return "7729", "People, population and community", nil
-	case "birthsdeathsandmarriages":
-		return "8636", "Births, deaths and marriages", nil
-	case "crimeandjustice":
-		return "6355", "Crime and justice", nil
-	case "culturalidentity":
-		return "1792", "Cultural Identity", nil
-	case "educationandchildcare":
-		return "7974", "Education and childcare", nil
-	case "elections":
-		return "4261", "Elections", nil
-	case "healthandsocialcare":
-		return "9559", "Health and social care", nil
-	case "householdcharacteristics":
-		return "2364", "Household characteristics", nil
-	case "housing":
-		return "1666", "Housing", nil
-	case "leisureandtourism":
-		return "3228", "Leisure and tourism", nil
-	case "personalandhouseholdfinances":
-		return "3258", "Personal and household finances", nil
-	case "populationandmigration":
-		return "1678", "Population and migration", nil
-	case "wellbeing":
-		return "6614", "Well-being", nil
-	case "census":
-		return "4445", "Census", nil
-	case "ageing":
-		return "8341", "Ageing", nil
-	case "demography":
-		return "4935", "Demography", nil
-	case "education":
-		return "5524", "Education", nil
-	case "equalities":
-		return "3195", "Equalities", nil
-	case "ethnicgroupnationalidentitylanguageandreligion":
-		return "5675", "Ethnic group, national identity, language and religion", nil
-	case "healthdisabilityandunpaidcare":
-		return "4118", "Health, disability and unpaid care", nil
-	case "historiccensus":
-		return "4112", "Historic census", nil
-	//case "housing":
-	//	return "1652", "Housing"
-	case "internationalmigration":
-		return "6522", "International migration", nil
-	case "labourmarket":
-		return "6724", "Labour market", nil
-	case "sexualorientationandgenderidentity":
-		return "7854", "Sexual orientation and gender identity", nil
-	case "traveltowork":
-		return "3374", "Travel to work", nil
-	case "ukarmedforcesveterans":
-		return "5253", "UK armed forces veterans", nil
-	case "testtopic":
-		return "1234", "TestTopic", nil
-
-	}
-
-	return "", "", apperrors.ErrTopicPathNotFound
 }

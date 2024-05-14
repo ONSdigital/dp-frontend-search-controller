@@ -3,7 +3,6 @@ package public
 import (
 	"context"
 	"errors"
-	"fmt"
 	"net/http"
 	"sync"
 
@@ -102,11 +101,10 @@ func UpdateDataTopics(ctx context.Context, topicClient topicCli.Clienter) func()
 					log.Error(ctx, "failed to get sub topic from topic-api", err, logData)
 					continue
 				} else {
-					var rootSubTopicIems []models.Topic
-					rootSubTopicIems = *rootSubTopics.PublicItems
-					for i := range rootSubTopicIems {
+					rootSubTopicItems := *rootSubTopics.PublicItems
+					for i := range rootSubTopicItems {
 						subtopicsChan := make(chan models.Topic)
-						dataSubTopicCache := getRootTopicCachePublic(ctx, subtopicsChan, topicClient, rootSubTopicIems[i])
+						dataSubTopicCache := getRootTopicCachePublic(ctx, subtopicsChan, topicClient, rootSubTopicItems[i])
 						if dataSubTopicCache != nil {
 							topics = append(topics, dataSubTopicCache)
 						}
@@ -115,14 +113,13 @@ func UpdateDataTopics(ctx context.Context, topicClient topicCli.Clienter) func()
 			}
 		}
 
-		// Check if any census topics were found
+		// Check if any data topics were found
 		if len(topics) == 0 {
 			err := errors.New("data root topics not found")
 			log.Error(ctx, "failed to get data topics to cache", err)
 			return []*cache.Topic{cache.GetEmptyDataTopic()}
 		}
 
-		fmt.Println(topics)
 		return topics
 	}
 }

@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"net/http"
 	"reflect"
 	"strings"
@@ -9,6 +8,7 @@ import (
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 
 	"github.com/ONSdigital/dp-cookies/cookies"
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"

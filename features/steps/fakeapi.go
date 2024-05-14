@@ -11,6 +11,7 @@ type FakeAPI struct {
 	searchRequest                *httpfake.Request
 	topicRequest                 *httpfake.Request
 	subtopicsRequest             *httpfake.Request
+	rootTopicRequest             *httpfake.Request
 	navigationRequest            *httpfake.Request
 	outboundRequests             []string
 	collectOutboundRequestBodies httpfake.CustomAssertor

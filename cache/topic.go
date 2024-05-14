@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
+	"strings"
 	"time"
 
 	dpcache "github.com/ONSdigital/dp-cache"
@@ -88,7 +90,6 @@ func (dc *TopicCache) AddUpdateFunc(title string, updateFunc func() *Topic) {
 // AddUpdateFuncs adds an update function to the topic cache for a topic with the `title` passed to the function
 // This update function will then be triggered once or at every fixed interval as per the prior setup of the TopicCache
 func (dc *TopicCache) AddUpdateFuncs(updateFunc func() []*Topic) {
-
 	// Invoke the updateFunc to get the slice of *Topic
 	topics := updateFunc()
 
@@ -100,13 +101,12 @@ func (dc *TopicCache) AddUpdateFuncs(updateFunc func() []*Topic) {
 			return topic
 		}
 
+		//Get Slug from topic's LocaliseKeyName
+		topicSlug := GetSlugFromTopicName(topic.LocaliseKeyName)
+
 		// Add the update function to the TopicCache for the current topic's title
-		dc.AddUpdateFunc(topic.ID, singleUpdateFunc)
-
-		fmt.Println(topic.ID)
-		fmt.Println(topic.LocaliseKeyName)
+		dc.AddUpdateFunc(topicSlug, singleUpdateFunc)
 	}
-
 }
 
 func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
@@ -155,4 +155,16 @@ func getEmptyTopic() *Topic {
 	return &Topic{
 		List: NewSubTopicsMap(),
 	}
+}
+
+// GetSlugFromTopicName generates a slug from the given topic name.
+func GetSlugFromTopicName(topicName string) string {
+	// Convert to lowercase
+	slug := strings.ToLower(topicName)
+
+	// Remove all non-alphabetic characters
+	reg := regexp.MustCompile(`[^a-z]+`)
+	slug = reg.ReplaceAllString(slug, "")
+
+	return slug
 }
