@@ -1,10 +1,10 @@
 package mapper
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 	"strings"
-	"fmt"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 
