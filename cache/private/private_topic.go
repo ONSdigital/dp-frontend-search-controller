@@ -102,11 +102,10 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 					log.Error(ctx, "failed to get sub topic from topic-api", err, logData)
 					continue
 				} else {
-					var rootSubTopicIems []models.Topic
-					rootSubTopicIems = *rootSubTopics.PublicItems
-					for i := range rootSubTopicIems {
+					rootSubTopicItems := *rootSubTopics.PublicItems
+					for i := range rootSubTopicItems {
 						subtopicsChan := make(chan models.TopicResponse)
-						dataSubTopicCache := getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, rootSubTopicIems[i])
+						dataSubTopicCache := getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, rootSubTopicItems[i])
 						if dataSubTopicCache != nil {
 							topics = append(topics, dataSubTopicCache)
 						}

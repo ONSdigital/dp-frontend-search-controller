@@ -81,13 +81,14 @@ func GetMockDataTopic(id, title string) *Topic {
 	mockDataTopic := &Topic{
 		ID:              id,
 		LocaliseKeyName: title,
-		Query:           fmt.Sprintf("1234,5678,5213"),
+		Query:           fmt.Sprintf("1234,5678,5213,%s", RootTopicID),
 	}
 
 	mockDataTopic.List = NewSubTopicsMap()
 	mockDataTopic.List.AppendSubtopicID("1234", Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
 	mockDataTopic.List.AppendSubtopicID("5678", Subtopic{ID: "5678", LocaliseKeyName: "Age", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
 	mockDataTopic.List.AppendSubtopicID("5213", Subtopic{ID: "5213", LocaliseKeyName: "Environmental Accounts", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
+	mockDataTopic.List.AppendSubtopicID(RootTopicID, Subtopic{ID: RootTopicID, LocaliseKeyName: "Root Topic", ReleaseDate: timeHelper("2022-10-10T09:30:00Z")})
 
 	return mockDataTopic
 }

@@ -61,11 +61,11 @@ func Get() (*Config, error) {
 		return nil, err
 	}
 
-	//if newCfg.Debug {
-	//	newCfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
-	//} else {
-	newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/7b3664f"
-	//}
+	if newCfg.Debug {
+		newCfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
+	} else {
+		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/7b3664f"
+	}
 
 	return newCfg, nil
 }
@@ -101,7 +101,7 @@ func get() (*Config, error) {
 		EnableCensusTopicFilterOption:           false,
 		EnableCensusPopulationTypesFilterOption: false,
 		EnableCensusDimensionsFilterOption:      false,
-		EnableReworkedDataAggregationPages:      true,
+		EnableReworkedDataAggregationPages:      false,
 		EnableNewNavBar:                         false,
 		GracefulShutdownTimeout:                 5 * time.Second,
 		HealthCheckCriticalTimeout:              90 * time.Second,

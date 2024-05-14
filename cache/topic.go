@@ -88,7 +88,6 @@ func (dc *TopicCache) AddUpdateFunc(title string, updateFunc func() *Topic) {
 // AddUpdateFuncs adds an update function to the topic cache for a topic with the `title` passed to the function
 // This update function will then be triggered once or at every fixed interval as per the prior setup of the TopicCache
 func (dc *TopicCache) AddUpdateFuncs(updateFunc func() []*Topic) {
-
 	// Invoke the updateFunc to get the slice of *Topic
 	topics := updateFunc()
 
@@ -102,11 +101,7 @@ func (dc *TopicCache) AddUpdateFuncs(updateFunc func() []*Topic) {
 
 		// Add the update function to the TopicCache for the current topic's title
 		dc.AddUpdateFunc(topic.ID, singleUpdateFunc)
-
-		fmt.Println(topic.ID)
-		fmt.Println(topic.LocaliseKeyName)
 	}
-
 }
 
 func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {

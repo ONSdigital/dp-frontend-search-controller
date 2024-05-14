@@ -2,12 +2,12 @@ package mapper
 
 import (
 	"fmt"
-	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-renderer/v2/model"

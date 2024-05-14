@@ -859,109 +859,69 @@ func getPageTitle(template string) (pageTitle, pageTag string) {
 	return "", ""
 }
 
-func getTopicByURLMapping(topicPath string) (topicID, topicKeyName string, err error) {
-	switch topicPath {
-	case "businessindustryandtrade":
-		return "3813", "Business, industry and trade", nil
-	case "business":
-		return "1831", "Business", nil
-	case "changestobusiness":
-		return "4573", "Changes to business", nil
-	case "constructionindustry":
-		return "6661", "Construction industry", nil
-	case "internationaltrade":
-		return "7555", "International trade", nil
-	case "itandinternetindustry":
-		return "8961", "IT and internet industry", nil
-	case "manufacturingandproductionindustry":
-		return "9926", "Manufacturing and production industry", nil
-	case "retailindustry":
-		return "1263", "Retail industry", nil
-	case "tourismindustry":
-		return "7372", "Tourism industry", nil
-	case "economy":
-		return "6734", "Economy", nil
-	case "economicoutputandproductivity":
-		return "8725", "Economic output and productivity", nil
-	case "environmentalaccounts":
-		return "5213", "Environmental accounts", nil
-	case "governmentpublicsectorandtaxes":
-		return "8268", "Government, public sector and taxes", nil
-	case "grossdomesticproductgdp":
-		return "5487", "Gross Domestic Product (GDP)", nil
-	case "grossvalueaddedgva":
-		return "5761", "Gross Value Added (GVA)", nil
-	case "inflationandpriceindices":
-		return "2394", "Inflation and price indices", nil
-	case "investmentspensionsandtrusts":
-		return "7143", "Investments, pensions and trusts", nil
-	case "nationalaccounts":
-		return "8629", "National accounts", nil
-	case "regionalaccounts":
-		return "8533", "Regional accounts", nil
-	case "employmentandlabourmarket":
-		return "5591", "Employment and labour market", nil
-	case "peopleinwork":
-		return "6462", "People in work", nil
-	case "peoplenotinwork":
-		return "7273", "People not in work", nil
-	case "peoplepopulationandcommunity":
-		return "7729", "People, population and community", nil
-	case "birthsdeathsandmarriages":
-		return "8636", "Births, deaths and marriages", nil
-	case "crimeandjustice":
-		return "6355", "Crime and justice", nil
-	case "culturalidentity":
-		return "1792", "Cultural Identity", nil
-	case "educationandchildcare":
-		return "7974", "Education and childcare", nil
-	case "elections":
-		return "4261", "Elections", nil
-	case "healthandsocialcare":
-		return "9559", "Health and social care", nil
-	case "householdcharacteristics":
-		return "2364", "Household characteristics", nil
-	case "housing":
-		return "1666", "Housing", nil
-	case "leisureandtourism":
-		return "3228", "Leisure and tourism", nil
-	case "personalandhouseholdfinances":
-		return "3258", "Personal and household finances", nil
-	case "populationandmigration":
-		return "1678", "Population and migration", nil
-	case "wellbeing":
-		return "6614", "Well-being", nil
-	case "census":
-		return "4445", "Census", nil
-	case "ageing":
-		return "8341", "Ageing", nil
-	case "demography":
-		return "4935", "Demography", nil
-	case "education":
-		return "5524", "Education", nil
-	case "equalities":
-		return "3195", "Equalities", nil
-	case "ethnicgroupnationalidentitylanguageandreligion":
-		return "5675", "Ethnic group, national identity, language and religion", nil
-	case "healthdisabilityandunpaidcare":
-		return "4118", "Health, disability and unpaid care", nil
-	case "historiccensus":
-		return "4112", "Historic census", nil
-	//case "housing":
-	//	return "1652", "Housing"
-	case "internationalmigration":
-		return "6522", "International migration", nil
-	case "labourmarket":
-		return "6724", "Labour market", nil
-	case "sexualorientationandgenderidentity":
-		return "7854", "Sexual orientation and gender identity", nil
-	case "traveltowork":
-		return "3374", "Travel to work", nil
-	case "ukarmedforcesveterans":
-		return "5253", "UK armed forces veterans", nil
-	case "testtopic":
-		return "1234", "TestTopic", nil
+// Define a struct to hold topic information
+type topicInfo struct {
+	topicID      string
+	topicKeyName string
+}
 
+// Map to store topicPath mappings
+var topicPathMap = map[string]topicInfo{
+	"businessindustryandtrade":           {"3813", "Business, industry and trade"},
+	"business":                           {"1831", "Business"},
+	"changestobusiness":                  {"4573", "Changes to business"},
+	"constructionindustry":               {"6661", "Construction industry"},
+	"internationaltrade":                 {"7555", "International trade"},
+	"itandinternetindustry":              {"8961", "IT and internet industry"},
+	"manufacturingandproductionindustry": {"9926", "Manufacturing and production industry"},
+	"retailindustry":                     {"1263", "Retail industry"},
+	"tourismindustry":                    {"7372", "Tourism industry"},
+	"economy":                            {"6734", "Economy"},
+	"economicoutputandproductivity":      {"8725", "Economic output and productivity"},
+	"environmentalaccounts":              {"5213", "Environmental accounts"},
+	"governmentpublicsectorandtaxes":     {"8268", "Government, public sector and taxes"},
+	"grossdomesticproductgdp":            {"5487", "Gross Domestic Product (GDP)"},
+	"grossvalueaddedgva":                 {"5761", "Gross Value Added (GVA)"},
+	"inflationandpriceindices":           {"2394", "Inflation and price indices"},
+	"investmentspensionsandtrusts":       {"7143", "Investments, pensions and trusts"},
+	"nationalaccounts":                   {"8629", "National accounts"},
+	"regionalaccounts":                   {"8533", "Regional accounts"},
+	"employmentandlabourmarket":          {"5591", "Employment and labour market"},
+	"peopleinwork":                       {"6462", "People in work"},
+	"peoplenotinwork":                    {"7273", "People not in work"},
+	"peoplepopulationandcommunity":       {"7729", "People, population and community"},
+	"birthsdeathsandmarriages":           {"8636", "Births, deaths and marriages"},
+	"crimeandjustice":                    {"6355", "Crime and justice"},
+	"culturalidentity":                   {"1792", "Cultural Identity"},
+	"educationandchildcare":              {"7974", "Education and childcare"},
+	"elections":                          {"4261", "Elections"},
+	"healthandsocialcare":                {"9559", "Health and social care"},
+	"householdcharacteristics":           {"2364", "Household characteristics"},
+	"housing":                            {"1666", "Housing"},
+	"leisureandtourism":                  {"3228", "Leisure and tourism"},
+	"personalandhouseholdfinances":       {"3258", "Personal and household finances"},
+	"populationandmigration":             {"1678", "Population and migration"},
+	"wellbeing":                          {"6614", "Well-being"},
+	"census":                             {"4445", "Census"},
+	"ageing":                             {"8341", "Ageing"},
+	"demography":                         {"4935", "Demography"},
+	"education":                          {"5524", "Education"},
+	"equalities":                         {"3195", "Equalities"},
+	"ethnicgroupnationalidentitylanguageandreligion": {"5675", "Ethnic group, national identity, language and religion"},
+	"healthdisabilityandunpaidcare":                  {"4118", "Health, disability and unpaid care"},
+	"historiccensus":                                 {"4112", "Historic census"},
+	"internationalmigration":                         {"6522", "International migration"},
+	"labourmarket":                                   {"6724", "Labour market"},
+	"sexualorientationandgenderidentity":             {"7854", "Sexual orientation and gender identity"},
+	"traveltowork":                                   {"3374", "Travel to work"},
+	"ukarmedforcesveterans":                          {"5253", "UK armed forces veterans"},
+	"testtopic":                                      {"1234", "TestTopic"},
+}
+
+// Function to get topic information by URL mapping
+func getTopicByURLMapping(topicPath string) (topicID, topicKeyName string, err error) {
+	if info, ok := topicPathMap[topicPath]; ok {
+		return info.topicID, info.topicKeyName, nil
 	}
 
 	return "", "", apperrors.ErrTopicPathNotFound

@@ -9,13 +9,6 @@ import (
 	"net/url"
 	"testing"
 
-	searchModels "github.com/ONSdigital/dp-search-api/models"
-	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
-	apiError "github.com/ONSdigital/dp-search-api/sdk/errors"
-	topicModels "github.com/ONSdigital/dp-topic-api/models"
-	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"
-	topicError "github.com/ONSdigital/dp-topic-api/sdk/errors"
-
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
@@ -23,6 +16,10 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
+	searchModels "github.com/ONSdigital/dp-search-api/models"
+	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
+	apiError "github.com/ONSdigital/dp-search-api/sdk/errors"
+	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -56,30 +53,6 @@ var (
 		List:            &cache.Subtopics{},
 	}
 )
-
-func generateTopicClientMock(topic topicModels.Topic, subTopics []topicModels.Topic) *TopicClientMock {
-	mockedTopicClient := &TopicClientMock{
-		GetRootTopicsPublicFunc: func(ctx context.Context, reqHeaders topicSDK.Headers) (*topicModels.PublicSubtopics, topicError.Error) {
-			return &topicModels.PublicSubtopics{
-				Count: 2,
-				PublicItems: &[]topicModels.Topic{
-					topic,
-				},
-			}, nil
-		},
-		GetTopicPublicFunc: func(ctx context.Context, reqHeaders topicSDK.Headers, id string) (*topicModels.Topic, topicError.Error) {
-			return &topic, nil
-		},
-		GetSubtopicsPublicFunc: func(ctx context.Context, reqHeaders topicSDK.Headers, id string) (*topicModels.PublicSubtopics, topicError.Error) {
-			return &topicModels.PublicSubtopics{
-				Count:       2,
-				PublicItems: &subTopics,
-			}, nil
-		},
-	}
-
-	return mockedTopicClient
-}
 
 func TestUnitReadHandlerSuccess(t *testing.T) {
 	t.Parallel()
