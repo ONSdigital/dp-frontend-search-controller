@@ -13,6 +13,9 @@ import (
 // CensusTopicID is the id of the Census topic stored in mongodb which is accessible by using dp-topic-api
 var CensusTopicID string
 
+// RootTopicID is the id of the Root topic stored in mongodb which is accessible by using dp-topic-api
+var RootTopicID string
+
 // TopicCache is a wrapper to dpcache.Cache which has additional fields and methods specifically for caching topics
 type TopicCache struct {
 	*dpcache.Cache
@@ -82,6 +85,30 @@ func (dc *TopicCache) AddUpdateFunc(title string, updateFunc func() *Topic) {
 	}
 }
 
+// AddUpdateFuncs adds an update function to the topic cache for a topic with the `title` passed to the function
+// This update function will then be triggered once or at every fixed interval as per the prior setup of the TopicCache
+func (dc *TopicCache) AddUpdateFuncs(updateFunc func() []*Topic) {
+
+	// Invoke the updateFunc to get the slice of *Topic
+	topics := updateFunc()
+
+	// Iterate over each topic in the returned slice
+	for _, topic := range topics {
+		// Define an update function for the current topic
+		// This update function simply returns the current topic as-is
+		singleUpdateFunc := func() *Topic {
+			return topic
+		}
+
+		// Add the update function to the TopicCache for the current topic's title
+		dc.AddUpdateFunc(topic.ID, singleUpdateFunc)
+
+		fmt.Println(topic.ID)
+		fmt.Println(topic.LocaliseKeyName)
+	}
+
+}
+
 func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 	censusTopicCache, err := dc.GetData(ctx, CensusTopicID)
 	if err != nil {
@@ -91,17 +118,16 @@ func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 		log.Error(ctx, "failed to get cached census topic data", err, logData)
 		return GetEmptyCensusTopic(), err
 	}
-
 	return censusTopicCache, nil
 }
 
 func (dc *TopicCache) GetDataAggregationData(ctx context.Context) (*Topic, error) {
-	dataTopicCache, err := dc.GetData(ctx, CensusTopicID)
+	dataTopicCache, err := dc.GetData(ctx, RootTopicID)
 	if err != nil {
 		logData := log.Data{
-			"key": CensusTopicID,
+			"key": RootTopicID,
 		}
-		log.Error(ctx, "failed to get cached census topic data", err, logData)
+		log.Error(ctx, "failed to get cached root topic data", err, logData)
 		return GetEmptyCensusTopic(), err
 	}
 
@@ -112,6 +138,14 @@ func (dc *TopicCache) GetDataAggregationData(ctx context.Context) (*Topic, error
 func GetEmptyCensusTopic() *Topic {
 	return &Topic{
 		ID:   CensusTopicID,
+		List: NewSubTopicsMap(),
+	}
+}
+
+// GetEmptyDataTopic returns an empty census topic cache in the event when updating the cache of the census topic fails
+func GetEmptyDataTopic() *Topic {
+	return &Topic{
+		ID:   RootTopicID,
 		List: NewSubTopicsMap(),
 	}
 }

@@ -2,6 +2,7 @@ package mapper
 
 import (
 	"fmt"
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -373,7 +374,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 		}
 
 		Convey("When CreateDataAggregationPage is called", func() {
-			sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, "", topicModels.Topic{}, nil)
+			sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil)
 
 			Convey("Then successfully map core features to the page model", func() {
 				// keyword search
@@ -445,7 +446,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					},
 				}
 
-				page := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, "", topicModels.Topic{}, validationErrs)
+				page := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, validationErrs)
 				So(page.Data.AfterDate.ValidationErrDescription, ShouldResemble, expectedAfterErr.ValidationErrDescription)
 				So(page.Data.BeforeDate.ValidationErrDescription, ShouldResemble, expectedBeforeErr.ValidationErrDescription)
 				So(page.Error.ErrorItems, ShouldResemble, validationErrs)
@@ -515,7 +516,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 
 			for _, tc := range testcases {
 				Convey(fmt.Sprintf("Then page template: %s maps the page features correctly", tc.template), func() {
-					sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, tc.template, topicModels.Topic{}, nil)
+					sp := CreateDataAggregationPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, tc.template, cache.Topic{}, nil)
 					So(sp.Metadata.Title, ShouldEqual, tc.exTitle)
 					So(sp.Title.LocaliseKeyName, ShouldEqual, tc.exLocaliseKeyName)
 					So(sp.Data.SingleContentTypeFilterEnabled, ShouldEqual, tc.exSingleContentTypeFilterEnabled)

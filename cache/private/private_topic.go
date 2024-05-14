@@ -33,7 +33,7 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 		if rootTopics.PrivateItems != nil {
 			rootTopicItems = *rootTopics.PrivateItems
 		} else {
-			err := errors.New("root topic public items is nil")
+			err := errors.New("root topic private items is nil")
 			log.Error(ctx, "failed to deference root topics items pointer", err)
 			return cache.GetEmptyCensusTopic()
 		}
@@ -57,6 +57,72 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 		}
 
 		return censusTopicCache
+	}
+}
+
+// UpdateDataTopics is a function to update the census topic cache in publishing (private) mode.
+// This function talks to the dp-topic-api via its private endpoints to retrieve the census topic and its subtopic ids
+// The data returned by the dp-topic-api is of type *models.PrivateSubtopics which is then transformed in this function for the controller
+// If an error has occurred, this is captured in log.Error and then an empty census topic is returned
+func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() []*cache.Topic {
+	return func() []*cache.Topic {
+		var topics []*cache.Topic
+
+		// get root topics from dp-topic-api
+		rootTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, cache.RootTopicID)
+		if err != nil {
+			logData := log.Data{
+				"req_headers": topicCli.Headers{},
+			}
+			log.Error(ctx, "failed to get root topics from topic-api", err, logData)
+			return []*cache.Topic{cache.GetEmptyDataTopic()}
+		}
+
+		// deference root topics items to allow ranging through them
+		var rootTopicItems []models.TopicResponse
+		if rootTopics.PrivateItems != nil {
+			rootTopicItems = *rootTopics.PrivateItems
+		} else {
+			err := errors.New("root topic private items is nil")
+			log.Error(ctx, "failed to deference root topics items pointer", err)
+			return []*cache.Topic{cache.GetEmptyDataTopic()}
+		}
+
+		// go through each root topic
+		for i := range rootTopicItems {
+			subtopicsChan := make(chan models.TopicResponse)
+			dataTopicCache := getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, *rootTopicItems[i].Current)
+			if dataTopicCache != nil {
+				topics = append(topics, dataTopicCache)
+				rootSubTopics, err := topicClient.GetSubtopicsPublic(ctx, topicCli.Headers{}, dataTopicCache.ID)
+				if err != nil {
+					logData := log.Data{
+						"req_headers": topicCli.Headers{},
+					}
+					log.Error(ctx, "failed to get sub topic from topic-api", err, logData)
+					continue
+				} else {
+					var rootSubTopicIems []models.Topic
+					rootSubTopicIems = *rootSubTopics.PublicItems
+					for i := range rootSubTopicIems {
+						subtopicsChan := make(chan models.TopicResponse)
+						dataSubTopicCache := getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, rootSubTopicIems[i])
+						if dataSubTopicCache != nil {
+							topics = append(topics, dataSubTopicCache)
+						}
+					}
+				}
+			}
+		}
+
+		// Check if any census topics were found
+		if len(topics) == 0 {
+			err := errors.New("data root topics not found")
+			log.Error(ctx, "failed to get data topics to cache", err)
+			return []*cache.Topic{cache.GetEmptyDataTopic()}
+		}
+
+		return topics
 	}
 }
 

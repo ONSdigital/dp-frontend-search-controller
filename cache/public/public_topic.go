@@ -3,6 +3,7 @@ package public
 import (
 	"context"
 	"errors"
+	"fmt"
 	"net/http"
 	"sync"
 
@@ -55,6 +56,74 @@ func UpdateCensusTopic(ctx context.Context, topicClient topicCli.Clienter) func(
 		}
 
 		return censusTopicCache
+	}
+}
+
+// UpdateDataTopics is a function to update the data topic cache in web (public) mode.
+// This function talks to the dp-topic-api via its public endpoints to retrieve the data topic and its subtopic ids
+// The data returned by the dp-topic-api is of type *models.Topic which is then transformed to *cache.Topic in this function for the controller
+// If an error has occurred, this is captured in log.Error and then an empty data topic is returned
+func UpdateDataTopics(ctx context.Context, topicClient topicCli.Clienter) func() []*cache.Topic {
+	return func() []*cache.Topic {
+		var topics []*cache.Topic
+
+		// get root topics from dp-topic-api
+		rootTopics, err := topicClient.GetSubtopicsPublic(ctx, topicCli.Headers{}, cache.RootTopicID)
+		if err != nil {
+			logData := log.Data{
+				"req_headers": topicCli.Headers{},
+			}
+			log.Error(ctx, "failed to get root topics from topic-api", err, logData)
+			return []*cache.Topic{cache.GetEmptyDataTopic()}
+		}
+
+		// deference root topics items to allow ranging through them
+		var rootTopicItems []models.Topic
+		if rootTopics.PublicItems != nil {
+			rootTopicItems = *rootTopics.PublicItems
+		} else {
+			err := errors.New("root topic public items is nil")
+			log.Error(ctx, "failed to deference root topics items pointer", err)
+			return []*cache.Topic{cache.GetEmptyDataTopic()}
+		}
+
+		// go through each root topic
+		for i := range rootTopicItems {
+			subtopicsChan := make(chan models.Topic)
+			dataTopicCache := getRootTopicCachePublic(ctx, subtopicsChan, topicClient, rootTopicItems[i])
+			if dataTopicCache != nil {
+				topics = append(topics, dataTopicCache)
+
+				rootSubTopics, err := topicClient.GetSubtopicsPublic(ctx, topicCli.Headers{}, dataTopicCache.ID)
+				if err != nil {
+					logData := log.Data{
+						"req_headers": topicCli.Headers{},
+					}
+					log.Error(ctx, "failed to get sub topic from topic-api", err, logData)
+					continue
+				} else {
+					var rootSubTopicIems []models.Topic
+					rootSubTopicIems = *rootSubTopics.PublicItems
+					for i := range rootSubTopicIems {
+						subtopicsChan := make(chan models.Topic)
+						dataSubTopicCache := getRootTopicCachePublic(ctx, subtopicsChan, topicClient, rootSubTopicIems[i])
+						if dataSubTopicCache != nil {
+							topics = append(topics, dataSubTopicCache)
+						}
+					}
+				}
+			}
+		}
+
+		// Check if any census topics were found
+		if len(topics) == 0 {
+			err := errors.New("data root topics not found")
+			log.Error(ctx, "failed to get data topics to cache", err)
+			return []*cache.Topic{cache.GetEmptyDataTopic()}
+		}
+
+		fmt.Println(topics)
+		return topics
 	}
 }
 

@@ -207,7 +207,7 @@ func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuer
 }
 
 // ReviewDataAggregationQueryWithParams ensures that all search parameter values given by the user are reviewed
-func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (sp SearchURLParams, validationErrs []core.ErrorItem) {
+func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values) (sp SearchURLParams, validationErrs []core.ErrorItem) {
 	sp.Query = urlQuery.Get("q")
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
@@ -259,7 +259,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 		})
 	}
 
-	topicFilterErr := reviewTopicFiltersForDataAggregation(ctx, urlQuery, &sp, censusTopicCache)
+	topicFilterErr := reviewTopicFiltersForDataAggregation(urlQuery, &sp)
 	if topicFilterErr != nil {
 		log.Error(ctx, "invalid topic filters set", topicFilterErr)
 		validationErrs = append(validationErrs, core.ErrorItem{

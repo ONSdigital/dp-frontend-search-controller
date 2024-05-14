@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -21,9 +20,6 @@ import (
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
-	topicModels "github.com/ONSdigital/dp-topic-api/models"
-	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"
-
 	"github.com/gorilla/mux"
 
 	"github.com/ONSdigital/log.go/v2/log"
@@ -74,7 +70,7 @@ func Read(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template
 // Read Handler for data aggregation routes with topic/subtopics
 func ReadDataAggregationWithTopics(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readDataAggregationWithTopics(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, hc.TopicClient, accessToken, collectionID, lang, cacheList, template)
+		readDataAggregationWithTopics(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
 	})
 }
 
@@ -260,6 +256,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		setStatusCode(w, req, err)
 		return
 	}
+
 	validatedQueryParams, validationErrs := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
 	for _, vErr := range validationErrs {
 		if vErr.ID != DateFromErr && vErr.ID != DateToErr {
@@ -344,7 +341,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{}, validationErrs)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs)
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
@@ -353,7 +350,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	}
 }
 
-func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, topicC TopicClient,
+func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
 	accessToken, collectionID, lang string, cacheList cache.List, template string,
 ) {
 	ctx, cancel := context.WithCancel(req.Context())
@@ -361,20 +358,10 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 
 	vars := mux.Vars(req)
 
-	respRootTopics, topicAPIError := topicC.GetRootTopicsPublic(ctx, topicSDK.Headers{})
-	if topicAPIError != nil {
-		logData := log.Data{
-			"req_headers": topicSDK.Headers{},
-		}
-		log.Error(ctx, "failed to get root topics from topic api", topicAPIError, logData)
-		return
-	}
-
-	rootTopicItems := *respRootTopics.PublicItems
-	selectedTopic := topicModels.Topic{}
+	selectedTopic := cache.Topic{}
 
 	topicPath := vars["topic"]
-	topic, err := getTopicByURLString(topicPath, rootTopicItems)
+	topicID, _, err := getTopicByURLMapping(topicPath)
 	if err != nil {
 		log.Error(ctx, "could not match topicPath to topics", err, log.Data{
 			"topicPath": topicPath,
@@ -383,18 +370,26 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
+	topic, err := cacheList.DataTopic.GetData(ctx, topicID)
+	if err != nil {
+		log.Error(ctx, "could not find topicPath in topic cache", err, log.Data{
+			"topicPath": topicPath,
+		})
+		setStatusCode(w, req, err)
+		return
+	}
+
 	subtopicPath := vars["subTopic"]
 	if subtopicPath != "" {
-		subTopics, topicAPIError := topicC.GetSubtopicsPublic(ctx, topicSDK.Headers{}, topic.ID)
-		if topicAPIError != nil {
-			log.Error(ctx, "failed to get subtopics", topicAPIError)
-			setStatusCode(w, req, topicAPIError)
+		subTopicID, _, err := getTopicByURLMapping(subtopicPath)
+		if err != nil {
+			log.Error(ctx, "could not match subtopicPath to topics", err, log.Data{
+				"topicPath": subtopicPath,
+			})
+			setStatusCode(w, req, err)
 			return
 		}
-
-		subtopicItems := *subTopics.PublicItems
-
-		subtopic, matchingErr := getTopicByURLString(subtopicPath, subtopicItems)
+		subtopic, matchingErr := cacheList.DataTopic.GetData(ctx, subTopicID)
 		if matchingErr != nil {
 			log.Error(ctx, "could not match subtopicPath to subtopics", matchingErr, log.Data{
 				"subtopicPath": subtopicPath,
@@ -403,24 +398,10 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 			return
 		}
 
-		selectedTopic = subtopic
+		selectedTopic = *subtopic
 	} else {
-		selectedTopic = topic
+		selectedTopic = *topic
 	}
-
-	urlQuery := req.URL.Query()
-
-	urlQuery.Add("topics", selectedTopic.ID)
-
-	// replace with new cache
-	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
-	if err != nil {
-		log.Error(ctx, "failed to get census topic cache", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
-	log.Info(ctx, "this the census cache topics", log.Data{"topics": censusTopicCache})
 
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
@@ -430,7 +411,11 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
-	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, censusTopicCache)
+	urlQuery := req.URL.Query()
+
+	urlQuery.Add("topics", selectedTopic.ID)
+
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery)
 	for _, vErr := range validationErrs {
 		if vErr.ID != DateFromErr && vErr.ID != DateToErr && !apperrors.ErrMapForRenderBeforeAPICalls[errors.New(vErr.Description.Text)] {
 			log.Error(ctx, "unable to review query", errors.New(vErr.Description.Text))
@@ -491,7 +476,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		defer wg.Done()
 
 		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
-		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
 		if countErr != nil {
 			log.Error(ctx, "getting categories, types and its counts failed", countErr)
 			setStatusCode(w, req, countErr)
@@ -698,7 +683,7 @@ func getCategoriesDatasetCountQuery(searchQuery url.Values) url.Values {
 }
 
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
-func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, query url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
+func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, query url.Values, searchC SearchClient, topicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
 	var options searchSDK.Options
 
 	options.Query = query
@@ -716,7 +701,7 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 	}
 
 	categories := data.GetCategories()
-	topicCategories := data.GetTopics(censusTopicCache, countResp)
+	topicCategories := data.GetTopics(topicCache, countResp)
 
 	setCountToCategories(ctx, countResp, categories)
 
@@ -874,16 +859,110 @@ func getPageTitle(template string) (pageTitle, pageTag string) {
 	return "", ""
 }
 
-// getTopicByURLString matches a URL string, e.g. businessindustryandtrade against
-// a Topic retrieved from the Topic API, using it's Title attribute, e.g.
-// "Business, industry and trade"
-func getTopicByURLString(topicURLString string, topics []topicModels.Topic) (topicModels.Topic, error) {
-	nonAlphanumericRegex := regexp.MustCompile(`[^a-zA-Z0-9]+`)
+func getTopicByURLMapping(topicPath string) (topicID, topicKeyName string, err error) {
+	switch topicPath {
+	case "businessindustryandtrade":
+		return "3813", "Business, industry and trade", nil
+	case "business":
+		return "1831", "Business", nil
+	case "changestobusiness":
+		return "4573", "Changes to business", nil
+	case "constructionindustry":
+		return "6661", "Construction industry", nil
+	case "internationaltrade":
+		return "7555", "International trade", nil
+	case "itandinternetindustry":
+		return "8961", "IT and internet industry", nil
+	case "manufacturingandproductionindustry":
+		return "9926", "Manufacturing and production industry", nil
+	case "retailindustry":
+		return "1263", "Retail industry", nil
+	case "tourismindustry":
+		return "7372", "Tourism industry", nil
+	case "economy":
+		return "6734", "Economy", nil
+	case "economicoutputandproductivity":
+		return "8725", "Economic output and productivity", nil
+	case "environmentalaccounts":
+		return "5213", "Environmental accounts", nil
+	case "governmentpublicsectorandtaxes":
+		return "8268", "Government, public sector and taxes", nil
+	case "grossdomesticproductgdp":
+		return "5487", "Gross Domestic Product (GDP)", nil
+	case "grossvalueaddedgva":
+		return "5761", "Gross Value Added (GVA)", nil
+	case "inflationandpriceindices":
+		return "2394", "Inflation and price indices", nil
+	case "investmentspensionsandtrusts":
+		return "7143", "Investments, pensions and trusts", nil
+	case "nationalaccounts":
+		return "8629", "National accounts", nil
+	case "regionalaccounts":
+		return "8533", "Regional accounts", nil
+	case "employmentandlabourmarket":
+		return "5591", "Employment and labour market", nil
+	case "peopleinwork":
+		return "6462", "People in work", nil
+	case "peoplenotinwork":
+		return "7273", "People not in work", nil
+	case "peoplepopulationandcommunity":
+		return "7729", "People, population and community", nil
+	case "birthsdeathsandmarriages":
+		return "8636", "Births, deaths and marriages", nil
+	case "crimeandjustice":
+		return "6355", "Crime and justice", nil
+	case "culturalidentity":
+		return "1792", "Cultural Identity", nil
+	case "educationandchildcare":
+		return "7974", "Education and childcare", nil
+	case "elections":
+		return "4261", "Elections", nil
+	case "healthandsocialcare":
+		return "9559", "Health and social care", nil
+	case "householdcharacteristics":
+		return "2364", "Household characteristics", nil
+	case "housing":
+		return "1666", "Housing", nil
+	case "leisureandtourism":
+		return "3228", "Leisure and tourism", nil
+	case "personalandhouseholdfinances":
+		return "3258", "Personal and household finances", nil
+	case "populationandmigration":
+		return "1678", "Population and migration", nil
+	case "wellbeing":
+		return "6614", "Well-being", nil
+	case "census":
+		return "4445", "Census", nil
+	case "ageing":
+		return "8341", "Ageing", nil
+	case "demography":
+		return "4935", "Demography", nil
+	case "education":
+		return "5524", "Education", nil
+	case "equalities":
+		return "3195", "Equalities", nil
+	case "ethnicgroupnationalidentitylanguageandreligion":
+		return "5675", "Ethnic group, national identity, language and religion", nil
+	case "healthdisabilityandunpaidcare":
+		return "4118", "Health, disability and unpaid care", nil
+	case "historiccensus":
+		return "4112", "Historic census", nil
+	//case "housing":
+	//	return "1652", "Housing"
+	case "internationalmigration":
+		return "6522", "International migration", nil
+	case "labourmarket":
+		return "6724", "Labour market", nil
+	case "sexualorientationandgenderidentity":
+		return "7854", "Sexual orientation and gender identity", nil
+	case "traveltowork":
+		return "3374", "Travel to work", nil
+	case "ukarmedforcesveterans":
+		return "5253", "UK armed forces veterans", nil
+	case "testtopic":
+		return "1234", "TestTopic", nil
 
-	for _, topic := range topics {
-		if nonAlphanumericRegex.ReplaceAllString(strings.ToLower(topic.Title), "") == strings.ToLower(topicURLString) {
-			return topic, nil
-		}
 	}
-	return topicModels.Topic{}, apperrors.ErrTopicPathNotFound
+
+	return "", "", apperrors.ErrTopicPathNotFound
 }

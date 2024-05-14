@@ -393,7 +393,7 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 
 	Convey("Given a valid request for a topic filtered page and a set of mocked services", t, func() {
 		testTopic := topicModels.Topic{
-			ID:    "1234",
+			ID:    "6734",
 			Title: "economy",
 		}
 
@@ -423,13 +423,11 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 			},
 		}
 
-		mockedTopicClient := generateTopicClientMock(testTopic, nil)
-
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, mockedTopicClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
+			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -437,8 +435,6 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
 				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
 				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
-				So(mockedTopicClient.GetRootTopicsPublicCalls(), ShouldHaveLength, 1)
-				So(mockedTopicClient.GetSubtopicsPublicCalls(), ShouldHaveLength, 0)
 			})
 
 			Convey("And the Search Client should be called with the topic id from the topic API", func() {
@@ -460,17 +456,13 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 
 	Convey("Given a valid request for a subtopic filtered page and a set of mocked services", t, func() {
 		testTopic := topicModels.Topic{
-			ID:    "1234",
+			ID:    "6734",
 			Title: "economy",
 		}
 
 		testSubtopic := topicModels.Topic{
-			ID:    "1235",
-			Title: "environmental",
-		}
-
-		testSubtopics := []topicModels.Topic{
-			testSubtopic,
+			ID:    "1234",
+			Title: "testtopic",
 		}
 
 		w := httptest.NewRecorder()
@@ -499,13 +491,11 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 			},
 		}
 
-		mockedTopicClient := generateTopicClientMock(testTopic, testSubtopics)
-
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, mockedTopicClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
+			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -513,8 +503,6 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
 				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
 				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
-				So(mockedTopicClient.GetRootTopicsPublicCalls(), ShouldHaveLength, 1)
-				So(mockedTopicClient.GetSubtopicsPublicCalls(), ShouldHaveLength, 1)
 			})
 
 			Convey("And the Search Client should be called with the subtopic id from the topic API", func() {
@@ -579,13 +567,11 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 			},
 		}
 
-		mockedTopicClient := generateTopicClientMock(topicModels.Topic{}, []topicModels.Topic{})
-
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, mockedTopicClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
+			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
 
 			Convey("Then a 404 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusNotFound)
@@ -593,15 +579,13 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 0)
 				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 0)
 				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 0)
-				So(mockedTopicClient.GetRootTopicsPublicCalls(), ShouldHaveLength, 1)
-				So(mockedTopicClient.GetSubtopicsPublicCalls(), ShouldHaveLength, 0)
 			})
 		})
 	})
 
 	Convey("Given a request for a subtopic filtered page and a set of mocked services where the subtopic does not exist", t, func() {
 		testTopic := topicModels.Topic{
-			ID:    "1234",
+			ID:    "6734",
 			Title: "economy",
 		}
 		testSubtopic := "thissubtopicdoesnotexist"
@@ -632,13 +616,11 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 			},
 		}
 
-		mockedTopicClient := generateTopicClientMock(testTopic, []topicModels.Topic{})
-
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, mockedTopicClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
+			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "all-adhocs")
 
 			Convey("Then a 404 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusNotFound)
@@ -646,8 +628,6 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 0)
 				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 0)
 				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 0)
-				So(mockedTopicClient.GetRootTopicsPublicCalls(), ShouldHaveLength, 1)
-				So(mockedTopicClient.GetSubtopicsPublicCalls(), ShouldHaveLength, 1)
 			})
 		})
 	})
@@ -988,7 +968,7 @@ func TestCreateRSSFeed(t *testing.T) {
 	})
 }
 
-func TestGetTopicByURLString(t *testing.T) {
+func TestGetTopicByURLMapping(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given some topics and a matching URL path", t, func() {
@@ -996,23 +976,16 @@ func TestGetTopicByURLString(t *testing.T) {
 
 		expectedTopic := topicModels.Topic{
 			Title: "Economy",
-			ID:    "6646",
+			ID:    "6734",
 		}
 
-		topics := []topicModels.Topic{
-			{
-				Title: "business",
-				ID:    "6657",
-			},
-			expectedTopic,
-		}
-
-		Convey("When GetTopicByURLString is called", func() {
-			actual, err := getTopicByURLString(topicPath, topics)
+		Convey("When getTopicByURLMapping is called", func() {
+			actualKey, actualName, err := getTopicByURLMapping(topicPath)
 
 			Convey("Then the expected topic is returned", func() {
-				So(actual, ShouldEqual, expectedTopic)
-				So(err, ShouldBeNil)
+				So(actualKey, ShouldEqual, expectedTopic.ID)
+				So(actualName, ShouldEqual, expectedTopic.Title)
+				So(err, ShouldEqual, nil)
 			})
 		})
 	})
@@ -1020,22 +993,12 @@ func TestGetTopicByURLString(t *testing.T) {
 	Convey("Given some topics and a non-matching URL path", t, func() {
 		topicPath := "thiswill404"
 
-		topics := []topicModels.Topic{
-			{
-				Title: "business",
-				ID:    "6657",
-			},
-			{
-				Title: "economy",
-				ID:    "6646",
-			},
-		}
-
 		Convey("When GetTopicByURLString is called", func() {
-			actual, err := getTopicByURLString(topicPath, topics)
+			actualKey, actualName, err := getTopicByURLMapping(topicPath)
 
 			Convey("Then a TopicPath Not Found error is thrown", func() {
-				So(actual, ShouldEqual, topicModels.Topic{})
+				So(actualKey, ShouldEqual, "")
+				So(actualName, ShouldEqual, "")
 				So(err, ShouldEqual, apperrors.ErrTopicPathNotFound)
 			})
 		})
@@ -1045,24 +1008,16 @@ func TestGetTopicByURLString(t *testing.T) {
 		topicPath := "businessindustryandtrade"
 
 		expectedTopic := topicModels.Topic{
-			Title: "Business, industry and Trade",
-			ID:    "6646",
-		}
-
-		topics := []topicModels.Topic{
-			{
-				Title: "business",
-				ID:    "6657",
-			},
-			expectedTopic,
+			Title: "Business, industry and trade",
+			ID:    "3813",
 		}
 
 		Convey("When GetTopicByURLString is called", func() {
-			actual, err := getTopicByURLString(topicPath, topics)
+			actualKey, actualName, _ := getTopicByURLMapping(topicPath)
 
 			Convey("Then the expected topic is returned", func() {
-				So(actual, ShouldEqual, expectedTopic)
-				So(err, ShouldBeNil)
+				So(actualKey, ShouldEqual, expectedTopic.ID)
+				So(actualName, ShouldEqual, expectedTopic.Title)
 			})
 		})
 	})
