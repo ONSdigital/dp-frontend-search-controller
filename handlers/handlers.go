@@ -269,6 +269,15 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		}
 	}
 
+	if _, rssParam := urlQuery["rss"]; rssParam {
+		req.Header.Set("Accept", "application/rss+xml")
+		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
+			setStatusCode(w, req, err)
+			return
+		}
+		return
+	}
+
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 3
 
