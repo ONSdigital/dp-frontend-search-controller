@@ -65,6 +65,8 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.healthRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/health")
 	c.FakeAPIRouter.healthRequest.CustomHandle = healthCheckStatusHandle(200)
 
+	c.FakeAPIRouter.rootTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get(fmt.Sprintf("/topics/%s/subtopics", c.Config.RootTopicID))
+
 	c.FakeAPIRouter.searchRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/search")
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
 	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics")
@@ -169,6 +171,24 @@ func generateSearchItem(num int) searchModels.Item {
 		DatasetID: datasetID,
 	}
 	return searchItem
+}
+
+func generateTopicResponseWithSubtopic(subtopicID string, subtopicTitle string) *httpfake.Response {
+	topicAPIResponse := &topicModels.PublicSubtopics{
+		Count: 1,
+		PublicItems: &[]topicModels.Topic{
+			{
+				ID:    subtopicID,
+				Title: subtopicTitle,
+			},
+		},
+	}
+
+	fakeAPIResponse := httpfake.NewResponse()
+	fakeAPIResponse.Status(200)
+	fakeAPIResponse.BodyStruct(topicAPIResponse)
+
+	return fakeAPIResponse
 }
 
 func generateTopicResponse(id string, title string) *httpfake.Response {

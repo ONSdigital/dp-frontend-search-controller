@@ -47,7 +47,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^one of the downstream services is failing`, c.oneOfTheDownstreamServicesIsFailing)
 	ctx.Step(`^I should receive the following health JSON response:$`, c.iShouldReceiveTheFollowingHealthJSONResponse)
 	ctx.Step(`^there is a Search API that gives a successful response and returns ([1-9]\d*|0) results`, c.thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResults)
-	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic$`, c.thereIsATopicAPIThatReturnsARootTopic)
+	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic$`, c.thereIsATopicAPIThatReturnsARootTopic)
 	ctx.Step(`^there is a Topic API returns no topics`, c.thereIsATopicAPIThatReturnsNoTopics)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsARootTopicAndSubtopic)
 }
@@ -195,10 +195,19 @@ func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResul
 
 func (c *Component) thereIsATopicAPIThatReturnsARootTopic(topic string) error {
 
+	// This should be configurable really
+	fakeTopicId := "6734"
+
+	c.FakeAPIRouter.rootTopicRequest.Lock()
+	defer c.FakeAPIRouter.rootTopicRequest.Unlock()
+
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	topicAPIResponse := generateTopicResponse("6646", topic)
+	rootTopicAPIRespose := generateTopicResponseWithSubtopic(fakeTopicId, topic)
+	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIRespose
+
+	topicAPIResponse := generateTopicResponse(fakeTopicId, topic)
 	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
 
 	return nil

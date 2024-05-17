@@ -69,7 +69,7 @@ Feature: Aggregated Data Pages
 
   Scenario: GET topic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
-    And there is a Topic API that returns the "economy" root topic
+    And there is a Topic API that returns the "economy" topic
     And the search controller is running
     When I navigate to "/economy/publications"
     Then the page should have the following content
