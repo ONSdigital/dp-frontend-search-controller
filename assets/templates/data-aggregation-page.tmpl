@@ -49,9 +49,11 @@
               <div class="ons-grid__col ons-u-wa--@l">
                 {{ template "partials/sort" . }}
               </div>
-              <div class="ons-grid__col ons-u-wa--@l ons-u-pt-xxs@l">
-                {{ template "partials/rss-feed" . }}
-              </div>
+              {{ if .RSSLink }}
+                <div class="ons-grid__col ons-u-wa--@l ons-u-pt-xxs@l">
+                  {{ template "partials/rss-feed" . }}
+                </div>
+              {{ end }}
             </div>
           </div>
           <div class="search__filter__mobile-filter-toggle hide">
