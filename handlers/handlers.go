@@ -272,6 +272,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	if _, rssParam := urlQuery["rss"]; rssParam {
 		req.Header.Set("Accept", "application/rss+xml")
 		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
+			log.Error(ctx, "failed to create rss feed", err)
 			setStatusCode(w, req, err)
 			return
 		}
