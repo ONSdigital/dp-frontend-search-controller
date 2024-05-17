@@ -8,7 +8,10 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/ONSdigital/dp-frontend-search-controller/service"
+	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
+	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/cucumber/godog"
 	"github.com/maxcnunes/httpfake"
 	"github.com/stretchr/testify/assert"
@@ -51,6 +54,20 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 
 func (c *Component) theSearchControllerIsRunning() error {
 	ctx := context.Background()
+
+	initFunctions := &mocks.InitialiserMock{
+		DoGetHTTPServerFunc:   c.getHTTPServer,
+		DoGetHealthCheckFunc:  getHealthCheckOK,
+		DoGetHealthClientFunc: c.getHealthClient,
+	}
+
+	serviceList := service.NewServiceList(initFunctions)
+
+	c.svc = service.New()
+	if err := c.svc.Init(ctx, c.Config, serviceList); err != nil {
+		log.Error(ctx, "failed to initialise service", err)
+		return err
+	}
 
 	svcErrors := make(chan error, 1)
 
