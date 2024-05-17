@@ -67,6 +67,7 @@ Feature: Aggregated Data Pages
     When I navigate to "/alladhocs?sort=relevance"
     Then input element "#sort" has value "relevance"
 
+  @topicCache
   Scenario: GET topic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic

@@ -60,6 +60,7 @@ func TestMainFunc(t *testing.T) {
 			Output: colors.Colored(os.Stdout),
 			Paths:  flag.Args(),
 			Format: "pretty",
+			Tags:   "@topicCache",
 		}
 
 		status = godog.TestSuite{
