@@ -473,6 +473,10 @@ one = "Dataset ID"
 description = "RSS feed"
 one = "RSS feed"
 
+[SubscriptionLinkRSSIcon]
+description = "RSS feed icon"
+one = "RSS feed icon"
+
 [SortByLabel]
 description = "Sort by"
 one = "Sort by"
