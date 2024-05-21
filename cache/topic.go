@@ -101,7 +101,7 @@ func (dc *TopicCache) AddUpdateFuncs(updateFunc func() []*Topic) {
 			return topic
 		}
 
-		//Get Slug from topic's LocaliseKeyName
+		// Get Slug from topic's LocaliseKeyName
 		topicSlug := GetSlugFromTopicName(topic.LocaliseKeyName)
 
 		// Add the update function to the TopicCache for the current topic's title

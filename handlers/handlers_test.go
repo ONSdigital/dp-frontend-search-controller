@@ -434,8 +434,8 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 		}
 
 		testSubtopic := topicModels.Topic{
-			ID:    "1234",
-			Title: "testtopic",
+			ID:    "1834",
+			Title: "environmentalaccounts",
 		}
 
 		w := httptest.NewRecorder()

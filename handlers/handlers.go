@@ -13,7 +13,6 @@ import (
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
-	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -248,8 +247,8 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	topicPath := vars["topic"]
 	topicCache, err := cacheList.DataTopic.GetData(ctx, topicPath)
 	if err != nil {
-		err = errs.ErrTopicNotFound
 		log.Error(ctx, "could not find topicPath in topic cache", err)
+		err = apperrors.ErrTopicNotFound
 		setStatusCode(w, req, err)
 		return
 	}
@@ -379,10 +378,10 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 
 	topic, err := cacheList.DataTopic.GetData(ctx, topicPath)
 	if err != nil {
-		err = errs.ErrTopicPathNotFound
 		log.Error(ctx, "could not find topicPath in topic cache", err, log.Data{
 			"topicPath": topicPath,
 		})
+		err = apperrors.ErrTopicPathNotFound
 		setStatusCode(w, req, err)
 		return
 	}
@@ -391,10 +390,10 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	if subtopicPath != "" {
 		subtopic, matchingErr := cacheList.DataTopic.GetData(ctx, subtopicPath)
 		if matchingErr != nil {
-			matchingErr = errs.ErrTopicPathNotFound
 			log.Error(ctx, "could not match subtopicPath to subtopics", matchingErr, log.Data{
 				"subtopicPath": subtopicPath,
 			})
+			matchingErr = apperrors.ErrTopicPathNotFound
 			setStatusCode(w, req, matchingErr)
 			return
 		}
