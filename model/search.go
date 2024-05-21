@@ -11,6 +11,7 @@ type SearchPage struct {
 	Title      Title           `json:"title,omitempty"`
 	BeforeDate model.InputDate `json:"before_date"`
 	AfterDate  model.InputDate `json:"after_date"`
+	RSSLink    string          `json:"rss_link"`
 }
 
 // Search represents all search parameters and response data of the search

@@ -1,6 +1,7 @@
 package mapper
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 	"strings"
@@ -103,10 +104,12 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Title.LocaliseKeyName = "DataList"
 		page.Data.SingleContentTypeFilterEnabled = true
 		page.Data.DateFilterEnabled = true
+		page.RSSLink = fmt.Sprintf("datalist?rss&%s", req.URL.RawQuery)
 	case "home-publications":
 		page.Metadata.Title = "Publications"
 		page.Title.LocaliseKeyName = "HomePublications"
 		page.Data.SingleContentTypeFilterEnabled = true
+		page.RSSLink = fmt.Sprintf("publications?rss&%s", req.URL.RawQuery)
 	case "all-methodologies":
 		page.Metadata.Title = "All methodology"
 		page.Title.LocaliseKeyName = "AllMethodology"
