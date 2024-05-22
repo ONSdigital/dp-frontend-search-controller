@@ -66,6 +66,28 @@ Feature: Aggregated Data Pages
     And the search controller is running
     When I navigate to "/alladhocs?sort=relevance"
     Then input element "#sort" has value "relevance"
+  
+  Scenario: GET /alladhocs and check invalid params - page
+    Given there is a Search API that gives a successful response and returns 0 results
+    And the search controller is running
+    When I navigate to "/alladhocs?page=5000000"
+    Then the page should have the following content
+    """
+        {
+            "h2#error-summary-title": "There is a problem with this page"
+        }
+    """
+  
+  Scenario: GET /alladhocs and check invalid params - date
+    Given there is a Search API that gives a successful response and returns 0 results
+    And the search controller is running
+    When I navigate to "/alladhocs?after-month=13&after-year=2024"
+    Then the page should have the following content
+    """
+        {
+            "h2#error-summary-title": "There is a problem with this page"
+        }
+    """
 
   Scenario: GET topic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results

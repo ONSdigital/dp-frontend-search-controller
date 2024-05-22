@@ -18,6 +18,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
+	"github.com/ONSdigital/dp-frontend-search-controller/model"
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
@@ -261,12 +262,15 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 	validatedQueryParams, validationErrs := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
-	for _, vErr := range validationErrs {
-		if vErr.ID != DateFromErr && vErr.ID != DateToErr {
-			log.Error(ctx, "unable to review query", errors.New(vErr.Description.Text))
-			setStatusCode(w, req, errors.New(vErr.Description.Text))
-			return
-		}
+	if len(validationErrs) > 0 {
+		log.Info(ctx, "validation of parameters failed", log.Data{
+			"parameters": validationErrs,
+		})
+		// Errors are now mapped to the page model to output feedback to the user rather than
+		// a blank 400 error response.
+		m := mapper.CreateDataAggregationPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, topicModels.Topic{}, validationErrs)
+		buildDataAggregationPage(w, m, rend, template)
+		return
 	}
 
 	if _, rssParam := urlQuery["rss"]; rssParam {
@@ -355,6 +359,11 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	}
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{}, validationErrs)
+	buildDataAggregationPage(w, m, rend, template)
+}
+
+// Maps template name to underlying go template
+func buildDataAggregationPage(w http.ResponseWriter, m model.SearchPage, rend RenderClient, template string) {
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
