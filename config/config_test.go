@@ -43,6 +43,7 @@ func TestConfig(t *testing.T) {
 				So(cfg.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
 				So(cfg.HealthCheckInterval, ShouldEqual, 30*time.Second)
 				So(cfg.IsPublishing, ShouldBeFalse)
+				so(cfg.PatternLibraryAssetsPath, ShouldEqual, "//cdn.ons.gov.uk/dp-design-system/bc5cfab")
 				So(cfg.SiteDomain, ShouldEqual, "localhost")
 				So(cfg.SupportedLanguages, ShouldResemble, []string{"en", "cy"})
 				So(cfg.ABTest.AspectID, ShouldEqual, "dp-frontend-search-controller")
