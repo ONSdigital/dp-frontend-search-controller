@@ -92,7 +92,7 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 	return page
 }
 
-func setRSSLink(page *model.SearchPage, base string, rawQuery string) {
+func setRSSLink(page *model.SearchPage, base, rawQuery string) {
 	if rawQuery != "" {
 		page.RSSLink = fmt.Sprintf("%s?rss&%s", base, rawQuery)
 	} else {
