@@ -160,7 +160,12 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
 
+	fmt.Println("\n\t---- ReviewDataAggregationQueryWithParams validatedQueryParams.Query", validatedQueryParams.Query)
+
 	fromDate, toDate, err := GetDates(ctx, urlQuery)
+	fmt.Println("\n\t---- ReviewDataAggregationQueryWithParams fromDate", fromDate)
+	fmt.Println("\n\t---- ReviewDataAggregationQueryWithParams toDate", toDate)
+	fmt.Println("\n\t---- ReviewDataAggregationQueryWithParams dateErr", err)
 	if err != nil {
 		log.Error(ctx, "invalid dates set", err)
 		return validatedQueryParams, err

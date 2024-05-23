@@ -432,6 +432,8 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
+	fmt.Println("\n\t----- readDataAggregationWithTopics ", urlQuery)
+
 	validatedQueryParams, err := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, censusTopicCache)
 	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		log.Error(ctx, "unable to review query", err)
@@ -441,6 +443,9 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 
 	if _, rssParam := urlQuery["rss"]; rssParam {
 		req.Header.Set("Accept", "application/rss+xml")
+
+		fmt.Println("\n\t------ rssParam", validatedQueryParams)
+
 		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
 			setStatusCode(w, req, err)
 			return

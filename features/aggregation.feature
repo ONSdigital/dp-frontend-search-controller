@@ -92,6 +92,7 @@ Feature: Aggregated Data Pages
         }
     """
 
+  @agg
   Scenario: GET subtopic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic
@@ -114,5 +115,19 @@ Feature: Aggregated Data Pages
     """
         {
             "#main h1": "Page not found"
+        }
+    """
+
+    @agg
+  Scenario: GET rss
+    Given there is a Search API that gives a successful response and returns 10 results
+    And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic
+    And the search controller is running
+    When I navigate to "/economy/environmental/publications"
+    Then the page should have the following content
+    """
+        {
+            "#main h1": "Publications related to environmental",
+            ".search__count h2": "10 results"
         }
     """

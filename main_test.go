@@ -4,14 +4,11 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	"io"
-	golog "log"
 	"os"
 	"testing"
 
 	componenttest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-frontend-search-controller/features/steps"
-	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/cucumber/godog"
 	"github.com/cucumber/godog/colors"
 )
@@ -47,12 +44,12 @@ func InitializeScenario(ctx *godog.ScenarioContext) {
 
 func TestMainFunc(t *testing.T) {
 	if *componentFlag {
-		log.SetDestination(io.Discard, io.Discard)
-		golog.SetOutput(io.Discard)
-		defer func() {
-			log.SetDestination(os.Stdout, os.Stderr)
-			golog.SetOutput(os.Stdout)
-		}()
+		//log.SetDestination(io.Discard, io.Discard)
+		//golog.SetOutput(io.Discard)
+		//defer func() {
+		//	log.SetDestination(os.Stdout, os.Stderr)
+		//	golog.SetOutput(os.Stdout)
+		//}()
 
 		status := 0
 
@@ -60,6 +57,7 @@ func TestMainFunc(t *testing.T) {
 			Output: colors.Colored(os.Stdout),
 			Paths:  flag.Args(),
 			Format: "pretty",
+			Tags:   "agg",
 		}
 
 		status = godog.TestSuite{
