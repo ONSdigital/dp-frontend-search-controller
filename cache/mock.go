@@ -15,6 +15,11 @@ func GetMockCacheList(ctx context.Context, lang string) (*List, error) {
 		return nil, err
 	}
 
+	testDataTopicCache, err := getMockDataTopicCache(ctx)
+	if err != nil {
+		return nil, err
+	}
+
 	testNavigationCache, err := getMockNavigationCache(ctx, lang)
 	if err != nil {
 		return nil, err
@@ -22,6 +27,7 @@ func GetMockCacheList(ctx context.Context, lang string) (*List, error) {
 
 	cacheList := List{
 		CensusTopic: testCensusTopicCache,
+		DataTopic:   testDataTopicCache,
 		Navigation:  testNavigationCache,
 	}
 
@@ -52,6 +58,34 @@ func GetMockCensusTopic() *Topic {
 	mockCensusTopic.List.AppendSubtopicID("1234", Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
 	mockCensusTopic.List.AppendSubtopicID("5678", Subtopic{ID: "5678", LocaliseKeyName: "Age", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
 	mockCensusTopic.List.AppendSubtopicID(CensusTopicID, Subtopic{ID: CensusTopicID, LocaliseKeyName: "Census", ReleaseDate: timeHelper("2022-10-10T09:30:00Z")})
+
+	return mockCensusTopic
+}
+
+// getMockDataTopicCache returns a mocked data topic which contains all the information for the mock data topic
+func getMockDataTopicCache(ctx context.Context) (*TopicCache, error) {
+	testDataTopicCache, err := NewTopicCache(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	testDataTopicCache.Set("economy", GetMockDataTopic("6734", "economy"))
+	testDataTopicCache.Set("environmentalaccounts", GetMockDataTopic("1834", "environmentalaccounts"))
+
+	return testDataTopicCache, nil
+}
+
+// GetMockDataTopic returns a mocked data topic which contains all the information for the mock data topic
+func GetMockDataTopic(id, title string) *Topic {
+	mockCensusTopic := &Topic{
+		ID:              id,
+		LocaliseKeyName: title,
+		Query:           "1834,1234",
+	}
+
+	mockCensusTopic.List = NewSubTopicsMap()
+	mockCensusTopic.List.AppendSubtopicID("1234", Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
+	mockCensusTopic.List.AppendSubtopicID("1834", Subtopic{ID: "1834", LocaliseKeyName: "Environmental Accounts", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
 
 	return mockCensusTopic
 }

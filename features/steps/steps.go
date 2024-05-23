@@ -4,6 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/ONSdigital/dp-frontend-search-controller/service"
+	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
+	"github.com/ONSdigital/log.go/v2/log"
 	"io/ioutil"
 	"net/http"
 	"time"
@@ -44,13 +47,27 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^one of the downstream services is failing`, c.oneOfTheDownstreamServicesIsFailing)
 	ctx.Step(`^I should receive the following health JSON response:$`, c.iShouldReceiveTheFollowingHealthJSONResponse)
 	ctx.Step(`^there is a Search API that gives a successful response and returns ([1-9]\d*|0) results`, c.thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResults)
-	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic$`, c.thereIsATopicAPIThatReturnsARootTopic)
+	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic$`, c.thereIsATopicAPIThatReturnsARootTopic)
 	ctx.Step(`^there is a Topic API returns no topics`, c.thereIsATopicAPIThatReturnsNoTopics)
-	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsARootTopicAndSubtopic)
+	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsATopicAndSubtopic)
 }
 
 func (c *Component) theSearchControllerIsRunning() error {
 	ctx := context.Background()
+
+	initFunctions := &mocks.InitialiserMock{
+		DoGetHTTPServerFunc:   c.getHTTPServer,
+		DoGetHealthCheckFunc:  getHealthCheckOK,
+		DoGetHealthClientFunc: c.getHealthClient,
+	}
+
+	serviceList := service.NewServiceList(initFunctions)
+
+	c.svc = service.New()
+	if err := c.svc.Init(ctx, c.Config, serviceList); err != nil {
+		log.Error(ctx, "failed to initialise service", err)
+		return err
+	}
 
 	svcErrors := make(chan error, 1)
 
@@ -178,32 +195,44 @@ func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResul
 
 func (c *Component) thereIsATopicAPIThatReturnsARootTopic(topic string) error {
 
+	// This should be configurable really
+	fakeTopicId := "6734"
+
+	c.FakeAPIRouter.rootTopicRequest.Lock()
+	defer c.FakeAPIRouter.rootTopicRequest.Unlock()
+
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	topicAPIResponse := generateTopicResponse("6646", topic)
+	rootTopicAPIRespose := generateTopicResponseWithSubtopic(fakeTopicId, topic)
+	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIRespose
+
+	topicAPIResponse := generateTopicResponse(fakeTopicId, topic)
 	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
 
 	return nil
 }
 
-func (c *Component) thereIsATopicAPIThatReturnsARootTopicAndSubtopic(topic string, subTopic string) error {
+func (c *Component) thereIsATopicAPIThatReturnsATopicAndSubtopic(topic string, subTopic string) error {
+
+	c.FakeAPIRouter.rootTopicRequest.Lock()
+	defer c.FakeAPIRouter.rootTopicRequest.Unlock()
 
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	c.FakeAPIRouter.subtopicsRequest.Lock()
-	defer c.FakeAPIRouter.subtopicsRequest.Unlock()
+	economyTopicID := "6734"
+	SubTopicTitle := "environmental accounts"
 
-	topicID := "6646"
+	rootTopicAPIRespose := generateTopicResponseWithSubtopic(economyTopicID, topic)
+	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIRespose
 
-	topicAPIResponse := generateTopicResponse(topicID, topic)
+	topicAPIResponse := generateTopicResponse(economyTopicID, topic)
 	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
 
-	subtopicAPIResponse := generateTopicResponse("6647", subTopic)
+	subtopicAPIResponse := generateTopicResponseWithSubtopic("1834", SubTopicTitle)
 
-	fakeTopicRequestPath := fmt.Sprintf("/topics/%s/subtopics", topicID)
-
+	fakeTopicRequestPath := fmt.Sprintf("/topics/%s/subtopics", economyTopicID)
 	c.FakeAPIRouter.subtopicsRequest.Get(fakeTopicRequestPath)
 	c.FakeAPIRouter.subtopicsRequest.Response = subtopicAPIResponse
 

@@ -92,6 +92,11 @@ var (
 			return cache.List{}, err
 		}
 
+		testDataTopicCache, err := cache.NewTopicCache(ctx, nil)
+		if err != nil {
+			return cache.List{}, err
+		}
+
 		testNavigationCache, err := cache.NewNavigationCache(ctx, nil)
 		if err != nil {
 			return cache.List{}, err
@@ -99,6 +104,7 @@ var (
 
 		cacheList := cache.List{
 			CensusTopic: testCensusTopicCache,
+			DataTopic:   testDataTopicCache,
 			Navigation:  testNavigationCache,
 		}
 

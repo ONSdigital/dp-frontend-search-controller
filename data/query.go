@@ -113,101 +113,8 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	return validatedQueryParams, nil
 }
 
-// ReviewQuery ensures that all search parameter values given by the user are reviewed
-func ReviewDataAggregationQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (sp SearchURLParams, validationErrs []core.ErrorItem) {
-	sp.Query = urlQuery.Get("q")
-
-	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
-	if paginationErr != nil {
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(paginationErr.Error()),
-			},
-			ID: PaginationErr,
-		})
-		log.Error(ctx, "unable to review pagination", paginationErr)
-	}
-
-	fromDate, vErrs := GetStartDate(urlQuery)
-	if len(vErrs) > 0 {
-		validationErrs = append(validationErrs, vErrs...)
-	}
-	sp.AfterDate = fromDate
-
-	toDate, vErrs := GetEndDate(urlQuery)
-	if len(vErrs) > 0 {
-		validationErrs = append(validationErrs, vErrs...)
-	}
-	if fromDate.String() != "" && toDate.String() != "" {
-		var err error
-		toDate, err = ValidateDateRange(fromDate, toDate)
-		if err != nil {
-			validationErrs = append(validationErrs, core.ErrorItem{
-				Description: core.Localisation{
-					Text: CapitalizeFirstLetter(err.Error()),
-				},
-				ID:  DateToErr,
-				URL: fmt.Sprintf("#%s", DateToErr),
-			})
-		}
-	}
-	sp.BeforeDate = toDate
-
-	reviewSort(ctx, urlQuery, &sp, cfg.DefaultAggregationSort)
-
-	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
-	if contentTypeFilterError != nil {
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(contentTypeFilterError.Error()),
-			},
-			ID: ContentTypeFilterErr,
-		})
-		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
-	}
-
-	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &sp, censusTopicCache)
-	if topicFilterErr != nil {
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(topicFilterErr.Error()),
-			},
-			ID: TopicFilterErr,
-		})
-		log.Error(ctx, "invalid topic filters set", topicFilterErr)
-	}
-
-	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &sp)
-	if populationTypeFilterErr != nil {
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(populationTypeFilterErr.Error()),
-			},
-			ID: PopulationTypeFilterErr,
-		})
-		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
-	}
-
-	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
-	if dimensionsFilterErr != nil {
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(dimensionsFilterErr.Error()),
-			},
-			ID: DimensionsFilterErr,
-		})
-		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
-	}
-
-	if len(validationErrs) > 0 {
-		return sp, validationErrs
-	}
-
-	return sp, nil
-}
-
 // ReviewDataAggregationQueryWithParams ensures that all search parameter values given by the user are reviewed
-func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (sp SearchURLParams, validationErrs []core.ErrorItem) {
+func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values) (sp SearchURLParams, validationErrs []core.ErrorItem) {
 	sp.Query = urlQuery.Get("q")
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
@@ -259,7 +166,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 		})
 	}
 
-	topicFilterErr := reviewTopicFiltersForDataAggregation(ctx, urlQuery, &sp, censusTopicCache)
+	topicFilterErr := reviewTopicFiltersForDataAggregation(urlQuery, &sp)
 	if topicFilterErr != nil {
 		log.Error(ctx, "invalid topic filters set", topicFilterErr)
 		validationErrs = append(validationErrs, core.ErrorItem{

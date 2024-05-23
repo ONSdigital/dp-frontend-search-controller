@@ -32,8 +32,10 @@ No further dependencies other than those defined in `go.mod`
 | AB_TEST_EXIT                                | search-ab-exit                  | Param to purge the cookie if a user enters in browser                                                              |
 | BIND_ADDR                                   | :25000                          | The port to bind to                                                                                                |
 | CACHE_CENSUS_TOPICS_UPDATE_INTERVAL         | 30m                             | The time interval to update cache for census topics (`time.Duration` format)                                       |
+| CACHE_DATA_TOPICS_UPDATE_INTERVAL           | 30m                             | The time interval to update cache for data topics (`time.Duration` format)                                         |
 | CACHE_NAVIGATION_UPDATE_INTERVAL            | 30m                             | The time interval to update cache for navigation bar (`time.Duration` format)                                      |
-| CENSUS_TOPIC_ID                             | 4445                            | Unique identifer for the census topic, used to get census topics from Topics API                                   |
+| CENSUS_TOPIC_ID                             | 4445                            | Unique identifier for the census topic, used to get census topics from Topics API                                  |
+| ROOT_TOPIC_ID                               | 9999                            | Unique identifier for the root data topic, used to get data topics from Topics API                                 |
 | DEBUG                                       | false                           | Enable debug mode                                                                                                  |
 | DEFAULT_DATASET_SORT                        | release_date                    | The default sort for census dataset finder                                                                         |
 | DEFAULT_LIMIT                               | 10                              | The default limit of search results in a page                                                                      |
@@ -53,7 +55,7 @@ No further dependencies other than those defined in `go.mod`
 | OTEL_BATCH_TIMEOUT                          | 5s                              | Interval between pushes to OT Collector                                                                            |
 | OTEL_EXPORTER_OTLP_ENDPOINT                 | http://localhost:4317           | URL for OpenTelemetry endpoint                                                                                     |
 | OTEL_SERVICE_NAME                           | "dp-frontend-search-controller" | Service name to report to telemetry tools                                                                          |
-| OTEL_ENABLED                                | false                           | Feature flag to enable OpenTelemetry
+| OTEL_ENABLED                                | false                           | Feature flag to enable OpenTelemetry                                                                               
 | IS_PUBLISHING                               | false                           | Mode in which service is running                                                                                   |
 | PATTERN_LIBRARY_ASSETS_PATH                 | ""                              | Pattern library location                                                                                           |
 | SERVICE_AUTH_TOKEN                          | ""                              | This is required to identify the controller when it calls the topic API via the API router in publishing mode      |

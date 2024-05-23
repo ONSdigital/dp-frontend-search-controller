@@ -91,7 +91,7 @@ Feature: Aggregated Data Pages
 
   Scenario: GET topic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
-    And there is a Topic API that returns the "economy" root topic
+    And there is a Topic API that returns the "economy" topic
     And the search controller is running
     When I navigate to "/economy/publications"
     Then the page should have the following content
@@ -104,7 +104,7 @@ Feature: Aggregated Data Pages
 
   Scenario: GET topic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
-    And there is a Topic API returns no topics
+    And there is a Topic API that returns the "economy" topic
     And the search controller is running
     When I navigate to "/testpath/publications"
     Then the page should have the following content
@@ -116,20 +116,20 @@ Feature: Aggregated Data Pages
 
   Scenario: GET subtopic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
-    And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic
+    And there is a Topic API that returns the "economy" topic and the "environmentalaccounts" subtopic
     And the search controller is running
-    When I navigate to "/economy/environmental/publications"
+    When I navigate to "/economy/environmentalaccounts/publications"
     Then the page should have the following content
     """
         {
-            "#main h1": "Publications related to environmental",
+            "#main h1": "Publications related to environmental accounts",
             ".search__count h2": "10 results"
         }
     """
 
   Scenario: GET subtopic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
-    And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic
+    And there is a Topic API that returns the "economy" topic and the "environmentalaccounts" subtopic
     And the search controller is running
     When I navigate to "/economy/testtopic/publications"
     Then the page should have the following content
