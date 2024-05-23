@@ -376,6 +376,180 @@ func TestUnitReadFailure(t *testing.T) {
 	})
 }
 
+func TestUnitReadDataAggregationSuccess(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	mockSearchResponse, err := mapper.GetMockSearchResponse()
+	if err != nil {
+		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
+	}
+
+	mockHomepageContent, err := mapper.GetMockHomepageContent()
+	if err != nil {
+		t.Errorf("failed to retrieve mock homepage content for unit tests, failing early: %v", err)
+	}
+
+	Convey("Given a valid request for a an aggregated data page and a set of mocked services", t, func() {
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/publications", http.NoBody)
+
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		mockedRendererClient := &RenderClientMock{
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
+			},
+		}
+
+		mockedSearchClient := &SearchClientMock{
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+				return mockSearchResponse, nil
+			},
+		}
+
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
+				return mockHomepageContent, nil
+			},
+		}
+
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
+		So(err, ShouldBeNil)
+
+		Convey("When readDataAggregationWithTopics is called", func() {
+			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "home-publications")
+
+			Convey("Then a 200 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusOK)
+
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
+			})
+
+			Convey("And the Search Client should be called with pre-configured filters", func() {
+				_, searchCall := sortSearchCalls(mockedSearchClient.GetSearchCalls()[0], mockedSearchClient.GetSearchCalls()[1], "content_type")
+
+				expectedContentTypes := []string{"bulletin,article,article_download,compendium_landing_page"}
+
+				searchContentTypeParam := searchCall.Options.Query["content_type"]
+
+				So(searchContentTypeParam, ShouldEqual, expectedContentTypes)
+			})
+		})
+	})
+}
+
+func TestUnitReadDataAggregationFailure(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	mockSearchResponse, err := mapper.GetMockSearchResponse()
+	if err != nil {
+		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
+	}
+
+	mockHomepageContent, err := mapper.GetMockHomepageContent()
+	if err != nil {
+		t.Errorf("failed to retrieve mock homepage content for unit tests, failing early: %v", err)
+	}
+
+	Convey("Given a request for a aggregated data page with an invalid page param", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		invalidPageParam := (cfg.DefaultMaximumSearchResults / cfg.DefaultLimit) + 10
+
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/publications?page=%d", invalidPageParam), http.NoBody)
+
+		mockedRendererClient := &RenderClientMock{
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
+			},
+		}
+
+		mockedSearchClient := &SearchClientMock{
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+				return mockSearchResponse, nil
+			},
+		}
+
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
+				return mockHomepageContent, nil
+			},
+		}
+
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
+		So(err, ShouldBeNil)
+
+		Convey("When readDataAggregation is called", func() {
+			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "home-publications")
+
+			Convey("Then a 200 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusOK)
+
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
+			})
+
+			Convey("And no calls should be made to downstream services", func() {
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 0)
+			})
+		})
+	})
+
+	Convey("Given a request for a aggregated data page with an invalid date param", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", "/alladhocs?after-month=13&after-year=2024", http.NoBody)
+
+		mockedRendererClient := &RenderClientMock{
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
+			},
+		}
+
+		mockedSearchClient := &SearchClientMock{
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+				return mockSearchResponse, nil
+			},
+		}
+
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
+				return mockHomepageContent, nil
+			},
+		}
+
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
+		So(err, ShouldBeNil)
+
+		Convey("When readDataAggregation is called", func() {
+			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "all-adhocs")
+
+			Convey("Then a 200 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusOK)
+
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
+			})
+
+			Convey("And no calls should be made to downstream services", func() {
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 0)
+			})
+		})
+	})
+}
+
 func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 	t.Parallel()
 
@@ -1326,4 +1500,28 @@ func TestGetTopicByURLString(t *testing.T) {
 			})
 		})
 	})
+}
+
+// For most handlers, search calls are done in parallel so assessing their
+// mocks by order is challenging. This takes two parallel calls and assesses them to
+// see which is the category call.
+func sortSearchCalls(searchCall1 struct {
+	Ctx     context.Context
+	Options searchSDK.Options
+}, searchCall2 struct {
+	Ctx     context.Context
+	Options searchSDK.Options
+}, filter string,
+) (categorySearchCall struct {
+	Ctx     context.Context
+	Options searchSDK.Options
+}, querySearchCall struct {
+	Ctx     context.Context
+	Options searchSDK.Options
+}) {
+	if searchCall1.Options.Query.Has(filter) {
+		return searchCall2, searchCall1
+	}
+
+	return searchCall1, searchCall2
 }

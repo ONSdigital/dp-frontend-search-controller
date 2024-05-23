@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -17,6 +18,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
+	"github.com/ONSdigital/dp-frontend-search-controller/model"
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
@@ -32,6 +34,11 @@ import (
 // Constants...
 const (
 	homepagePath = "/"
+	DateFrom     = "fromDate"
+	DateFromErr  = DateFrom + "-error"
+	DateTo       = "toDate"
+	DateToErr    = DateTo + "-error"
+	Bearer       = "Bearer "
 )
 
 // HandlerClients represents the handlers for search and data-aggregation
@@ -254,17 +261,22 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		setStatusCode(w, req, err)
 		return
 	}
-
-	validatedQueryParams, err := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
-		log.Error(ctx, "unable to review query", err)
-		setStatusCode(w, req, err)
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
+	if len(validationErrs) > 0 {
+		log.Info(ctx, "validation of parameters failed", log.Data{
+			"parameters": validationErrs,
+		})
+		// Errors are now mapped to the page model to output feedback to the user rather than
+		// a blank 400 error response.
+		m := mapper.CreateDataAggregationPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, topicModels.Topic{}, validationErrs)
+		buildDataAggregationPage(w, m, rend, template)
 		return
 	}
 
 	if _, rssParam := urlQuery["rss"]; rssParam {
 		req.Header.Set("Accept", "application/rss+xml")
 		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
+			log.Error(ctx, "failed to create rss feed", err)
 			setStatusCode(w, req, err)
 			return
 		}
@@ -305,7 +317,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.FlorenceToken: {Bearer + accessToken},
 		searchSDK.CollectionID:  {collectionID},
 	}
 
@@ -346,7 +358,12 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{})
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{}, validationErrs)
+	buildDataAggregationPage(w, m, rend, template)
+}
+
+// Maps template name to underlying go template
+func buildDataAggregationPage(w http.ResponseWriter, m model.SearchPage, rend RenderClient, template string) {
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
@@ -432,27 +449,14 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
-	fmt.Println("\n\t----- readDataAggregationWithTopics ", urlQuery)
-
-	validatedQueryParams, err := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
-		log.Error(ctx, "unable to review query", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
-	if _, rssParam := urlQuery["rss"]; rssParam {
-		req.Header.Set("Accept", "application/rss+xml")
-
-		fmt.Println("\n\t------ rssParam", validatedQueryParams)
-
-		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
-			setStatusCode(w, req, err)
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, censusTopicCache)
+	for _, vErr := range validationErrs {
+		if vErr.ID != DateFromErr && vErr.ID != DateToErr && !apperrors.ErrMapForRenderBeforeAPICalls[errors.New(vErr.Description.Text)] {
+			log.Error(ctx, "unable to review query", errors.New(vErr.Description.Text))
+			setStatusCode(w, req, errors.New(vErr.Description.Text))
 			return
 		}
-		return
 	}
-
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 3
 
@@ -487,7 +491,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.FlorenceToken: {Bearer + accessToken},
 		searchSDK.CollectionID:  {collectionID},
 	}
 
@@ -528,7 +532,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic, validationErrs)
 	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
@@ -795,10 +799,10 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 }
 
 func setFlorenceTokenHeader(headers http.Header, accessToken string) {
-	if strings.HasPrefix(accessToken, "Bearer ") {
+	if strings.HasPrefix(accessToken, Bearer) {
 		headers.Set(searchSDK.FlorenceToken, accessToken)
 	} else {
-		headers.Set(searchSDK.FlorenceToken, "Bearer "+accessToken)
+		headers.Set(searchSDK.FlorenceToken, Bearer+accessToken)
 	}
 }
 
@@ -811,7 +815,7 @@ func createRSSFeed(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 	options.Query = data.GetDataAggregationQuery(validatedParams, template)
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {"Bearer " + accessToken},
+		searchSDK.FlorenceToken: {Bearer + accessToken},
 		searchSDK.CollectionID:  {collectionID},
 	}
 

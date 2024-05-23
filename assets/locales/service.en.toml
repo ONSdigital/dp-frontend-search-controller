@@ -468,3 +468,15 @@ one = "Series ID"
 description = "Dataset ID"
 other = "Dataset ID"
 one = "Dataset ID"
+
+[SubscriptionLinkRSS]
+description = "RSS feed"
+one = "RSS feed"
+
+[SubscriptionLinkRSSIcon]
+description = "RSS feed icon"
+one = "RSS feed icon"
+
+[SortByLabel]
+description = "Sort by"
+one = "Sort by"
