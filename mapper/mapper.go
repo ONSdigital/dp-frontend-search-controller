@@ -99,15 +99,6 @@ func setRSSLink(page *model.SearchPage, base, rawQuery string) {
 		page.RSSLink = fmt.Sprintf("%s?rss", base)
 	}
 }
-func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem) {
-
-func setRSSLink(page *model.SearchPage, base, rawQuery string) {
-	if rawQuery != "" {
-		page.RSSLink = fmt.Sprintf("%s?rss&%s", base, rawQuery)
-	} else {
-		page.RSSLink = fmt.Sprintf("%s?rss", base)
-	}
-}
 
 func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem) {
 	switch template {
