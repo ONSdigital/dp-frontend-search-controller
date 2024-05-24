@@ -462,6 +462,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				exTopicFilterEnabled             bool
 				exDateFilterEnabled              bool
 				exEnableTimeSeriesExport         bool
+				exRSSLink                        string
 			}{
 				{
 					template:            "all-adhocs",
@@ -475,12 +476,14 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					exLocaliseKeyName:                "DataList",
 					exSingleContentTypeFilterEnabled: true,
 					exDateFilterEnabled:              true,
+					exRSSLink:                        "datalist?rss",
 				},
 				{
 					template:                         "home-publications",
 					exTitle:                          "Publications",
 					exLocaliseKeyName:                "HomePublications",
 					exSingleContentTypeFilterEnabled: true,
+					exRSSLink:                        "publications?rss",
 				},
 				{
 					template:             "all-methodologies",
@@ -522,6 +525,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					So(sp.Data.SingleContentTypeFilterEnabled, ShouldEqual, tc.exSingleContentTypeFilterEnabled)
 					So(sp.Data.TopicFilterEnabled, ShouldEqual, tc.exTopicFilterEnabled)
 					So(sp.Data.DateFilterEnabled, ShouldEqual, tc.exDateFilterEnabled)
+					So(sp.RSSLink, ShouldEqual, tc.exRSSLink)
 				})
 			}
 		})
