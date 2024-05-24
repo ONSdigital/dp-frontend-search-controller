@@ -7,11 +7,11 @@ import (
 	"strings"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-
 	"github.com/ONSdigital/dp-cookies/cookies"
+	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
-	model "github.com/ONSdigital/dp-frontend-search-controller/model"
+	"github.com/ONSdigital/dp-frontend-search-controller/model"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
@@ -70,7 +70,7 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation,
-	template string, topic topicModel.Topic, validationErrs []coreModel.ErrorItem,
+	template string, topic cache.Topic, validationErrs []coreModel.ErrorItem,
 ) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
@@ -99,8 +99,17 @@ func setRSSLink(page *model.SearchPage, base, rawQuery string) {
 		page.RSSLink = fmt.Sprintf("%s?rss", base)
 	}
 }
+func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem) {
 
-func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string, topic topicModel.Topic, validationErrs []coreModel.ErrorItem) {
+func setRSSLink(page *model.SearchPage, base, rawQuery string) {
+	if rawQuery != "" {
+		page.RSSLink = fmt.Sprintf("%s?rss&%s", base, rawQuery)
+	} else {
+		page.RSSLink = fmt.Sprintf("%s?rss", base)
+	}
+}
+
+func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem) {
 	switch template {
 	case "all-adhocs":
 		page.Metadata.Title = "User requested data"
@@ -223,7 +232,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	}
 
 	page.Type = "Data Aggregation Page"
-	page.Data.Topic = strings.ToLower(topic.Title)
+	page.Data.Topic = strings.ToLower(topic.LocaliseKeyName)
 	page.Data.TermLocalKey = "Results"
 	page.Count = respC.Count
 	page.Language = lang

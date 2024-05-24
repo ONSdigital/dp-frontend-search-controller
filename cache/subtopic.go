@@ -17,6 +17,7 @@ type Subtopics struct {
 type Subtopic struct {
 	ID              string
 	LocaliseKeyName string
+	Slug            string
 	ReleaseDate     *time.Time
 }
 

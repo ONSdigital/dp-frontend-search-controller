@@ -204,6 +204,116 @@ func TestUpdateCensusTopic(t *testing.T) {
 	})
 }
 
+func TestUpdateDataTopics(t *testing.T) {
+	ctx := context.Background()
+
+	expectedTopics := []*cache.Topic{
+		{ID: "6734", LocaliseKeyName: "Economy", Query: "1834"},
+		{ID: "1834", LocaliseKeyName: "Environmental Accounts"},
+		{ID: "1234", LocaliseKeyName: "Business"},
+	}
+	emptyTopic := []*cache.Topic{cache.GetEmptyTopic()}
+
+	Convey("Given root topics exist and have subtopics", t, func() {
+		mockClient := &mockTopicCli.ClienterMock{
+			GetSubtopicsPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.PublicSubtopics, topicCliErr.Error) {
+				switch topicID {
+				case cache.RootTopicID:
+					return &models.PublicSubtopics{
+						PublicItems: &[]models.Topic{
+							{ID: "6734", Title: "Economy", SubtopicIds: &[]string{"1834"}},
+							{ID: "1234", Title: "Business", SubtopicIds: &[]string{}},
+						},
+					}, nil
+				case "6734":
+					return &models.PublicSubtopics{
+						PublicItems: &[]models.Topic{
+							{ID: "1834", Title: "Environmental Accounts", SubtopicIds: &[]string{}},
+						},
+					}, nil
+				default:
+					return nil, topicCliErr.StatusError{
+						Err: errors.New("unexpected error"),
+					}
+				}
+			},
+		}
+
+		Convey("When UpdateDataTopics is called", func() {
+			respTopics := UpdateDataTopics(ctx, mockClient)()
+
+			Convey("Then the topics cache is returned", func() {
+				So(respTopics, ShouldNotBeNil)
+				So(len(respTopics), ShouldEqual, len(expectedTopics))
+				So(respTopics[0].ID, ShouldEqual, expectedTopics[0].ID)
+				So(respTopics[0].LocaliseKeyName, ShouldEqual, expectedTopics[0].LocaliseKeyName)
+				So(respTopics[1].ID, ShouldEqual, expectedTopics[1].ID)
+				So(respTopics[1].LocaliseKeyName, ShouldEqual, expectedTopics[1].LocaliseKeyName)
+			})
+		})
+	})
+
+	Convey("Given an error in getting root topics from topic-api", t, func() {
+		mockClient := &mockTopicCli.ClienterMock{
+			GetSubtopicsPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.PublicSubtopics, topicCliErr.Error) {
+				return nil, topicCliErr.StatusError{
+					Err: errors.New("unexpected error"),
+				}
+			},
+		}
+
+		Convey("When UpdateDataTopics is called", func() {
+			respTopics := UpdateDataTopics(ctx, mockClient)()
+
+			Convey("Then an empty topic cache should be returned", func() {
+				So(respTopics, ShouldResemble, emptyTopic)
+			})
+		})
+	})
+
+	Convey("Given root topics private items is nil", t, func() {
+		mockClient := &mockTopicCli.ClienterMock{
+			GetSubtopicsPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.PublicSubtopics, topicCliErr.Error) {
+				return &models.PublicSubtopics{PublicItems: nil}, nil
+			},
+		}
+
+		Convey("When UpdateDataTopics is called", func() {
+			respTopics := UpdateDataTopics(ctx, mockClient)()
+
+			Convey("Then an empty topic cache should be returned", func() {
+				So(respTopics, ShouldResemble, emptyTopic)
+			})
+		})
+	})
+
+	Convey("Given root topics exist but no data topics found", t, func() {
+		mockClient := &mockTopicCli.ClienterMock{
+			GetSubtopicsPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.PublicSubtopics, topicCliErr.Error) {
+				if topicID == cache.RootTopicID {
+					return &models.PublicSubtopics{
+						PublicItems: &[]models.Topic{},
+					}, nil
+				}
+				if topicID == "6734" {
+					return &models.PublicSubtopics{
+						PublicItems: &[]models.Topic{},
+					}, nil
+				}
+				return nil, nil
+			},
+		}
+
+		Convey("When UpdateDataTopics is called", func() {
+			respTopics := UpdateDataTopics(ctx, mockClient)()
+
+			Convey("Then an empty topic cache should be returned", func() {
+				So(respTopics, ShouldResemble, emptyTopic)
+			})
+		})
+	})
+}
+
 func TestGetRootTopicCachePublic(t *testing.T) {
 	t.Parallel()
 

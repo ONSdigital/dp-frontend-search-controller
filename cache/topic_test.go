@@ -96,7 +96,7 @@ func TestGetData(t *testing.T) {
 				So(err, ShouldNotBeNil)
 
 				Convey("And the cache data returned should be empty", func() {
-					So(testCacheData, ShouldResemble, getEmptyTopic())
+					So(testCacheData, ShouldResemble, GetEmptyTopic())
 				})
 			})
 		})
@@ -116,7 +116,7 @@ func TestGetData(t *testing.T) {
 				So(err, ShouldNotBeNil)
 
 				Convey("And the cache data returned should be empty", func() {
-					So(testCacheData, ShouldResemble, getEmptyTopic())
+					So(testCacheData, ShouldResemble, GetEmptyTopic())
 				})
 			})
 		})
@@ -136,7 +136,7 @@ func TestGetData(t *testing.T) {
 				So(err, ShouldNotBeNil)
 
 				Convey("And the cache data returned should be empty", func() {
-					So(testCacheData, ShouldResemble, getEmptyTopic())
+					So(testCacheData, ShouldResemble, GetEmptyTopic())
 				})
 			})
 		})

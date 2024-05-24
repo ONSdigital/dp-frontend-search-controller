@@ -2,11 +2,9 @@ package handlers
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -22,9 +20,6 @@ import (
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
-	topicModels "github.com/ONSdigital/dp-topic-api/models"
-	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"
-
 	"github.com/gorilla/mux"
 
 	"github.com/ONSdigital/log.go/v2/log"
@@ -75,7 +70,7 @@ func Read(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template
 // Read Handler for data aggregation routes with topic/subtopics
 func ReadDataAggregationWithTopics(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readDataAggregationWithTopics(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, hc.TopicClient, accessToken, collectionID, lang, cacheList, template)
+		readDataAggregationWithTopics(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
 	})
 }
 
@@ -261,14 +256,15 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		setStatusCode(w, req, err)
 		return
 	}
-	validatedQueryParams, validationErrs := data.ReviewDataAggregationQuery(ctx, cfg, urlQuery, censusTopicCache)
+
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery)
 	if len(validationErrs) > 0 {
 		log.Info(ctx, "validation of parameters failed", log.Data{
 			"parameters": validationErrs,
 		})
 		// Errors are now mapped to the page model to output feedback to the user rather than
 		// a blank 400 error response.
-		m := mapper.CreateDataAggregationPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, topicModels.Topic{}, validationErrs)
+		m := mapper.CreateDataAggregationPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs)
 		buildDataAggregationPage(w, m, rend, template)
 		return
 	}
@@ -358,7 +354,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		return
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, topicModels.Topic{}, validationErrs)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs)
 	buildDataAggregationPage(w, m, rend, template)
 }
 
@@ -372,74 +368,46 @@ func buildDataAggregationPage(w http.ResponseWriter, m model.SearchPage, rend Re
 	}
 }
 
-func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, topicC TopicClient,
+func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
 	accessToken, collectionID, lang string, cacheList cache.List, template string,
 ) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
 
 	vars := mux.Vars(req)
-
-	respRootTopics, topicAPIError := topicC.GetRootTopicsPublic(ctx, topicSDK.Headers{})
-	if topicAPIError != nil {
-		logData := log.Data{
-			"req_headers": topicSDK.Headers{},
-		}
-		log.Error(ctx, "failed to get root topics from topic api", topicAPIError, logData)
-		return
-	}
-
-	rootTopicItems := *respRootTopics.PublicItems
-	selectedTopic := topicModels.Topic{}
+	selectedTopic := cache.Topic{}
 
 	topicPath := vars["topic"]
-	topic, err := getTopicByURLString(topicPath, rootTopicItems)
+	topic, err := cacheList.DataTopic.GetData(ctx, topicPath)
 	if err != nil {
-		log.Error(ctx, "could not match topicPath to topics", err, log.Data{
+		log.Error(ctx, "could not find topicPath in topic cache", err, log.Data{
 			"topicPath": topicPath,
 		})
+		err = apperrors.ErrTopicPathNotFound
 		setStatusCode(w, req, err)
 		return
 	}
 
 	subtopicPath := vars["subTopic"]
 	if subtopicPath != "" {
-		subTopics, topicAPIError := topicC.GetSubtopicsPublic(ctx, topicSDK.Headers{}, topic.ID)
-		if topicAPIError != nil {
-			log.Error(ctx, "failed to get subtopics", topicAPIError)
-			setStatusCode(w, req, topicAPIError)
-			return
-		}
-
-		subtopicItems := *subTopics.PublicItems
-
-		subtopic, matchingErr := getTopicByURLString(subtopicPath, subtopicItems)
+		subtopic, matchingErr := cacheList.DataTopic.GetData(ctx, subtopicPath)
 		if matchingErr != nil {
 			log.Error(ctx, "could not match subtopicPath to subtopics", matchingErr, log.Data{
 				"subtopicPath": subtopicPath,
 			})
+			matchingErr = apperrors.ErrTopicPathNotFound
 			setStatusCode(w, req, matchingErr)
 			return
 		}
 
-		selectedTopic = subtopic
+		selectedTopic = *subtopic
 	} else {
-		selectedTopic = topic
+		selectedTopic = *topic
 	}
 
 	urlQuery := req.URL.Query()
 
 	urlQuery.Add("topics", selectedTopic.ID)
-
-	// replace with new cache
-	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
-	if err != nil {
-		log.Error(ctx, "failed to get census topic cache", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
-	log.Info(ctx, "this the census cache topics", log.Data{"topics": censusTopicCache})
 
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
@@ -449,14 +417,18 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
-	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, censusTopicCache)
-	for _, vErr := range validationErrs {
-		if vErr.ID != DateFromErr && vErr.ID != DateToErr && !apperrors.ErrMapForRenderBeforeAPICalls[errors.New(vErr.Description.Text)] {
-			log.Error(ctx, "unable to review query", errors.New(vErr.Description.Text))
-			setStatusCode(w, req, errors.New(vErr.Description.Text))
-			return
-		}
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery)
+	if len(validationErrs) > 0 {
+		log.Info(ctx, "validation of parameters failed", log.Data{
+			"parameters": validationErrs,
+		})
+		// Errors are now mapped to the page model to output feedback to the user rather than
+		// a blank 400 error response.
+		m := mapper.CreateDataAggregationPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs)
+		buildDataAggregationPage(w, m, rend, template)
+		return
 	}
+
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 3
 
@@ -510,7 +482,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		defer wg.Done()
 
 		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
-		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
 		if countErr != nil {
 			log.Error(ctx, "getting categories, types and its counts failed", countErr)
 			setStatusCode(w, req, countErr)
@@ -717,7 +689,7 @@ func getCategoriesDatasetCountQuery(searchQuery url.Values) url.Values {
 }
 
 // getCategoriesTypesCount removes the filters and communicates with the search api again to retrieve the number of search results for each filter categories and subtypes
-func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, query url.Values, searchC SearchClient, censusTopicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
+func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID string, query url.Values, searchC SearchClient, topicCache *cache.Topic) ([]data.Category, []data.Topic, error) {
 	var options searchSDK.Options
 
 	options.Query = query
@@ -735,7 +707,7 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 	}
 
 	categories := data.GetCategories()
-	topicCategories := data.GetTopics(censusTopicCache, countResp)
+	topicCategories := data.GetTopics(topicCache, countResp)
 
 	setCountToCategories(ctx, countResp, categories)
 
@@ -891,18 +863,4 @@ func getPageTitle(template string) (pageTitle, pageTag string) {
 	}
 
 	return "", ""
-}
-
-// getTopicByURLString matches a URL string, e.g. businessindustryandtrade against
-// a Topic retrieved from the Topic API, using it's Title attribute, e.g.
-// "Business, industry and trade"
-func getTopicByURLString(topicURLString string, topics []topicModels.Topic) (topicModels.Topic, error) {
-	nonAlphanumericRegex := regexp.MustCompile(`[^a-zA-Z0-9]+`)
-
-	for _, topic := range topics {
-		if nonAlphanumericRegex.ReplaceAllString(strings.ToLower(topic.Title), "") == strings.ToLower(topicURLString) {
-			return topic, nil
-		}
-	}
-	return topicModels.Topic{}, apperrors.ErrTopicPathNotFound
 }
