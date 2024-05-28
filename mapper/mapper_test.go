@@ -11,9 +11,9 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
-	model "github.com/ONSdigital/dp-renderer/v2/model"
 	helper "github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
+	model "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -165,7 +165,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 func TestUnitFindDatasetPage(t *testing.T) {
 	t.Parallel()
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	
+
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
 		cfg.EnableCensusDimensionsFilterOption = true
