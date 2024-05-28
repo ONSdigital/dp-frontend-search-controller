@@ -11,7 +11,8 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
-	"github.com/ONSdigital/dp-frontend-search-controller/model"
+	model "github.com/ONSdigital/dp-frontend-search-controller/model"
+	"github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
@@ -184,6 +185,45 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 			HasDayValidationErr:   validatedQueryParams.AfterDate.HasDayValidationErr(),
 			HasMonthValidationErr: validatedQueryParams.AfterDate.HasMonthValidationErr(),
 			HasYearValidationErr:  validatedQueryParams.AfterDate.HasYearValidationErr(),
+			DataAttributes: []coreModel.DataAttribute{
+				{
+					Key: "invalid-date",
+					Value: coreModel.Localisation{
+						LocaleKey: "ValidationInvalidDate",
+						Plural:    1,
+					},
+				},
+			},
+			DayDataAttributes: []coreModel.DataAttribute{
+				{
+					Key: "pattern-mismatch",
+					Value: coreModel.Localisation{
+						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "day"),
+					},
+				},
+			},
+			MonthDataAttributes: []coreModel.DataAttribute{
+				{
+					Key: "pattern-mismatch",
+					Value: coreModel.Localisation{
+						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "month"),
+					},
+				},
+			},
+			YearDataAttributes: []coreModel.DataAttribute{
+				{
+					Key: "value-missing",
+					Value: coreModel.Localisation{
+						Text: helper.Localise("ValidationYearMissing", lang, 1, "after"),
+					},
+				},
+				{
+					Key: "pattern-mismatch",
+					Value: coreModel.Localisation{
+						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "year"),
+					},
+				},
+			},
 			Title: coreModel.Localisation{
 				LocaleKey: "ReleasedAfter",
 				Plural:    1,
@@ -211,6 +251,52 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 			HasDayValidationErr:   validatedQueryParams.BeforeDate.HasDayValidationErr(),
 			HasMonthValidationErr: validatedQueryParams.BeforeDate.HasMonthValidationErr(),
 			HasYearValidationErr:  validatedQueryParams.BeforeDate.HasYearValidationErr(),
+			DataAttributes: []coreModel.DataAttribute{
+				{
+					Key: "invalid-range",
+					Value: coreModel.Localisation{
+						LocaleKey: "ValidationInvalidDateRange",
+						Plural:    1,
+					},
+				},
+				{
+					Key: "invalid-date",
+					Value: coreModel.Localisation{
+						LocaleKey: "ValidationInvalidDate",
+						Plural:    1,
+					},
+				},
+			},
+			DayDataAttributes: []coreModel.DataAttribute{
+				{
+					Key: "pattern-mismatch",
+					Value: coreModel.Localisation{
+						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "day"),
+					},
+				},
+			},
+			MonthDataAttributes: []coreModel.DataAttribute{
+				{
+					Key: "pattern-mismatch",
+					Value: coreModel.Localisation{
+						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "month"),
+					},
+				},
+			},
+			YearDataAttributes: []coreModel.DataAttribute{
+				{
+					Key: "value-missing",
+					Value: coreModel.Localisation{
+						Text: helper.Localise("ValidationYearMissing", lang, 1, "before"),
+					},
+				},
+				{
+					Key: "pattern-mismatch",
+					Value: coreModel.Localisation{
+						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "year"),
+					},
+				},
+			},
 			Title: coreModel.Localisation{
 				LocaleKey: "ReleasedBefore",
 				Plural:    1,
