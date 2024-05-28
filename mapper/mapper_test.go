@@ -10,7 +10,10 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
-	"github.com/ONSdigital/dp-renderer/v2/model"
+	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
+	model "github.com/ONSdigital/dp-renderer/v2/model"
+	helper "github.com/ONSdigital/dp-renderer/v2/helper"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -29,6 +32,7 @@ const englishLang string = "en"
 
 func TestUnitCreateSearchPage(t *testing.T) {
 	t.Parallel()
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
@@ -160,7 +164,8 @@ func TestUnitCreateSearchPage(t *testing.T) {
 
 func TestUnitFindDatasetPage(t *testing.T) {
 	t.Parallel()
-
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
+	
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
 		cfg.EnableCensusDimensionsFilterOption = true
@@ -272,6 +277,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 
 func TestCreateDataAggregationPage(t *testing.T) {
 	t.Parallel()
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
@@ -333,6 +339,45 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				HasDayValidationErr:   validatedQueryParams.AfterDate.HasDayValidationErr(),
 				HasMonthValidationErr: validatedQueryParams.AfterDate.HasMonthValidationErr(),
 				HasYearValidationErr:  validatedQueryParams.AfterDate.HasYearValidationErr(),
+				DataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "invalid-date",
+						Value: coreModel.Localisation{
+							LocaleKey: "ValidationInvalidDate",
+							Plural:    1,
+						},
+					},
+				},
+				DayDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "day"),
+						},
+					},
+				},
+				MonthDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "month"),
+						},
+					},
+				},
+				YearDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "value-missing",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationYearMissing", lang, 1, "after"),
+						},
+					},
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "year"),
+						},
+					},
+				},
 				Title: model.Localisation{
 					LocaleKey: "ReleasedAfter",
 					Plural:    1,
@@ -360,6 +405,52 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				HasDayValidationErr:   validatedQueryParams.BeforeDate.HasDayValidationErr(),
 				HasMonthValidationErr: validatedQueryParams.BeforeDate.HasMonthValidationErr(),
 				HasYearValidationErr:  validatedQueryParams.BeforeDate.HasYearValidationErr(),
+				DataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "invalid-range",
+						Value: coreModel.Localisation{
+							LocaleKey: "ValidationInvalidDateRange",
+							Plural:    1,
+						},
+					},
+					{
+						Key: "invalid-date",
+						Value: coreModel.Localisation{
+							LocaleKey: "ValidationInvalidDate",
+							Plural:    1,
+						},
+					},
+				},
+				DayDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "day"),
+						},
+					},
+				},
+				MonthDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "month"),
+						},
+					},
+				},
+				YearDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "value-missing",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationYearMissing", lang, 1, "before"),
+						},
+					},
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "year"),
+						},
+					},
+				},
 				Title: model.Localisation{
 					LocaleKey: "ReleasedBefore",
 					Plural:    1,
