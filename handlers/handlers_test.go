@@ -21,6 +21,8 @@ import (
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	apiError "github.com/ONSdigital/dp-search-api/sdk/errors"
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
+	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
+	helper "github.com/ONSdigital/dp-renderer/v2/helper"
 	"github.com/gorilla/mux"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -526,6 +528,7 @@ func TestUnitReadDataAggregationFailure(t *testing.T) {
 
 func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 	t.Parallel()
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	ctx := context.Background()
 
