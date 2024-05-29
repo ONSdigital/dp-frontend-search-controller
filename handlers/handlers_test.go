@@ -354,6 +354,7 @@ func TestUnitReadFailure(t *testing.T) {
 
 func TestUnitReadDataAggregationSuccess(t *testing.T) {
 	t.Parallel()
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	ctx := context.Background()
 
@@ -421,7 +422,7 @@ func TestUnitReadDataAggregationSuccess(t *testing.T) {
 }
 
 func TestUnitReadDataAggregationFailure(t *testing.T) {
-	t.Parallel()
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	ctx := context.Background()
 
@@ -527,7 +528,6 @@ func TestUnitReadDataAggregationFailure(t *testing.T) {
 }
 
 func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
-	t.Parallel()
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	ctx := context.Background()
