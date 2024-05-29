@@ -5,15 +5,15 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
-	"testing"
 	"sync"
+	"testing"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 
-	helper "github.com/ONSdigital/dp-renderer/v2/helper"
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
+	helper "github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
@@ -32,12 +32,12 @@ var mockTopicCategories = []data.Topic{
 const englishLang string = "en"
 
 var (
-    once sync.Once
+	once sync.Once
 )
 
 func TestUnitCreateSearchPage(t *testing.T) {
 	t.Parallel()
-	
+
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
