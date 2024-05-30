@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"strings"
-	"sync"
 	"testing"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
@@ -30,10 +29,6 @@ var mockTopicCategories = []data.Topic{
 }
 
 const englishLang string = "en"
-
-var (
-	once sync.Once
-)
 
 func TestUnitCreateSearchPage(t *testing.T) {
 	t.Parallel()
@@ -280,9 +275,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 
 func TestCreateDataAggregationPage(t *testing.T) {
 	t.Parallel()
-	once.Do(func() {
-		helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
-	})
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
