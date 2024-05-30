@@ -216,3 +216,24 @@ func generateEmptyTopicResponse() *httpfake.Response {
 
 	return fakeAPIResponse
 }
+
+func generateTopicResponseRSS(topic, subtopic string) *httpfake.Response {
+	topicTitle := "Latest ONS releases matching"
+	subTopicTitle := "Latest ONS releases"
+	query := "rss"
+	topicSubTopicRSSResponse := `
+		<?xml version="1.0" encoding="ISO-8859-1"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+		<channel>
+		<title>` + topicTitle + ` (topic: /` + topic + `/` + subtopic + `, type: data).</title>
+		<link>http://dp.aws.onsdigital.uk/` + topic + `/` + subtopic + `?` + query + `</link>
+		<description>` + subTopicTitle + `</description> <category>/` + topic + `/` + subtopic + `</category>
+		<dc:subject>/` + topic + `/` + subtopic + `</dc:subject></channel>
+		</rss>`
+
+	fakeAPIResponse := httpfake.NewResponse()
+	fakeAPIResponse.Header.Add("Content-Type", "application/rss+xml; charset=ISO-8859-1")
+	fakeAPIResponse.Status(200)
+	fakeAPIResponse.BodyString(topicSubTopicRSSResponse)
+
+	return fakeAPIResponse
+}

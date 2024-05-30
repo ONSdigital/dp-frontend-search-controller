@@ -114,7 +114,7 @@ Feature: Aggregated Data Pages
         }
     """
 
-  @agg
+  @agg_rss
   Scenario: GET subtopic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic
@@ -128,6 +128,7 @@ Feature: Aggregated Data Pages
         }
     """
 
+  @agg_rss
   Scenario: GET subtopic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic
@@ -140,16 +141,36 @@ Feature: Aggregated Data Pages
         }
     """
 
-    @agg
-  Scenario: GET rss
+@agg_rss
+  Scenario: GET rss for subtopic pre-filtered page with matching topic
+  Given there is a Search API that gives a successful response and returns 10 results
+  And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic for requestQuery "rss"
+  And the search controller is running
+  When I navigate to "/economy/environmental/publications?rss"
+  Then the page should have the following xml content
+    """
+      <?xml version="1.0" encoding="ISO-8859-1"?>
+      <rss xmlns:dc="http://purl.org/dc/elements/1.1/" version="2.0">
+      <channel>
+        <title>Latest ONS releases matching (topic: /economy/environmental, type: data).</title>
+        <link>http://dp.aws.onsdigital.uk/economy/environmental?rss</link>
+        <description>Latest ONS releases</description>
+        <category>/economy/environmental</category>
+        <dc:subject>/economy/environmental</dc:subject>
+      </channel>
+      </rss>
+    """
+  And the response header "Content-Type" should contain "application/rss+xml; charset=ISO-8859-1"
+
+@agg_rss
+  Scenario: GET subtopic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic
     And the search controller is running
-    When I navigate to "/economy/environmental/publications"
+    When I navigate to "/economy/testtopic/publications/rss"
     Then the page should have the following content
     """
         {
-            "#main h1": "Publications related to environmental",
-            ".search__count h2": "10 results"
+            "#main h1": "Page not found"
         }
     """
