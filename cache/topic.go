@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"regexp"
+	"strings"
 	"time"
 
 	dpcache "github.com/ONSdigital/dp-cache"
@@ -12,6 +14,9 @@ import (
 
 // CensusTopicID is the id of the Census topic stored in mongodb which is accessible by using dp-topic-api
 var CensusTopicID string
+
+// RootTopicID is the id of the Root topic stored in mongodb which is accessible by using dp-topic-api
+var RootTopicID string
 
 // TopicCache is a wrapper to dpcache.Cache which has additional fields and methods specifically for caching topics
 type TopicCache struct {
@@ -22,6 +27,7 @@ type TopicCache struct {
 type Topic struct {
 	ID              string
 	LocaliseKeyName string
+	Slug            string
 	// Query is a comma separated string of topic id and its subtopic ids which will be used by the controller to create the query
 	Query string
 	// List is a map[string]Subtopics which contains the topic id and a list of it's subtopics
@@ -54,20 +60,20 @@ func (dc *TopicCache) GetData(ctx context.Context, key string) (*Topic, error) {
 	if !ok {
 		err := fmt.Errorf("cached topic data with key %s not found", key)
 		log.Error(ctx, "failed to get cached topic data", err)
-		return getEmptyTopic(), err
+		return GetEmptyTopic(), err
 	}
 
 	topicCacheData, ok := topicCacheInterface.(*Topic)
 	if !ok {
 		err := errors.New("topicCacheInterface is not type *Topic")
 		log.Error(ctx, "failed type assertion on topicCacheInterface", err)
-		return getEmptyTopic(), err
+		return GetEmptyTopic(), err
 	}
 
 	if topicCacheData == nil {
 		err := errors.New("topicCacheData is nil")
 		log.Error(ctx, "cached topic data is nil", err)
-		return getEmptyTopic(), err
+		return GetEmptyTopic(), err
 	}
 
 	return topicCacheData, nil
@@ -79,6 +85,29 @@ func (dc *TopicCache) AddUpdateFunc(title string, updateFunc func() *Topic) {
 	dc.UpdateFuncs[title] = func() (interface{}, error) {
 		// error handling is done within the updateFunc
 		return updateFunc(), nil
+	}
+}
+
+// AddUpdateFuncs adds an update function to the topic cache for a topic with the `title` passed to the function
+// This update function will then be triggered once or at every fixed interval as per the prior setup of the TopicCache
+func (dc *TopicCache) AddUpdateFuncs(updateFunc func() []*Topic) {
+	// Invoke the updateFunc to get the slice of *Topic
+	topics := updateFunc()
+
+	// Iterate over each topic in the returned slice
+	for _, topic := range topics {
+		// Define an update function for the current topic
+		// This update function simply returns the current topic as-is
+		singleUpdateFunc := func() *Topic {
+			return topic
+		}
+
+		// TODO use slugs from the topic api instead of creating one
+		// Get Slug from topic's LocaliseKeyName
+		topicSlug := GetSlugFromTopicName(topic.LocaliseKeyName)
+
+		// Add the update function to the TopicCache for the current topic's title
+		dc.AddUpdateFunc(topicSlug, singleUpdateFunc)
 	}
 }
 
@@ -95,19 +124,6 @@ func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 	return censusTopicCache, nil
 }
 
-func (dc *TopicCache) GetDataAggregationData(ctx context.Context) (*Topic, error) {
-	dataTopicCache, err := dc.GetData(ctx, CensusTopicID)
-	if err != nil {
-		logData := log.Data{
-			"key": CensusTopicID,
-		}
-		log.Error(ctx, "failed to get cached census topic data", err, logData)
-		return GetEmptyCensusTopic(), err
-	}
-
-	return dataTopicCache, nil
-}
-
 // GetEmptyCensusTopic returns an empty census topic cache in the event when updating the cache of the census topic fails
 func GetEmptyCensusTopic() *Topic {
 	return &Topic{
@@ -117,8 +133,20 @@ func GetEmptyCensusTopic() *Topic {
 }
 
 // GetEmptyTopic returns an empty topic cache in the event when updating the cache of the topic fails
-func getEmptyTopic() *Topic {
+func GetEmptyTopic() *Topic {
 	return &Topic{
 		List: NewSubTopicsMap(),
 	}
+}
+
+// GetSlugFromTopicName generates a slug from the given topic name.
+func GetSlugFromTopicName(topicName string) string {
+	// Convert to lowercase
+	slug := strings.ToLower(topicName)
+
+	// Remove all non-alphabetic characters
+	reg := regexp.MustCompile(`[^a-z]+`)
+	slug = reg.ReplaceAllString(slug, "")
+
+	return slug
 }

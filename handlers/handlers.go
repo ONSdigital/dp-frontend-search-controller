@@ -22,9 +22,6 @@ import (
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
-	topicModels "github.com/ONSdigital/dp-topic-api/models"
-	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"
-
 	"github.com/gorilla/mux"
 
 	"github.com/ONSdigital/log.go/v2/log"
@@ -457,17 +454,6 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 			return
 		}
 	}
-
-	if _, rssParam := urlQuery["rss"]; rssParam {
-		req.Header.Set("Accept", "application/rss+xml")
-		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
-			log.Error(ctx, "failed to create rss feed", err)
-			setStatusCode(w, req, err)
-			return
-		}
-		return
-	}
-
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 3
 

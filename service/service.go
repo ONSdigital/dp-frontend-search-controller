@@ -80,9 +80,15 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise caching
 	cache.CensusTopicID = cfg.CensusTopicID
+	cache.RootTopicID = cfg.RootTopicID
 	svc.Cache.CensusTopic, err = cache.NewTopicCache(ctx, &cfg.CacheCensusTopicUpdateInterval)
 	if err != nil {
-		log.Error(ctx, "failed to create topics cache", err)
+		log.Error(ctx, "failed to create census cache", err)
+		return err
+	}
+	svc.Cache.DataTopic, err = cache.NewTopicCache(ctx, &cfg.CacheDataTopicUpdateInterval)
+	if err != nil {
+		log.Error(ctx, "failed to create data topics cache", err)
 		return err
 	}
 	svc.Cache.Navigation, err = cache.NewNavigationCache(ctx, &cfg.CacheNavigationUpdateInterval)
@@ -93,8 +99,10 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	if cfg.IsPublishing {
 		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePrivate.UpdateCensusTopic(ctx, cfg.ServiceAuthToken, clients.Topic))
+		svc.Cache.DataTopic.AddUpdateFuncs(cachePrivate.UpdateDataTopics(ctx, cfg.ServiceAuthToken, clients.Topic))
 	} else {
 		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePublic.UpdateCensusTopic(ctx, clients.Topic))
+		svc.Cache.DataTopic.AddUpdateFuncs(cachePublic.UpdateDataTopics(ctx, clients.Topic))
 
 	}
 
@@ -132,6 +140,7 @@ func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
 
 	// Start caching
 	go svc.Cache.CensusTopic.StartUpdates(ctx, svcErrors)
+	go svc.Cache.DataTopic.StartUpdates(ctx, svcErrors)
 	go svc.Cache.Navigation.StartUpdates(ctx, svcErrors)
 
 	// Start HTTP server
@@ -159,6 +168,7 @@ func (svc *Service) Close(ctx context.Context) error {
 
 		// stop caching
 		svc.Cache.CensusTopic.Close()
+		svc.Cache.DataTopic.Close()
 		svc.Cache.Navigation.Close()
 
 		// stop any incoming requests

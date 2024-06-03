@@ -124,7 +124,7 @@ func reviewTopicFilters(ctx context.Context, urlQuery url.Values, validatedQuery
 }
 
 // reviewTopicFiltersForDataAggregation retrieves subtopic ids from query, checks if they are one of the subtopics, and updates reviewTopicFiltersForDataAggregation
-func reviewTopicFiltersForDataAggregation(ctx context.Context, urlQuery url.Values, validatedQueryParams *SearchURLParams, censusTopicCache *cache.Topic) error {
+func reviewTopicFiltersForDataAggregation(urlQuery url.Values, validatedQueryParams *SearchURLParams) error {
 	topicFilters := urlQuery.Get("topics")
 	topicIDs := strings.Split(topicFilters, ",")
 

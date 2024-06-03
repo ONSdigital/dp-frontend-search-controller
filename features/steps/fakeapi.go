@@ -9,6 +9,7 @@ type FakeAPI struct {
 	fakeHTTP                     *httpfake.HTTPFake
 	healthRequest                *httpfake.Request
 	searchRequest                *httpfake.Request
+	rootTopicRequest             *httpfake.Request
 	topicRequest                 *httpfake.Request
 	subtopicsRequest             *httpfake.Request
 	navigationRequest            *httpfake.Request
