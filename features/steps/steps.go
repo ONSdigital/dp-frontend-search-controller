@@ -3,12 +3,14 @@ package steps
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/log.go/v2/log"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
@@ -40,16 +42,20 @@ type Check struct {
 
 // RegisterSteps registers the specific steps needed to do component tests for the search controller
 func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
-	ctx.Step(`^the search controller is running$`, c.theSearchControllerIsRunning)
+	ctx.Step(`^I should receive the following health JSON response:$`, c.iShouldReceiveTheFollowingHealthJSONResponse)
 	ctx.Step(`^I wait (\d+) seconds`, c.delayTimeBySeconds)
 	ctx.Step(`^all of the downstream services are healthy$`, c.allOfTheDownstreamServicesAreHealthy)
-	ctx.Step(`^one of the downstream services is warning`, c.oneOfTheDownstreamServicesIsWarning)
 	ctx.Step(`^one of the downstream services is failing`, c.oneOfTheDownstreamServicesIsFailing)
-	ctx.Step(`^I should receive the following health JSON response:$`, c.iShouldReceiveTheFollowingHealthJSONResponse)
+	ctx.Step(`^one of the downstream services is warning`, c.oneOfTheDownstreamServicesIsWarning)
+	ctx.Step(`^the page should have the following xml content$`, c.thePageShouldHaveTheFollowingXmlContent)
+	ctx.Step(`^the response header "([^"]*)" should contain "([^"]*)"$`, c.theResponseHeaderShouldContain)
+	ctx.Step(`^the search controller is running$`, c.theSearchControllerIsRunning)
 	ctx.Step(`^there is a Search API that gives a successful response and returns ([1-9]\d*|0) results`, c.thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResults)
-	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic$`, c.thereIsATopicAPIThatReturnsARootTopic)
 	ctx.Step(`^there is a Topic API returns no topics`, c.thereIsATopicAPIThatReturnsNoTopics)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsATopicAndSubtopic)
+	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic$`, c.thereIsATopicAPIThatReturnsARootTopic)
+	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
+
 }
 
 func (c *Component) theSearchControllerIsRunning() error {
@@ -246,6 +252,54 @@ func (c *Component) thereIsATopicAPIThatReturnsNoTopics() error {
 
 	topicAPIResponse := generateEmptyTopicResponse()
 	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
+
+	return nil
+}
+
+func (c *Component) thePageShouldHaveTheFollowingXmlContent(body *godog.DocString) error {
+
+	tmpExpected := string(c.FakeAPIRouter.subtopicsRequest.Response.BodyBuffer[:])
+	actual := strings.Replace(strings.Replace(strings.TrimSpace(string(tmpExpected[:])), "\n", "", -1), "\t", "", -1)
+	actual = strings.Join(strings.Fields(strings.TrimSpace(actual)), " ")
+	actual = strings.Replace(actual, "><", "> <", -1)
+
+	expected := strings.Replace(strings.Replace(strings.TrimSpace(string(body.Content[:])), "\n", "", -1), "\t", "", -1)
+	expected = strings.Join(strings.Fields(strings.TrimSpace(expected)), " ")
+	expected = strings.Replace(expected, "><", "> <", -1)
+
+	if actual != expected {
+		return errors.New("expected body to be: " + "\n" + expected + "\n\t but actual is: " + "\n" + actual)
+	}
+	return nil
+}
+
+func (c *Component) theResponseHeaderShouldContain(key, value string) (err error) {
+	responseHeader := c.FakeAPIRouter.subtopicsRequest.Response.Header
+	actualValue, actualExist := responseHeader[key]
+	if !actualExist {
+		return errors.New("expected header key " + key + ", does not exist in the header ")
+	}
+	if actualValue[0] != value {
+		return errors.New("expected header value " + value + ", but is actually is :" + actualValue[0])
+	}
+
+	return nil
+}
+
+func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery(topic, subTopic, query string) error {
+
+	c.FakeAPIRouter.topicRequest.Lock()
+	defer c.FakeAPIRouter.topicRequest.Unlock()
+
+	topicID := "6646"
+
+	topicAPIResponse := generateTopicResponseRSS(topic, subTopic)
+	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
+
+	fakeTopicRequestPath := fmt.Sprintf("/%s/%s/%s?%s", topic, topicID, subTopic, query)
+
+	c.FakeAPIRouter.subtopicsRequest.Get(fakeTopicRequestPath)
+	c.FakeAPIRouter.subtopicsRequest.Response = topicAPIResponse
 
 	return nil
 }
