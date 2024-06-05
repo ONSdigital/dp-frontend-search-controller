@@ -29,6 +29,7 @@ Feature: Form submission with date fields
             | 32  | 01    | 2022 |
             | 01  | 13    | 2022 |
             | 01  | 01    | 0000 |
+            | 31  | 09    | 2022 |
             | 01  | 01    |      |
 
     Scenario: Submitting the form with after date that's after before date
