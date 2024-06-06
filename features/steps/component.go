@@ -68,9 +68,10 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.searchRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/search")
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
 
-	c.FakeAPIRouter.rootTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get(fmt.Sprintf("/topics/%s/subtopics", c.Config.RootTopicID))
-	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics")
-	c.FakeAPIRouter.subtopicsRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*/subtopics")
+	c.FakeAPIRouter.rootTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get(fmt.Sprintf("/topics/%s", c.Config.RootTopicID))
+	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
+	c.FakeAPIRouter.subTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
+	c.FakeAPIRouter.subSubTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 
 	c.FakeAPIRouter.navigationRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/data")
 
@@ -173,31 +174,51 @@ func generateSearchItem(num int) searchModels.Item {
 	return searchItem
 }
 
-func generateTopicResponseWithSubtopic(subtopicID string, subtopicTitle string) *httpfake.Response {
-	topicAPIResponse := &topicModels.PublicSubtopics{
-		Count: 1,
-		PublicItems: &[]topicModels.Topic{
-			{
-				ID:    subtopicID,
-				Title: subtopicTitle,
-			},
-		},
-	}
-	fakeAPIResponse := httpfake.NewResponse()
-	fakeAPIResponse.Status(200)
-	fakeAPIResponse.BodyStruct(topicAPIResponse)
-	return fakeAPIResponse
-}
-
-func generateTopicResponse(id string, title string) *httpfake.Response {
-	topicAPIResponse := &topicModels.PublicSubtopics{
-		Count: 1,
-		PublicItems: &[]topicModels.Topic{
-			{
-				ID:    id,
-				Title: title,
-			},
-		},
+func generateTopicResponse(title string) *httpfake.Response {
+	topicAPIResponse := &topicModels.Topic{}
+	switch title {
+	case "root":
+		topicAPIResponse = &topicModels.Topic{
+			ID:          "9999",
+			Slug:        title,
+			Title:       "Root",
+			SubtopicIds: &[]string{"6734", "1234"},
+		}
+	case "economy":
+		topicAPIResponse = &topicModels.Topic{
+			ID:          "6734",
+			Slug:        title,
+			Title:       "Economy",
+			SubtopicIds: &[]string{"1834", "8286"},
+		}
+	case "environmentalaccounts":
+		topicAPIResponse = &topicModels.Topic{
+			ID:          "1834",
+			Slug:        title,
+			Title:       "Environmental Accounts",
+			SubtopicIds: &[]string{},
+		}
+	case "governmentpublicsectorandtaxes":
+		topicAPIResponse = &topicModels.Topic{
+			ID:          "8286",
+			Slug:        title,
+			Title:       "Government, public sector and taxes",
+			SubtopicIds: &[]string{"3687"},
+		}
+	case "publicsectorfinance":
+		topicAPIResponse = &topicModels.Topic{
+			ID:          "3687",
+			Slug:        title,
+			Title:       "Public sector finance",
+			SubtopicIds: &[]string{},
+		}
+	case "business":
+		topicAPIResponse = &topicModels.Topic{
+			ID:          "1234",
+			Slug:        title,
+			Title:       "Business",
+			SubtopicIds: &[]string{},
+		}
 	}
 
 	fakeAPIResponse := httpfake.NewResponse()
@@ -208,10 +229,7 @@ func generateTopicResponse(id string, title string) *httpfake.Response {
 }
 
 func generateEmptyTopicResponse() *httpfake.Response {
-	topicAPIResponse := &topicModels.PublicSubtopics{
-		Count:       0,
-		PublicItems: &[]topicModels.Topic{},
-	}
+	topicAPIResponse := &topicModels.Topic{}
 
 	fakeAPIResponse := httpfake.NewResponse()
 	fakeAPIResponse.Status(200)

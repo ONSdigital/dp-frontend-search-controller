@@ -374,39 +374,32 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
 
+	// Capture the path after the prefix
 	vars := mux.Vars(req)
+	topicsPath := vars["topicsPath"]
+
+	// Split the remaining path into segments
+	segments := strings.Split(topicsPath, "/")
+
 	selectedTopic := cache.Topic{}
 
-	topicPath := vars["topic"]
-	topic, err := cacheList.DataTopic.GetData(ctx, topicPath)
-	if err != nil {
-		log.Error(ctx, "could not find topicPath in topic cache", err, log.Data{
-			"topicPath": topicPath,
-		})
-		err = apperrors.ErrTopicPathNotFound
-		setStatusCode(w, req, err)
-		return
-	}
-
-	subtopicPath := vars["subTopic"]
-	if subtopicPath != "" {
-		subtopic, matchingErr := cacheList.DataTopic.GetData(ctx, subtopicPath)
-		if matchingErr != nil {
-			log.Error(ctx, "could not match subtopicPath to subtopics", matchingErr, log.Data{
-				"subtopicPath": subtopicPath,
+	/* validate the segments i.e. check that they all exist in the cache
+	and set the last item as the selectedTopic */
+	for _, segment := range segments {
+		segmentTopic, err := cacheList.DataTopic.GetData(ctx, segment)
+		if err != nil {
+			log.Error(ctx, "could not find topic from path in topic cache", err, log.Data{
+				"topicPath": segment,
 			})
-			matchingErr = apperrors.ErrTopicPathNotFound
-			setStatusCode(w, req, matchingErr)
+			err = apperrors.ErrTopicPathNotFound
+			setStatusCode(w, req, err)
 			return
 		}
 
-		selectedTopic = *subtopic
-	} else {
-		selectedTopic = *topic
+		selectedTopic = *segmentTopic
 	}
 
 	urlQuery := req.URL.Query()
-
 	urlQuery.Add("topics", selectedTopic.ID)
 
 	// get cached navigation data

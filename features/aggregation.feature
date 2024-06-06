@@ -89,6 +89,7 @@ Feature: Aggregated Data Pages
         }
     """
 
+  @topicPages
   Scenario: GET topic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic
@@ -102,6 +103,7 @@ Feature: Aggregated Data Pages
         }
     """
 
+  @topicPages
   Scenario: GET topic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic
@@ -114,6 +116,7 @@ Feature: Aggregated Data Pages
         }
     """
 
+  @topicPages
   Scenario: GET subtopic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic and the "environmentalaccounts" subtopic
@@ -127,6 +130,7 @@ Feature: Aggregated Data Pages
         }
     """
 
+  @topicPages
   Scenario: GET subtopic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic and the "environmentalaccounts" subtopic
@@ -139,7 +143,35 @@ Feature: Aggregated Data Pages
         }
     """
 
+  @topicPages
+  Scenario: GET 3rd level subtopic pre-filtered page with matching topic and subtopic
+    Given there is a Search API that gives a successful response and returns 10 results
+    And there is a Topic API that returns the "economy" topic, the "governmentpublicsectorandtaxes" subtopic and "publicsectorfinance" thirdlevel subtopic
+    And the search controller is running
+    When I navigate to "/economy/governmentpublicsectorandtaxes/publicsectorfinance/publications"
+    Then the page should have the following content
+    """
+        {
+            "#main h1": "Publications related to public sector finance",
+            ".search__count h2": "10 results"
+        }
+    """
+
+  @topicPages
+  Scenario: GET 3rd level subtopic pre-filtered page with non-matching topic
+    Given there is a Search API that gives a successful response and returns 10 results
+    And there is a Topic API that returns the "economy" topic, the "governmentpublicsectorandtaxes" subtopic and "publicsectorfinance" thirdlevel subtopic
+    And the search controller is running
+    When I navigate to "/economy/governmentpublicsectorandtaxes/testtopic/publications"
+    Then the page should have the following content
+    """
+        {
+            "#main h1": "Page not found"
+        }
+    """
+
   @agg_rss
+  @topicPages
   Scenario: GET rss for subtopic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic for requestQuery "rss"
@@ -161,6 +193,7 @@ Feature: Aggregated Data Pages
     And the response header "Content-Type" should contain "application/rss+xml; charset=ISO-8859-1"
 
   @agg_rss
+  @topicPages
   Scenario: GET RSS subtopic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic for requestQuery "rss"

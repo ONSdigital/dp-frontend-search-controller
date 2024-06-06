@@ -547,7 +547,7 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/publications", testTopic.Title), http.NoBody)
-		req = mux.SetURLVars(req, map[string]string{"topic": testTopic.Title})
+		req = mux.SetURLVars(req, map[string]string{"topicsPath": testTopic.Title})
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
@@ -605,17 +605,19 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 	Convey("Given a valid request for a subtopic filtered page and a set of mocked services", t, func() {
 		testTopic := topicModels.Topic{
 			ID:    "6734",
-			Title: "economy",
+			Slug:  "economy",
+			Title: "Economy",
 		}
 
 		testSubtopic := topicModels.Topic{
 			ID:    "1834",
-			Title: "environmentalaccounts",
+			Slug:  "environmentalaccounts",
+			Title: "Environmental Accounts",
 		}
 
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/publications", testTopic.Title, testSubtopic.Title), http.NoBody)
-		req = mux.SetURLVars(req, map[string]string{"topic": testTopic.Title, "subTopic": testSubtopic.Title})
+		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/publications", testTopic.Slug, testSubtopic.Slug), http.NoBody)
+		req = mux.SetURLVars(req, map[string]string{"topicsPath": testTopic.Slug + "/" + testSubtopic.Slug})
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
@@ -665,6 +667,82 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 					So(firstCallTopic, ShouldEqual, testSubtopic.ID)
 				} else {
 					So(secondCallTopic, ShouldEqual, testSubtopic.ID)
+				}
+			})
+		})
+	})
+
+	Convey("Given a valid request for a 3rd level subtopic filtered page and a set of mocked services", t, func() {
+		testTopic := topicModels.Topic{
+			ID:    "6734",
+			Slug:  "economy",
+			Title: "Economy",
+		}
+
+		testSubtopic := topicModels.Topic{
+			ID:    "8268",
+			Slug:  "governmentpublicsectorandtaxes",
+			Title: "Government Public Sector and Taxes",
+		}
+
+		testSubSubTopic := topicModels.Topic{
+			ID:    "3687",
+			Slug:  "publicsectorfinance",
+			Title: "Public Sector Finance",
+		}
+
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/%s/publications", testTopic.Slug, testSubtopic.Slug, testSubSubTopic.Slug), http.NoBody)
+		req = mux.SetURLVars(req, map[string]string{"topicsPath": testTopic.Slug + "/" + testSubtopic.Slug + "/" + testSubSubTopic.Slug})
+
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		mockedRendererClient := &RenderClientMock{
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
+			},
+		}
+
+		mockedSearchClient := &SearchClientMock{
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+				return mockSearchResponse, nil
+			},
+		}
+
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
+				return mockHomepageContent, nil
+			},
+		}
+
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
+		So(err, ShouldBeNil)
+
+		Convey("When readDataAggregationWithTopics is called", func() {
+			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
+
+			Convey("Then a 200 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusOK)
+
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
+			})
+
+			Convey("And the Search Client should be called with the subtopic id from the topic API", func() {
+				// calls go to client in parallel, so we need to work out which is which.
+				firstSearchCall := mockedSearchClient.GetSearchCalls()[0]
+				secondSearchCall := mockedSearchClient.GetSearchCalls()[1]
+
+				firstCallTopic := firstSearchCall.Options.Query.Get("topics")
+				secondCallTopic := secondSearchCall.Options.Query.Get("topics")
+
+				if firstCallTopic != "" {
+					So(firstCallTopic, ShouldEqual, testSubSubTopic.ID)
+				} else {
+					So(secondCallTopic, ShouldEqual, testSubSubTopic.ID)
 				}
 			})
 		})
@@ -740,7 +818,63 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 
 		w := httptest.NewRecorder()
 		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/publications", testTopic.Title, testSubtopic), http.NoBody)
-		req = mux.SetURLVars(req, map[string]string{"topic": testTopic.Title, "subTopic": testSubtopic})
+		req = mux.SetURLVars(req, map[string]string{"topicsPath": testTopic.Slug + "/" + testSubtopic})
+
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		mockedRendererClient := &RenderClientMock{
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
+			},
+		}
+
+		mockedSearchClient := &SearchClientMock{
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+				return mockSearchResponse, nil
+			},
+		}
+
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
+				return mockHomepageContent, nil
+			},
+		}
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
+		So(err, ShouldBeNil)
+
+		Convey("When readDataAggregationWithTopics is called", func() {
+			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
+
+			Convey("Then a 404 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusNotFound)
+
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 0)
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 0)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 0)
+			})
+		})
+	})
+
+	Convey("Given a request for a 3rd level subtopic filtered page and a set of mocked services where the 3rd level subtopic does not exist", t, func() {
+		testTopic := topicModels.Topic{
+			ID:    "6734",
+			Slug:  "economy",
+			Title: "Economy",
+		}
+
+		testSubtopic := topicModels.Topic{
+			ID:    "8268",
+			Slug:  "governmentpublicsectorandtaxes",
+			Title: "Government Public Sector and Taxes",
+		}
+
+		testSubSubTopic := "thissubtopicdoesnotexist"
+
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/%s/publications", testTopic.Slug, testSubtopic.Slug, testSubSubTopic), http.NoBody)
+		req = mux.SetURLVars(req, map[string]string{"topicsPath": testTopic.Slug + "/" + testSubtopic.Slug + "/" + testSubSubTopic})
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)

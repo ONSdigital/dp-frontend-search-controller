@@ -69,16 +69,19 @@ func getMockDataTopicCache(ctx context.Context) (*TopicCache, error) {
 		return nil, err
 	}
 
-	testDataTopicCache.Set("economy", GetMockDataTopic("6734", "economy"))
-	testDataTopicCache.Set("environmentalaccounts", GetMockDataTopic("1834", "environmentalaccounts"))
+	testDataTopicCache.Set("economy", GetMockDataTopic("6734", "economy", "Economy"))
+	testDataTopicCache.Set("environmentalaccounts", GetMockDataTopic("1834", "environmentalaccounts", "Environmental Accounts"))
+	testDataTopicCache.Set("governmentpublicsectorandtaxes", GetMockDataTopic("8268", "governmentpublicsectorandtaxes", "Government Public Sector and Taxes"))
+	testDataTopicCache.Set("publicsectorfinance", GetMockDataTopic("3687", "publicsectorfinance", "Public Sector Finance"))
 
 	return testDataTopicCache, nil
 }
 
 // GetMockDataTopic returns a mocked data topic which contains all the information for the mock data topic
-func GetMockDataTopic(id, title string) *Topic {
+func GetMockDataTopic(id, slug, title string) *Topic {
 	mockCensusTopic := &Topic{
 		ID:              id,
+		Slug:            slug,
 		LocaliseKeyName: title,
 		Query:           "1834,1234",
 	}

@@ -67,9 +67,10 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() []*cache.Topic {
 	return func() []*cache.Topic {
 		var topics []*cache.Topic
+		processedTopics := make(map[string]bool)
 
-		// get the root topics subtopics (e.g. economy) from dp-topic-api
-		rootTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, cache.RootTopicID)
+		// get root topics from dp-topic-api (e.g. economy) from dp-topic-api
+		rootTopics, err := topicClient.GetTopicPrivate(ctx, topicCli.Headers{}, cache.RootTopicID)
 		if err != nil {
 			logData := log.Data{
 				"req_headers": topicCli.Headers{},
@@ -79,39 +80,18 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 		}
 
 		// deference root topics items to allow ranging through them
-		var rootTopicItems []models.TopicResponse
-		if rootTopics.PrivateItems != nil {
-			rootTopicItems = *rootTopics.PrivateItems
+		var rootTopicItems []string
+		if rootTopics.Current.SubtopicIds != nil {
+			rootTopicItems = *rootTopics.Current.SubtopicIds
 		} else {
-			err := errors.New("root topic private items is nil")
+			err := errors.New("root topic public items is nil")
 			log.Error(ctx, "failed to deference root topics items pointer", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
-		// go through each root topic
+		// recursively process topics and their subtopics
 		for i := range rootTopicItems {
-			subtopicsChan := make(chan models.TopicResponse)
-			dataTopicCache := getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, *rootTopicItems[i].Current)
-			if dataTopicCache != nil {
-				topics = append(topics, dataTopicCache)
-				rootSubTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCli.Headers{}, dataTopicCache.ID)
-				if err != nil {
-					logData := log.Data{
-						"req_headers": topicCli.Headers{},
-					}
-					log.Error(ctx, "failed to get sub topic from topic-api", err, logData)
-					continue
-				} else {
-					rootSubTopicItems := *rootSubTopics.PrivateItems
-					for i := range rootSubTopicItems {
-						subtopicsChan := make(chan models.TopicResponse)
-						dataSubTopicCache := getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, *rootSubTopicItems[i].Current)
-						if dataSubTopicCache != nil {
-							topics = append(topics, dataSubTopicCache)
-						}
-					}
-				}
-			}
+			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i], &topics, processedTopics)
 		}
 
 		// Check if any data topics were found
@@ -120,19 +100,59 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 			log.Error(ctx, "No topics loaded into cache - data root topic found, but no subtopics were returned", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
-
 		return topics
 	}
+}
+
+func processTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, topicID string, topics *[]*cache.Topic, processedTopics map[string]bool) {
+	// Check if the topic is already processed
+	if processedTopics[topicID] {
+		return
+	}
+
+	// Get the topic details from the topic client
+	dataTopic, err := topicClient.GetTopicPrivate(ctx, topicCli.Headers{}, topicID)
+	if err != nil {
+		log.Error(ctx, "failed to get topic details from topic-api", err)
+		return
+	}
+
+	if dataTopic != nil {
+		// Append the current topic to the list of topics
+		// subtopicsChan := make(chan models.Topic)
+		*topics = append(*topics, mapTopicModelToCache(*dataTopic.Current))
+		// Mark this topic as processed
+		processedTopics[topicID] = true
+
+		// Process each subtopic recursively
+		if dataTopic.Current.SubtopicIds != nil {
+			for _, subTopicID := range *dataTopic.Current.SubtopicIds {
+				processTopic(ctx, serviceAuthToken, topicClient, subTopicID, topics, processedTopics)
+			}
+		}
+	}
+}
+
+func mapTopicModelToCache(rootTopic models.Topic) *cache.Topic {
+	rootTopicCache := &cache.Topic{
+		ID:              rootTopic.ID,
+		Slug:            rootTopic.Slug,
+		LocaliseKeyName: rootTopic.Title,
+		ReleaseDate:     rootTopic.ReleaseDate,
+	}
+	return rootTopicCache
 }
 
 func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subtopicsChan chan models.TopicResponse, topicClient topicCli.Clienter, rootTopic models.Topic) *cache.Topic {
 	rootTopicCache := &cache.Topic{
 		ID:              rootTopic.ID,
+		Slug:            rootTopic.Slug,
 		LocaliseKeyName: rootTopic.Title,
 	}
 
 	subtopic := cache.Subtopic{
 		ID:              rootTopic.ID,
+		Slug:            rootTopic.Slug,
 		LocaliseKeyName: rootTopic.Title,
 		ReleaseDate:     rootTopic.ReleaseDate,
 	}
@@ -157,6 +177,7 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 		for s := range subtopicsChan {
 			subtopic := cache.Subtopic{
 				ID:              s.ID,
+				Slug:            s.Next.Slug,
 				LocaliseKeyName: s.Next.Title,
 				ReleaseDate:     s.Next.ReleaseDate,
 			}

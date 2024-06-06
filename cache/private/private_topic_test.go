@@ -242,7 +242,7 @@ func TestUpdateDataTopics(t *testing.T) {
 	serviceAuthToken := "test-token"
 
 	expectedTopics := []*cache.Topic{
-		{ID: "6734", LocaliseKeyName: "Economy", Query: "1834"},
+		{ID: "6734", LocaliseKeyName: "Economy", Query: "6734,1834"},
 		{ID: "1834", LocaliseKeyName: "Environmental Accounts"},
 		{ID: "1234", LocaliseKeyName: "Business"},
 	}
@@ -250,19 +250,38 @@ func TestUpdateDataTopics(t *testing.T) {
 
 	Convey("Given root topics exist and have subtopics", t, func() {
 		mockClient := &mockTopic.ClienterMock{
-			GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.PrivateSubtopics, topicCliErr.Error) {
+			GetTopicPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.TopicResponse, topicCliErr.Error) {
 				switch topicID {
 				case cache.RootTopicID:
-					return &models.PrivateSubtopics{
-						PrivateItems: &[]models.TopicResponse{
-							{ID: "6734", Current: &models.Topic{ID: "6734", Title: "Economy", SubtopicIds: &[]string{"1834"}}, Next: &models.Topic{ID: "6734", Title: "Economy", SubtopicIds: &[]string{"1834"}}},
-							{ID: "1234", Current: &models.Topic{ID: "1234", Title: "Business", SubtopicIds: &[]string{}}, Next: &models.Topic{ID: "1234", Title: "Business", SubtopicIds: &[]string{}}},
+					return &models.TopicResponse{
+						Current: &models.Topic{
+							ID:          "9999",
+							Title:       "Root",
+							SubtopicIds: &[]string{"6734", "1234"},
 						},
 					}, nil
 				case "6734":
-					return &models.PrivateSubtopics{
-						PrivateItems: &[]models.TopicResponse{
-							{ID: "1834", Current: &models.Topic{ID: "1834", Title: "Environmental Accounts", SubtopicIds: &[]string{}}, Next: &models.Topic{ID: "1834", Title: "Environmental Accounts", SubtopicIds: &[]string{}}},
+					return &models.TopicResponse{
+						Current: &models.Topic{
+							ID:          "6734",
+							Title:       "Economy",
+							SubtopicIds: &[]string{"1834"},
+						},
+					}, nil
+				case "1834":
+					return &models.TopicResponse{
+						Current: &models.Topic{
+							ID:          "1834",
+							Title:       "Environmental Accounts",
+							SubtopicIds: &[]string{},
+						},
+					}, nil
+				case "1234":
+					return &models.TopicResponse{
+						Current: &models.Topic{
+							ID:          "1234",
+							Title:       "Business",
+							SubtopicIds: &[]string{},
 						},
 					}, nil
 				default:
@@ -273,30 +292,30 @@ func TestUpdateDataTopics(t *testing.T) {
 			},
 		}
 
-		Convey("When UpdateDataTopics is called", func() {
+		Convey("When UpdateDataTopicsPrivate is called", func() {
 			respTopics := UpdateDataTopics(ctx, serviceAuthToken, mockClient)()
 
 			Convey("Then the topics cache is returned", func() {
 				So(respTopics, ShouldNotBeNil)
 				So(len(respTopics), ShouldEqual, len(expectedTopics))
-				So(respTopics[0].ID, ShouldEqual, expectedTopics[0].ID)
-				So(respTopics[0].LocaliseKeyName, ShouldEqual, expectedTopics[0].LocaliseKeyName)
-				So(respTopics[1].ID, ShouldEqual, expectedTopics[1].ID)
-				So(respTopics[1].LocaliseKeyName, ShouldEqual, expectedTopics[1].LocaliseKeyName)
+				for i, expected := range expectedTopics {
+					So(respTopics[i].ID, ShouldEqual, expected.ID)
+					So(respTopics[i].LocaliseKeyName, ShouldEqual, expected.LocaliseKeyName)
+				}
 			})
 		})
 	})
 
 	Convey("Given an error in getting root topics from topic-api", t, func() {
 		mockClient := &mockTopic.ClienterMock{
-			GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.PrivateSubtopics, topicCliErr.Error) {
+			GetTopicPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.TopicResponse, topicCliErr.Error) {
 				return nil, topicCliErr.StatusError{
 					Err: errors.New("unexpected error"),
 				}
 			},
 		}
 
-		Convey("When UpdateDataTopics is called", func() {
+		Convey("When UpdateDataTopicsPrivate is called", func() {
 			respTopics := UpdateDataTopics(ctx, serviceAuthToken, mockClient)()
 
 			Convey("Then an empty topic cache should be returned", func() {
@@ -307,12 +326,17 @@ func TestUpdateDataTopics(t *testing.T) {
 
 	Convey("Given root topics private items is nil", t, func() {
 		mockClient := &mockTopic.ClienterMock{
-			GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.PrivateSubtopics, topicCliErr.Error) {
-				return &models.PrivateSubtopics{PrivateItems: nil}, nil
+			GetTopicPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.TopicResponse, topicCliErr.Error) {
+				return &models.TopicResponse{
+					Current: &models.Topic{
+						ID:          topicID,
+						SubtopicIds: nil,
+					},
+				}, nil
 			},
 		}
 
-		Convey("When UpdateDataTopics is called", func() {
+		Convey("When UpdateDataTopicsPrivate is called", func() {
 			respTopics := UpdateDataTopics(ctx, serviceAuthToken, mockClient)()
 
 			Convey("Then an empty topic cache should be returned", func() {
@@ -323,22 +347,20 @@ func TestUpdateDataTopics(t *testing.T) {
 
 	Convey("Given root topics exist but no data topics found", t, func() {
 		mockClient := &mockTopic.ClienterMock{
-			GetSubtopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.PrivateSubtopics, topicCliErr.Error) {
+			GetTopicPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.TopicResponse, topicCliErr.Error) {
 				if topicID == cache.RootTopicID {
-					return &models.PrivateSubtopics{
-						PrivateItems: &[]models.TopicResponse{},
-					}, nil
-				}
-				if topicID == "6734" {
-					return &models.PrivateSubtopics{
-						PrivateItems: &[]models.TopicResponse{},
+					return &models.TopicResponse{
+						Current: &models.Topic{
+							ID:          "9999",
+							SubtopicIds: &[]string{},
+						},
 					}, nil
 				}
 				return nil, nil
 			},
 		}
 
-		Convey("When UpdateDataTopics is called", func() {
+		Convey("When UpdateDataTopicsPrivate is called", func() {
 			respTopics := UpdateDataTopics(ctx, serviceAuthToken, mockClient)()
 
 			Convey("Then an empty topic cache should be returned", func() {

@@ -4,8 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"regexp"
-	"strings"
 	"time"
 
 	dpcache "github.com/ONSdigital/dp-cache"
@@ -28,6 +26,7 @@ type Topic struct {
 	ID              string
 	LocaliseKeyName string
 	Slug            string
+	ReleaseDate     *time.Time
 	// Query is a comma separated string of topic id and its subtopic ids which will be used by the controller to create the query
 	Query string
 	// List is a map[string]Subtopics which contains the topic id and a list of it's subtopics
@@ -102,12 +101,8 @@ func (dc *TopicCache) AddUpdateFuncs(updateFunc func() []*Topic) {
 			return topic
 		}
 
-		// TODO use slugs from the topic api instead of creating one
-		// Get Slug from topic's LocaliseKeyName
-		topicSlug := GetSlugFromTopicName(topic.LocaliseKeyName)
-
 		// Add the update function to the TopicCache for the current topic's title
-		dc.AddUpdateFunc(topicSlug, singleUpdateFunc)
+		dc.AddUpdateFunc(topic.Slug, singleUpdateFunc)
 	}
 }
 
@@ -137,16 +132,4 @@ func GetEmptyTopic() *Topic {
 	return &Topic{
 		List: NewSubTopicsMap(),
 	}
-}
-
-// GetSlugFromTopicName generates a slug from the given topic name.
-func GetSlugFromTopicName(topicName string) string {
-	// Convert to lowercase
-	slug := strings.ToLower(topicName)
-
-	// Remove all non-alphabetic characters
-	reg := regexp.MustCompile(`[^a-z]+`)
-	slug = reg.ReplaceAllString(slug, "")
-
-	return slug
 }

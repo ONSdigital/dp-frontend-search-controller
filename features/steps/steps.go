@@ -51,9 +51,10 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the response header "([^"]*)" should contain "([^"]*)"$`, c.theResponseHeaderShouldContain)
 	ctx.Step(`^the search controller is running$`, c.theSearchControllerIsRunning)
 	ctx.Step(`^there is a Search API that gives a successful response and returns ([1-9]\d*|0) results`, c.thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResults)
+	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic$`, c.thereIsATopicAPIThatReturnsATopic)
 	ctx.Step(`^there is a Topic API returns no topics`, c.thereIsATopicAPIThatReturnsNoTopics)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsATopicAndSubtopic)
-	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic$`, c.thereIsATopicAPIThatReturnsARootTopic)
+	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic, the "([^"]*)" subtopic and "([^"]*)" thirdlevel subtopic$`, c.thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
 
 }
@@ -199,10 +200,7 @@ func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResul
 	return nil
 }
 
-func (c *Component) thereIsATopicAPIThatReturnsARootTopic(topic string) error {
-
-	// This should be configurable really
-	fakeTopicId := "6734"
+func (c *Component) thereIsATopicAPIThatReturnsATopic(topic string) error {
 
 	c.FakeAPIRouter.rootTopicRequest.Lock()
 	defer c.FakeAPIRouter.rootTopicRequest.Unlock()
@@ -210,10 +208,14 @@ func (c *Component) thereIsATopicAPIThatReturnsARootTopic(topic string) error {
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	rootTopicAPIRespose := generateTopicResponseWithSubtopic(fakeTopicId, topic)
-	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIRespose
+	rootTopicAPIResponse := generateTopicResponse("root")
+	fakeRootTopicRequestPath := fmt.Sprintf("/topics/%s", "9999")
+	c.FakeAPIRouter.rootTopicRequest.Get(fakeRootTopicRequestPath)
+	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIResponse
 
-	topicAPIResponse := generateTopicResponse(fakeTopicId, topic)
+	topicAPIResponse := generateTopicResponse(topic)
+	fakeTopicRequestPath := fmt.Sprintf("/topics/%s", "6734")
+	c.FakeAPIRouter.topicRequest.Get(fakeTopicRequestPath)
 	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
 
 	return nil
@@ -227,20 +229,51 @@ func (c *Component) thereIsATopicAPIThatReturnsATopicAndSubtopic(topic string, s
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	economyTopicID := "6734"
-	SubTopicTitle := "environmental accounts"
+	rootTopicAPIResponse := generateTopicResponse("root")
+	fakeRootTopicRequestPath := fmt.Sprintf("/topics/%s", "9999")
+	c.FakeAPIRouter.rootTopicRequest.Get(fakeRootTopicRequestPath)
+	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIResponse
 
-	rootTopicAPIRespose := generateTopicResponseWithSubtopic(economyTopicID, topic)
-	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIRespose
-
-	topicAPIResponse := generateTopicResponse(economyTopicID, topic)
+	topicAPIResponse := generateTopicResponse(topic)
+	fakeTopicRequestPath := fmt.Sprintf("/topics/%s", "6734")
+	c.FakeAPIRouter.topicRequest.Get(fakeTopicRequestPath)
 	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
 
-	subtopicAPIResponse := generateTopicResponseWithSubtopic("1834", SubTopicTitle)
+	subTopicAPIResponse := generateTopicResponse(subTopic)
+	fakeSubTopicRequestPath := fmt.Sprintf("/topics/%s", "1834")
+	c.FakeAPIRouter.subTopicRequest.Get(fakeSubTopicRequestPath)
+	c.FakeAPIRouter.subTopicRequest.Response = subTopicAPIResponse
 
-	fakeTopicRequestPath := fmt.Sprintf("/topics/%s/subtopics", economyTopicID)
-	c.FakeAPIRouter.subtopicsRequest.Get(fakeTopicRequestPath)
-	c.FakeAPIRouter.subtopicsRequest.Response = subtopicAPIResponse
+	return nil
+}
+
+func (c *Component) thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic(topic string, subTopic string, subSubTopic string) error {
+
+	c.FakeAPIRouter.rootTopicRequest.Lock()
+	defer c.FakeAPIRouter.rootTopicRequest.Unlock()
+
+	c.FakeAPIRouter.topicRequest.Lock()
+	defer c.FakeAPIRouter.topicRequest.Unlock()
+
+	rootTopicAPIResponse := generateTopicResponse("root")
+	fakeRootTopicRequestPath := fmt.Sprintf("/topics/%s", "9999")
+	c.FakeAPIRouter.rootTopicRequest.Get(fakeRootTopicRequestPath)
+	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIResponse
+
+	topicAPIResponse := generateTopicResponse(topic)
+	fakeTopicRequestPath := fmt.Sprintf("/topics/%s", "6734")
+	c.FakeAPIRouter.topicRequest.Get(fakeTopicRequestPath)
+	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
+
+	subTopicAPIResponse := generateTopicResponse(subTopic)
+	fakeSubTopicRequestPath := fmt.Sprintf("/topics/%s", "8286")
+	c.FakeAPIRouter.subTopicRequest.Get(fakeSubTopicRequestPath)
+	c.FakeAPIRouter.subTopicRequest.Response = subTopicAPIResponse
+
+	subSubTopicAPIResponse := generateTopicResponse(subSubTopic)
+	fakeSubSubTopicRequestPath := fmt.Sprintf("/topics/%s", "3687")
+	c.FakeAPIRouter.subSubTopicRequest.Get(fakeSubSubTopicRequestPath)
+	c.FakeAPIRouter.subSubTopicRequest.Response = subSubTopicAPIResponse
 
 	return nil
 }
