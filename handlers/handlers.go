@@ -743,7 +743,7 @@ func setCountToCategories(ctx context.Context, countResp *searchModels.SearchRes
 			}
 		}
 
-		if !foundFilter {
+		if !foundFilter && !data.IsCategoryUnused(responseType.Type) {
 			log.Warn(ctx, "unrecognised filter type returned from api", log.Data{"filter_type": responseType.Type})
 		}
 	}

@@ -70,6 +70,10 @@ var (
 		ContentTypes:    []ContentType{Methodology, CorporateInformation, ProductPage},
 	}
 
+	// UnusedCategories - these categories are served from the Search API but we don't use them for filters.
+	// If left in, they create noise in the logs about unexpected filters being returned.
+	UnusedCategoryTypes = []string{"release", "visualisation", "api_dataset_landing_page", "compendium_chapter", "dataset", "taxonomy_landing_page"}
+
 	// Bulletin - Search information specific for statistical bulletins
 	Bulletin = ContentType{
 		LocaliseKeyName: "StatisticalBulletin",
@@ -247,4 +251,14 @@ func GetGroupLocaliseKey(resultType string) string {
 		}
 	}
 	return ""
+}
+
+// IsCategoryUnused returns if a category is unused.
+func IsCategoryUnused(categoryName string) bool {
+	for _, val := range UnusedCategoryTypes {
+		if val == categoryName {
+			return true
+		}
+	}
+	return false
 }
