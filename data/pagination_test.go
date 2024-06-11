@@ -148,7 +148,7 @@ func TestUnitGetLimitFromURLQuerySuccess(t *testing.T) {
 		Convey("When getLimitFromURLQuery is called", func() {
 			limit := getLimitFromURLQuery(ctx, cfg, query)
 
-			Convey("Then successfully return the DefaultLimit as integer", func() {
+			Convey("Then successfully return the DefaultMaximumLimit as integer", func() {
 				So(limit, ShouldEqual, cfg.DefaultMaximumLimit)
 			})
 
