@@ -157,6 +157,21 @@ func TestUnitGetLimitFromURLQuerySuccess(t *testing.T) {
 			})
 		})
 	})
+
+	Convey("Given no limit specified", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		query := url.Values{}
+
+		Convey("When getLimitFromURLQuery is called", func() {
+			limit := getLimitFromURLQuery(ctx, cfg, query)
+
+			Convey("Then successfully return the DefaultLimit as integer", func() {
+				So(limit, ShouldEqual, cfg.DefaultLimit)
+			})
+		})
+	})
 }
 
 func TestUnitGetPageFromURLQuerySuccess(t *testing.T) {

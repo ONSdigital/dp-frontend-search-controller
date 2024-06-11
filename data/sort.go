@@ -51,7 +51,12 @@ func reviewSort(ctx context.Context, urlQuery url.Values, validatedQueryParams *
 	sort, found := sortOptions[sortQuery]
 
 	if !found {
-		log.Warn(ctx, "sort chosen not available in sort options - default to sort "+defaultSort)
+		if sortQuery != "" {
+			log.Warn(ctx, "sort chosen not available in sort options - using default sort", log.Data{
+				"default": defaultSort,
+			})
+		}
+
 		sort.Query = defaultSort
 		sort.LocaliseKeyName = sortOptions[defaultSort].LocaliseKeyName
 	}
