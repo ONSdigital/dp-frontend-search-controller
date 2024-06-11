@@ -69,29 +69,29 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 		var topics []*cache.Topic
 		processedTopics := make(map[string]bool)
 
-		// get root topics from dp-topic-api (e.g. economy) from dp-topic-api
-		rootTopics, err := topicClient.GetTopicPrivate(ctx, topicCli.Headers{}, cache.RootTopicID)
+		// get root topic from dp-topic-api
+		rootTopic, err := topicClient.GetTopicPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, cache.RootTopicID)
 		if err != nil {
 			logData := log.Data{
 				"req_headers": topicCli.Headers{},
 			}
-			log.Error(ctx, "failed to get root topic's subtopics from topic-api", err, logData)
+			log.Error(ctx, "failed to get root topic from topic-api", err, logData)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
-		// deference root topics items to allow ranging through them
-		var rootTopicItems []string
-		if rootTopics.Current.SubtopicIds != nil {
-			rootTopicItems = *rootTopics.Current.SubtopicIds
+		// deference rootTopic's subTopicIDs to allow ranging through them
+		var rootSubTopicIds []string
+		if rootTopic.Current.SubtopicIds != nil {
+			rootSubTopicIds = *rootTopic.Current.SubtopicIds
 		} else {
-			err := errors.New("root topic public items is nil")
-			log.Error(ctx, "failed to deference root topics items pointer", err)
+			err := errors.New("root topic subtopic IDs is nil")
+			log.Error(ctx, "failed to deference rootTopic subtopic IDs pointer", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
 		// recursively process topics and their subtopics
-		for i := range rootTopicItems {
-			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i], &topics, processedTopics)
+		for i := range rootSubTopicIds {
+			processTopic(ctx, serviceAuthToken, topicClient, rootSubTopicIds[i], &topics, processedTopics)
 		}
 
 		// Check if any data topics were found
@@ -111,7 +111,7 @@ func processTopic(ctx context.Context, serviceAuthToken string, topicClient topi
 	}
 
 	// Get the topic details from the topic client
-	dataTopic, err := topicClient.GetTopicPrivate(ctx, topicCli.Headers{}, topicID)
+	dataTopic, err := topicClient.GetTopicPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, topicID)
 	if err != nil {
 		log.Error(ctx, "failed to get topic details from topic-api", err)
 		return
@@ -139,6 +139,7 @@ func mapTopicModelToCache(rootTopic models.Topic) *cache.Topic {
 		Slug:            rootTopic.Slug,
 		LocaliseKeyName: rootTopic.Title,
 		ReleaseDate:     rootTopic.ReleaseDate,
+		List:            cache.NewSubTopicsMap(),
 	}
 	return rootTopicCache
 }

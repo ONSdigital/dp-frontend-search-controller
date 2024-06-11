@@ -275,7 +275,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
-		cfg.EnableReworkedDataAggregationPages = true
+		cfg.EnableAggregationPages = true
 		So(err, ShouldBeNil)
 		req := httptest.NewRequest("GET", "/alladhocs", http.NoBody)
 		mdl := model.Page{}

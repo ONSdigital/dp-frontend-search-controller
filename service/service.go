@@ -56,18 +56,18 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	svc.ServiceList = serviceList
 
 	// Get health client for api router
-	svc.routerHealthClient = serviceList.GetHealthClient("api-router", cfg.APIRouterURL)
+	svc.routerHealthClient = serviceList.GetHealthClient("api-router", svc.Config.APIRouterURL)
 
 	// Initialise clients
 	clients := routes.Clients{
-		Renderer: render.NewWithDefaultClient(assets.Asset, assets.AssetNames, cfg.PatternLibraryAssetsPath, cfg.SiteDomain),
+		Renderer: render.NewWithDefaultClient(assets.Asset, assets.AssetNames, svc.Config.PatternLibraryAssetsPath, svc.Config.SiteDomain),
 		Search:   searchSDK.NewWithHealthClient(svc.routerHealthClient),
 		Topic:    topic.NewWithHealthClient(svc.routerHealthClient),
 		Zebedee:  zebedee.NewWithHealthClient(svc.routerHealthClient),
 	}
 
 	// Get healthcheck with checkers
-	svc.HealthCheck, err = serviceList.GetHealthCheck(cfg, BuildTime, GitCommit, Version)
+	svc.HealthCheck, err = serviceList.GetHealthCheck(svc.Config, BuildTime, GitCommit, Version)
 	if err != nil {
 		log.Fatal(ctx, "failed to create health check", err)
 		return err
@@ -79,54 +79,57 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	clients.HealthCheckHandler = svc.HealthCheck.Handler
 
 	// Initialise caching
-	cache.CensusTopicID = cfg.CensusTopicID
-	cache.RootTopicID = cfg.RootTopicID
-	svc.Cache.CensusTopic, err = cache.NewTopicCache(ctx, &cfg.CacheCensusTopicUpdateInterval)
+	cache.CensusTopicID = svc.Config.CensusTopicID
+	cache.RootTopicID = svc.Config.RootTopicID
+	svc.Cache.CensusTopic, err = cache.NewTopicCache(ctx, &svc.Config.CacheCensusTopicUpdateInterval)
 	if err != nil {
 		log.Error(ctx, "failed to create census cache", err)
 		return err
 	}
-	svc.Cache.DataTopic, err = cache.NewTopicCache(ctx, &cfg.CacheDataTopicUpdateInterval)
+	svc.Cache.DataTopic, err = cache.NewTopicCache(ctx, &svc.Config.CacheDataTopicUpdateInterval)
 	if err != nil {
 		log.Error(ctx, "failed to create data topics cache", err)
 		return err
 	}
-	svc.Cache.Navigation, err = cache.NewNavigationCache(ctx, &cfg.CacheNavigationUpdateInterval)
+	svc.Cache.Navigation, err = cache.NewNavigationCache(ctx, &svc.Config.CacheNavigationUpdateInterval)
 	if err != nil {
-		log.Error(ctx, "failed to create navigation cache", err, log.Data{"update_interval": cfg.CacheNavigationUpdateInterval})
+		log.Error(ctx, "failed to create navigation cache", err, log.Data{"update_interval": svc.Config.CacheNavigationUpdateInterval})
 		return err
 	}
 
-	if cfg.IsPublishing {
-		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePrivate.UpdateCensusTopic(ctx, cfg.ServiceAuthToken, clients.Topic))
-		svc.Cache.DataTopic.AddUpdateFuncs(cachePrivate.UpdateDataTopics(ctx, cfg.ServiceAuthToken, clients.Topic))
+	if svc.Config.IsPublishing {
+		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePrivate.UpdateCensusTopic(ctx, svc.Config.ServiceAuthToken, clients.Topic))
+		if svc.Config.EnableTopicAggregationPages {
+			svc.Cache.DataTopic.AddUpdateFuncs(cachePrivate.UpdateDataTopics(ctx, svc.Config.ServiceAuthToken, clients.Topic))
+		}
 	} else {
 		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePublic.UpdateCensusTopic(ctx, clients.Topic))
-		svc.Cache.DataTopic.AddUpdateFuncs(cachePublic.UpdateDataTopics(ctx, clients.Topic))
-
+		if svc.Config.EnableTopicAggregationPages {
+			svc.Cache.DataTopic.AddUpdateFuncs(cachePublic.UpdateDataTopics(ctx, clients.Topic))
+		}
 	}
 
-	for _, lang := range cfg.SupportedLanguages {
+	for _, lang := range svc.Config.SupportedLanguages {
 		navigationlangKey := svc.Cache.Navigation.GetCachingKeyForNavigationLanguage(lang)
-		svc.Cache.Navigation.AddUpdateFunc(navigationlangKey, cachePublic.UpdateNavigationData(ctx, cfg, lang, clients.Topic))
+		svc.Cache.Navigation.AddUpdateFunc(navigationlangKey, cachePublic.UpdateNavigationData(ctx, svc.Config, lang, clients.Topic))
 	}
 
 	// Initialise router
 	r := mux.NewRouter()
-	if cfg.OtelEnabled {
-		r.Use(otelmux.Middleware(cfg.OTServiceName))
+	if svc.Config.OtelEnabled {
+		r.Use(otelmux.Middleware(svc.Config.OTServiceName))
 	}
 	middleware := []alice.Constructor{
 		renderror.Handler(clients.Renderer),
 	}
 
-	if cfg.OtelEnabled {
-		middleware = append(middleware, otelhttp.NewMiddleware(cfg.OTServiceName))
+	if svc.Config.OtelEnabled {
+		middleware = append(middleware, otelhttp.NewMiddleware(svc.Config.OTServiceName))
 	}
 
 	newAlice := alice.New(middleware...).Then(r)
-	routes.Setup(ctx, r, cfg, clients, svc.Cache)
-	svc.Server = serviceList.GetHTTPServer(cfg.BindAddr, newAlice)
+	routes.Setup(ctx, r, svc.Config, clients, svc.Cache)
+	svc.Server = serviceList.GetHTTPServer(svc.Config.BindAddr, newAlice)
 
 	return nil
 }
@@ -140,7 +143,9 @@ func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
 
 	// Start caching
 	go svc.Cache.CensusTopic.StartUpdates(ctx, svcErrors)
-	go svc.Cache.DataTopic.StartUpdates(ctx, svcErrors)
+	if svc.Config.EnableTopicAggregationPages {
+		go svc.Cache.DataTopic.StartUpdates(ctx, svcErrors)
+	}
 	go svc.Cache.Navigation.StartUpdates(ctx, svcErrors)
 
 	// Start HTTP server
@@ -168,7 +173,9 @@ func (svc *Service) Close(ctx context.Context) error {
 
 		// stop caching
 		svc.Cache.CensusTopic.Close()
-		svc.Cache.DataTopic.Close()
+		if svc.Config.EnableTopicAggregationPages {
+			svc.Cache.DataTopic.Close()
+		}
 		svc.Cache.Navigation.Close()
 
 		// stop any incoming requests

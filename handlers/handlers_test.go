@@ -585,19 +585,14 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
 			})
 
-			Convey("And the Search Client should be called with the topic id from the topic API", func() {
-				// calls go to client in parallel, so we need to work out which is which.
-				firstSearchCall := mockedSearchClient.GetSearchCalls()[0]
-				secondSearchCall := mockedSearchClient.GetSearchCalls()[1]
+			Convey("And the Search Client should be called with pre-configured filters", func() {
+				_, searchCall := sortSearchCalls(mockedSearchClient.GetSearchCalls()[0], mockedSearchClient.GetSearchCalls()[1], "topics")
 
-				firstCallTopic := firstSearchCall.Options.Query.Get("topics")
-				secondCallTopic := secondSearchCall.Options.Query.Get("topics")
+				expectedContentTypes := []string{testTopic.ID}
 
-				if firstCallTopic != "" {
-					So(firstCallTopic, ShouldEqual, testTopic.ID)
-				} else {
-					So(secondCallTopic, ShouldEqual, testTopic.ID)
-				}
+				searchContentTypeParam := searchCall.Options.Query["topics"]
+
+				So(searchContentTypeParam, ShouldEqual, expectedContentTypes)
 			})
 		})
 	})
@@ -656,18 +651,13 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 			})
 
 			Convey("And the Search Client should be called with the subtopic id from the topic API", func() {
-				// calls go to client in parallel, so we need to work out which is which.
-				firstSearchCall := mockedSearchClient.GetSearchCalls()[0]
-				secondSearchCall := mockedSearchClient.GetSearchCalls()[1]
+				_, searchCall := sortSearchCalls(mockedSearchClient.GetSearchCalls()[0], mockedSearchClient.GetSearchCalls()[1], "topics")
 
-				firstCallTopic := firstSearchCall.Options.Query.Get("topics")
-				secondCallTopic := secondSearchCall.Options.Query.Get("topics")
+				expectedContentTypes := []string{testSubtopic.ID}
 
-				if firstCallTopic != "" {
-					So(firstCallTopic, ShouldEqual, testSubtopic.ID)
-				} else {
-					So(secondCallTopic, ShouldEqual, testSubtopic.ID)
-				}
+				searchContentTypeParam := searchCall.Options.Query["topics"]
+
+				So(searchContentTypeParam, ShouldEqual, expectedContentTypes)
 			})
 		})
 	})
@@ -731,19 +721,14 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
 			})
 
-			Convey("And the Search Client should be called with the subtopic id from the topic API", func() {
-				// calls go to client in parallel, so we need to work out which is which.
-				firstSearchCall := mockedSearchClient.GetSearchCalls()[0]
-				secondSearchCall := mockedSearchClient.GetSearchCalls()[1]
+			Convey("And the Search Client should be called with pre-configured filters", func() {
+				_, searchCall := sortSearchCalls(mockedSearchClient.GetSearchCalls()[0], mockedSearchClient.GetSearchCalls()[1], "topics")
 
-				firstCallTopic := firstSearchCall.Options.Query.Get("topics")
-				secondCallTopic := secondSearchCall.Options.Query.Get("topics")
+				expectedContentTypes := []string{testSubSubTopic.ID}
 
-				if firstCallTopic != "" {
-					So(firstCallTopic, ShouldEqual, testSubSubTopic.ID)
-				} else {
-					So(secondCallTopic, ShouldEqual, testSubSubTopic.ID)
-				}
+				searchContentTypeParam := searchCall.Options.Query["topics"]
+
+				So(searchContentTypeParam, ShouldEqual, expectedContentTypes)
 			})
 		})
 	})
@@ -1291,17 +1276,19 @@ func TestUnitReadDataAggregationWithTopicsRSSSuccess(t *testing.T) {
 	Convey("Given a valid request for a subtopic filtered page and a set of mocked services", t, func() {
 		testTopic := topicModels.Topic{
 			ID:    "6734",
-			Title: "economy",
+			Slug:  "economy",
+			Title: "Economy",
 		}
 
 		testSubtopic := topicModels.Topic{
-			ID:    "1834",
-			Title: "environmentalaccounts",
+			ID:    "8268",
+			Slug:  "governmentpublicsectorandtaxes",
+			Title: "Government Public Sector and Taxes",
 		}
 
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/publications?rss", testTopic.Title, testSubtopic.Title), http.NoBody)
-		req = mux.SetURLVars(req, map[string]string{"topic": testTopic.Title, "subTopic": testSubtopic.Title})
+		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/publications?rss", testTopic.Slug, testSubtopic.Slug), http.NoBody)
+		req = mux.SetURLVars(req, map[string]string{"topicsPath": testTopic.Slug + "/" + testSubtopic.Slug})
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
@@ -1358,17 +1345,19 @@ func TestUnitReadDataAggregationWithTopicsRSSFailure(t *testing.T) {
 	Convey("Given a valid request for a subtopic filtered page and a set of mocked services", t, func() {
 		testTopic := topicModels.Topic{
 			ID:    "6734",
-			Title: "economy",
+			Slug:  "economy",
+			Title: "Economy",
 		}
 
 		testSubtopic := topicModels.Topic{
-			ID:    "1834",
-			Title: "environmentalaccounts",
+			ID:    "8268",
+			Slug:  "governmentpublicsectorandtaxes",
+			Title: "Government Public Sector and Taxes",
 		}
 
 		w := httptest.NewRecorder()
-		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/publications?rss", testTopic.Title, testSubtopic.Title), http.NoBody)
-		req = mux.SetURLVars(req, map[string]string{"topic": testTopic.Title, "subTopic": testSubtopic.Title})
+		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/publications?rss", testTopic.Slug, testSubtopic.Slug), http.NoBody)
+		req = mux.SetURLVars(req, map[string]string{"topicsPath": testTopic.Slug + "/" + testSubtopic.Slug})
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)

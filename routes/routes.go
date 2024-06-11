@@ -31,7 +31,7 @@ func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, ca
 	hc := handlers.NewHandlerClients(c.Renderer, c.Search, c.Zebedee, c.Topic)
 	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(handlers.Read(cfg, hc, cacheList, "search"))
 
-	if cfg.EnableReworkedDataAggregationPages {
+	if cfg.EnableAggregationPages {
 		r.StrictSlash(true).Path("/alladhocs").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "all-adhocs"))
 		r.StrictSlash(true).Path("/datalist").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "home-datalist"))
 		r.StrictSlash(true).Path("/publishedrequests").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "published-requests"))
@@ -41,11 +41,13 @@ func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, ca
 		r.StrictSlash(true).Path("/publications").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "home-publications"))
 		r.StrictSlash(true).Path("/allmethodologies").Methods("GET").HandlerFunc(handlers.ReadDataAggregation(cfg, hc, cacheList, "all-methodologies"))
 
-		// handle dynamic aggregated data topic pages
-		r.StrictSlash(true).Path("/{topicsPath:.*}/datalist").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-datalist"))
-		r.StrictSlash(true).Path("/{topicsPath:.*}/publications").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-publications"))
-		r.StrictSlash(true).Path("/{topicsPath:.*}/staticlist").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-list"))
-		r.StrictSlash(true).Path("/{topicsPath:.*}/topicspecificmethodology").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-methodology"))
+		if cfg.EnableTopicAggregationPages {
+			// handle dynamic aggregated data topic pages
+			r.StrictSlash(true).Path("/{topicsPath:.*}/datalist").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-datalist"))
+			r.StrictSlash(true).Path("/{topicsPath:.*}/publications").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-publications"))
+			r.StrictSlash(true).Path("/{topicsPath:.*}/staticlist").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-list"))
+			r.StrictSlash(true).Path("/{topicsPath:.*}/topicspecificmethodology").Methods("GET").HandlerFunc(handlers.ReadDataAggregationWithTopics(cfg, hc, cacheList, "home-methodology"))
+		}
 	}
 
 	r.StrictSlash(true).Path("/census/find-a-dataset").Methods("GET").HandlerFunc(handlers.ReadFindDataset(cfg, hc, cacheList))

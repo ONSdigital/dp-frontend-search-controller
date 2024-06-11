@@ -291,7 +291,7 @@ func (c *Component) thereIsATopicAPIThatReturnsNoTopics() error {
 
 func (c *Component) thePageShouldHaveTheFollowingXmlContent(body *godog.DocString) error {
 
-	tmpExpected := string(c.FakeAPIRouter.subtopicsRequest.Response.BodyBuffer[:])
+	tmpExpected := string(c.FakeAPIRouter.subTopicRequest.Response.BodyBuffer[:])
 	actual := strings.Replace(strings.Replace(strings.TrimSpace(string(tmpExpected[:])), "\n", "", -1), "\t", "", -1)
 	actual = strings.Join(strings.Fields(strings.TrimSpace(actual)), " ")
 	actual = strings.Replace(actual, "><", "> <", -1)
@@ -307,7 +307,7 @@ func (c *Component) thePageShouldHaveTheFollowingXmlContent(body *godog.DocStrin
 }
 
 func (c *Component) theResponseHeaderShouldContain(key, value string) (err error) {
-	responseHeader := c.FakeAPIRouter.subtopicsRequest.Response.Header
+	responseHeader := c.FakeAPIRouter.subTopicRequest.Response.Header
 	actualValue, actualExist := responseHeader[key]
 	if !actualExist {
 		return errors.New("expected header key " + key + ", does not exist in the header ")
@@ -324,15 +324,13 @@ func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequ
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	topicID := "6646"
-
 	topicAPIResponse := generateTopicResponseRSS(topic, subTopic)
 	c.FakeAPIRouter.topicRequest.Response = topicAPIResponse
 
-	fakeTopicRequestPath := fmt.Sprintf("/%s/%s/%s?%s", topic, topicID, subTopic, query)
+	fakeTopicRequestPath := fmt.Sprintf("/%s/%s?%s", topic, subTopic, query)
 
-	c.FakeAPIRouter.subtopicsRequest.Get(fakeTopicRequestPath)
-	c.FakeAPIRouter.subtopicsRequest.Response = topicAPIResponse
+	c.FakeAPIRouter.subTopicRequest.Get(fakeTopicRequestPath)
+	c.FakeAPIRouter.subTopicRequest.Response = topicAPIResponse
 
 	return nil
 }

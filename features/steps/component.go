@@ -52,7 +52,8 @@ func NewSearchControllerComponent() (c *Component, err error) {
 		return nil, err
 	}
 
-	c.Config.EnableReworkedDataAggregationPages = true
+	c.Config.EnableAggregationPages = true
+	c.Config.EnableTopicAggregationPages = true
 
 	log.Info(ctx, "configuration for component test", log.Data{"config": c.Config})
 

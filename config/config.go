@@ -25,7 +25,8 @@ type Config struct {
 	DefaultAggregationSort                  string        `envconfig:"DEFAULT_AGGREGATION_SORT"`
 	DefaultSort                             string        `envconfig:"DEFAULT_SORT"`
 	DefaultDatasetSort                      string        `envconfig:"DEFAULT_DATASET_SORT"`
-	EnableReworkedDataAggregationPages      bool          `envconfig:"ENABLE_REWORKED_DATA_AGGREGATION_PAGES"`
+	EnableAggregationPages                  bool          `envconfig:"ENABLE_AGGREGATION_PAGES"`
+	EnableTopicAggregationPages             bool          `envconfig:"ENABLE_TOPIC_AGGREGATION_PAGES"`
 	EnableCensusDimensionsFilterOption      bool          `envconfig:"ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION"`
 	EnableCensusPopulationTypesFilterOption bool          `envconfig:"ENABLE_CENSUS_POPULATION_TYPE_FILTER_OPTION"`
 	EnableCensusTopicFilterOption           bool          `envconfig:"ENABLE_CENSUS_TOPIC_FILTER_OPTION"`
@@ -101,7 +102,8 @@ func get() (*Config, error) {
 		EnableCensusTopicFilterOption:           false,
 		EnableCensusPopulationTypesFilterOption: false,
 		EnableCensusDimensionsFilterOption:      false,
-		EnableReworkedDataAggregationPages:      false,
+		EnableAggregationPages:                  false,
+		EnableTopicAggregationPages:             false,
 		EnableNewNavBar:                         false,
 		GracefulShutdownTimeout:                 5 * time.Second,
 		HealthCheckCriticalTimeout:              90 * time.Second,

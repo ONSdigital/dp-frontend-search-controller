@@ -67,29 +67,29 @@ func UpdateDataTopics(ctx context.Context, topicClient topicCli.Clienter) func()
 		var topics []*cache.Topic
 		processedTopics := make(map[string]bool)
 
-		// get root topics from dp-topic-api (e.g. economy) from dp-topic-api
-		rootTopics, err := topicClient.GetTopicPublic(ctx, topicCli.Headers{}, cache.RootTopicID)
+		// get root topic from dp-topic-api
+		rootTopic, err := topicClient.GetTopicPublic(ctx, topicCli.Headers{}, cache.RootTopicID)
 		if err != nil {
 			logData := log.Data{
 				"req_headers": topicCli.Headers{},
 			}
-			log.Error(ctx, "failed to get root topic's subtopics from topic-api", err, logData)
+			log.Error(ctx, "failed to get root topic from topic-api", err, logData)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
-		// deference root topics items to allow ranging through them
-		var rootTopicItems []string
-		if rootTopics.SubtopicIds != nil {
-			rootTopicItems = *rootTopics.SubtopicIds
+		// deference rootTopic's subTopicIDs to allow ranging through them
+		var rootSubTopicIds []string
+		if rootTopic.SubtopicIds != nil {
+			rootSubTopicIds = *rootTopic.SubtopicIds
 		} else {
-			err := errors.New("root topic public items is nil")
-			log.Error(ctx, "failed to deference root topics items pointer", err)
+			err := errors.New("root topic subtopic IDs is nil")
+			log.Error(ctx, "failed to deference rootTopic subtopic IDs pointer", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
 		// recursively process topics and their subtopics
-		for i := range rootTopicItems {
-			processTopic(ctx, topicClient, rootTopicItems[i], &topics, processedTopics)
+		for i := range rootSubTopicIds {
+			processTopic(ctx, topicClient, rootSubTopicIds[i], &topics, processedTopics)
 		}
 
 		// Check if any data topics were found
@@ -137,6 +137,7 @@ func mapTopicModelToCache(rootTopic models.Topic) *cache.Topic {
 		Slug:            rootTopic.Slug,
 		LocaliseKeyName: rootTopic.Title,
 		ReleaseDate:     rootTopic.ReleaseDate,
+		List:            cache.NewSubTopicsMap(),
 	}
 	return rootTopicCache
 }

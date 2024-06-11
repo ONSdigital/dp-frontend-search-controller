@@ -34,7 +34,7 @@ type Subtopic struct {
 // Please note that only census topic filter is being returned
 func GetTopics(censusTopicCache *cache.Topic, countResp *searchModels.SearchResponse) []Topic {
 	var cachedSubtopics []cache.Subtopic
-	if censusTopicCache != nil && censusTopicCache.List != nil {
+	if censusTopicCache != nil || censusTopicCache.List != nil {
 		cachedSubtopics = censusTopicCache.List.GetSubtopics()
 	}
 
