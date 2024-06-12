@@ -316,3 +316,43 @@ func TestUnitGetGroupLocaliseKey(t *testing.T) {
 		})
 	})
 }
+
+func TestUnitIsCategoryUnused(t *testing.T) {
+	t.Parallel()
+
+	Convey("Given a category that is used", t, func() {
+		category := "static_methodology"
+
+		Convey("When IsCategoryUnused is called", func() {
+			isCategoryUnused := IsCategoryUnused(category)
+
+			Convey("Then it should return false", func() {
+				So(isCategoryUnused, ShouldBeFalse)
+			})
+		})
+	})
+
+	Convey("Given a category that is unused", t, func() {
+		category := "visualisation"
+
+		Convey("When IsCategoryUnused is called", func() {
+			isCategoryUnused := IsCategoryUnused(category)
+
+			Convey("Then it should return true", func() {
+				So(isCategoryUnused, ShouldBeTrue)
+			})
+		})
+	})
+
+	Convey("Given a category that is unknown", t, func() {
+		category := "visualisation"
+
+		Convey("When IsCategoryUnused is called", func() {
+			isCategoryUnused := IsCategoryUnused(category)
+
+			Convey("Then it should return false", func() {
+				So(isCategoryUnused, ShouldBeTrue)
+			})
+		})
+	})
+}

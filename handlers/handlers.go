@@ -67,14 +67,14 @@ func Read(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template
 	return cookies.Handler(cfg.ABTest.Enabled, newHandler, oldHandler, cfg.ABTest.Percentage, cfg.ABTest.AspectID, cfg.SiteDomain, cfg.ABTest.Exit)
 }
 
-// Read Handler for data aggregation routes with topic/subtopics
+// ReadDataAggregationWithTopics for data aggregation routes with topic/subtopics
 func ReadDataAggregationWithTopics(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readDataAggregationWithTopics(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
 	})
 }
 
-// Read Handler
+// ReadDataAggregation
 func ReadDataAggregation(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readDataAggregation(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
@@ -429,6 +429,15 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		return
 	}
 
+	if _, rssParam := urlQuery["rss"]; rssParam {
+		req.Header.Set("Accept", "application/rss+xml")
+		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
+			log.Error(ctx, "failed to create rss feed", err)
+			setStatusCode(w, req, err)
+			return
+		}
+		return
+	}
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 3
 
@@ -734,7 +743,7 @@ func setCountToCategories(ctx context.Context, countResp *searchModels.SearchRes
 			}
 		}
 
-		if !foundFilter {
+		if !foundFilter && !data.IsCategoryUnused(responseType.Type) {
 			log.Warn(ctx, "unrecognised filter type returned from api", log.Data{"filter_type": responseType.Type})
 		}
 	}

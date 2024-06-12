@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
+	"strings"
 	"testing"
 
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
@@ -1136,4 +1137,143 @@ func sortSearchCalls(searchCall1 struct {
 	}
 
 	return searchCall1, searchCall2
+}
+
+func TestUnitReadDataAggregationWithTopicsRSSSuccess(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	mockSearchResponse, err := mapper.GetMockSearchResponse()
+	if err != nil {
+		t.Errorf("failed to retrieve mock search response for unit tests, failing early: %v", err)
+	}
+
+	mockHomepageContent, err := mapper.GetMockHomepageContent()
+	if err != nil {
+		t.Errorf("failed to retrieve mock homepage content for unit tests, failing early: %v", err)
+	}
+
+	Convey("Given a valid request for a subtopic filtered page and a set of mocked services", t, func() {
+		testTopic := topicModels.Topic{
+			ID:    "6734",
+			Title: "economy",
+		}
+
+		testSubtopic := topicModels.Topic{
+			ID:    "1834",
+			Title: "environmentalaccounts",
+		}
+
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/publications?rss", testTopic.Title, testSubtopic.Title), http.NoBody)
+		req = mux.SetURLVars(req, map[string]string{"topic": testTopic.Title, "subTopic": testSubtopic.Title})
+
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		mockedRendererClient := &RenderClientMock{
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
+			},
+		}
+
+		mockedSearchClient := &SearchClientMock{
+			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+				return mockSearchResponse, nil
+			},
+		}
+
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
+				return mockHomepageContent, nil
+			},
+		}
+
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
+		So(err, ShouldBeNil)
+
+		Convey("When readDataAggregationWithTopics is called", func() {
+			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
+
+			Convey("Then a 200 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusOK)
+				So(w.Header().Get("Content-Type"), ShouldEqual, "application/rss+xml")
+				reqBody, err := io.ReadAll(w.Body)
+				if err != nil {
+					fmt.Fprintf(w, "Kindly enter data ")
+				}
+				newBody := strings.Split(strings.ReplaceAll(string(reqBody), "\r\n", "\n"), "\n")
+				So(newBody[0], ShouldContainSubstring, "<?xml version")
+			})
+		})
+	})
+}
+
+func TestUnitReadDataAggregationWithTopicsRSSFailure(t *testing.T) {
+	t.Parallel()
+
+	ctx := context.Background()
+
+	mockHomepageContent, err := mapper.GetMockHomepageContent()
+	if err != nil {
+		t.Errorf("failed to retrieve mock homepage content for unit tests, failing early: %v", err)
+	}
+
+	Convey("Given a valid request for a subtopic filtered page and a set of mocked services", t, func() {
+		testTopic := topicModels.Topic{
+			ID:    "6734",
+			Title: "economy",
+		}
+
+		testSubtopic := topicModels.Topic{
+			ID:    "1834",
+			Title: "environmentalaccounts",
+		}
+
+		w := httptest.NewRecorder()
+		req := httptest.NewRequest("GET", fmt.Sprintf("/%s/%s/publications?rss", testTopic.Title, testSubtopic.Title), http.NoBody)
+		req = mux.SetURLVars(req, map[string]string{"topic": testTopic.Title, "subTopic": testSubtopic.Title})
+
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		mockedRendererClient := &RenderClientMock{
+			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
+			NewBasePageModelFunc: func() coreModel.Page {
+				return coreModel.Page{}
+			},
+		}
+
+		mockSearchClient := &SearchClientMock{}
+		mockSearchClient.GetSearchFunc = func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+			return nil, apiError.StatusError{Code: 500}
+		}
+
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetHomepageContentFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.HomepageContent, error) {
+				return mockHomepageContent, nil
+			},
+		}
+
+		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
+		So(err, ShouldBeNil)
+
+		Convey("When readDataAggregationWithTopics is called", func() {
+			readDataAggregationWithTopics(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications")
+
+			Convey("Then a 200 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusInternalServerError)
+				So(w.Header().Get("Content-Type"), ShouldBeEmpty)
+
+				reqBody, err := io.ReadAll(w.Body)
+				if err != nil {
+					fmt.Fprintf(w, "Kindly enter data ")
+				}
+				newBody := strings.Split(strings.ReplaceAll(string(reqBody), "\r\n", "\n"), "\n")
+				So(newBody[0], ShouldBeEmpty)
+			})
+		})
+	})
 }
