@@ -14,7 +14,7 @@ Feature: Form submission with date fields
         And I fill in input element "#before-date-year" with value "2022"
         When I click the "#search-filter > button" element
         And I wait 1 seconds
-        Then element "#form-validation-panel" should not be visible
+        Then element "#error-summary-title" should not be visible
 
     Scenario Outline: Submitting the form with invalid date fields
         Given I fill in input element "#after-date-day" with value "<day>"
@@ -22,8 +22,8 @@ Feature: Form submission with date fields
         And I fill in input element "#after-date-year" with value "<year>"
         When I click the "#search-filter > button" element
         And I wait 1 seconds
-        Then element "#form-validation-panel" should be visible
-        And element "#after-date-error" should be visible
+        Then element "#error-summary-title" should be visible
+        And element "#fromDate-error" should be visible
 
         Examples:
             | day | month | year |
@@ -39,8 +39,8 @@ Feature: Form submission with date fields
         And I fill in input element "#before-date-year" with value "<year>"
         When I click the "#search-filter > button" element
         And I wait 1 seconds
-        Then element "#form-validation-panel" should be visible
-        And element "#before-date-error" should be visible
+        Then element "#error-summary-title" should be visible
+        And element "#toDate-error" should be visible
 
         Examples:
             | day | month | year |
@@ -59,6 +59,6 @@ Feature: Form submission with date fields
         And I fill in input element "#before-date-year" with value "2021"
         When I click the "#search-filter > button" element
         And I wait 1 seconds
-        Then element "#form-validation-panel" should be visible
-        And element "#before-date-error" should be visible
-        And element "#after-date-error" should not be visible
+        Then element "#error-summary-title" should be visible
+        And element "#fromDate-error" should not be visible
+        And element "#toDate-error" should be visible
