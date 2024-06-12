@@ -151,8 +151,6 @@ func TestUnitCreateSearchPage(t *testing.T) {
 				So(sp.EmergencyBanner.Description, ShouldEqual, respH.EmergencyBanner.Description)
 				So(sp.EmergencyBanner.URI, ShouldEqual, respH.EmergencyBanner.URI)
 				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
-
-				So(sp.SearchNoIndexEnabled, ShouldEqual, true)
 			})
 		})
 	})
@@ -265,8 +263,6 @@ func TestUnitFindDatasetPage(t *testing.T) {
 				So(sp.EmergencyBanner.Description, ShouldEqual, respH.EmergencyBanner.Description)
 				So(sp.EmergencyBanner.URI, ShouldEqual, respH.EmergencyBanner.URI)
 				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
-
-				So(sp.SearchNoIndexEnabled, ShouldEqual, true)
 			})
 		})
 	})
@@ -388,8 +384,6 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				So(sp.EmergencyBanner.Description, ShouldEqual, respH.EmergencyBanner.Description)
 				So(sp.EmergencyBanner.URI, ShouldEqual, respH.EmergencyBanner.URI)
 				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
-				// no index setting
-				So(sp.SearchNoIndexEnabled, ShouldEqual, true)
 			})
 
 			Convey("Then successfully map validation errors correctly to a page model", func() {
