@@ -6,8 +6,8 @@ github.com/ONSdigital/dp-authorisation v0.3.0 h1:eLYMGqXAes5P2qRyhC9F/mlHOoSdKW2
 github.com/ONSdigital/dp-authorisation v0.3.0/go.mod h1:oORDA6jk0kpp2goWvybBTpV8OvLea+LaeJc2pY408jE=
 github.com/ONSdigital/dp-cache v0.3.0 h1:E0T3XVjpcl6PDHL/4Go9a+EGekIwwNsfL0MsSgNK/jM=
 github.com/ONSdigital/dp-cache v0.3.0/go.mod h1:cyduXeUO8n9TLZIorCWDzEoLkk1jK8q4Ex5CBsxptKA=
-github.com/ONSdigital/dp-component-test v0.11.0 h1:b/4l2hSBo1TRCtPWXv5cJBW1zTUJkTPXBJcNtnj3PT4=
-github.com/ONSdigital/dp-component-test v0.11.0/go.mod h1:78ezvtVsVAcN5OiQkjJ30Q6xZx0diuYNTLpZHi5qW4Y=
+github.com/ONSdigital/dp-component-test v0.12.0 h1:q4Xq56scWZjLAPoNXojMrr/1UP5+U0f5w7yMCxErQiQ=
+github.com/ONSdigital/dp-component-test v0.12.0/go.mod h1:78ezvtVsVAcN5OiQkjJ30Q6xZx0diuYNTLpZHi5qW4Y=
 github.com/ONSdigital/dp-cookies v0.5.0 h1:KRAWETSdkT18Ia8p+W7nXwvRn1waSaQjrFf6k+eWvws=
 github.com/ONSdigital/dp-cookies v0.5.0/go.mod h1:3Z+EevRMAd9f0nkIF31wkfiT2WInvCrY1W66zJgGIYM=
 github.com/ONSdigital/dp-elasticsearch/v3 v3.0.1-alpha.4.0.20230308115225-bb7559a89d0c h1:eSAGAcjij4KnrdtxZPYZphBYls5aJLHRwNhm8EtlK3Q=
