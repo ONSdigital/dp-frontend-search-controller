@@ -42,7 +42,6 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
-	page.SearchNoIndexEnabled = true
 	page.FeatureFlags.IsPublishing = cfg.IsPublishing
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
@@ -234,7 +233,6 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
-	page.SearchNoIndexEnabled = true
 	page.FeatureFlags.IsPublishing = cfg.IsPublishing
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
@@ -267,7 +265,6 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
-	page.SearchNoIndexEnabled = true
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
