@@ -42,7 +42,13 @@ func reviewPagination(ctx context.Context, cfg *config.Config, urlQuery url.Valu
 }
 
 func getLimitFromURLQuery(ctx context.Context, cfg *config.Config, query url.Values) int {
-	limit, err := strconv.Atoi(query.Get("limit"))
+	limitParam := query.Get("limit")
+
+	if limitParam == "" {
+		return cfg.DefaultLimit
+	}
+
+	limit, err := strconv.Atoi(limitParam)
 	if err != nil {
 		log.Info(ctx, fmt.Sprintf("unable to convert search limit to int - set to default %d", cfg.DefaultLimit))
 		query.Set("limit", strconv.Itoa(cfg.DefaultLimit))
@@ -63,15 +69,27 @@ func getLimitFromURLQuery(ctx context.Context, cfg *config.Config, query url.Val
 }
 
 func getPageFromURLQuery(ctx context.Context, cfg *config.Config, query url.Values) int {
-	page, err := strconv.Atoi(query.Get("page"))
+	pageParam := query.Get("page")
+
+	if pageParam == "" {
+		return cfg.DefaultPage
+	}
+
+	page, err := strconv.Atoi(pageParam)
 	if err != nil {
-		log.Info(ctx, fmt.Sprintf("unable to convert search page to int - set to default %d", cfg.DefaultPage))
+		log.Info(ctx, "unable to convert search page to int - set to default", log.Data{
+			"default": cfg.DefaultPage,
+			"page":    page,
+		})
 		query.Set("page", strconv.Itoa(cfg.DefaultPage))
 		page = cfg.DefaultPage
 	}
 
 	if page < 1 {
-		log.Info(ctx, fmt.Sprintf("page number is less than default - default to page %d", cfg.DefaultPage))
+		log.Info(ctx, "page number is less than default - set to default", log.Data{
+			"default": cfg.DefaultPage,
+			"page":    page,
+		})
 		query.Set("page", strconv.Itoa(cfg.DefaultPage))
 		page = cfg.DefaultPage
 	}
