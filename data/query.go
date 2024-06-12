@@ -149,6 +149,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 				ID:  DateToErr,
 				URL: fmt.Sprintf("#%s", DateToErr),
 			})
+			toDate.fieldsetErrID = DateToErr
 		}
 	}
 	sp.BeforeDate = toDate
