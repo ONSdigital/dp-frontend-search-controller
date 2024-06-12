@@ -151,6 +151,8 @@ func TestUnitCreateSearchPage(t *testing.T) {
 				So(sp.EmergencyBanner.Description, ShouldEqual, respH.EmergencyBanner.Description)
 				So(sp.EmergencyBanner.URI, ShouldEqual, respH.EmergencyBanner.URI)
 				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
+
+				So(sp.SearchNoIndexEnabled, ShouldEqual, true)
 			})
 		})
 	})
