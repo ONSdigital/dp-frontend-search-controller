@@ -69,29 +69,29 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 		var topics []*cache.Topic
 		processedTopics := make(map[string]bool)
 
-		// get root topic from dp-topic-api
-		rootTopic, err := topicClient.GetTopicPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, cache.RootTopicID)
+		// get root topics from dp-topic-api
+		rootTopics, err := topicClient.GetRootTopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken})
 		if err != nil {
 			logData := log.Data{
 				"req_headers": topicCli.Headers{},
 			}
-			log.Error(ctx, "failed to get root topic from topic-api", err, logData)
+			log.Error(ctx, "failed to get root topics from topic-api", err, logData)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
-		// deference rootTopic's subTopicIDs to allow ranging through them
-		var rootSubTopicIds []string
-		if rootTopic.Current.SubtopicIds != nil {
-			rootSubTopicIds = *rootTopic.Current.SubtopicIds
+		// deference root topics items to allow ranging through them
+		var rootTopicItems []models.TopicResponse
+		if rootTopics.PrivateItems != nil {
+			rootTopicItems = *rootTopics.PrivateItems
 		} else {
-			err := errors.New("root topic subtopic IDs is nil")
-			log.Error(ctx, "failed to deference rootTopic subtopic IDs pointer", err)
+			err := errors.New("root topic private items is nil")
+			log.Error(ctx, "failed to deference root topics items pointer", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
-		// recursively process topics and their subtopics
-		for i := range rootSubTopicIds {
-			processTopic(ctx, serviceAuthToken, topicClient, rootSubTopicIds[i], &topics, processedTopics)
+		// recursively process root topics and their subtopics
+		for i := range rootTopicItems {
+			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i].ID, &topics, processedTopics)
 		}
 
 		// Check if any data topics were found
@@ -119,7 +119,6 @@ func processTopic(ctx context.Context, serviceAuthToken string, topicClient topi
 
 	if dataTopic != nil {
 		// Append the current topic to the list of topics
-		// subtopicsChan := make(chan models.Topic)
 		*topics = append(*topics, mapTopicModelToCache(*dataTopic.Current))
 		// Mark this topic as processed
 		processedTopics[topicID] = true

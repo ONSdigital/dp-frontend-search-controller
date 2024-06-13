@@ -15,7 +15,6 @@ type Config struct {
 	CacheDataTopicUpdateInterval            time.Duration `envconfig:"CACHE_DATA_TOPICS_UPDATE_INTERVAL"`
 	CacheNavigationUpdateInterval           time.Duration `envconfig:"CACHE_NAVIGATION_UPDATE_INTERVAL"`
 	CensusTopicID                           string        `envconfig:"CENSUS_TOPIC_ID"`
-	RootTopicID                             string        `envconfig:"ROOT_TOPIC_ID"`
 	Debug                                   bool          `envconfig:"DEBUG"`
 	DefaultLimit                            int           `envconfig:"DEFAULT_LIMIT"`
 	DefaultMaximumLimit                     int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
@@ -89,7 +88,6 @@ func get() (*Config, error) {
 		CacheDataTopicUpdateInterval:            30 * time.Minute,
 		CacheNavigationUpdateInterval:           30 * time.Minute,
 		CensusTopicID:                           "4445",
-		RootTopicID:                             "9999",
 		Debug:                                   false,
 		DefaultLimit:                            10,
 		DefaultMaximumLimit:                     50,

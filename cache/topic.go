@@ -13,9 +13,6 @@ import (
 // CensusTopicID is the id of the Census topic stored in mongodb which is accessible by using dp-topic-api
 var CensusTopicID string
 
-// RootTopicID is the id of the Root topic stored in mongodb which is accessible by using dp-topic-api
-var RootTopicID string
-
 // TopicCache is a wrapper to dpcache.Cache which has additional fields and methods specifically for caching topics
 type TopicCache struct {
 	*dpcache.Cache

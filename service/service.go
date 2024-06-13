@@ -80,7 +80,6 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise caching
 	cache.CensusTopicID = svc.Config.CensusTopicID
-	cache.RootTopicID = svc.Config.RootTopicID
 	svc.Cache.CensusTopic, err = cache.NewTopicCache(ctx, &svc.Config.CacheCensusTopicUpdateInterval)
 	if err != nil {
 		log.Error(ctx, "failed to create census cache", err)

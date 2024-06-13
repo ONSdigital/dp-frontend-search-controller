@@ -40,9 +40,15 @@ var (
 	}
 
 	testEconomyRootTopicPrivate = models.TopicResponse{
-		ID:      "1458",
+		ID:      "6734",
 		Next:    &testEconomyRootTopic,
 		Current: &testEconomyRootTopic,
+	}
+
+	testBusinessRootTopicPrivate = models.TopicResponse{
+		ID:      "1234",
+		Next:    &testBusinessRootTopic,
+		Current: &testBusinessRootTopic,
 	}
 
 	// census sub topic level (when GetSubTopics is called with `testCensusTopicID` - testRootCensusTopic)
@@ -90,8 +96,14 @@ var (
 	}
 
 	testEconomyRootTopic = models.Topic{
-		ID:          "1458",
+		ID:          "6734",
 		Title:       "Economy",
+		SubtopicIds: &[]string{"1834"},
+	}
+
+	testBusinessRootTopic = models.Topic{
+		ID:          "1234",
+		Title:       "Business",
 		SubtopicIds: &[]string{},
 	}
 
@@ -250,16 +262,17 @@ func TestUpdateDataTopics(t *testing.T) {
 
 	Convey("Given root topics exist and have subtopics", t, func() {
 		mockClient := &mockTopic.ClienterMock{
+			GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, topicCliErr.Error) {
+				return &models.PrivateSubtopics{
+					Count:        2,
+					Offset:       0,
+					Limit:        50,
+					TotalCount:   2,
+					PrivateItems: &[]models.TopicResponse{testEconomyRootTopicPrivate, testBusinessRootTopicPrivate},
+				}, nil
+			},
 			GetTopicPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.TopicResponse, topicCliErr.Error) {
 				switch topicID {
-				case cache.RootTopicID:
-					return &models.TopicResponse{
-						Current: &models.Topic{
-							ID:          "9999",
-							Title:       "Root",
-							SubtopicIds: &[]string{"6734", "1234"},
-						},
-					}, nil
 				case "6734":
 					return &models.TopicResponse{
 						Current: &models.Topic{
@@ -308,7 +321,7 @@ func TestUpdateDataTopics(t *testing.T) {
 
 	Convey("Given an error in getting root topics from topic-api", t, func() {
 		mockClient := &mockTopic.ClienterMock{
-			GetTopicPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.TopicResponse, topicCliErr.Error) {
+			GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, topicCliErr.Error) {
 				return nil, topicCliErr.StatusError{
 					Err: errors.New("unexpected error"),
 				}
@@ -326,6 +339,15 @@ func TestUpdateDataTopics(t *testing.T) {
 
 	Convey("Given root topics private items is nil", t, func() {
 		mockClient := &mockTopic.ClienterMock{
+			GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, topicCliErr.Error) {
+				return &models.PrivateSubtopics{
+					Count:        1,
+					Offset:       0,
+					Limit:        50,
+					TotalCount:   1,
+					PrivateItems: nil,
+				}, nil
+			},
 			GetTopicPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.TopicResponse, topicCliErr.Error) {
 				return &models.TopicResponse{
 					Current: &models.Topic{
@@ -347,16 +369,14 @@ func TestUpdateDataTopics(t *testing.T) {
 
 	Convey("Given root topics exist but no data topics found", t, func() {
 		mockClient := &mockTopic.ClienterMock{
-			GetTopicPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers, topicID string) (*models.TopicResponse, topicCliErr.Error) {
-				if topicID == cache.RootTopicID {
-					return &models.TopicResponse{
-						Current: &models.Topic{
-							ID:          "9999",
-							SubtopicIds: &[]string{},
-						},
-					}, nil
-				}
-				return nil, nil
+			GetRootTopicsPrivateFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, topicCliErr.Error) {
+				return &models.PrivateSubtopics{
+					Count:        0,
+					Offset:       0,
+					Limit:        50,
+					TotalCount:   0,
+					PrivateItems: &[]models.TopicResponse{},
+				}, nil
 			},
 		}
 

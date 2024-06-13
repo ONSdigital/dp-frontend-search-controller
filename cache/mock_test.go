@@ -49,3 +49,22 @@ func TestGetMockCensusTopic(t *testing.T) {
 		})
 	})
 }
+
+func TestGetMockDataTopic(t *testing.T) {
+	t.Parallel()
+
+	id := "6734"
+	slug := "economy"
+	title := "Economy"
+
+	Convey("When GetMockTopic is called", t, func() {
+		mockTopic := GetMockDataTopic(id, slug, title)
+
+		Convey("Then the mock topic is returned", func() {
+			So(mockTopic, ShouldNotBeNil)
+			So(mockTopic.ID, ShouldEqual, id)
+			So(mockTopic.Slug, ShouldEqual, slug)
+			So(mockTopic.LocaliseKeyName, ShouldEqual, title)
+		})
+	})
+}

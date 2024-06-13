@@ -69,7 +69,7 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.searchRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/search")
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
 
-	c.FakeAPIRouter.rootTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get(fmt.Sprintf("/topics/%s", c.Config.RootTopicID))
+	c.FakeAPIRouter.rootTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get(fmt.Sprintf("/topics"))
 	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.subTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.subSubTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
@@ -173,6 +173,37 @@ func generateSearchItem(num int) searchModels.Item {
 		DatasetID: datasetID,
 	}
 	return searchItem
+}
+
+func generateRootTopicResponse() *httpfake.Response {
+
+	var (
+		testEconomyRootTopic = topicModels.Topic{
+			ID:          "6734",
+			Title:       "Economy",
+			SubtopicIds: &[]string{"1834"},
+		}
+
+		testBusinessRootTopic = topicModels.Topic{
+			ID:          "1234",
+			Title:       "Business",
+			SubtopicIds: &[]string{},
+		}
+	)
+
+	rootTopicAPIResponse := &topicModels.PublicSubtopics{
+		Count:       2,
+		Offset:      0,
+		Limit:       50,
+		TotalCount:  2,
+		PublicItems: &[]topicModels.Topic{testEconomyRootTopic, testBusinessRootTopic},
+	}
+
+	fakeAPIResponse := httpfake.NewResponse()
+	fakeAPIResponse.Status(200)
+	fakeAPIResponse.BodyStruct(rootTopicAPIResponse)
+
+	return fakeAPIResponse
 }
 
 func generateTopicResponse(title string) *httpfake.Response {

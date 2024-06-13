@@ -208,8 +208,8 @@ func (c *Component) thereIsATopicAPIThatReturnsATopic(topic string) error {
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	rootTopicAPIResponse := generateTopicResponse("root")
-	fakeRootTopicRequestPath := fmt.Sprintf("/topics/%s", "9999")
+	rootTopicAPIResponse := generateRootTopicResponse()
+	fakeRootTopicRequestPath := fmt.Sprintf("/topics")
 	c.FakeAPIRouter.rootTopicRequest.Get(fakeRootTopicRequestPath)
 	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIResponse
 
@@ -229,8 +229,8 @@ func (c *Component) thereIsATopicAPIThatReturnsATopicAndSubtopic(topic string, s
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	rootTopicAPIResponse := generateTopicResponse("root")
-	fakeRootTopicRequestPath := fmt.Sprintf("/topics/%s", "9999")
+	rootTopicAPIResponse := generateRootTopicResponse()
+	fakeRootTopicRequestPath := fmt.Sprintf("/topics")
 	c.FakeAPIRouter.rootTopicRequest.Get(fakeRootTopicRequestPath)
 	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIResponse
 
@@ -255,8 +255,8 @@ func (c *Component) thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelS
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
-	rootTopicAPIResponse := generateTopicResponse("root")
-	fakeRootTopicRequestPath := fmt.Sprintf("/topics/%s", "9999")
+	rootTopicAPIResponse := generateRootTopicResponse()
+	fakeRootTopicRequestPath := fmt.Sprintf("/topics")
 	c.FakeAPIRouter.rootTopicRequest.Get(fakeRootTopicRequestPath)
 	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIResponse
 
