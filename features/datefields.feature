@@ -13,15 +13,13 @@ Feature: Form submission with date fields
         And I fill in input element "#before-date-month" with value "12"
         And I fill in input element "#before-date-year" with value "2022"
         When I click the "#search-filter > button" element
-        And I wait 1 seconds
         Then element "#error-summary-title" should not be visible
 
-    Scenario Outline: Submitting the form with invalid date fields
+    Scenario Outline: Submitting the form with invalid after-date fields
         Given I fill in input element "#after-date-day" with value "<day>"
         And I fill in input element "#after-date-month" with value "<month>"
         And I fill in input element "#after-date-year" with value "<year>"
         When I click the "#search-filter > button" element
-        And I wait 1 seconds
         Then element "#error-summary-title" should be visible
         And element "#fromDate-error" should be visible
 
@@ -38,7 +36,6 @@ Feature: Form submission with date fields
         And I fill in input element "#before-date-month" with value "<month>"
         And I fill in input element "#before-date-year" with value "<year>"
         When I click the "#search-filter > button" element
-        And I wait 1 seconds
         Then element "#error-summary-title" should be visible
         And element "#toDate-error" should be visible
 
@@ -50,7 +47,7 @@ Feature: Form submission with date fields
             | 31  | 09    | 2022 |
             | 01  | 01    |      |
 
-    Scenario: Submitting the form with after date that's after before date
+    Scenario: Submitting the form with after-date that's after before-date
         Given I fill in input element "#after-date-day" with value "01"
         And I fill in input element "#after-date-month" with value "01"
         And I fill in input element "#after-date-year" with value "2022"
@@ -58,7 +55,6 @@ Feature: Form submission with date fields
         And I fill in input element "#before-date-month" with value "12"
         And I fill in input element "#before-date-year" with value "2021"
         When I click the "#search-filter > button" element
-        And I wait 1 seconds
         Then element "#error-summary-title" should be visible
         And element "#fromDate-error" should not be visible
         And element "#toDate-error" should be visible
