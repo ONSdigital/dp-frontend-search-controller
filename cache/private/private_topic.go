@@ -91,7 +91,7 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 
 		// recursively process root topics and their subtopics
 		for i := range rootTopicItems {
-			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i].ID, &topics, processedTopics)
+			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i].ID, &topics, processedTopics, "")
 		}
 
 		// Check if any data topics were found
@@ -104,7 +104,7 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 	}
 }
 
-func processTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, topicID string, topics *[]*cache.Topic, processedTopics map[string]bool) {
+func processTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, topicID string, topics *[]*cache.Topic, processedTopics map[string]bool, parentTopicID string) {
 	// Check if the topic is already processed
 	if processedTopics[topicID] {
 		return
@@ -119,24 +119,25 @@ func processTopic(ctx context.Context, serviceAuthToken string, topicClient topi
 
 	if dataTopic != nil {
 		// Append the current topic to the list of topics
-		*topics = append(*topics, mapTopicModelToCache(*dataTopic.Current))
+		*topics = append(*topics, mapTopicModelToCache(*dataTopic.Current, parentTopicID))
 		// Mark this topic as processed
 		processedTopics[topicID] = true
 
 		// Process each subtopic recursively
 		if dataTopic.Current.SubtopicIds != nil {
 			for _, subTopicID := range *dataTopic.Current.SubtopicIds {
-				processTopic(ctx, serviceAuthToken, topicClient, subTopicID, topics, processedTopics)
+				processTopic(ctx, serviceAuthToken, topicClient, subTopicID, topics, processedTopics, topicID)
 			}
 		}
 	}
 }
 
-func mapTopicModelToCache(rootTopic models.Topic) *cache.Topic {
+func mapTopicModelToCache(rootTopic models.Topic, parentID string) *cache.Topic {
 	rootTopicCache := &cache.Topic{
 		ID:              rootTopic.ID,
 		Slug:            rootTopic.Slug,
 		LocaliseKeyName: rootTopic.Title,
+		ParentID:        parentID,
 		ReleaseDate:     rootTopic.ReleaseDate,
 		List:            cache.NewSubTopicsMap(),
 	}

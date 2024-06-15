@@ -144,6 +144,19 @@ Feature: Aggregated Data Pages
     """
 
   @topicPages
+  Scenario: GET subtopic pre-filtered page with wrong topic hierarchy
+    Given there is a Search API that gives a successful response and returns 10 results
+    And there is a Topic API that returns the "business" topic and the "environmentalaccounts" subtopic
+    And the search controller is running
+    When I navigate to "/business/environmentalaccounts/publications"
+    Then the page should have the following content
+    """
+        {
+            "#main h1": "Page not found"
+        }
+    """
+
+  @topicPages
   Scenario: GET 3rd level subtopic pre-filtered page with matching topic and subtopic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic, the "governmentpublicsectorandtaxes" subtopic and "publicsectorfinance" thirdlevel subtopic
@@ -163,6 +176,19 @@ Feature: Aggregated Data Pages
     And there is a Topic API that returns the "economy" topic, the "governmentpublicsectorandtaxes" subtopic and "publicsectorfinance" thirdlevel subtopic
     And the search controller is running
     When I navigate to "/economy/governmentpublicsectorandtaxes/testtopic/publications"
+    Then the page should have the following content
+    """
+        {
+            "#main h1": "Page not found"
+        }
+    """
+
+  @topicPages
+  Scenario: GET 3rd level subtopic pre-filtered page with wrong topic hierarchy
+    Given there is a Search API that gives a successful response and returns 10 results
+    And there is a Topic API that returns the "business" topic, the "governmentpublicsectorandtaxes" subtopic and "publicsectorfinance" thirdlevel subtopic
+    And the search controller is running
+    When I navigate to "/business/governmentpublicsectorandtaxes/publicsectorfinance/publications"
     Then the page should have the following content
     """
         {

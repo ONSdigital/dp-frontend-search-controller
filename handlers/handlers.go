@@ -383,21 +383,18 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 
 	selectedTopic := cache.Topic{}
 
-	/* validate the segments i.e. check that they all exist in the cache
-	and set the last item as the selectedTopic */
-	for _, segment := range segments {
-		segmentTopic, err := cacheList.DataTopic.GetData(ctx, segment)
-		if err != nil {
-			log.Error(ctx, "could not find topic from path in topic cache", err, log.Data{
-				"topicPath": segment,
-			})
-			err = apperrors.ErrTopicPathNotFound
-			setStatusCode(w, req, err)
-			return
-		}
-
-		selectedTopic = *segmentTopic
+	// Validate the topic hierarchy
+	lastSegmentTopic, err := ValidateTopicHierarchy(ctx, segments, cacheList)
+	if err != nil {
+		log.Error(ctx, "invalid topic path", err, log.Data{
+			"topicPath": topicsPath,
+		})
+		err = apperrors.ErrTopicPathNotFound
+		setStatusCode(w, req, err)
+		return
 	}
+
+	selectedTopic = *lastSegmentTopic
 
 	urlQuery := req.URL.Query()
 	urlQuery.Add("topics", selectedTopic.ID)
@@ -865,4 +862,30 @@ func getPageTitle(template string) (pageTitle, pageTag string) {
 	}
 
 	return "", ""
+}
+
+// ValidateTopicHierarchy validate the segments i.e. check that they all exist in the cache, check that the hierarchy is correct and return the last item as the selectedTopic
+func ValidateTopicHierarchy(ctx context.Context, segments []string, cacheList cache.List) (*cache.Topic, error) {
+	if len(segments) == 0 {
+		return nil, fmt.Errorf("no segments to validate")
+	}
+
+	var currentTopic *cache.Topic
+
+	// Start with the first segment
+	currentTopic, err := cacheList.DataTopic.GetData(ctx, segments[0])
+	if err != nil {
+		return nil, fmt.Errorf("topic not found: %s", segments[0])
+	}
+
+	// Traverse through segments
+	for i := 1; i < len(segments); i++ {
+		nextTopic, err := cacheList.DataTopic.GetData(ctx, segments[i])
+		if err != nil || nextTopic.ParentID != currentTopic.ID {
+			return nil, fmt.Errorf("invalid topic hierarchy at segment: %s", segments[i])
+		}
+		currentTopic = nextTopic
+	}
+
+	return currentTopic, nil
 }

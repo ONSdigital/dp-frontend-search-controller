@@ -1400,3 +1400,68 @@ func TestUnitReadDataAggregationWithTopicsRSSFailure(t *testing.T) {
 		})
 	})
 }
+
+func TestValidateTopicHierarchy(t *testing.T) {
+	ctx := context.Background()
+
+	// Set up mock cache list
+	cacheList, err := cache.GetMockCacheList(ctx, englishLang)
+	if err != nil {
+		t.Fatalf("Failed to get mock cache list: %v", err)
+	}
+
+	Convey("ValidateTopicHierarchy", t, func() {
+		Convey("should return error when there are no segments to validate", func() {
+			segments := []string{}
+			_, err := ValidateTopicHierarchy(ctx, segments, *cacheList)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "no segments to validate")
+		})
+
+		Convey("should return the topic when a valid single segment root topic is provided", func() {
+			segments := []string{"economy"}
+			topic, err := ValidateTopicHierarchy(ctx, segments, *cacheList)
+			So(err, ShouldBeNil)
+			So(topic, ShouldNotBeNil)
+			So(topic.ID, ShouldEqual, "6734")
+		})
+
+		Convey("should return the last topic in a valid topic hierarchy - 2nd level", func() {
+			segments := []string{"economy", "governmentpublicsectorandtaxes"}
+			topic, err := ValidateTopicHierarchy(ctx, segments, *cacheList)
+			So(err, ShouldBeNil)
+			So(topic, ShouldNotBeNil)
+			So(topic.ID, ShouldEqual, "8268")
+		})
+
+		Convey("should return the last topic in a valid topic hierarchy - 3rd level", func() {
+			segments := []string{"economy", "governmentpublicsectorandtaxes", "publicsectorfinance"}
+			topic, err := ValidateTopicHierarchy(ctx, segments, *cacheList)
+			So(err, ShouldBeNil)
+			So(topic, ShouldNotBeNil)
+			So(topic.ID, ShouldEqual, "3687")
+		})
+
+		Convey("should return error for an invalid topic hierarchy", func() {
+			segments := []string{"environmentalaccounts", "publicsectorfinance"}
+			_, err := ValidateTopicHierarchy(ctx, segments, *cacheList)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "invalid topic hierarchy at segment: publicsectorfinance")
+		})
+
+		Convey("should return error when a nonexistent topic is provided", func() {
+			segments := []string{"nonexistent"}
+			_, err := ValidateTopicHierarchy(ctx, segments, *cacheList)
+			So(err, ShouldNotBeNil)
+			So(err.Error(), ShouldEqual, "topic not found: nonexistent")
+		})
+
+		Convey("should return the last topic in another valid topic branch", func() {
+			segments := []string{"economy", "environmentalaccounts"}
+			topic, err := ValidateTopicHierarchy(ctx, segments, *cacheList)
+			So(err, ShouldBeNil)
+			So(topic, ShouldNotBeNil)
+			So(topic.ID, ShouldEqual, "1834")
+		})
+	})
+}

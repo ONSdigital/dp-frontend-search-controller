@@ -89,7 +89,7 @@ func UpdateDataTopics(ctx context.Context, topicClient topicCli.Clienter) func()
 
 		// recursively process root topics and their subtopics
 		for i := range rootTopicItems {
-			processTopic(ctx, topicClient, rootTopicItems[i].ID, &topics, processedTopics)
+			processTopic(ctx, topicClient, rootTopicItems[i].ID, &topics, processedTopics, "")
 		}
 
 		// Check if any data topics were found
@@ -102,7 +102,7 @@ func UpdateDataTopics(ctx context.Context, topicClient topicCli.Clienter) func()
 	}
 }
 
-func processTopic(ctx context.Context, topicClient topicCli.Clienter, topicID string, topics *[]*cache.Topic, processedTopics map[string]bool) {
+func processTopic(ctx context.Context, topicClient topicCli.Clienter, topicID string, topics *[]*cache.Topic, processedTopics map[string]bool, parentTopicID string) {
 	// Check if the topic is already processed
 	if processedTopics[topicID] {
 		return
@@ -119,28 +119,29 @@ func processTopic(ctx context.Context, topicClient topicCli.Clienter, topicID st
 
 	if dataTopic != nil {
 		// Append the current topic to the list of topics
-		*topics = append(*topics, mapTopicModelToCache(*dataTopic))
+		*topics = append(*topics, mapTopicModelToCache(*dataTopic, parentTopicID))
 		// Mark this topic as processed
 		processedTopics[topicID] = true
 
 		// Process each subtopic recursively
 		if dataTopic.SubtopicIds != nil {
 			for _, subTopicID := range *dataTopic.SubtopicIds {
-				processTopic(ctx, topicClient, subTopicID, topics, processedTopics)
+				processTopic(ctx, topicClient, subTopicID, topics, processedTopics, topicID)
 			}
 		}
 	}
 }
 
-func mapTopicModelToCache(rootTopic models.Topic) *cache.Topic {
-	rootTopicCache := &cache.Topic{
-		ID:              rootTopic.ID,
-		Slug:            rootTopic.Slug,
-		LocaliseKeyName: rootTopic.Title,
-		ReleaseDate:     rootTopic.ReleaseDate,
+func mapTopicModelToCache(topic models.Topic, parentID string) *cache.Topic {
+	topicCache := &cache.Topic{
+		ID:              topic.ID,
+		Slug:            topic.Slug,
+		LocaliseKeyName: topic.Title,
+		ParentID:        parentID,
+		ReleaseDate:     topic.ReleaseDate,
 		List:            cache.NewSubTopicsMap(),
 	}
-	return rootTopicCache
+	return topicCache
 }
 
 func getRootTopicCachePublic(ctx context.Context, subtopicsChan chan models.Topic, topicClient topicCli.Clienter, rootTopic models.Topic) *cache.Topic {

@@ -28,6 +28,8 @@ type Topic struct {
 	Query string
 	// List is a map[string]Subtopics which contains the topic id and a list of it's subtopics
 	List *Subtopics
+	// This is a reference to the parent topic
+	ParentID string
 }
 
 // NewTopicCache create a topic cache object to be used in the service which will update at every updateInterval

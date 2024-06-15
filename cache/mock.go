@@ -69,28 +69,28 @@ func getMockDataTopicCache(ctx context.Context) (*TopicCache, error) {
 		return nil, err
 	}
 
-	testDataTopicCache.Set("economy", GetMockDataTopic("6734", "economy", "Economy"))
-	testDataTopicCache.Set("environmentalaccounts", GetMockDataTopic("1834", "environmentalaccounts", "Environmental Accounts"))
-	testDataTopicCache.Set("governmentpublicsectorandtaxes", GetMockDataTopic("8268", "governmentpublicsectorandtaxes", "Government Public Sector and Taxes"))
-	testDataTopicCache.Set("publicsectorfinance", GetMockDataTopic("3687", "publicsectorfinance", "Public Sector Finance"))
+	testDataTopicCache.Set("economy", GetMockDataTopic("6734", "economy", "Economy", ""))
+	testDataTopicCache.Set("environmentalaccounts", GetMockDataTopic("1834", "environmentalaccounts", "Environmental Accounts", "6734"))
+	testDataTopicCache.Set("governmentpublicsectorandtaxes", GetMockDataTopic("8268", "governmentpublicsectorandtaxes", "Government Public Sector and Taxes", "6734"))
+	testDataTopicCache.Set("publicsectorfinance", GetMockDataTopic("3687", "publicsectorfinance", "Public Sector Finance", "8268"))
 
 	return testDataTopicCache, nil
 }
 
 // GetMockDataTopic returns a mocked data topic which contains all the information for the mock data topic
-func GetMockDataTopic(id, slug, title string) *Topic {
-	mockCensusTopic := &Topic{
+func GetMockDataTopic(id, slug, title, parentID string) *Topic {
+	mockDataTopic := &Topic{
 		ID:              id,
 		Slug:            slug,
 		LocaliseKeyName: title,
-		Query:           "1834,1234",
+		ParentID:        parentID,
 	}
 
-	mockCensusTopic.List = NewSubTopicsMap()
-	mockCensusTopic.List.AppendSubtopicID("1234", Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
-	mockCensusTopic.List.AppendSubtopicID("1834", Subtopic{ID: "1834", LocaliseKeyName: "Environmental Accounts", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
+	mockDataTopic.List = NewSubTopicsMap()
+	mockDataTopic.List.AppendSubtopicID("1234", Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
+	mockDataTopic.List.AppendSubtopicID("1834", Subtopic{ID: "1834", LocaliseKeyName: "Environmental Accounts", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
 
-	return mockCensusTopic
+	return mockDataTopic
 }
 
 // getMockNavigationCache returns a mocked navigation cache which should have navigation data
