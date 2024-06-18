@@ -21,20 +21,17 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 		// get root topics from dp-topic-api
 		rootTopics, err := topicClient.GetRootTopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken})
 		if err != nil {
-			logData := log.Data{
-				"req_headers": topicCli.Headers{},
-			}
-			log.Error(ctx, "failed to get root topics from topic-api", err, logData)
+			log.Error(ctx, "failed to get census root topics from topic-api", err)
 			return cache.GetEmptyCensusTopic()
 		}
 
-		// deference root topics items to allow ranging through them
+		// dereference root topics items to allow ranging through them
 		var rootTopicItems []models.TopicResponse
 		if rootTopics.PrivateItems != nil {
 			rootTopicItems = *rootTopics.PrivateItems
 		} else {
-			err := errors.New("root topic private items is nil")
-			log.Error(ctx, "failed to deference root topics items pointer", err)
+			err := errors.New("census root topic private items is nil")
+			log.Error(ctx, "failed to dereference census root topics items pointer", err)
 			return cache.GetEmptyCensusTopic()
 		}
 
@@ -51,8 +48,8 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 		}
 
 		if censusTopicCache == nil {
-			err := errors.New("census root topic not found")
-			log.Error(ctx, "failed to get census topic to cache", err)
+			err := errors.New("not found")
+			log.Error(ctx, "failed to get census root topics to cache", err)
 			return cache.GetEmptyCensusTopic()
 		}
 
@@ -72,10 +69,7 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 		// get root topics from dp-topic-api
 		rootTopics, err := topicClient.GetRootTopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken})
 		if err != nil {
-			logData := log.Data{
-				"req_headers": topicCli.Headers{},
-			}
-			log.Error(ctx, "failed to get root topics from topic-api", err, logData)
+			log.Error(ctx, "failed to get data root topics from topic-api", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
@@ -84,8 +78,8 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 		if rootTopics.PrivateItems != nil {
 			rootTopicItems = *rootTopics.PrivateItems
 		} else {
-			err := errors.New("root topic private items is nil")
-			log.Error(ctx, "failed to deference root topics items pointer", err)
+			err := errors.New("data root topic private items is nil")
+			log.Error(ctx, "failed to dereference data root topics items pointer", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
@@ -206,17 +200,17 @@ func getSubtopicsIDsPrivate(ctx context.Context, serviceAuthToken string, subtop
 				"req_headers":        topicCliReqHeaders,
 				"top_level_topic_id": topLevelTopicID,
 			}
-			log.Error(ctx, "failed to get subtopics from topic-api", err, logData)
+			log.Error(ctx, "failed to get private subtopics from topic-api", err, logData)
 		}
 
 		// stop as there are no subtopics items or failed to get subtopics
 		return
 	}
 
-	// deference sub topics items to allow ranging through them
+	// dereference sub-topics items to allow ranging through them
 	if subTopics.PrivateItems == nil {
-		err := errors.New("sub topics private items is nil")
-		log.Error(ctx, "failed to deference sub topics items pointer", err)
+		err := errors.New("items is nil")
+		log.Error(ctx, "failed to dereference sub-topics private items pointer", err, log.Data{"topic_id": topLevelTopicID})
 		return
 	}
 	subTopicItems := *subTopics.PrivateItems

@@ -21,17 +21,14 @@ func UpdateCensusTopic(ctx context.Context, topicClient topicCli.Clienter) func(
 		// get root topics from dp-topic-api
 		rootTopics, err := topicClient.GetRootTopicsPublic(ctx, topicCli.Headers{})
 		if err != nil {
-			logData := log.Data{
-				"req_headers": topicCli.Headers{},
-			}
-			log.Error(ctx, "failed to get root topics from topic-api", err, logData)
+			log.Error(ctx, "failed to get census root topics from topic-api", err)
 			return cache.GetEmptyCensusTopic()
 		}
 
-		// deference root topics items to allow ranging through them
+		// dereference root topics items to allow ranging through them
 		if rootTopics.PublicItems == nil {
-			err := errors.New("root topic public items is nil")
-			log.Error(ctx, "failed to deference root topics items pointer", err)
+			err := errors.New("census root topic public items is nil")
+			log.Error(ctx, "failed to dereference census root topics items pointer", err)
 			return cache.GetEmptyCensusTopic()
 		}
 		rootTopicItems := *rootTopics.PublicItems
@@ -70,20 +67,17 @@ func UpdateDataTopics(ctx context.Context, topicClient topicCli.Clienter) func()
 		// get root topics from dp-topic-api
 		rootTopics, err := topicClient.GetRootTopicsPublic(ctx, topicCli.Headers{})
 		if err != nil {
-			logData := log.Data{
-				"req_headers": topicCli.Headers{},
-			}
-			log.Error(ctx, "failed to get root topics from topic-api", err, logData)
+			log.Error(ctx, "failed to get root data topics from topic-api", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
-		// deference root topics items to allow ranging through them
+		// dereference root topics items to allow ranging through them
 		var rootTopicItems []models.Topic
 		if rootTopics.PublicItems != nil {
 			rootTopicItems = *rootTopics.PublicItems
 		} else {
-			err := errors.New("root topic public items is nil")
-			log.Error(ctx, "failed to deference root topics items pointer", err)
+			err := errors.New("root data topic public items is nil")
+			log.Error(ctx, "failed to dereference root data topics items pointer", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 
@@ -201,7 +195,6 @@ func getSubtopicsPublic(ctx context.Context, subtopicsChan chan models.Topic, to
 	if err != nil {
 		if err.Status() != http.StatusNotFound {
 			logData := log.Data{
-				"req_headers":        topicCli.Headers{},
 				"top_level_topic_id": topLevelTopicID,
 			}
 			log.Error(ctx, "failed to get subtopics from topic-api", err, logData)
@@ -211,15 +204,14 @@ func getSubtopicsPublic(ctx context.Context, subtopicsChan chan models.Topic, to
 		return
 	}
 
-	// deference sub topics items to allow ranging through them
+	// dereference sub-topics items to allow ranging through them
 	var subTopicItems []models.Topic
-	if subTopics.PublicItems != nil {
-		subTopicItems = *subTopics.PublicItems
-	} else {
-		err := errors.New("sub topics public items is nil")
-		log.Error(ctx, "failed to deference sub topics items pointer", err)
+	if subTopics.PublicItems == nil {
+		err := errors.New("items is nil")
+		log.Error(ctx, "failed to dereference sub-topics items pointer", err)
 		return
 	}
+	subTopicItems = *subTopics.PublicItems
 
 	var wg sync.WaitGroup
 

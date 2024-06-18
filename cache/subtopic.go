@@ -43,8 +43,8 @@ func (t *Subtopics) GetSubtopics() (subtopics []Subtopic) {
 		return
 	}
 
-	t.mutex.Lock()
-	defer t.mutex.Unlock()
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
 
 	for _, subtopic := range t.subtopicsMap {
 		subtopics = append(subtopics, subtopic)
