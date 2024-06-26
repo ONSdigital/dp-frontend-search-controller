@@ -85,10 +85,12 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 		log.Error(ctx, "failed to create census cache", err)
 		return err
 	}
-	svc.Cache.DataTopic, err = cache.NewTopicCache(ctx, &svc.Config.CacheDataTopicUpdateInterval)
-	if err != nil {
-		log.Error(ctx, "failed to create data topics cache", err)
-		return err
+	if svc.Config.EnableTopicAggregationPages {
+		svc.Cache.DataTopic, err = cache.NewTopicCache(ctx, &svc.Config.CacheDataTopicUpdateInterval)
+		if err != nil {
+			log.Error(ctx, "failed to create data topics cache", err)
+			return err
+		}
 	}
 	svc.Cache.Navigation, err = cache.NewNavigationCache(ctx, &svc.Config.CacheNavigationUpdateInterval)
 	if err != nil {

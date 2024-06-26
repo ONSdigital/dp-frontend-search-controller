@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	"sync"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-topic-api/models"
@@ -40,9 +39,7 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 		// go through each root topic, find census topic and gets its data for caching which includes subtopic ids
 		for i := range rootTopicItems {
 			if rootTopicItems[i].Current.ID == cache.CensusTopicID {
-				subtopicsChan := make(chan models.TopicResponse)
-
-				censusTopicCache = getRootTopicCachePrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, *rootTopicItems[i].Current)
+				censusTopicCache = getRootTopicCachePrivate(ctx, serviceAuthToken, topicClient, *rootTopicItems[i].Current)
 				break
 			}
 		}
@@ -64,7 +61,7 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() []*cache.Topic {
 	return func() []*cache.Topic {
 		var topics []*cache.Topic
-		processedTopics := make(map[string]bool)
+		processedTopics := make(map[string]struct{})
 
 		// get root topics from dp-topic-api
 		rootTopics, err := topicClient.GetRootTopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken})
@@ -85,7 +82,7 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 
 		// recursively process root topics and their subtopics
 		for i := range rootTopicItems {
-			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i].ID, &topics, processedTopics, "")
+			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i].ID, &topics, processedTopics, "", 0)
 		}
 
 		// Check if any data topics were found
@@ -98,16 +95,29 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 	}
 }
 
-func processTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, topicID string, topics *[]*cache.Topic, processedTopics map[string]bool, parentTopicID string) {
-	// Check if the topic is already processed
-	if processedTopics[topicID] {
+func processTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, topicID string, topics *[]*cache.Topic, processedTopics map[string]struct{}, parentTopicID string, depth int) {
+	log.Info(ctx, "Processing topic at depth", log.Data{
+		"topic_id": topicID,
+		"depth":    depth,
+	})
+
+	// Check if the topic has already been processed
+	if _, exists := processedTopics[topicID]; exists {
+		err := errors.New("topic already processed")
+		log.Error(ctx, "Skipping already processed topic", err, log.Data{
+			"topic_id": topicID,
+			"depth":    depth,
+		})
 		return
 	}
 
 	// Get the topic details from the topic client
 	dataTopic, err := topicClient.GetTopicPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, topicID)
 	if err != nil {
-		log.Error(ctx, "failed to get topic details from topic-api", err)
+		log.Error(ctx, "failed to get topic details from topic-api", err, log.Data{
+			"topic_id": topicID,
+			"depth":    depth,
+		})
 		return
 	}
 
@@ -115,12 +125,12 @@ func processTopic(ctx context.Context, serviceAuthToken string, topicClient topi
 		// Append the current topic to the list of topics
 		*topics = append(*topics, mapTopicModelToCache(*dataTopic.Current, parentTopicID))
 		// Mark this topic as processed
-		processedTopics[topicID] = true
+		processedTopics[topicID] = struct{}{}
 
 		// Process each subtopic recursively
 		if dataTopic.Current.SubtopicIds != nil {
 			for _, subTopicID := range *dataTopic.Current.SubtopicIds {
-				processTopic(ctx, serviceAuthToken, topicClient, subTopicID, topics, processedTopics, topicID)
+				processTopic(ctx, serviceAuthToken, topicClient, subTopicID, topics, processedTopics, topicID, depth+1)
 			}
 		}
 	}
@@ -138,7 +148,7 @@ func mapTopicModelToCache(rootTopic models.Topic, parentID string) *cache.Topic 
 	return rootTopicCache
 }
 
-func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subtopicsChan chan models.TopicResponse, topicClient topicCli.Clienter, rootTopic models.Topic) *cache.Topic {
+func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, rootTopic models.Topic) *cache.Topic {
 	rootTopicCache := &cache.Topic{
 		ID:              rootTopic.ID,
 		Slug:            rootTopic.Slug,
@@ -155,33 +165,9 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 	subtopicsIDMap := cache.NewSubTopicsMap()
 	subtopicsIDMap.AppendSubtopicID(rootTopic.ID, subtopic)
 
-	var wg sync.WaitGroup
-	wg.Add(2)
+	processedTopics := make(map[string]struct{})
 
-	// get subtopics ids
-	go func() {
-		defer wg.Done()
-		getSubtopicsIDsPrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, rootTopic.ID)
-		close(subtopicsChan)
-	}()
-
-	// extract subtopic id from channel to update rootTopicCache
-	go func() {
-		defer wg.Done()
-
-		for s := range subtopicsChan {
-			subtopic := cache.Subtopic{
-				ID:              s.ID,
-				Slug:            s.Next.Slug,
-				LocaliseKeyName: s.Next.Title,
-				ReleaseDate:     s.Next.ReleaseDate,
-			}
-
-			subtopicsIDMap.AppendSubtopicID(s.ID, subtopic)
-		}
-	}()
-
-	wg.Wait()
+	processSubtopicsPrivate(ctx, serviceAuthToken, subtopicsIDMap, topicClient, rootTopic.ID, processedTopics, 0)
 
 	rootTopicCache.List = subtopicsIDMap
 	rootTopicCache.Query = subtopicsIDMap.GetSubtopicsIDsQuery()
@@ -189,45 +175,63 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, subt
 	return rootTopicCache
 }
 
-func getSubtopicsIDsPrivate(ctx context.Context, serviceAuthToken string, subtopicsChan chan models.TopicResponse, topicClient topicCli.Clienter, topLevelTopicID string) {
-	topicCliReqHeaders := topicCli.Headers{ServiceAuthToken: serviceAuthToken}
+func processSubtopicsPrivate(ctx context.Context, serviceAuthToken string, subtopicsIDMap *cache.Subtopics, topicClient topicCli.Clienter, topLevelTopicID string, processedTopics map[string]struct{}, depth int) {
+	log.Info(ctx, "Processing topic at depth", log.Data{
+		"topic_id": topLevelTopicID,
+		"depth":    depth,
+	})
 
-	// get subtopics from dp-topic-api
-	subTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCliReqHeaders, topLevelTopicID)
+	// Check if this topic has already been processed
+	if _, exists := processedTopics[topLevelTopicID]; exists {
+		err := errors.New("topic already processed")
+		log.Error(ctx, "Skipping already processed topic", err, log.Data{
+			"topic_id": topLevelTopicID,
+			"depth":    depth,
+		})
+		return
+	}
+
+	// Mark this topic as processed
+	processedTopics[topLevelTopicID] = struct{}{}
+
+	// Get subtopics from dp-topic-api
+	subTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, topLevelTopicID)
 	if err != nil {
-		if err.Status() != http.StatusNotFound {
-			logData := log.Data{
-				"req_headers":        topicCliReqHeaders,
-				"top_level_topic_id": topLevelTopicID,
-			}
-			log.Error(ctx, "failed to get private subtopics from topic-api", err, logData)
+		if err.Error() != http.StatusText(http.StatusNotFound) {
+			log.Error(ctx, "failed to get subtopics from topic-api", err, log.Data{
+				"topic_id": topLevelTopicID,
+				"depth":    depth,
+			})
 		}
 
-		// stop as there are no subtopics items or failed to get subtopics
+		// Stop as there are no subtopics items or failed to get subtopics
 		return
 	}
 
-	// dereference sub-topics items to allow ranging through them
+	// Dereference sub-topics items to allow ranging through them
+	var subTopicItems []models.TopicResponse
 	if subTopics.PrivateItems == nil {
 		err := errors.New("items is nil")
-		log.Error(ctx, "failed to dereference sub-topics private items pointer", err, log.Data{"topic_id": topLevelTopicID})
+		log.Error(ctx, "failed to dereference sub-topics items pointer", err, log.Data{
+			"topic_id": topLevelTopicID,
+			"depth":    depth,
+		})
 		return
 	}
-	subTopicItems := *subTopics.PrivateItems
+	subTopicItems = *subTopics.PrivateItems
 
-	var wg sync.WaitGroup
+	// Process each subtopic item sequentially
+	for _, subTopicItem := range subTopicItems {
+		subtopic := cache.Subtopic{
+			ID:              subTopicItem.ID,
+			Slug:            subTopicItem.Current.Slug,
+			LocaliseKeyName: subTopicItem.Current.Title,
+			ReleaseDate:     subTopicItem.Current.ReleaseDate,
+		}
 
-	// get subtopics ids of the subtopics items if they exist
-	for i := range subTopicItems {
-		wg.Add(1)
+		subtopicsIDMap.AppendSubtopicID(subTopicItem.ID, subtopic)
 
-		// send subtopic id to channel
-		subtopicsChan <- subTopicItems[i]
-
-		go func(index int) {
-			defer wg.Done()
-			getSubtopicsIDsPrivate(ctx, serviceAuthToken, subtopicsChan, topicClient, subTopicItems[index].ID)
-		}(i)
+		// Recursively process subtopics of the subtopic
+		processSubtopicsPrivate(ctx, serviceAuthToken, subtopicsIDMap, topicClient, subTopicItem.ID, processedTopics, depth+1)
 	}
-	wg.Wait()
 }

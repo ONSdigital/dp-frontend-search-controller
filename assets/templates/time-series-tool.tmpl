@@ -25,7 +25,7 @@
             <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search" class="float-right font-size--18">{{ localise "ClearAll" $lang 1 }}</a>
           </div>
           
-          <div class="search__filter__content">
+          <div class="search__filter__content ons-u-bb">
             {{ template "partials/data-aggregation-filters" . }}
           </div>
           <button
@@ -34,7 +34,7 @@
             >
             <span class="ons-btn__inner">{{ localise "ApplyFilters" .Language 1 }}</span>
           </button>
-          <div class="search__filter__content hide--sm">
+          <div class="search__filter__content hide--sm ons-u-mt-l ons-u-mr-s">
             {{ template "partials/archived-release-message" . }}
           </div>
         </section>

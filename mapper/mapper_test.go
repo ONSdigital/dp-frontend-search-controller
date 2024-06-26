@@ -10,7 +10,10 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
-	"github.com/ONSdigital/dp-renderer/v2/model"
+
+	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
+	helper "github.com/ONSdigital/dp-renderer/v2/helper"
+	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -34,7 +37,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 		req := httptest.NewRequest("", "/search", http.NoBody)
-		mdl := model.Page{}
+		mdl := coreModel.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
 			Query: "housing",
@@ -167,7 +170,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 		cfg.EnableCensusPopulationTypesFilterOption = true
 		So(err, ShouldBeNil)
 		req := httptest.NewRequest("GET", "/census/find-a-dataset", http.NoBody)
-		mdl := model.Page{}
+		mdl := coreModel.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
 			Query: "housing",
@@ -272,13 +275,14 @@ func TestUnitFindDatasetPage(t *testing.T) {
 
 func TestCreateDataAggregationPage(t *testing.T) {
 	t.Parallel()
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
 		cfg.EnableAggregationPages = true
 		So(err, ShouldBeNil)
 		req := httptest.NewRequest("GET", "/alladhocs", http.NoBody)
-		mdl := model.Page{}
+		mdl := coreModel.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
 			Query: "housing",
@@ -305,11 +309,11 @@ func TestCreateDataAggregationPage(t *testing.T) {
 		respH, err := GetMockHomepageContent()
 		So(err, ShouldBeNil)
 
-		mockKeywordFilter := model.CompactSearch{
+		mockKeywordFilter := coreModel.CompactSearch{
 			ElementId: "keywords",
 			InputName: "q",
 			Language:  englishLang,
-			Label: model.Localisation{
+			Label: coreModel.Localisation{
 				LocaleKey: "SearchKeywords",
 				Plural:    1,
 			},
@@ -317,11 +321,11 @@ func TestCreateDataAggregationPage(t *testing.T) {
 		}
 
 		lang := "en"
-		mockAfterDate := model.DateFieldset{
+		mockAfterDate := coreModel.DateFieldset{
 			Language:                 lang,
 			ValidationErrDescription: nil,
 			ErrorID:                  validatedQueryParams.AfterDate.GetFieldsetErrID(),
-			Input: model.InputDate{
+			Input: coreModel.InputDate{
 				Language:              lang,
 				Id:                    "after-date",
 				InputNameDay:          "after-day",
@@ -333,22 +337,61 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				HasDayValidationErr:   validatedQueryParams.AfterDate.HasDayValidationErr(),
 				HasMonthValidationErr: validatedQueryParams.AfterDate.HasMonthValidationErr(),
 				HasYearValidationErr:  validatedQueryParams.AfterDate.HasYearValidationErr(),
-				Title: model.Localisation{
+				DataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "invalid-date",
+						Value: coreModel.Localisation{
+							LocaleKey: "ValidationInvalidDate",
+							Plural:    1,
+						},
+					},
+				},
+				DayDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "day"),
+						},
+					},
+				},
+				MonthDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "month"),
+						},
+					},
+				},
+				YearDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "value-missing",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationYearMissing", lang, 1, "after"),
+						},
+					},
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "year"),
+						},
+					},
+				},
+				Title: coreModel.Localisation{
 					LocaleKey: "ReleasedAfter",
 					Plural:    1,
 				},
-				Description: model.Localisation{
+				Description: coreModel.Localisation{
 					LocaleKey: "ReleasedAfterDescription",
 					Plural:    1,
 				},
 			},
 		}
 
-		mockBeforeDate := model.DateFieldset{
+		mockBeforeDate := coreModel.DateFieldset{
 			Language:                 lang,
 			ValidationErrDescription: nil,
 			ErrorID:                  validatedQueryParams.BeforeDate.GetFieldsetErrID(),
-			Input: model.InputDate{
+			Input: coreModel.InputDate{
 				Language:              lang,
 				Id:                    "before-date",
 				InputNameDay:          "before-day",
@@ -360,11 +403,57 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				HasDayValidationErr:   validatedQueryParams.BeforeDate.HasDayValidationErr(),
 				HasMonthValidationErr: validatedQueryParams.BeforeDate.HasMonthValidationErr(),
 				HasYearValidationErr:  validatedQueryParams.BeforeDate.HasYearValidationErr(),
-				Title: model.Localisation{
+				DataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "invalid-range",
+						Value: coreModel.Localisation{
+							LocaleKey: "ValidationInvalidDateRange",
+							Plural:    1,
+						},
+					},
+					{
+						Key: "invalid-date",
+						Value: coreModel.Localisation{
+							LocaleKey: "ValidationInvalidDate",
+							Plural:    1,
+						},
+					},
+				},
+				DayDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "day"),
+						},
+					},
+				},
+				MonthDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "month"),
+						},
+					},
+				},
+				YearDataAttributes: []coreModel.DataAttribute{
+					{
+						Key: "value-missing",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationYearMissing", lang, 1, "before"),
+						},
+					},
+					{
+						Key: "pattern-mismatch",
+						Value: coreModel.Localisation{
+							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "year"),
+						},
+					},
+				},
+				Title: coreModel.Localisation{
 					LocaleKey: "ReleasedBefore",
 					Plural:    1,
 				},
-				Description: model.Localisation{
+				Description: coreModel.Localisation{
 					LocaleKey: "ReleasedBeforeDescription",
 					Plural:    1,
 				},
@@ -392,30 +481,30 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				validatedQueryParams.AfterDate = data.MustSetFieldsetErrID("fromDate-error")
 				validatedQueryParams.BeforeDate = data.MustSetFieldsetErrID("toDate-error")
 
-				validationErrs := []model.ErrorItem{
+				validationErrs := []coreModel.ErrorItem{
 					{
-						Description: model.Localisation{
+						Description: coreModel.Localisation{
 							Text: "This is a released AFTER error",
 						},
 						ID:  "fromDate-error",
 						URL: "#fromDate-error",
 					},
 					{
-						Description: model.Localisation{
+						Description: coreModel.Localisation{
 							Text: "This is a released BEFORE error",
 						},
 						ID:  "toDate-error",
 						URL: "#toDate-error",
 					},
 					{
-						Description: model.Localisation{
+						Description: coreModel.Localisation{
 							Text: "This is another released BEFORE error",
 						},
 						ID:  "toDate-error",
 						URL: "#toDate-error",
 					},
 					{
-						Description: model.Localisation{
+						Description: coreModel.Localisation{
 							Text: "This is a non-date page error",
 						},
 						ID:  "input-error",
@@ -423,16 +512,16 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					},
 				}
 
-				expectedAfterErr := model.DateFieldset{
-					ValidationErrDescription: []model.Localisation{
+				expectedAfterErr := coreModel.DateFieldset{
+					ValidationErrDescription: []coreModel.Localisation{
 						{
 							Text: validationErrs[0].Description.Text,
 						},
 					},
 				}
 
-				expectedBeforeErr := model.DateFieldset{
-					ValidationErrDescription: []model.Localisation{
+				expectedBeforeErr := coreModel.DateFieldset{
+					ValidationErrDescription: []coreModel.Localisation{
 						{
 							Text: validationErrs[1].Description.Text,
 						},
