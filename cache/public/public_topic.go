@@ -174,7 +174,7 @@ func getRootTopicCachePublic(ctx context.Context, topicClient topicCli.Clienter,
 }
 
 func processSubtopicsPublic(ctx context.Context, subtopicsIDMap *cache.Subtopics, topicClient topicCli.Clienter, topLevelTopicID string, processedTopics map[string]struct{}, depth int) {
-	log.Info(ctx, "Processing topic at depth", log.Data{
+	log.Info(ctx, "Processing census subtopic at depth", log.Data{
 		"topic_id": topLevelTopicID,
 		"depth":    depth,
 	})
@@ -218,6 +218,15 @@ func processSubtopicsPublic(ctx context.Context, subtopicsIDMap *cache.Subtopics
 	}
 	subTopicItems = *subTopics.PublicItems
 
+	// Stop recursion if subTopicItems is empty
+	if len(subTopicItems) == 0 {
+		log.Info(ctx, "No subtopics found", log.Data{
+			"topic_id": topLevelTopicID,
+			"depth":    depth,
+		})
+		return
+	}
+
 	// Process each subtopic item sequentially
 	for _, subTopicItem := range subTopicItems {
 		subtopic := cache.Subtopic{
@@ -228,6 +237,10 @@ func processSubtopicsPublic(ctx context.Context, subtopicsIDMap *cache.Subtopics
 		}
 
 		subtopicsIDMap.AppendSubtopicID(subTopicItem.ID, subtopic)
+
+		if subTopicItem.SubtopicIds == nil || len(*subTopicItem.SubtopicIds) == 0 {
+			continue
+		}
 
 		// Recursively process subtopics of the subtopic
 		processSubtopicsPublic(ctx, subtopicsIDMap, topicClient, subTopicItem.ID, processedTopics, depth+1)
