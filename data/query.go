@@ -99,7 +99,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	}
 	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
 	if dimensionsFilterErr != nil {
-		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
+		log.Error(ctx, "invalid dimensions set", dimensionsFilterErr)
 		return validatedQueryParams, dimensionsFilterErr
 	}
 	queryStringErr := reviewQueryString(ctx, urlQuery)
@@ -119,7 +119,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	if paginationErr != nil {
-		log.Error(ctx, "unable to review pagination", paginationErr)
+		log.Error(ctx, "unable to review pagination for aggregation", paginationErr)
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
 				Text: CapitalizeFirstLetter(paginationErr.Error()),
@@ -158,7 +158,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
 	if contentTypeFilterError != nil {
-		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
+		log.Error(ctx, "invalid content type filters set for aggregation", contentTypeFilterError)
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
 				Text: CapitalizeFirstLetter(contentTypeFilterError.Error()),
@@ -169,7 +169,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 
 	topicFilterErr := reviewTopicFiltersForDataAggregation(urlQuery, &sp)
 	if topicFilterErr != nil {
-		log.Error(ctx, "invalid topic filters set", topicFilterErr)
+		log.Error(ctx, "invalid topic filters set for aggregation", topicFilterErr)
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
 				Text: CapitalizeFirstLetter(topicFilterErr.Error()),
@@ -180,7 +180,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 
 	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &sp)
 	if populationTypeFilterErr != nil {
-		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
+		log.Error(ctx, "invalid population types set for aggregation", populationTypeFilterErr)
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
 				Text: CapitalizeFirstLetter(populationTypeFilterErr.Error()),
@@ -191,7 +191,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 
 	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
 	if dimensionsFilterErr != nil {
-		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
+		log.Error(ctx, "invalid dimensions set for aggregation", dimensionsFilterErr)
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
 				Text: CapitalizeFirstLetter(dimensionsFilterErr.Error()),
@@ -214,7 +214,7 @@ func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Va
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
 	if paginationErr != nil {
-		log.Error(ctx, "unable to review pagination", paginationErr)
+		log.Error(ctx, "unable to review pagination for dataset", paginationErr)
 		return validatedQueryParams, paginationErr
 	}
 
@@ -222,22 +222,22 @@ func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Va
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	if contentTypeFilterError != nil {
-		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
+		log.Error(ctx, "invalid content type filters set for dataset", contentTypeFilterError)
 		return validatedQueryParams, contentTypeFilterError
 	}
 	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
 	if topicFilterErr != nil {
-		log.Error(ctx, "invalid topic filters set", topicFilterErr)
+		log.Error(ctx, "invalid topic filters set for dataset", topicFilterErr)
 		return validatedQueryParams, topicFilterErr
 	}
 	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
 	if populationTypeFilterErr != nil {
-		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
+		log.Error(ctx, "invalid population types set for dataset", populationTypeFilterErr)
 		return validatedQueryParams, populationTypeFilterErr
 	}
 	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
 	if dimensionsFilterErr != nil {
-		log.Error(ctx, "invalid population types set", dimensionsFilterErr)
+		log.Error(ctx, "invalid dimensions set for dataset", dimensionsFilterErr)
 		return validatedQueryParams, dimensionsFilterErr
 	}
 

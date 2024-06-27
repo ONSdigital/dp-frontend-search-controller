@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/ONSdigital/dp-frontend-search-controller/service"
-	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
-	"github.com/ONSdigital/log.go/v2/log"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/ONSdigital/dp-frontend-search-controller/service"
+	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
+	"github.com/ONSdigital/log.go/v2/log"
 
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	"github.com/cucumber/godog"
@@ -72,7 +73,7 @@ func (c *Component) theSearchControllerIsRunning() error {
 
 	c.svc = service.New()
 	if err := c.svc.Init(ctx, c.Config, serviceList); err != nil {
-		log.Error(ctx, "failed to initialise service", err)
+		log.Error(ctx, "failed to init service", err)
 		return err
 	}
 

@@ -20,7 +20,7 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 		// get root topics from dp-topic-api
 		rootTopics, err := topicClient.GetRootTopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken})
 		if err != nil {
-			log.Error(ctx, "failed to get census root topics from topic-api", err)
+			log.Error(ctx, "failed to get private census root topics from topic-api", err)
 			return cache.GetEmptyCensusTopic()
 		}
 
@@ -30,7 +30,7 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 			rootTopicItems = *rootTopics.PrivateItems
 		} else {
 			err := errors.New("census root topic private items is nil")
-			log.Error(ctx, "failed to dereference census root topics items pointer", err)
+			log.Error(ctx, "failed to dereference private census root topics items pointer", err)
 			return cache.GetEmptyCensusTopic()
 		}
 
@@ -88,7 +88,7 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 		// Check if any data topics were found
 		if len(topics) == 0 {
 			err := errors.New("data root topic found, but no subtopics were returned")
-			log.Error(ctx, "No topics loaded into cache - data root topic found, but no subtopics were returned", err)
+			log.Error(ctx, "No private topics loaded into cache - data root topic found, but no subtopics were returned", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 		return topics
@@ -96,7 +96,7 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 }
 
 func processTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, topicID string, topics *[]*cache.Topic, processedTopics map[string]struct{}, parentTopicID string, depth int) {
-	log.Info(ctx, "Processing topic at depth", log.Data{
+	log.Info(ctx, "processing private topic", log.Data{
 		"topic_id": topicID,
 		"depth":    depth,
 	})
@@ -104,7 +104,7 @@ func processTopic(ctx context.Context, serviceAuthToken string, topicClient topi
 	// Check if the topic has already been processed
 	if _, exists := processedTopics[topicID]; exists {
 		err := errors.New("topic already processed")
-		log.Error(ctx, "Skipping already processed topic", err, log.Data{
+		log.Error(ctx, "skipping already processed private topic", err, log.Data{
 			"topic_id": topicID,
 			"depth":    depth,
 		})
@@ -114,7 +114,7 @@ func processTopic(ctx context.Context, serviceAuthToken string, topicClient topi
 	// Get the topic details from the topic client
 	dataTopic, err := topicClient.GetTopicPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, topicID)
 	if err != nil {
-		log.Error(ctx, "failed to get topic details from topic-api", err, log.Data{
+		log.Error(ctx, "failed to get private topic details from topic-api", err, log.Data{
 			"topic_id": topicID,
 			"depth":    depth,
 		})
@@ -176,7 +176,7 @@ func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, topi
 }
 
 func processSubtopicsPrivate(ctx context.Context, serviceAuthToken string, subtopicsIDMap *cache.Subtopics, topicClient topicCli.Clienter, topLevelTopicID string, processedTopics map[string]struct{}, depth int) {
-	log.Info(ctx, "Processing topic at depth", log.Data{
+	log.Info(ctx, "processing private sub-topic", log.Data{
 		"topic_id": topLevelTopicID,
 		"depth":    depth,
 	})
@@ -184,7 +184,7 @@ func processSubtopicsPrivate(ctx context.Context, serviceAuthToken string, subto
 	// Check if this topic has already been processed
 	if _, exists := processedTopics[topLevelTopicID]; exists {
 		err := errors.New("topic already processed")
-		log.Error(ctx, "Skipping already processed topic", err, log.Data{
+		log.Error(ctx, "skipping already processed private sub-topic", err, log.Data{
 			"topic_id": topLevelTopicID,
 			"depth":    depth,
 		})
@@ -198,7 +198,7 @@ func processSubtopicsPrivate(ctx context.Context, serviceAuthToken string, subto
 	subTopics, err := topicClient.GetSubtopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken}, topLevelTopicID)
 	if err != nil {
 		if err.Error() != http.StatusText(http.StatusNotFound) {
-			log.Error(ctx, "failed to get subtopics from topic-api", err, log.Data{
+			log.Error(ctx, "failed to get private subtopics from topic-api", err, log.Data{
 				"topic_id": topLevelTopicID,
 				"depth":    depth,
 			})
@@ -212,7 +212,7 @@ func processSubtopicsPrivate(ctx context.Context, serviceAuthToken string, subto
 	var subTopicItems []models.TopicResponse
 	if subTopics.PrivateItems == nil {
 		err := errors.New("items is nil")
-		log.Error(ctx, "failed to dereference sub-topics items pointer", err, log.Data{
+		log.Error(ctx, "failed to dereference private sub-topics items pointer", err, log.Data{
 			"topic_id": topLevelTopicID,
 			"depth":    depth,
 		})
