@@ -44,7 +44,7 @@ func NewTopicCache(ctx context.Context, updateInterval *time.Duration) (*TopicCa
 		logData := log.Data{
 			"update_interval": updateInterval,
 		}
-		log.Error(ctx, "failed to create cache from dpcache", err, logData)
+		log.Error(ctx, "failed to create topic cache from dpcache", err, logData)
 		return nil, err
 	}
 

@@ -20,14 +20,14 @@ func UpdateCensusTopic(ctx context.Context, topicClient topicCli.Clienter) func(
 		// get root topics from dp-topic-api
 		rootTopics, err := topicClient.GetRootTopicsPublic(ctx, topicCli.Headers{})
 		if err != nil {
-			log.Error(ctx, "failed to get census root topics from topic-api", err)
+			log.Error(ctx, "failed to get public census root topics from topic-api", err)
 			return cache.GetEmptyCensusTopic()
 		}
 
 		// dereference root topics items to allow ranging through them
 		if rootTopics.PublicItems == nil {
 			err := errors.New("census root topic public items is nil")
-			log.Error(ctx, "failed to dereference census root topics items pointer", err)
+			log.Error(ctx, "failed to dereference public census root topics items pointer", err)
 			return cache.GetEmptyCensusTopic()
 		}
 		rootTopicItems := *rootTopics.PublicItems
@@ -85,7 +85,7 @@ func UpdateDataTopics(ctx context.Context, topicClient topicCli.Clienter) func()
 		// Check if any data topics were found
 		if len(topics) == 0 {
 			err := errors.New("data root topic found, but no subtopics were returned")
-			log.Error(ctx, "No topics loaded into cache - data root topic found, but no subtopics were returned", err)
+			log.Error(ctx, "No public topics loaded into cache - data root topic found, but no subtopics were returned", err)
 			return []*cache.Topic{cache.GetEmptyTopic()}
 		}
 		return topics
@@ -93,7 +93,7 @@ func UpdateDataTopics(ctx context.Context, topicClient topicCli.Clienter) func()
 }
 
 func processTopic(ctx context.Context, topicClient topicCli.Clienter, topicID string, topics *[]*cache.Topic, processedTopics map[string]struct{}, parentTopicID string, depth int) {
-	log.Info(ctx, "Processing topic at depth", log.Data{
+	log.Info(ctx, "processing public topic", log.Data{
 		"topic_id": topicID,
 		"depth":    depth,
 	})
@@ -101,7 +101,7 @@ func processTopic(ctx context.Context, topicClient topicCli.Clienter, topicID st
 	// Check if the topic has already been processed
 	if _, exists := processedTopics[topicID]; exists {
 		err := errors.New("topic already processed")
-		log.Error(ctx, "Skipping already processed topic", err, log.Data{
+		log.Error(ctx, "skipping already processed public topic", err, log.Data{
 			"topic_id": topicID,
 			"depth":    depth,
 		})
@@ -111,7 +111,7 @@ func processTopic(ctx context.Context, topicClient topicCli.Clienter, topicID st
 	// Get the topic details from the topic client
 	dataTopic, err := topicClient.GetTopicPublic(ctx, topicCli.Headers{}, topicID)
 	if err != nil {
-		log.Error(ctx, "failed to get topic details from topic-api", err, log.Data{
+		log.Error(ctx, "failed to get public topic details from topic-api", err, log.Data{
 			"topic_id": topicID,
 			"depth":    depth,
 		})
@@ -174,7 +174,7 @@ func getRootTopicCachePublic(ctx context.Context, topicClient topicCli.Clienter,
 }
 
 func processSubtopicsPublic(ctx context.Context, subtopicsIDMap *cache.Subtopics, topicClient topicCli.Clienter, topLevelTopicID string, processedTopics map[string]struct{}, depth int) {
-	log.Info(ctx, "Processing census subtopic at depth", log.Data{
+	log.Info(ctx, "Processing public census sub-topic at depth", log.Data{
 		"topic_id": topLevelTopicID,
 		"depth":    depth,
 	})
@@ -182,7 +182,7 @@ func processSubtopicsPublic(ctx context.Context, subtopicsIDMap *cache.Subtopics
 	// Check if this topic has already been processed
 	if _, exists := processedTopics[topLevelTopicID]; exists {
 		err := errors.New("topic already processed")
-		log.Error(ctx, "Skipping already processed topic", err, log.Data{
+		log.Error(ctx, "skipping already processed public sub-topic", err, log.Data{
 			"topic_id": topLevelTopicID,
 			"depth":    depth,
 		})
@@ -196,7 +196,7 @@ func processSubtopicsPublic(ctx context.Context, subtopicsIDMap *cache.Subtopics
 	subTopics, err := topicClient.GetSubtopicsPublic(ctx, topicCli.Headers{}, topLevelTopicID)
 	if err != nil {
 		if err.Error() != http.StatusText(http.StatusNotFound) {
-			log.Error(ctx, "failed to get subtopics from topic-api", err, log.Data{
+			log.Error(ctx, "failed to get public subtopics from topic-api", err, log.Data{
 				"topic_id": topLevelTopicID,
 				"depth":    depth,
 			})
@@ -210,7 +210,7 @@ func processSubtopicsPublic(ctx context.Context, subtopicsIDMap *cache.Subtopics
 	var subTopicItems []models.Topic
 	if subTopics.PublicItems == nil {
 		err := errors.New("items is nil")
-		log.Error(ctx, "failed to dereference sub-topics items pointer", err, log.Data{
+		log.Error(ctx, "failed to dereference public sub-topics items pointer", err, log.Data{
 			"topic_id": topLevelTopicID,
 			"depth":    depth,
 		})
@@ -220,7 +220,7 @@ func processSubtopicsPublic(ctx context.Context, subtopicsIDMap *cache.Subtopics
 
 	// Stop recursion if subTopicItems is empty
 	if len(subTopicItems) == 0 {
-		log.Info(ctx, "No subtopics found", log.Data{
+		log.Info(ctx, "No public subtopics found", log.Data{
 			"topic_id": topLevelTopicID,
 			"depth":    depth,
 		})
