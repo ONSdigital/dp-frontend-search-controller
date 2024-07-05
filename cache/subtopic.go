@@ -14,11 +14,13 @@ type Subtopics struct {
 	subtopicsMap map[string]Subtopic
 }
 
+// Subtopic represents the data which is cached for a subtopic to be used by the dp-frontend-search-controller
 type Subtopic struct {
 	ID              string
 	LocaliseKeyName string
 	Slug            string
 	ReleaseDate     *time.Time
+	ParentID        string
 }
 
 // GetNewSubTopicsMap creates a new subtopics id map to store subtopic ids with addition to mutex locking
@@ -30,11 +32,12 @@ func NewSubTopicsMap() *Subtopics {
 }
 
 // Get returns subtopic for given key (id)
-func (t *Subtopics) Get(key string) Subtopic {
+func (t *Subtopics) Get(key string) (Subtopic, bool) {
 	t.mutex.RLock()
 	defer t.mutex.RUnlock()
 
-	return t.subtopicsMap[key]
+	subtopic, exists := t.subtopicsMap[key]
+	return subtopic, exists
 }
 
 // GetSubtopics returns an array of subtopics

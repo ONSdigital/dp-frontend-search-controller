@@ -54,20 +54,19 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 	}
 }
 
-// UpdateDataTopics is a function to update the data topic cache in publishing (private) mode.
+// UpdateDataTopic is a function to update the data topic cache in publishing (private) mode.
 // This function talks to the dp-topic-api via its private endpoints to retrieve the root topic and its subtopic ids
 // The data returned by the dp-topic-api is of type *models.PrivateSubtopics which is then transformed in this function for the controller
 // If an error has occurred, this is captured in log.Error and then an empty topic is returned
-func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() []*cache.Topic {
-	return func() []*cache.Topic {
-		var topics []*cache.Topic
+func UpdateDataTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() *cache.Topic {
+	return func() *cache.Topic {
 		processedTopics := make(map[string]struct{})
 
 		// get root topics from dp-topic-api
 		rootTopics, err := topicClient.GetRootTopicsPrivate(ctx, topicCli.Headers{ServiceAuthToken: serviceAuthToken})
 		if err != nil {
 			log.Error(ctx, "failed to get data root topics from topic-api", err)
-			return []*cache.Topic{cache.GetEmptyTopic()}
+			return cache.GetEmptyTopic()
 		}
 
 		// deference root topics items to allow ranging through them
@@ -77,25 +76,32 @@ func UpdateDataTopics(ctx context.Context, serviceAuthToken string, topicClient 
 		} else {
 			err := errors.New("data root topic private items is nil")
 			log.Error(ctx, "failed to dereference data root topics items pointer", err)
-			return []*cache.Topic{cache.GetEmptyTopic()}
+			return cache.GetEmptyTopic()
+		}
+
+		// Initialize dataTopicCache
+		dataTopicCache := &cache.Topic{
+			ID:              cache.DataTopicCacheKey,
+			LocaliseKeyName: "Root",
+			List:            cache.NewSubTopicsMap(),
 		}
 
 		// recursively process root topics and their subtopics
 		for i := range rootTopicItems {
-			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i].ID, &topics, processedTopics, "", 0)
+			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i].ID, dataTopicCache, processedTopics, "", 0)
 		}
 
 		// Check if any data topics were found
-		if len(topics) == 0 {
+		if len(dataTopicCache.List.GetSubtopics()) == 0 {
 			err := errors.New("data root topic found, but no subtopics were returned")
 			log.Error(ctx, "No private topics loaded into cache - data root topic found, but no subtopics were returned", err)
-			return []*cache.Topic{cache.GetEmptyTopic()}
+			return cache.GetEmptyTopic()
 		}
-		return topics
+		return dataTopicCache
 	}
 }
 
-func processTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, topicID string, topics *[]*cache.Topic, processedTopics map[string]struct{}, parentTopicID string, depth int) {
+func processTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, topicID string, dataTopicCache *cache.Topic, processedTopics map[string]struct{}, parentTopicID string, depth int) {
 	log.Info(ctx, "processing private topic", log.Data{
 		"topic_id": topicID,
 		"depth":    depth,
@@ -122,30 +128,32 @@ func processTopic(ctx context.Context, serviceAuthToken string, topicClient topi
 	}
 
 	if dataTopic != nil {
-		// Append the current topic to the list of topics
-		*topics = append(*topics, mapTopicModelToCache(*dataTopic.Current, parentTopicID))
+		// Initialize subtopic list for the current topic if it doesn't exist
+		subtopic := mapTopicModelToCache(*dataTopic.Current, parentTopicID)
+
+		// Add the current topic to the dataTopicCache's List
+		dataTopicCache.List.AppendSubtopicID(dataTopic.Current.Slug, subtopic)
+
 		// Mark this topic as processed
 		processedTopics[topicID] = struct{}{}
 
 		// Process each subtopic recursively
 		if dataTopic.Current.SubtopicIds != nil {
 			for _, subTopicID := range *dataTopic.Current.SubtopicIds {
-				processTopic(ctx, serviceAuthToken, topicClient, subTopicID, topics, processedTopics, topicID, depth+1)
+				processTopic(ctx, serviceAuthToken, topicClient, subTopicID, dataTopicCache, processedTopics, topicID, depth+1)
 			}
 		}
 	}
 }
 
-func mapTopicModelToCache(rootTopic models.Topic, parentID string) *cache.Topic {
-	rootTopicCache := &cache.Topic{
-		ID:              rootTopic.ID,
-		Slug:            rootTopic.Slug,
-		LocaliseKeyName: rootTopic.Title,
+func mapTopicModelToCache(topic models.Topic, parentID string) cache.Subtopic {
+	return cache.Subtopic{
+		ID:              topic.ID,
+		Slug:            topic.Slug,
+		LocaliseKeyName: topic.Title,
+		ReleaseDate:     topic.ReleaseDate,
 		ParentID:        parentID,
-		ReleaseDate:     rootTopic.ReleaseDate,
-		List:            cache.NewSubTopicsMap(),
 	}
-	return rootTopicCache
 }
 
 func getRootTopicCachePrivate(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, rootTopic models.Topic) *cache.Topic {

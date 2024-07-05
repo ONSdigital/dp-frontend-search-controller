@@ -43,9 +43,18 @@ func TestGetMockCensusTopic(t *testing.T) {
 			So(mockCensusTopic.ID, ShouldEqual, CensusTopicID)
 			So(mockCensusTopic.LocaliseKeyName, ShouldEqual, "Census")
 			So(mockCensusTopic.Query, ShouldEqual, fmt.Sprintf("1234,5678,%s", CensusTopicID))
-			So(mockCensusTopic.List.Get("1234"), ShouldResemble, Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
-			So(mockCensusTopic.List.Get("5678"), ShouldResemble, Subtopic{ID: "5678", LocaliseKeyName: "Age", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
-			So(mockCensusTopic.List.Get(CensusTopicID), ShouldResemble, Subtopic{ID: CensusTopicID, LocaliseKeyName: "Census", ReleaseDate: timeHelper("2022-10-10T09:30:00Z")})
+
+			subtopic, exists := mockCensusTopic.List.Get("1234")
+			So(exists, ShouldBeTrue)
+			So(subtopic, ShouldResemble, Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
+
+			subtopic, exists = mockCensusTopic.List.Get("5678")
+			So(exists, ShouldBeTrue)
+			So(subtopic, ShouldResemble, Subtopic{ID: "5678", LocaliseKeyName: "Age", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
+
+			subtopic, exists = mockCensusTopic.List.Get(CensusTopicID)
+			So(exists, ShouldBeTrue)
+			So(subtopic, ShouldResemble, Subtopic{ID: CensusTopicID, LocaliseKeyName: "Census", ReleaseDate: timeHelper("2022-10-10T09:30:00Z")})
 		})
 	})
 }
@@ -53,20 +62,20 @@ func TestGetMockCensusTopic(t *testing.T) {
 func TestGetMockDataTopic(t *testing.T) {
 	t.Parallel()
 
-	id := "6734"
-	slug := "economy"
-	title := "Economy"
-	parentID := ""
+	rootTopicID := "root-topic-cache"
+	slug := "root"
 
 	Convey("When GetMockTopic is called", t, func() {
-		mockTopic := GetMockDataTopic(id, slug, title, parentID)
+		mockTopic := GetMockDataTopic(rootTopicID)
 
 		Convey("Then the mock topic is returned", func() {
 			So(mockTopic, ShouldNotBeNil)
-			So(mockTopic.ID, ShouldEqual, id)
+			So(mockTopic.ID, ShouldEqual, rootTopicID)
 			So(mockTopic.Slug, ShouldEqual, slug)
-			So(mockTopic.LocaliseKeyName, ShouldEqual, title)
-			So(mockTopic.ParentID, ShouldNotBeNil)
+
+			subtopic, exists := mockTopic.List.Get("economy")
+			So(exists, ShouldBeTrue)
+			So(subtopic, ShouldResemble, Subtopic{ID: "6734", Slug: "economy", LocaliseKeyName: "Economy", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: ""})
 		})
 	})
 }

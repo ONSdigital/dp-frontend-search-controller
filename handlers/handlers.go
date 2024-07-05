@@ -870,22 +870,20 @@ func ValidateTopicHierarchy(ctx context.Context, segments []string, cacheList ca
 		return nil, fmt.Errorf("no segments to validate")
 	}
 
-	var currentTopic *cache.Topic
-
 	// Start with the first segment
-	currentTopic, err := cacheList.DataTopic.GetData(ctx, segments[0])
+	currentTopic, err := cacheList.DataTopic.GetTopicData(ctx, segments[0])
 	if err != nil {
 		return nil, fmt.Errorf("topic not found: %s", segments[0])
 	}
 
 	// Traverse through segments
 	for i := 1; i < len(segments); i++ {
-		nextTopic, err := cacheList.DataTopic.GetData(ctx, segments[i])
+		nextTopic, err := cacheList.DataTopic.GetTopicData(ctx, segments[i])
 		if err != nil || nextTopic.ParentID != currentTopic.ID {
 			return nil, fmt.Errorf("invalid topic hierarchy at segment: %s", segments[i])
 		}
 		currentTopic = nextTopic
 	}
 
-	return currentTopic, nil
+	return cacheList.DataTopic.GetTopicFromSubtopic(currentTopic), nil
 }

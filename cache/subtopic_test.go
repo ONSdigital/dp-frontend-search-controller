@@ -33,7 +33,9 @@ func TestAppendSubtopicID(t *testing.T) {
 			subtopicIDsStore.AppendSubtopicID("1234", subtopic1)
 
 			Convey("Then the new subtopic id should be added to the map", func() {
-				So(subtopicIDsStore.Get("1234"), ShouldResemble, subtopic1)
+				subtopic, exists := subtopicIDsStore.Get("1234")
+				So(exists, ShouldBeTrue)
+				So(subtopic, ShouldResemble, subtopic1)
 			})
 		})
 	})
@@ -46,7 +48,9 @@ func TestAppendSubtopicID(t *testing.T) {
 			subtopicIDsStore.AppendSubtopicID("1234", subtopic1)
 
 			Convey("Then the new subtopic id should be added to the map", func() {
-				So(subtopicIDsStore.Get("1234"), ShouldResemble, subtopic1)
+				subtopic, exists := subtopicIDsStore.Get("1234")
+				So(exists, ShouldBeTrue)
+				So(subtopic, ShouldResemble, subtopic1)
 			})
 		})
 	})
@@ -61,11 +65,16 @@ func TestAppendSubtopicID(t *testing.T) {
 			subtopicIDsStore.AppendSubtopicID("5678", subtopic2)
 
 			Convey("Then the new subtopic id should be added to the map", func() {
-				So(subtopicIDsStore.Get("5678"), ShouldResemble, subtopic2)
+				subtopic, exists := subtopicIDsStore.Get("5678")
+				So(exists, ShouldBeTrue)
+				So(subtopic, ShouldResemble, subtopic2)
 			})
 
 			Convey("And the existing subtopic `1234` should still exist in map", func() {
-				So(subtopicIDsStore.Get("1234"), ShouldResemble, subtopic1)
+				subtopic, exists := subtopicIDsStore.Get("1234")
+				So(exists, ShouldBeTrue)
+				So(subtopic, ShouldResemble, subtopic1)
+
 			})
 		})
 	})
@@ -81,8 +90,13 @@ func TestAppendSubtopicID(t *testing.T) {
 				// Wait for the goroutines to finish
 				time.Sleep(300 * time.Millisecond)
 
-				So(subtopicIDsStore.Get("5678"), ShouldResemble, subtopic2)
-				So(subtopicIDsStore.Get("9123"), ShouldResemble, subtopic3)
+				subtopic, exists := subtopicIDsStore.Get("5678")
+				So(exists, ShouldBeTrue)
+				So(subtopic, ShouldResemble, subtopic2)
+
+				subtopic, exists = subtopicIDsStore.Get("9123")
+				So(exists, ShouldBeTrue)
+				So(subtopic, ShouldResemble, subtopic3)
 			})
 		})
 	})

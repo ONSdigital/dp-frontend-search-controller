@@ -69,26 +69,25 @@ func getMockDataTopicCache(ctx context.Context) (*TopicCache, error) {
 		return nil, err
 	}
 
-	testDataTopicCache.Set("economy", GetMockDataTopic("6734", "economy", "Economy", ""))
-	testDataTopicCache.Set("environmentalaccounts", GetMockDataTopic("1834", "environmentalaccounts", "Environmental Accounts", "6734"))
-	testDataTopicCache.Set("governmentpublicsectorandtaxes", GetMockDataTopic("8268", "governmentpublicsectorandtaxes", "Government Public Sector and Taxes", "6734"))
-	testDataTopicCache.Set("publicsectorfinance", GetMockDataTopic("3687", "publicsectorfinance", "Public Sector Finance", "8268"))
+	rootTopicID := testDataTopicCache.GetDataTopicCacheKey()
+	testDataTopicCache.Set(rootTopicID, GetMockDataTopic(rootTopicID))
 
 	return testDataTopicCache, nil
 }
 
 // GetMockDataTopic returns a mocked data topic which contains all the information for the mock data topic
-func GetMockDataTopic(id, slug, title, parentID string) *Topic {
+func GetMockDataTopic(rootTopicID string) *Topic {
 	mockDataTopic := &Topic{
-		ID:              id,
-		Slug:            slug,
-		LocaliseKeyName: title,
-		ParentID:        parentID,
+		ID:   rootTopicID,
+		Slug: "root",
 	}
 
 	mockDataTopic.List = NewSubTopicsMap()
-	mockDataTopic.List.AppendSubtopicID("1234", Subtopic{ID: "1234", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
-	mockDataTopic.List.AppendSubtopicID("1834", Subtopic{ID: "1834", LocaliseKeyName: "Environmental Accounts", ReleaseDate: timeHelper("2022-11-09T09:30:00Z")})
+	mockDataTopic.List.AppendSubtopicID("economy", Subtopic{ID: "6734", Slug: "economy", LocaliseKeyName: "Economy", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: ""})
+	mockDataTopic.List.AppendSubtopicID("environmentalaccounts", Subtopic{ID: "1834", Slug: "environmentalaccounts", LocaliseKeyName: "Environmental Accounts", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: "6734"})
+	mockDataTopic.List.AppendSubtopicID("governmentpublicsectorandtaxes", Subtopic{ID: "8268", Slug: "governmentpublicsectorandtaxes", LocaliseKeyName: "Government Public Sector and Taxes", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: "6734"})
+	mockDataTopic.List.AppendSubtopicID("publicsectorfinance", Subtopic{ID: "3687", Slug: "publicsectorfinance", LocaliseKeyName: "Public Sector Finance", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: "8268"})
+	mockDataTopic.List.AppendSubtopicID("internationalmigration", Subtopic{ID: "1234", Slug: "internationalmigration", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
 
 	return mockDataTopic
 }
