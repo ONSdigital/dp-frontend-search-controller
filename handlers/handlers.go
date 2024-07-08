@@ -101,7 +101,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	// get cached census topic and its subtopics
 	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
 	if err != nil {
-		log.Error(ctx, "failed to get census topic cache", err)
+		log.Error(ctx, "failed to get census topic cache for dataset", err)
 		setStatusCode(w, req, err)
 		return
 	}
@@ -115,14 +115,14 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
 	if err != nil {
-		log.Error(ctx, "failed to get navigation cache", err)
+		log.Error(ctx, "failed to get navigation cache for dataset", err)
 		setStatusCode(w, req, err)
 		return
 	}
 
 	validatedQueryParams, err := data.ReviewDatasetQuery(ctx, cfg, urlQuery, censusTopicCache)
 	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
-		log.Error(ctx, "unable to review query", err)
+		log.Error(ctx, "unable to review dataset query", err)
 		setStatusCode(w, req, err)
 		return
 	}
@@ -187,7 +187,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 
 			searchResp, respErr = searchC.GetSearch(ctx, options)
 			if respErr != nil {
-				log.Error(ctx, "getting search response from client failed", respErr)
+				log.Error(ctx, "getting search response from client failed for dataset", respErr)
 				cancel()
 				return
 			}
@@ -198,7 +198,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
 			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 			if countErr != nil {
-				log.Error(ctx, "getting categories, types and its counts failed", countErr)
+				log.Error(ctx, "getting categories, types and its counts failed for dataset", countErr)
 				setStatusCode(w, req, countErr)
 				cancel()
 				return
@@ -223,7 +223,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
-		log.Error(ctx, "unable to validate current page", err)
+		log.Error(ctx, "unable to validate current page for dataset", err)
 		setStatusCode(w, req, err)
 		return
 	}
@@ -244,7 +244,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	// get cached census topic and its subtopics
 	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
 	if err != nil {
-		log.Error(ctx, "failed to get census topic cache", err)
+		log.Error(ctx, "failed to get census topic cache for aggregation", err)
 		setStatusCode(w, req, err)
 		return
 	}
@@ -252,14 +252,14 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
 	if err != nil {
-		log.Error(ctx, "failed to get navigation cache", err)
+		log.Error(ctx, "failed to get navigation cache for aggregation", err)
 		setStatusCode(w, req, err)
 		return
 	}
 
 	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery)
 	if len(validationErrs) > 0 {
-		log.Info(ctx, "validation of parameters failed", log.Data{
+		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
 			"parameters": validationErrs,
 		})
 		// Errors are now mapped to the page model to output feedback to the user rather than
@@ -272,7 +272,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	if _, rssParam := urlQuery["rss"]; rssParam {
 		req.Header.Set("Accept", "application/rss+xml")
 		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
-			log.Error(ctx, "failed to create rss feed", err)
+			log.Error(ctx, "failed to create rss feed for aggregation", err)
 			setStatusCode(w, req, err)
 			return
 		}
@@ -322,7 +322,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 
 		searchResp, respErr = searchC.GetSearch(ctx, options)
 		if respErr != nil {
-			log.Error(ctx, "getting search response from client failed", respErr)
+			log.Error(ctx, "getting search response from client failed for aggregation", respErr)
 			cancel()
 			return
 		}
@@ -334,7 +334,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
 		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 		if countErr != nil {
-			log.Error(ctx, "getting categories, types and its counts failed", countErr)
+			log.Error(ctx, "getting categories, types and its counts failed for aggregation", countErr)
 			setStatusCode(w, req, countErr)
 			cancel()
 			return
@@ -349,7 +349,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
-		log.Error(ctx, "unable to validate current page", err)
+		log.Error(ctx, "unable to validate current page for aggregation", err)
 		setStatusCode(w, req, err)
 		return
 	}
@@ -402,7 +402,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
 	if err != nil {
-		log.Error(ctx, "failed to get navigation cache", err)
+		log.Error(ctx, "failed to get navigation cache for aggregation with topics", err)
 		setStatusCode(w, req, err)
 		return
 	}
@@ -422,7 +422,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	if _, rssParam := urlQuery["rss"]; rssParam {
 		req.Header.Set("Accept", "application/rss+xml")
 		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
-			log.Error(ctx, "failed to create rss feed", err)
+			log.Error(ctx, "failed to create rss feed with topics", err)
 			setStatusCode(w, req, err)
 			return
 		}
@@ -471,7 +471,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 
 		searchResp, respErr = searchC.GetSearch(ctx, options)
 		if respErr != nil {
-			log.Error(ctx, "getting search response from client failed", respErr)
+			log.Error(ctx, "getting search response from client failed for aggregation with topics", respErr)
 			cancel()
 			return
 		}
@@ -483,7 +483,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
 		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
 		if countErr != nil {
-			log.Error(ctx, "getting categories, types and its counts failed", countErr)
+			log.Error(ctx, "getting categories, types and its counts failed for aggregation with topics", countErr)
 			setStatusCode(w, req, countErr)
 			cancel()
 			return
@@ -498,7 +498,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
-		log.Error(ctx, "unable to validate current page", err)
+		log.Error(ctx, "unable to validate current page for aggregation with topics", err)
 		setStatusCode(w, req, err)
 		return
 	}

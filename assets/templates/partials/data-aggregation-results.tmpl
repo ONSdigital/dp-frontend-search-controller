@@ -80,13 +80,13 @@
                     {{ if .Description.CDID }}
                     <li class="ons-document-list__item-attribute">
                         <span class="ons-u-fw-b">{{ localise "SeriesID" $lang 1 }}:</span>
-                        <span> {{ dateFormat .Description.CDID }}</span>
+                        <span> {{ .Description.CDID }}</span>
                     </li>
                     {{ end }}
                     {{ if .Description.DatasetID }}
                     <li class="ons-document-list__item-attribute">
                         <span class="ons-u-fw-b">{{ localise "DatasetID" $lang 1 }}:</span>
-                        <span> {{ dateFormat .Description.DatasetID }}</span>
+                        <span> {{ .Description.DatasetID }}</span>
                     </li>
                     {{ end }}
                 </ul>

@@ -72,7 +72,18 @@ var (
 
 	// UnusedCategories - these categories are served from the Search API but we don't use them for filters.
 	// If left in, they create noise in the logs about unexpected filters being returned.
-	UnusedCategoryTypes = []string{"release", "visualisation", "api_dataset_landing_page", "compendium_chapter", "dataset", "taxonomy_landing_page"}
+	UnusedCategoryTypes = []string{
+		"api_dataset_landing_page",
+		"compendium_chapter",
+		"compendium_data",
+		"dataset",
+		"home_page",
+		"home_page_census",
+		"reference_tables",
+		"release",
+		"taxonomy_landing_page",
+		"visualisation",
+	}
 
 	// Bulletin - Search information specific for statistical bulletins
 	Bulletin = ContentType{
