@@ -278,7 +278,7 @@ func TestUpdateCensusTopic(t *testing.T) {
 	})
 }
 
-func TestUpdateDataTopic(t *testing.T) {
+func TestUpdateDataTopicCache(t *testing.T) {
 	ctx := context.Background()
 	serviceAuthToken := "test-token"
 
@@ -335,8 +335,8 @@ func TestUpdateDataTopic(t *testing.T) {
 			},
 		}
 
-		Convey("When UpdateDataTopicsPrivate is called", func() {
-			respTopic := UpdateDataTopic(ctx, serviceAuthToken, mockClient)()
+		Convey("When UpdateDataTopicCache (Private) is called", func() {
+			respTopic := UpdateDataTopicCache(ctx, serviceAuthToken, mockClient)()
 
 			Convey("Then the topics cache is returned", func() {
 				So(respTopic, ShouldNotBeNil)
@@ -358,8 +358,8 @@ func TestUpdateDataTopic(t *testing.T) {
 				}, nil
 			}
 
-			Convey("When UpdateDataTopic is called", func() {
-				respTopic := UpdateDataTopic(ctx, serviceAuthToken, mockClient)()
+			Convey("When UpdateDataTopicCache (Private) is called", func() {
+				respTopic := UpdateDataTopicCache(ctx, serviceAuthToken, mockClient)()
 
 				Convey("Then the topics cache is returned with expected number of topics excluding duplicates", func() {
 					So(respTopic, ShouldNotBeNil)
@@ -371,7 +371,7 @@ func TestUpdateDataTopic(t *testing.T) {
 			})
 		})
 
-		Convey("And given root topics exist and have subtopics with a loop of topics", func() {
+		Convey("And given root topics exist and private items that have subtopics that can end up in a recursive loop", func() {
 			mockClient.GetRootTopicsPrivateFunc = func(ctx context.Context, reqHeaders sdk.Headers) (*models.PrivateSubtopics, topicCliErr.Error) {
 				return &models.PrivateSubtopics{
 					Count:        2,
@@ -382,8 +382,8 @@ func TestUpdateDataTopic(t *testing.T) {
 				}, nil
 			}
 
-			Convey("When UpdateDataTopic is called", func() {
-				respTopic := UpdateDataTopic(ctx, serviceAuthToken, mockClient)()
+			Convey("When UpdateDataTopicCache (Private) is called", func() {
+				respTopic := UpdateDataTopicCache(ctx, serviceAuthToken, mockClient)()
 
 				Convey("Then the topics cache is returned as expected with no duplicates and does not get stuck in a loop", func() {
 					So(respTopic, ShouldNotBeNil)
@@ -405,8 +405,8 @@ func TestUpdateDataTopic(t *testing.T) {
 			},
 		}
 
-		Convey("When UpdateDataTopicPrivate is called", func() {
-			respTopic := UpdateDataTopic(ctx, serviceAuthToken, mockClient)()
+		Convey("When UpdateDataTopicCache (Private) is called", func() {
+			respTopic := UpdateDataTopicCache(ctx, serviceAuthToken, mockClient)()
 
 			Convey("Then an empty topic cache should be returned", func() {
 				So(respTopic, ShouldResemble, emptyTopic)
@@ -435,8 +435,8 @@ func TestUpdateDataTopic(t *testing.T) {
 			},
 		}
 
-		Convey("When UpdateDataTopicsPrivate is called", func() {
-			respTopic := UpdateDataTopic(ctx, serviceAuthToken, mockClient)()
+		Convey("When UpdateDataTopicCache (Private) is called", func() {
+			respTopic := UpdateDataTopicCache(ctx, serviceAuthToken, mockClient)()
 
 			Convey("Then an empty topic cache should be returned", func() {
 				So(respTopic, ShouldResemble, emptyTopic)
@@ -457,8 +457,8 @@ func TestUpdateDataTopic(t *testing.T) {
 			},
 		}
 
-		Convey("When UpdateDataTopicsPrivate is called", func() {
-			respTopics := UpdateDataTopic(ctx, serviceAuthToken, mockClient)()
+		Convey("When UpdateDataTopicCache (Private) is called", func() {
+			respTopics := UpdateDataTopicCache(ctx, serviceAuthToken, mockClient)()
 
 			Convey("Then an empty topic cache should be returned", func() {
 				So(respTopics, ShouldResemble, emptyTopic)

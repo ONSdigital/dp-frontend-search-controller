@@ -102,21 +102,23 @@ func (dc *TopicCache) GetCensusData(ctx context.Context) (*Topic, error) {
 	return censusTopicCache, nil
 }
 
-func (dc *TopicCache) GetTopicData(ctx context.Context, slug string) (*Subtopic, error) {
+func (dc *TopicCache) GetTopic(ctx context.Context, slug string) (*Subtopic, error) {
 	dataTopicCache, err := dc.GetData(ctx, DataTopicCacheKey)
 	if err != nil {
 		logData := log.Data{
 			"key": DataTopicCacheKey,
 		}
-		log.Error(ctx, "failed to get cached data topic", err, logData)
+		log.Error(ctx, "failed to get the data topic cache", err, logData)
 		return nil, err
 	}
 
 	// Retrieve the subtopic from the list
 	topicCacheItem, exists := dataTopicCache.List.Get(slug)
 	if !exists {
-		err := errors.New("topicCacheData is nil")
-		log.Error(ctx, "cached topic data is nil", err)
+		err := errors.New("requested topic does not exist in cache")
+		log.Error(ctx, "failed to get topic from cache", err, log.Data{
+			"slug": slug,
+		})
 		return nil, err
 	}
 

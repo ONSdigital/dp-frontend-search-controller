@@ -229,7 +229,7 @@ func TestUpdateCensusTopic(t *testing.T) {
 	})
 }
 
-func TestUpdateDataTopics(t *testing.T) {
+func TestUpdateDataTopicCache(t *testing.T) {
 	ctx := context.Background()
 
 	emptyTopic := cache.GetEmptyTopic()
@@ -267,8 +267,8 @@ func TestUpdateDataTopics(t *testing.T) {
 			},
 		}
 
-		Convey("When UpdateDataTopic is called", func() {
-			respTopic := UpdateDataTopic(ctx, mockClient)()
+		Convey("When UpdateDataTopicCache is called", func() {
+			respTopic := UpdateDataTopicCache(ctx, mockClient)()
 
 			Convey("Then the topics cache is returned as expected", func() {
 				So(respTopic, ShouldNotBeNil)
@@ -290,8 +290,8 @@ func TestUpdateDataTopics(t *testing.T) {
 				}, nil
 			}
 
-			Convey("When UpdateDataTopic is called", func() {
-				respTopic := UpdateDataTopic(ctx, mockClient)()
+			Convey("When UpdateDataTopicCache is called", func() {
+				respTopic := UpdateDataTopicCache(ctx, mockClient)()
 
 				Convey("Then the topics cache is returned with expected number of topics excluding duplicates", func() {
 					So(respTopic, ShouldNotBeNil)
@@ -303,7 +303,7 @@ func TestUpdateDataTopics(t *testing.T) {
 			})
 		})
 
-		Convey("Given root topics exist and have subtopics with a loop of topics", func() {
+		Convey("Given root topics exist and private items that have subtopics that can end up in a recursive loop", func() {
 			mockClient.GetRootTopicsPublicFunc = func(ctx context.Context, reqHeaders sdk.Headers) (*models.PublicSubtopics, topicCliErr.Error) {
 				return &models.PublicSubtopics{
 					Count:       2,
@@ -314,8 +314,8 @@ func TestUpdateDataTopics(t *testing.T) {
 				}, nil
 			}
 
-			Convey("When UpdateDataTopic is called", func() {
-				respTopic := UpdateDataTopic(ctx, mockClient)()
+			Convey("When UpdateDataTopicCache is called", func() {
+				respTopic := UpdateDataTopicCache(ctx, mockClient)()
 
 				Convey("Then the topics cache is returned as expected with no duplicates and does not get stuck in a loop", func() {
 					So(respTopic, ShouldNotBeNil)
@@ -337,8 +337,8 @@ func TestUpdateDataTopics(t *testing.T) {
 			},
 		}
 
-		Convey("When UpdateDataTopic is called", func() {
-			respTopics := UpdateDataTopic(ctx, mockClient)()
+		Convey("When UpdateDataTopicCache is called", func() {
+			respTopics := UpdateDataTopicCache(ctx, mockClient)()
 
 			Convey("Then an empty topic cache should be returned", func() {
 				So(respTopics, ShouldResemble, emptyTopic)
@@ -362,8 +362,8 @@ func TestUpdateDataTopics(t *testing.T) {
 			},
 		}
 
-		Convey("When UpdateDataTopic is called", func() {
-			respTopics := UpdateDataTopic(ctx, mockClient)()
+		Convey("When UpdateDataTopicCache is called", func() {
+			respTopics := UpdateDataTopicCache(ctx, mockClient)()
 
 			Convey("Then an empty topic cache should be returned", func() {
 				So(respTopics, ShouldResemble, emptyTopic)
@@ -384,8 +384,8 @@ func TestUpdateDataTopics(t *testing.T) {
 			},
 		}
 
-		Convey("When UpdateDataTopic is called", func() {
-			respTopics := UpdateDataTopic(ctx, mockClient)()
+		Convey("When UpdateDataTopicCache is called", func() {
+			respTopics := UpdateDataTopicCache(ctx, mockClient)()
 
 			Convey("Then an empty topic cache should be returned", func() {
 				So(respTopics, ShouldResemble, emptyTopic)

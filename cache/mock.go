@@ -70,13 +70,13 @@ func getMockDataTopicCache(ctx context.Context) (*TopicCache, error) {
 	}
 
 	rootTopicID := testDataTopicCache.GetDataTopicCacheKey()
-	testDataTopicCache.Set(rootTopicID, GetMockDataTopic(rootTopicID))
+	testDataTopicCache.Set(rootTopicID, GetMockRootTopic(rootTopicID))
 
 	return testDataTopicCache, nil
 }
 
-// GetMockDataTopic returns a mocked data topic which contains all the information for the mock data topic
-func GetMockDataTopic(rootTopicID string) *Topic {
+// GetMockRootTopic returns the mocked root topic
+func GetMockRootTopic(rootTopicID string) *Topic {
 	mockDataTopic := &Topic{
 		ID:   rootTopicID,
 		Slug: "root",

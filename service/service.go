@@ -101,12 +101,12 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	if svc.Config.IsPublishing {
 		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePrivate.UpdateCensusTopic(ctx, svc.Config.ServiceAuthToken, clients.Topic))
 		if svc.Config.EnableTopicAggregationPages {
-			svc.Cache.DataTopic.AddUpdateFunc(svc.Cache.DataTopic.GetDataTopicCacheKey(), cachePrivate.UpdateDataTopic(ctx, svc.Config.ServiceAuthToken, clients.Topic))
+			svc.Cache.DataTopic.AddUpdateFunc(svc.Cache.DataTopic.GetDataTopicCacheKey(), cachePrivate.UpdateDataTopicCache(ctx, svc.Config.ServiceAuthToken, clients.Topic))
 		}
 	} else {
 		svc.Cache.CensusTopic.AddUpdateFunc(cache.CensusTopicID, cachePublic.UpdateCensusTopic(ctx, clients.Topic))
 		if svc.Config.EnableTopicAggregationPages {
-			svc.Cache.DataTopic.AddUpdateFunc(svc.Cache.DataTopic.GetDataTopicCacheKey(), cachePublic.UpdateDataTopic(ctx, clients.Topic))
+			svc.Cache.DataTopic.AddUpdateFunc(svc.Cache.DataTopic.GetDataTopicCacheKey(), cachePublic.UpdateDataTopicCache(ctx, clients.Topic))
 		}
 	}
 

@@ -59,16 +59,16 @@ func TestGetMockCensusTopic(t *testing.T) {
 	})
 }
 
-func TestGetMockDataTopic(t *testing.T) {
+func TestGetMockRootTopic(t *testing.T) {
 	t.Parallel()
 
 	rootTopicID := "root-topic-cache"
 	slug := "root"
 
-	Convey("When GetMockTopic is called", t, func() {
-		mockTopic := GetMockDataTopic(rootTopicID)
+	Convey("When GetMockRootTopic is called", t, func() {
+		mockTopic := GetMockRootTopic(rootTopicID)
 
-		Convey("Then the mock topic is returned", func() {
+		Convey("Then the mocked root topic is returned", func() {
 			So(mockTopic, ShouldNotBeNil)
 			So(mockTopic.ID, ShouldEqual, rootTopicID)
 			So(mockTopic.Slug, ShouldEqual, slug)

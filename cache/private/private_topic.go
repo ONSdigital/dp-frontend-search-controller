@@ -54,11 +54,11 @@ func UpdateCensusTopic(ctx context.Context, serviceAuthToken string, topicClient
 	}
 }
 
-// UpdateDataTopic is a function to update the data topic cache in publishing (private) mode.
+// UpdateDataTopicCache is a function to update the data topic cache in publishing (private) mode.
 // This function talks to the dp-topic-api via its private endpoints to retrieve the root topic and its subtopic ids
 // The data returned by the dp-topic-api is of type *models.PrivateSubtopics which is then transformed in this function for the controller
 // If an error has occurred, this is captured in log.Error and then an empty topic is returned
-func UpdateDataTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() *cache.Topic {
+func UpdateDataTopicCache(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter) func() *cache.Topic {
 	return func() *cache.Topic {
 		processedTopics := make(map[string]struct{})
 
