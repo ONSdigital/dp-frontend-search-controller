@@ -3,11 +3,12 @@ package public
 import (
 	"context"
 	"errors"
+	"net/http"
+
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-topic-api/models"
 	topicCli "github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"
-	"net/http"
 )
 
 // UpdateCensusTopic is a function to update the census topic cache in web (public) mode.

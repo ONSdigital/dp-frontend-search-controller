@@ -74,7 +74,6 @@ func TestAppendSubtopicID(t *testing.T) {
 				subtopic, exists := subtopicIDsStore.Get("1234")
 				So(exists, ShouldBeTrue)
 				So(subtopic, ShouldResemble, subtopic1)
-
 			})
 		})
 	})

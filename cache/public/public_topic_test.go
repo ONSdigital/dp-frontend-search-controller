@@ -299,7 +299,6 @@ func TestUpdateDataTopics(t *testing.T) {
 					So(respTopic.LocaliseKeyName, ShouldEqual, expectedDataTopicCache.LocaliseKeyName)
 
 					So(len(respTopic.List.GetSubtopics()), ShouldEqual, 3)
-
 				})
 			})
 		})
