@@ -93,12 +93,11 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 	return page
 }
 
-func setRSSLink(page *model.SearchPage, base, rawQuery string) {
+func generateRSSLink(rawQuery string) string {
 	if rawQuery != "" {
-		page.RSSLink = fmt.Sprintf("%s?rss&%s", base, rawQuery)
-	} else {
-		page.RSSLink = fmt.Sprintf("%s?rss", base)
+		return fmt.Sprintf("?rss&%s", rawQuery)
 	}
+	return "?rss"
 }
 
 func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem) {
@@ -112,12 +111,12 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Title.LocaliseKeyName = "DataList"
 		page.Data.SingleContentTypeFilterEnabled = true
 		page.Data.DateFilterEnabled = true
-		setRSSLink(page, "datalist", req.URL.RawQuery)
+		page.RSSLink = generateRSSLink(req.URL.RawQuery)
 	case "home-publications":
 		page.Metadata.Title = "Publications"
 		page.Title.LocaliseKeyName = "HomePublications"
 		page.Data.SingleContentTypeFilterEnabled = true
-		setRSSLink(page, "publications", req.URL.RawQuery)
+		page.RSSLink = generateRSSLink(req.URL.RawQuery)
 	case "all-methodologies":
 		page.Metadata.Title = "All methodology"
 		page.Title.LocaliseKeyName = "AllMethodology"

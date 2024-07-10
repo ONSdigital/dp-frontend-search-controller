@@ -561,14 +561,14 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					exLocaliseKeyName:                "DataList",
 					exSingleContentTypeFilterEnabled: true,
 					exDateFilterEnabled:              true,
-					exRSSLink:                        "datalist?rss",
+					exRSSLink:                        "?rss",
 				},
 				{
 					template:                         "home-publications",
 					exTitle:                          "Publications",
 					exLocaliseKeyName:                "HomePublications",
 					exSingleContentTypeFilterEnabled: true,
-					exRSSLink:                        "publications?rss",
+					exRSSLink:                        "?rss",
 				},
 				{
 					template:             "all-methodologies",
