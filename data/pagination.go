@@ -31,6 +31,17 @@ func reviewPagination(ctx context.Context, cfg *config.Config, urlQuery url.Valu
 	page := getPageFromURLQuery(ctx, cfg, urlQuery)
 	validatedQueryParams.CurrentPage = page
 
+	// Log and error if expected result is too large
+	if (page * limit) > cfg.DefaultMaximumSearchResults {
+		err := errs.ErrPageExceedsTotalPages
+		log.Error(ctx, "Requested page exceeds maximum search results", err, log.Data{
+			"page":       page,
+			"limit":      limit,
+			"maxResults": cfg.DefaultMaximumSearchResults,
+		})
+		return err
+	}
+
 	offset, err := getOffset(ctx, cfg, page, limit)
 	if err != nil {
 		log.Error(ctx, "unable to get offset", err)
@@ -43,7 +54,6 @@ func reviewPagination(ctx context.Context, cfg *config.Config, urlQuery url.Valu
 
 func getLimitFromURLQuery(ctx context.Context, cfg *config.Config, query url.Values) int {
 	limitParam := query.Get("limit")
-
 	if limitParam == "" {
 		return cfg.DefaultLimit
 	}
@@ -70,7 +80,6 @@ func getLimitFromURLQuery(ctx context.Context, cfg *config.Config, query url.Val
 
 func getPageFromURLQuery(ctx context.Context, cfg *config.Config, query url.Values) int {
 	pageParam := query.Get("page")
-
 	if pageParam == "" {
 		return cfg.DefaultPage
 	}
@@ -78,41 +87,48 @@ func getPageFromURLQuery(ctx context.Context, cfg *config.Config, query url.Valu
 	page, err := strconv.Atoi(pageParam)
 	if err != nil {
 		log.Info(ctx, "unable to convert search page to int - set to default", log.Data{
-			"default": cfg.DefaultPage,
-			"page":    page,
+			"default":   cfg.DefaultPage,
+			"pageParam": pageParam,
 		})
 		query.Set("page", strconv.Itoa(cfg.DefaultPage))
-		page = cfg.DefaultPage
+		return cfg.DefaultPage
 	}
 
-	if page < 1 {
-		log.Info(ctx, "page number is less than default - set to default", log.Data{
+	if page < cfg.DefaultPage {
+		log.Info(ctx, "page number is less than 1 - set to default", log.Data{
 			"default": cfg.DefaultPage,
 			"page":    page,
 		})
 		query.Set("page", strconv.Itoa(cfg.DefaultPage))
-		page = cfg.DefaultPage
+		return cfg.DefaultPage
 	}
 
 	return page
 }
 
-func getOffset(ctx context.Context, cfg *config.Config, page, limit int) (offset int, err error) {
-	offset = (page - 1) * limit
+func getOffset(ctx context.Context, cfg *config.Config, page, limit int) (int, error) {
+	offset := (page - 1) * limit
 
-	// when the offset is negative due to negative current page number or limit
+	// Log and default offset if it's negative
 	if offset < 0 {
-		log.Warn(ctx, fmt.Sprintf("offset less than 0 - defaulted to offset %d", cfg.DefaultOffset))
-		offset = cfg.DefaultOffset
+		log.Warn(ctx, fmt.Sprintf("Offset less than 0 - defaulted to offset %d", cfg.DefaultOffset), log.Data{
+			"page":          page,
+			"limit":         limit,
+			"calculated":    offset,
+			"defaultOffset": cfg.DefaultOffset,
+		})
+		return cfg.DefaultOffset, nil
 	}
 
-	// when the offset is too big due to big current page number and/or limit
+	// Log and error if the offset is too large
 	if (offset - limit) > cfg.DefaultMaximumSearchResults {
-		err = errs.ErrInvalidPage
-		logData := log.Data{"current_page": page, "limit": limit}
-
-		log.Error(ctx, "offset is too big as large page and/or limit given", err, logData)
-
+		err := errs.ErrInvalidPage
+		log.Error(ctx, "Offset is too large - exceeds maximum search results", err, log.Data{
+			"currentPage": page,
+			"limit":       limit,
+			"calculated":  offset,
+			"maxResults":  cfg.DefaultMaximumSearchResults,
+		})
 		return cfg.DefaultOffset, err
 	}
 

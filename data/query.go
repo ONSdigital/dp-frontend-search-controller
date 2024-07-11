@@ -113,20 +113,25 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	return validatedQueryParams, nil
 }
 
+func handleValidationError(ctx context.Context, err error, description, id string, validationErrs []core.ErrorItem) []core.ErrorItem {
+	if err != nil {
+		log.Error(ctx, description, err)
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: CapitalizeFirstLetter(err.Error()),
+			},
+			ID: id,
+		})
+	}
+	return validationErrs
+}
+
 // ReviewDataAggregationQueryWithParams ensures that all search parameter values given by the user are reviewed
 func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values) (sp SearchURLParams, validationErrs []core.ErrorItem) {
 	sp.Query = urlQuery.Get("q")
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
-	if paginationErr != nil {
-		log.Error(ctx, "unable to review pagination for aggregation", paginationErr)
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(paginationErr.Error()),
-			},
-			ID: PaginationErr,
-		})
-	}
+	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for aggregation", PaginationErr, validationErrs)
 
 	fromDate, vErrs := GetStartDate(urlQuery)
 	if len(vErrs) > 0 {
@@ -157,54 +162,18 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	reviewSort(ctx, urlQuery, &sp, cfg.DefaultAggregationSort)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
-	if contentTypeFilterError != nil {
-		log.Error(ctx, "invalid content type filters set for aggregation", contentTypeFilterError)
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(contentTypeFilterError.Error()),
-			},
-			ID: ContentTypeFilterErr,
-		})
-	}
+	validationErrs = handleValidationError(ctx, contentTypeFilterError, "invalid content type filters set for aggregation", ContentTypeFilterErr, validationErrs)
 
 	topicFilterErr := reviewTopicFiltersForDataAggregation(urlQuery, &sp)
-	if topicFilterErr != nil {
-		log.Error(ctx, "invalid topic filters set for aggregation", topicFilterErr)
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(topicFilterErr.Error()),
-			},
-			ID: TopicFilterErr,
-		})
-	}
+	validationErrs = handleValidationError(ctx, topicFilterErr, "invalid topic filters set for aggregation", TopicFilterErr, validationErrs)
 
 	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &sp)
-	if populationTypeFilterErr != nil {
-		log.Error(ctx, "invalid population types set for aggregation", populationTypeFilterErr)
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(populationTypeFilterErr.Error()),
-			},
-			ID: PopulationTypeFilterErr,
-		})
-	}
+	validationErrs = handleValidationError(ctx, populationTypeFilterErr, "invalid population types set for aggregation", PopulationTypeFilterErr, validationErrs)
 
 	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
-	if dimensionsFilterErr != nil {
-		log.Error(ctx, "invalid dimensions set for aggregation", dimensionsFilterErr)
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(dimensionsFilterErr.Error()),
-			},
-			ID: DimensionsFilterErr,
-		})
-	}
+	validationErrs = handleValidationError(ctx, dimensionsFilterErr, "invalid dimensions set for aggregation", DimensionsFilterErr, validationErrs)
 
-	if len(validationErrs) > 0 {
-		return sp, validationErrs
-	}
-
-	return sp, nil
+	return sp, validationErrs
 }
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed

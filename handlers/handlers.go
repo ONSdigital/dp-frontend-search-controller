@@ -18,12 +18,12 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
+	core "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
-	"github.com/gorilla/mux"
-
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/feeds"
+	"github.com/gorilla/mux"
 )
 
 // Constants...
@@ -349,10 +349,16 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
-		log.Error(ctx, "unable to validate current page for aggregation", err)
-		setStatusCode(w, req, err)
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: "current page exceeds total pages",
+			},
+		})
+		m := mapper.CreateDataAggregationPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs)
+		buildDataAggregationPage(w, m, rend, template)
 		return
 	}
+
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs)
 	buildDataAggregationPage(w, m, rend, template)
