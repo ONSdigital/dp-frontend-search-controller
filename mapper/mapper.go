@@ -77,25 +77,18 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 		Page: basePage,
 	}
 
-	// Filter categories by template
 	categories = filterCategoriesByTemplate(template, categories)
 
-	// Map cookie preferences
 	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
 
-	// Map data to page
 	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template, topic, validationErrs)
 
-	// Map query parameters
 	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
-	// Map response data
 	mapResponse(&page, respC, categories)
 
-	// Map filters
 	mapFilters(&page, categories, validatedQueryParams)
 
-	// Map topic filters
 	mapTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
 
 	return page

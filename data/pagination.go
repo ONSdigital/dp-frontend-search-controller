@@ -87,15 +87,15 @@ func getPageFromURLQuery(ctx context.Context, cfg *config.Config, query url.Valu
 	page, err := strconv.Atoi(pageParam)
 	if err != nil {
 		log.Info(ctx, "unable to convert search page to int - set to default", log.Data{
-			"default":   cfg.DefaultPage,
-			"pageParam": pageParam,
+			"default": cfg.DefaultPage,
+			"page":    page,
 		})
 		query.Set("page", strconv.Itoa(cfg.DefaultPage))
 		return cfg.DefaultPage
 	}
 
 	if page < cfg.DefaultPage {
-		log.Info(ctx, "page number is less than 1 - set to default", log.Data{
+		log.Info(ctx, "page number is less than default - set to default", log.Data{
 			"default": cfg.DefaultPage,
 			"page":    page,
 		})
@@ -111,7 +111,7 @@ func getOffset(ctx context.Context, cfg *config.Config, page, limit int) (int, e
 
 	// Log and default offset if it's negative
 	if offset < 0 {
-		log.Warn(ctx, fmt.Sprintf("Offset less than 0 - defaulted to offset %d", cfg.DefaultOffset), log.Data{
+		log.Warn(ctx, "Offset less than 0 - set to default offset", log.Data{
 			"page":          page,
 			"limit":         limit,
 			"calculated":    offset,

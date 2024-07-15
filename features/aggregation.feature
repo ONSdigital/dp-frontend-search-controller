@@ -77,6 +77,17 @@ Feature: Aggregated Data Pages
             "h2#error-summary-title": "There is a problem with this page"
         }
     """
+
+  Scenario: GET /alladhocs and check invalid params - page
+    Given there is a Search API that gives a successful response and returns 500 results
+    And the search controller is running
+    When I navigate to "/alladhocs?page=51"
+    Then the page should have the following content
+    """
+        {
+            "h2#error-summary-title": "There is a problem with this page"
+        }
+    """
   
   Scenario: GET /alladhocs and check invalid params - date
     Given there is a Search API that gives a successful response and returns 0 results
