@@ -88,7 +88,7 @@ func UpdateDataTopicCache(ctx context.Context, serviceAuthToken string, topicCli
 
 		// recursively process root topics and their subtopics
 		for i := range rootTopicItems {
-			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i].ID, dataTopicCache, processedTopics, "", 0)
+			processTopic(ctx, serviceAuthToken, topicClient, rootTopicItems[i].ID, dataTopicCache, processedTopics, "", "", 0)
 		}
 
 		// Check if any data topics were found
@@ -101,10 +101,11 @@ func UpdateDataTopicCache(ctx context.Context, serviceAuthToken string, topicCli
 	}
 }
 
-func processTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, topicID string, dataTopicCache *cache.Topic, processedTopics map[string]struct{}, parentTopicID string, depth int) {
+func processTopic(ctx context.Context, serviceAuthToken string, topicClient topicCli.Clienter, topicID string, dataTopicCache *cache.Topic, processedTopics map[string]struct{}, parentTopicID, parentTopicSlug string, depth int) {
 	log.Info(ctx, "processing private topic", log.Data{
-		"topic_id": topicID,
-		"depth":    depth,
+		"topic_id":     topicID,
+		"parent_topic": parentTopicSlug,
+		"depth":        depth,
 	})
 
 	// Check if the topic has already been processed
@@ -129,10 +130,10 @@ func processTopic(ctx context.Context, serviceAuthToken string, topicClient topi
 
 	if dataTopic != nil {
 		// Initialize subtopic list for the current topic if it doesn't exist
-		subtopic := mapTopicModelToCache(*dataTopic.Current, parentTopicID)
+		subtopic := mapTopicModelToCache(*dataTopic.Current, parentTopicID, parentTopicSlug)
 
 		// Add the current topic to the dataTopicCache's List
-		dataTopicCache.List.AppendSubtopicID(dataTopic.Current.Slug, subtopic)
+		dataTopicCache.List.AppendSubtopicID(dataTopic.Current.ID, subtopic)
 
 		// Mark this topic as processed
 		processedTopics[topicID] = struct{}{}
@@ -140,19 +141,20 @@ func processTopic(ctx context.Context, serviceAuthToken string, topicClient topi
 		// Process each subtopic recursively
 		if dataTopic.Current.SubtopicIds != nil {
 			for _, subTopicID := range *dataTopic.Current.SubtopicIds {
-				processTopic(ctx, serviceAuthToken, topicClient, subTopicID, dataTopicCache, processedTopics, topicID, depth+1)
+				processTopic(ctx, serviceAuthToken, topicClient, subTopicID, dataTopicCache, processedTopics, topicID, dataTopic.Current.Slug, depth+1)
 			}
 		}
 	}
 }
 
-func mapTopicModelToCache(topic models.Topic, parentID string) cache.Subtopic {
+func mapTopicModelToCache(topic models.Topic, parentID, parentSlug string) cache.Subtopic {
 	return cache.Subtopic{
 		ID:              topic.ID,
 		Slug:            topic.Slug,
 		LocaliseKeyName: topic.Title,
 		ReleaseDate:     topic.ReleaseDate,
 		ParentID:        parentID,
+		ParentSlug:      parentSlug,
 	}
 }
 

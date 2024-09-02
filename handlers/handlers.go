@@ -877,14 +877,14 @@ func ValidateTopicHierarchy(ctx context.Context, segments []string, cacheList ca
 	}
 
 	// Start with the first segment
-	currentTopic, err := cacheList.DataTopic.GetTopic(ctx, segments[0])
+	currentTopic, err := cacheList.DataTopic.GetTopic(ctx, segments[0], "")
 	if err != nil {
-		return nil, fmt.Errorf("topic not found: %s", segments[0])
+		return nil, fmt.Errorf("invalid topic hierarchy at segment: %s", segments[0])
 	}
 
 	// Traverse through segments
 	for i := 1; i < len(segments); i++ {
-		nextTopic, err := cacheList.DataTopic.GetTopic(ctx, segments[i])
+		nextTopic, err := cacheList.DataTopic.GetTopic(ctx, segments[i], currentTopic.Slug)
 		if err != nil || nextTopic.ParentID != currentTopic.ID {
 			return nil, fmt.Errorf("invalid topic hierarchy at segment: %s", segments[i])
 		}

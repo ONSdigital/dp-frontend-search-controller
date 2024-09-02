@@ -83,10 +83,10 @@ func GetMockRootTopic(rootTopicID string) *Topic {
 	}
 
 	mockDataTopic.List = NewSubTopicsMap()
-	mockDataTopic.List.AppendSubtopicID("economy", Subtopic{ID: "6734", Slug: "economy", LocaliseKeyName: "Economy", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: ""})
-	mockDataTopic.List.AppendSubtopicID("environmentalaccounts", Subtopic{ID: "1834", Slug: "environmentalaccounts", LocaliseKeyName: "Environmental Accounts", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: "6734"})
-	mockDataTopic.List.AppendSubtopicID("governmentpublicsectorandtaxes", Subtopic{ID: "8268", Slug: "governmentpublicsectorandtaxes", LocaliseKeyName: "Government Public Sector and Taxes", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: "6734"})
-	mockDataTopic.List.AppendSubtopicID("publicsectorfinance", Subtopic{ID: "3687", Slug: "publicsectorfinance", LocaliseKeyName: "Public Sector Finance", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: "8268"})
+	mockDataTopic.List.AppendSubtopicID("economy", Subtopic{ID: "6734", Slug: "economy", LocaliseKeyName: "Economy", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: "", ParentSlug: ""})
+	mockDataTopic.List.AppendSubtopicID("environmentalaccounts", Subtopic{ID: "1834", Slug: "environmentalaccounts", LocaliseKeyName: "Environmental Accounts", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: "6734", ParentSlug: "economy"})
+	mockDataTopic.List.AppendSubtopicID("governmentpublicsectorandtaxes", Subtopic{ID: "8268", Slug: "governmentpublicsectorandtaxes", LocaliseKeyName: "Government Public Sector and Taxes", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: "6734", ParentSlug: "economy"})
+	mockDataTopic.List.AppendSubtopicID("publicsectorfinance", Subtopic{ID: "3687", Slug: "publicsectorfinance", LocaliseKeyName: "Public Sector Finance", ReleaseDate: timeHelper("2022-10-10T08:30:00Z"), ParentID: "8268", ParentSlug: "governmentpublicsectorandtaxes"})
 	mockDataTopic.List.AppendSubtopicID("internationalmigration", Subtopic{ID: "1234", Slug: "internationalmigration", LocaliseKeyName: "International Migration", ReleaseDate: timeHelper("2022-10-10T08:30:00Z")})
 
 	return mockDataTopic
