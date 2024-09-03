@@ -42,6 +42,7 @@ type SearchClient interface {
 // ZebedeeClient is an interface with methods required for a zebedee client
 type ZebedeeClient interface {
 	GetHomepageContent(ctx context.Context, userAuthToken, collectionID, lang, path string) (m zebedee.HomepageContent, err error)
+	GetPageData(ctx context.Context, userAuthToken, collectionID, lang, path string) (m zebedee.PageData, err error)
 }
 
 // TopicClient is an interface with methods required for a zebedee client
