@@ -313,9 +313,10 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {Bearer + accessToken},
-		searchSDK.CollectionID:  {collectionID},
+		searchSDK.CollectionID: {collectionID},
 	}
+
+	setFlorenceTokenHeader(options.Headers, accessToken)
 
 	go func() {
 		defer wg.Done()
@@ -468,9 +469,10 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {Bearer + accessToken},
-		searchSDK.CollectionID:  {collectionID},
+		searchSDK.CollectionID: {collectionID},
 	}
+
+	setFlorenceTokenHeader(options.Headers, accessToken)
 
 	go func() {
 		defer wg.Done()
@@ -792,9 +794,10 @@ func createRSSFeed(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 	options.Query = data.GetDataAggregationQuery(validatedParams, template)
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {Bearer + accessToken},
-		searchSDK.CollectionID:  {collectionID},
+		searchSDK.CollectionID: {collectionID},
 	}
+
+	setFlorenceTokenHeader(options.Headers, accessToken)
 
 	searchResponse, respErr := api.GetSearch(ctx, options)
 	if respErr != nil {
