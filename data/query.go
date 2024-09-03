@@ -30,37 +30,29 @@ type SearchURLParams struct {
 	CurrentPage          int
 	Offset               int
 	NLPWeightingEnabled  bool
+	URIPrefix            string
 }
 
 const (
-	Limit       = "limit"
-	Page        = "page"
-	Offset      = "offset"
-	SortName    = "sort"
-	DayBefore   = "before-day"
-	DayAfter    = "after-day"
-	Before      = "before"
-	MonthBefore = Before + "-month"
-	After       = "after"
-	MonthAfter  = After + "-month"
-	YearBefore  = "before-year"
-	YearAfter   = "after-year"
-	Keywords    = "keywords"
-	Query       = "query"
-	DateFrom    = "fromDate"
-	DateFromErr = DateFrom + "-error"
-	DateTo      = "toDate"
-	DateToErr   = DateTo + "-error"
-	Type        = "release-type"
-	Census      = "census"
-	Highlight   = "highlight"
-
+	DayBefore               = "before-day"
+	DayAfter                = "after-day"
+	Before                  = "before"
+	MonthBefore             = Before + "-month"
+	After                   = "after"
+	MonthAfter              = After + "-month"
+	YearBefore              = "before-year"
+	YearAfter               = "after-year"
+	Query                   = "query"
+	DateFrom                = "fromDate"
+	DateFromErr             = DateFrom + "-error"
+	DateTo                  = "toDate"
+	DateToErr               = DateTo + "-error"
+	Type                    = "release-type"
 	PaginationErr           = "pagination-error"
 	ContentTypeFilterErr    = "filter-error"
 	TopicFilterErr          = "topic-error"
 	PopulationTypeFilterErr = "population-error"
 	DimensionsFilterErr     = "dimensions-error"
-	QueryStringErr          = "query-string-error"
 )
 
 var (
@@ -176,7 +168,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	return sp, validationErrs
 }
 
-// ReviewQuery ensures that all search parameter values given by the user are reviewed
+// ReviewDatasetQuery ensures that all search parameter values given by the user are reviewed
 func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
@@ -494,6 +486,7 @@ func createSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
 		"offset":           []string{strconv.Itoa(validatedQueryParams.Offset)},
 		"topics":           []string{validatedQueryParams.TopicFilter},
 		"nlp_weighting":    []string{strconv.FormatBool(validatedQueryParams.NLPWeightingEnabled)},
+		"uri_prefix":       []string{validatedQueryParams.URIPrefix},
 	}
 }
 
