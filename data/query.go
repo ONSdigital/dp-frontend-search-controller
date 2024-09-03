@@ -65,6 +65,7 @@ var (
 func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
+	validatedQueryParams.URIPrefix = urlQuery.Get("uri_prefix")
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
 	if paginationErr != nil {

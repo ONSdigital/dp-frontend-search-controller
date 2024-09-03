@@ -4,7 +4,7 @@ import (
 	"github.com/ONSdigital/dp-renderer/v2/model"
 )
 
-// Search is the model struct for the cookies preferences form
+// SearchPage is the model struct for the cookies preferences form
 type SearchPage struct {
 	model.Page
 	Data       Search          `json:"data"`
@@ -38,9 +38,10 @@ type Search struct {
 	Response                       Response               `json:"response"`
 	TermLocalKey                   string                 `json:"term_localise_key_name,omitempty"`
 	Topic                          string                 `json:"topic,omitempty"`
+	URIPrefix                      string                 `json:"uri_prefix,omitempty"`
 }
 
-// Filter respresents all filter information needed by templates
+// Filter represents all filter information needed by templates
 type Filter struct {
 	LocaliseKeyName string   `json:"localise_key_name,omitempty"`
 	FilterKey       []string `json:"filter_key,omitempty"`
@@ -49,7 +50,7 @@ type Filter struct {
 	Types           []Filter `json:"types,omitempty"`
 }
 
-// TopicFilter respresents all the topic filter information needed by templates
+// TopicFilter represents all the topic filter information needed by templates
 type TopicFilter struct {
 	LocaliseKeyName    string        `json:"localise_key_name,omitempty"`
 	DistinctItemsCount int           `json:"distinct_items_count,omitempty"`
@@ -156,10 +157,10 @@ type Description struct {
 	Summary           string    `json:"summary"`
 	Title             string    `json:"title"`
 	Unit              string    `json:"unit,omitempty"`
-	Highlight         Highlight `json:"hightlight"`
+	Highlight         Highlight `json:"highlight"`
 }
 
-// Hightlight contains specfic metadata with search keyword(s) highlighted
+// Highlight contains specific metadata with search keyword(s) highlighted
 type Highlight struct {
 	Title           string    `json:"title"`
 	Keywords        []*string `json:"keywords"`
