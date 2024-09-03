@@ -50,5 +50,7 @@ func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, ca
 		}
 	}
 
+	r.StrictSlash(true).Path("/{uri:.*}/previousreleases").Methods("GET").HandlerFunc(handlers.ReadPreviousReleases(cfg, hc, cacheList))
+
 	r.StrictSlash(true).Path("/census/find-a-dataset").Methods("GET").HandlerFunc(handlers.ReadFindDataset(cfg, hc, cacheList))
 }
