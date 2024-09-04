@@ -1,0 +1,32 @@
+{
+    "uri": "foo/bar/1/2/3",
+    "type": "bulletin",
+    "description": {
+        "title": "Foo bar bulletin",
+        "summary": "Bar foo blah blah blah",
+        "keywords": [
+            "keyword1",
+            "keyword2",
+            "keyword3",
+            "keyword4",
+            "keyword5"
+        ],
+        "metaDescription": "Bar foo blah blah blah",
+        "nationalStatistic": true,
+        "latestRelease": true,
+        "contact": {
+            "email": "email@email.com ",
+            "name": "Team Foo"
+        },
+        "releaseDate": "2024-08-12T23:00:00.000Z",
+        "nextRelease": "10 September 2024",
+        "edition": "August 2024",
+        "headline1": "Foo",
+        "headline2": "Bar",
+        "headline3": "BooFar",
+        "unit": "",
+        "preUnit": "",
+        "source": ""
+    }
+}
+

@@ -61,3 +61,19 @@ func GetFindADatasetResponse() (*searchModels.SearchResponse, error) {
 
 	return respC, nil
 }
+
+func GetMockZebedeePageDataResponse() (zebedeeC.PageData, error) {
+	var hc zebedeeC.PageData
+
+	mockContent, err := res.ReadFile("data/mock_zebedee_page_content.json")
+	if err != nil {
+		return zebedeeC.PageData{}, err
+	}
+
+	err = json.Unmarshal(mockContent, &hc)
+	if err != nil {
+		return zebedeeC.PageData{}, err
+	}
+
+	return hc, nil
+}
