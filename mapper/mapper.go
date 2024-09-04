@@ -94,6 +94,39 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 	return page
 }
 
+// CreatePreviousReleasesPage maps type searchC.Response to model.Page
+func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+	validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
+	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem, zebedeeResp zebedee.PageData,
+) model.SearchPage {
+	page := model.SearchPage{
+		Page: basePage,
+	}
+
+	page.Metadata.Title = "Previous releases for " + zebedeeResp.Description.Title
+	page.Metadata.Description = zebedeeResp.Description.MetaDescription
+	page.Type = zebedeeResp.Type
+	page.Title.LocaliseKeyName = "SearchResults"
+	page.Data.TermLocalKey = "Results"
+	page.Count = respC.Count
+	page.Language = lang
+	page.BetaBannerEnabled = true
+	page.SearchDisabled = false
+	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
+	page.ServiceMessage = homepageResponse.ServiceMessage
+	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
+
+	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
+
+	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template, topic, validationErrs)
+
+	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
+
+	mapResponse(&page, respC, []data.Category{})
+
+	return page
+}
+
 func generateRSSLink(rawQuery string) string {
 	if rawQuery != "" {
 		return fmt.Sprintf("?rss&%s", rawQuery)

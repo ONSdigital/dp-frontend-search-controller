@@ -616,3 +616,68 @@ func TestCreateDataAggregationPage(t *testing.T) {
 		})
 	})
 }
+
+func TestCreatePreviousReleasesPage(t *testing.T) {
+	t.Parallel()
+
+	Convey("Given validated query and response from search-api", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+		req := httptest.NewRequest("", "/foo/bar/previousreleases", http.NoBody)
+		mdl := coreModel.Page{}
+
+		validatedQueryParams := data.SearchURLParams{
+			Limit:       10,
+			CurrentPage: 1,
+		}
+
+		respZ, err := GetMockZebedeePageDataResponse()
+		So(err, ShouldBeNil)
+
+		respH, err := GetMockHomepageContent()
+		So(err, ShouldBeNil)
+
+		respC, err := GetMockSearchResponse()
+		So(err, ShouldBeNil)
+
+		Convey("When CreatePreviousReleasesPage is called", func() {
+			// NOTE: temporary measure until topic filter feature flag is removed
+			// cfg.EnableCensusTopicFilterOption = true
+
+			sp := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil, respZ)
+
+			Convey("Then successfully map search response from search-query client to page model", func() {
+
+				So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)
+				So(sp.Data.Pagination.TotalPages, ShouldEqual, 1)
+				So(sp.Data.Pagination.PagesToDisplay, ShouldHaveLength, 1)
+				So(sp.Data.Pagination.PagesToDisplay[0].PageNumber, ShouldEqual, 1)
+				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldStartWith, "/foo/bar/previousreleases")
+				So(sp.Data.Pagination.Limit, ShouldEqual, 10)
+				So(sp.Data.Pagination.LimitOptions, ShouldResemble, []int{10, 25, 50})
+
+				So(sp.Data.Response.Count, ShouldEqual, 1)
+				So(sp.Data.Response.Items, ShouldHaveLength, 1)
+
+				So(sp.Data.Response.Items[0].Description.Keywords, ShouldHaveLength, 4)
+				So(sp.Data.Response.Items[0].Description.MetaDescription, ShouldEqual, "Test Meta Description")
+				So(sp.Data.Response.Items[0].Description.ReleaseDate, ShouldEqual, "2015-02-17T00:00:00.000Z")
+				So(sp.Data.Response.Items[0].Description.Summary, ShouldEqual, "Test Summary")
+				So(sp.Data.Response.Items[0].Description.Title, ShouldEqual, "Title Title")
+
+				So(sp.Data.Response.Items[0].Type.Type, ShouldEqual, "article")
+				So(sp.Data.Response.Items[0].Type.LocaliseKeyName, ShouldEqual, "Article")
+				So(sp.Data.Response.Items[0].URI, ShouldEqual, "/uri1/housing/articles/uri2/2015-02-17")
+
+				So(sp.ServiceMessage, ShouldEqual, respH.ServiceMessage)
+
+				So(sp.EmergencyBanner.Type, ShouldEqual, strings.Replace(respH.EmergencyBanner.Type, "_", "-", -1))
+				So(sp.EmergencyBanner.Title, ShouldEqual, respH.EmergencyBanner.Title)
+				So(sp.EmergencyBanner.Description, ShouldEqual, respH.EmergencyBanner.Description)
+				So(sp.EmergencyBanner.URI, ShouldEqual, respH.EmergencyBanner.URI)
+				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
+
+			})
+		})
+	})
+}
