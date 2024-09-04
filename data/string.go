@@ -18,6 +18,7 @@ var regexString = strings.Repeat(`\S\s*`, minQueryLength)
 // reviewQueryString performs basic checks on the string entered by the user
 func reviewQueryString(ctx context.Context, urlQuery url.Values) error {
 	q := urlQuery.Get("q")
+	uriPrefix := urlQuery.Get("uri_prefix")
 
 	nonSpaceCharErr := checkForNonSpaceCharacters(ctx, q)
 	if nonSpaceCharErr != nil {
@@ -27,6 +28,13 @@ func reviewQueryString(ctx context.Context, urlQuery url.Values) error {
 	specialCharErr := checkForSpecialCharacters(ctx, q)
 	if specialCharErr != nil {
 		return specialCharErr
+	}
+
+	if uriPrefix != "" {
+		noForwardSlashErr := checkForForwardSlash(ctx, uriPrefix)
+		if noForwardSlashErr != nil {
+			return noForwardSlashErr
+		}
 	}
 
 	return nil
@@ -57,6 +65,18 @@ func checkForSpecialCharacters(ctx context.Context, str string) error {
 	if match {
 		log.Warn(ctx, "the query string contains special characters")
 		errVal := errs.ErrInvalidQueryString
+		return errVal
+	}
+
+	return nil
+}
+
+func checkForForwardSlash(ctx context.Context, uriPrefix string) error {
+	index := strings.Index(uriPrefix, "/")
+
+	if index != 0 {
+		errVal := errs.ErrInvalidURIPrefixString
+		log.Error(ctx, "unable to find forward slash at beginning of prefix", errVal)
 		return errVal
 	}
 

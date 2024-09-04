@@ -9,17 +9,19 @@ var (
 	ErrInternalServer               = errors.New("internal server error")
 	ErrInvalidPage                  = errors.New("invalid page value, exceeding the default maximum search results")
 	ErrInvalidQueryString           = errors.New("the query string did not meet requirements")
+	ErrInvalidURIPrefixString       = errors.New("the uri_prefix string must begin with a forward slash")
 	ErrInvalidQueryCharLengthString = errors.New("the query string is less than the required character length")
 	ErrPageExceedsTotalPages        = errors.New("invalid page value, exceeding the total page value")
 	ErrTopicNotFound                = errors.New("topic not found")
 	ErrTopicPathNotFound            = errors.New("topic path not found")
 
 	BadRequestMap = map[error]bool{
-		ErrContentTypeNotFound:   true,
-		ErrInvalidPage:           true,
-		ErrInvalidQueryString:    true,
-		ErrPageExceedsTotalPages: true,
-		ErrTopicNotFound:         true,
+		ErrContentTypeNotFound:    true,
+		ErrInvalidPage:            true,
+		ErrInvalidQueryString:     true,
+		ErrPageExceedsTotalPages:  true,
+		ErrTopicNotFound:          true,
+		ErrInvalidURIPrefixString: true,
 	}
 
 	NotFoundMap = map[error]bool{
@@ -30,5 +32,6 @@ var (
 	ErrMapForRenderBeforeAPICalls = map[error]bool{
 		ErrInvalidQueryString:           true,
 		ErrInvalidQueryCharLengthString: true,
+		ErrInvalidURIPrefixString:       true,
 	}
 )

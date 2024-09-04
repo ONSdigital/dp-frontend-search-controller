@@ -13,7 +13,6 @@ import (
 type Filter struct {
 	Query           []string `json:"query,omitempty"`
 	LocaliseKeyName []string `json:"localise_key,omitempty"`
-	URIPrefix       []string `json:"uri_prefix,omitempty"`
 }
 
 // Category represents all the search categories in search page
@@ -71,7 +70,7 @@ var (
 		ContentTypes:    []ContentType{Methodology, CorporateInformation, ProductPage},
 	}
 
-	// UnusedCategories - these categories are served from the Search API but we don't use them for filters.
+	// UnusedCategoryTypes - these categories are served from the Search API, but we don't use them for filters.
 	// If left in, they create noise in the logs about unexpected filters being returned.
 	UnusedCategoryTypes = []string{
 		"api_dataset_landing_page",
@@ -203,7 +202,6 @@ func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParam
 
 		validatedQueryParams.Filter.Query = append(validatedQueryParams.Filter.Query, filter.Group)
 		validatedQueryParams.Filter.LocaliseKeyName = append(validatedQueryParams.Filter.LocaliseKeyName, filter.LocaliseKeyName)
-		validatedQueryParams.Filter.URIPrefix = append(validatedQueryParams.Filter.URIPrefix, filter.Group)
 	}
 
 	return err
