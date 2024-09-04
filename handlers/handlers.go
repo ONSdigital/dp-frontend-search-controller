@@ -430,7 +430,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	var counter = 2
 
 	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
-	//categoriesCountQuery := getCategoriesCountQuery(searchQuery)
 
 	var (
 		homepageResp zebedeeCli.HomepageContent
@@ -471,19 +470,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 			return
 		}
 	}()
-
-	// go func() {
-	// 	defer wg.Done()
-
-	// 	// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
-	// 	categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
-	// 	if countErr != nil {
-	// 		log.Error(ctx, "getting categories, types and its counts failed for aggregation", countErr)
-	// 		setStatusCode(w, req, countErr)
-	// 		cancel()
-	// 		return
-	// 	}
-	// }()
 
 	wg.Wait()
 	if respErr != nil || countErr != nil {
