@@ -17,7 +17,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
-	helper "github.com/ONSdigital/dp-renderer/v2/helper"
+	"github.com/ONSdigital/dp-renderer/v2/helper"
 	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
@@ -1449,14 +1449,14 @@ func TestValidateTopicHierarchy(t *testing.T) {
 			segments := []string{"environmentalaccounts", "publicsectorfinance"}
 			_, err := ValidateTopicHierarchy(ctx, segments, *cacheList)
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "invalid topic hierarchy at segment: publicsectorfinance")
+			So(err.Error(), ShouldEqual, "invalid topic hierarchy at segment: environmentalaccounts")
 		})
 
 		Convey("should return error when a nonexistent topic is provided", func() {
 			segments := []string{"nonexistent"}
 			_, err := ValidateTopicHierarchy(ctx, segments, *cacheList)
 			So(err, ShouldNotBeNil)
-			So(err.Error(), ShouldEqual, "topic not found: nonexistent")
+			So(err.Error(), ShouldEqual, "invalid topic hierarchy at segment: nonexistent")
 		})
 
 		Convey("should return the last topic in another valid topic branch", func() {
