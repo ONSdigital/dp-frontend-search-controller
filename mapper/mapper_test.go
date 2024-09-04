@@ -641,13 +641,9 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreatePreviousReleasesPage is called", func() {
-			// NOTE: temporary measure until topic filter feature flag is removed
-			// cfg.EnableCensusTopicFilterOption = true
-
 			sp := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil, respZ)
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
-
 				So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)
 				So(sp.Data.Pagination.TotalPages, ShouldEqual, 1)
 				So(sp.Data.Pagination.PagesToDisplay, ShouldHaveLength, 1)
@@ -676,7 +672,6 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 				So(sp.EmergencyBanner.Description, ShouldEqual, respH.EmergencyBanner.Description)
 				So(sp.EmergencyBanner.URI, ShouldEqual, respH.EmergencyBanner.URI)
 				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
-
 			})
 		})
 	})
