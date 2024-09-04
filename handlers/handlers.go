@@ -2,9 +2,12 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"net/url"
+	"path"
+	"slices"
 	"strings"
 	"sync"
 	"time"
@@ -35,6 +38,13 @@ const (
 	DateToErr    = DateTo + "-error"
 	Bearer       = "Bearer "
 )
+
+// list of content types that have /previousreleases
+var knownPreviouReleaseTypes = []string{
+	"bulletin",
+	"article",
+	"compendium_landing_page",
+}
 
 // HandlerClients represents the handlers for search and data-aggregation
 type HandlerClients struct {
@@ -78,6 +88,13 @@ func ReadDataAggregationWithTopics(cfg *config.Config, hc *HandlerClients, cache
 func ReadDataAggregation(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readDataAggregation(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
+	})
+}
+
+// ReadPreviousReleases hadnles previous releases page
+func ReadPreviousReleases(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
+	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		readPreviousReleases(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
 	})
 }
 
@@ -362,6 +379,133 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs)
 	buildDataAggregationPage(w, m, rend, template)
+}
+
+func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
+	accessToken, collectionID, lang string, cacheList cache.List,
+) {
+	ctx, cancel := context.WithCancel(req.Context())
+	defer cancel()
+	var err error
+	template := "previous-releases"
+	urlPath := path.Dir(req.URL.Path)
+	urlQuery := req.URL.Query()
+
+	// check page type
+	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, urlPath+"/latest")
+	if err != nil {
+		log.Error(ctx, "failed to get content type", err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	if !slices.Contains(knownPreviouReleaseTypes, pageData.Type) {
+		err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
+		log.Error(ctx, "page type isn't compatible with /previousreleases", err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// get cached navigation data
+	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
+	if err != nil {
+		log.Error(ctx, "failed to get navigation cache for aggregation", err)
+		setStatusCode(w, req, err)
+		return
+	}
+
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery)
+	if len(validationErrs) > 0 {
+		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
+			"parameters": validationErrs,
+		})
+		// Errors are now mapped to the page model to output feedback to the user rather than
+		// a blank 400 error response.
+		m := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{})
+		buildDataAggregationPage(w, m, rend, template)
+		return
+	}
+
+	// counter used to keep track of the number of concurrent API calls
+	var counter = 2
+
+	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
+	//categoriesCountQuery := getCategoriesCountQuery(searchQuery)
+
+	var (
+		homepageResp zebedeeCli.HomepageContent
+		searchResp   = &searchModels.SearchResponse{}
+
+		wg sync.WaitGroup
+
+		respErr, countErr error
+	)
+	wg.Add(counter)
+
+	go func() {
+		defer wg.Done()
+		var homeErr error
+		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+		if homeErr != nil {
+			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
+			return
+		}
+	}()
+
+	var options searchSDK.Options
+
+	options.Query = searchQuery
+
+	options.Headers = http.Header{
+		searchSDK.FlorenceToken: {Bearer + accessToken},
+		searchSDK.CollectionID:  {collectionID},
+	}
+
+	go func() {
+		defer wg.Done()
+
+		searchResp, respErr = searchC.GetSearch(ctx, options)
+		if respErr != nil {
+			log.Error(ctx, "getting search response from client failed for aggregation", respErr)
+			cancel()
+			return
+		}
+	}()
+
+	// go func() {
+	// 	defer wg.Done()
+
+	// 	// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+	// 	categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
+	// 	if countErr != nil {
+	// 		log.Error(ctx, "getting categories, types and its counts failed for aggregation", countErr)
+	// 		setStatusCode(w, req, countErr)
+	// 		cancel()
+	// 		return
+	// 	}
+	// }()
+
+	wg.Wait()
+	if respErr != nil || countErr != nil {
+		setStatusCode(w, req, respErr)
+		return
+	}
+
+	basePage := rend.NewBasePageModel()
+
+	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
+	if err != nil {
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: "current page exceeds total pages",
+			},
+		})
+		m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+		rend.BuildPage(w, m, template)
+		return
+	}
+
+	m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+	rend.BuildPage(w, m, template)
 }
 
 // Maps template name to underlying go template
