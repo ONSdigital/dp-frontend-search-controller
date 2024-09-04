@@ -21,6 +21,7 @@ type Subtopic struct {
 	Slug            string
 	ReleaseDate     *time.Time
 	ParentID        string
+	ParentSlug      string
 }
 
 // GetNewSubTopicsMap creates a new subtopics id map to store subtopic ids with addition to mutex locking
@@ -38,6 +39,19 @@ func (t *Subtopics) Get(key string) (Subtopic, bool) {
 
 	subtopic, exists := t.subtopicsMap[key]
 	return subtopic, exists
+}
+
+// GetBySlugAndParentSlug returns a subtopic that matches the given topic slug and parentSlug
+func (t *Subtopics) GetBySlugAndParentSlug(slug, parentSlug string) (Subtopic, bool) {
+	t.mutex.RLock()
+	defer t.mutex.RUnlock()
+
+	for _, subtopic := range t.subtopicsMap {
+		if subtopic.Slug == slug && subtopic.ParentSlug == parentSlug {
+			return subtopic, true
+		}
+	}
+	return Subtopic{}, false
 }
 
 // GetSubtopics returns an array of subtopics

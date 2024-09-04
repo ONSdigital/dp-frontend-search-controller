@@ -330,9 +330,10 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {Bearer + accessToken},
-		searchSDK.CollectionID:  {collectionID},
+		searchSDK.CollectionID: {collectionID},
 	}
+
+	setFlorenceTokenHeader(options.Headers, accessToken)
 
 	go func() {
 		defer wg.Done()
@@ -612,9 +613,10 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {Bearer + accessToken},
-		searchSDK.CollectionID:  {collectionID},
+		searchSDK.CollectionID: {collectionID},
 	}
+
+	setFlorenceTokenHeader(options.Headers, accessToken)
 
 	go func() {
 		defer wg.Done()
@@ -936,9 +938,10 @@ func createRSSFeed(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 	options.Query = data.GetDataAggregationQuery(validatedParams, template)
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {Bearer + accessToken},
-		searchSDK.CollectionID:  {collectionID},
+		searchSDK.CollectionID: {collectionID},
 	}
+
+	setFlorenceTokenHeader(options.Headers, accessToken)
 
 	searchResponse, respErr := api.GetSearch(ctx, options)
 	if respErr != nil {
@@ -1021,14 +1024,14 @@ func ValidateTopicHierarchy(ctx context.Context, segments []string, cacheList ca
 	}
 
 	// Start with the first segment
-	currentTopic, err := cacheList.DataTopic.GetTopic(ctx, segments[0])
+	currentTopic, err := cacheList.DataTopic.GetTopic(ctx, segments[0], "")
 	if err != nil {
-		return nil, fmt.Errorf("topic not found: %s", segments[0])
+		return nil, fmt.Errorf("invalid topic hierarchy at segment: %s", segments[0])
 	}
 
 	// Traverse through segments
 	for i := 1; i < len(segments); i++ {
-		nextTopic, err := cacheList.DataTopic.GetTopic(ctx, segments[i])
+		nextTopic, err := cacheList.DataTopic.GetTopic(ctx, segments[i], currentTopic.Slug)
 		if err != nil || nextTopic.ParentID != currentTopic.ID {
 			return nil, fmt.Errorf("invalid topic hierarchy at segment: %s", segments[i])
 		}
