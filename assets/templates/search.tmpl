@@ -1,9 +1,15 @@
 {{ $lang := .Language }}
 <div class="ons-container search__container">
   <div class="ons-grid">
-
-    {{if .Data.ErrorMessage}}
-
+    {{ if gt (len .Error.ErrorItems) 0 }}
+      <div class="ons-grid__col ons-col-12@m">
+        {{ template "partials/error-summary" .Error }}
+        <section class="search__summary" role="contentinfo" aria-label="{{ localise "SearchSummary" $lang 4 }}">
+          {{ template "partials/summary" . }}
+        </section>
+        {{ template "partials/standalone-search" . }}
+      </div>
+    {{else if .Data.ErrorMessage}}
       <div class="ons-grid__col ons-col-12@m">
         <section class="search__summary">
           <span class="search__summary__generic">{{ localise "EnterSearchTerm" $lang 1 }}</span>
