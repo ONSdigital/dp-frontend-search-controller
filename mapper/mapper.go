@@ -22,7 +22,7 @@ import (
 func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
 	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
-	navigationContent *topicModel.Navigation,
+	navigationContent *topicModel.Navigation, validationErrs []coreModel.ErrorItem,
 ) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
@@ -53,6 +53,13 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 		page.ABTest.GTMKey = "nlpSearch"
 	} else {
 		page.ABTest.GTMKey = "search"
+	}
+	if len(validationErrs) > 0 {
+		page.Error = coreModel.Error{
+			Title:      page.Metadata.Title,
+			ErrorItems: validationErrs,
+			Language:   lang,
+		}
 	}
 
 	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)

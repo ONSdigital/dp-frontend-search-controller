@@ -674,10 +674,14 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		return
 	}
 
-	validatedQueryParams, err := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
-		log.Error(ctx, "unable to review query", err)
-		setStatusCode(w, req, err)
+	validatedQueryParams, validationErrs := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
+	if len(validationErrs) > 0 {
+		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
+			"parameters": validationErrs,
+		})
+		basePage := rend.NewBasePageModel()
+		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, validationErrs)
+		rend.BuildPage(w, m, template)
 		return
 	}
 
@@ -771,12 +775,14 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
-		log.Error(ctx, "unable to validate current page", err)
-		setStatusCode(w, req, err)
-		return
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: apperrors.ErrPageExceedsTotalPages.Error(),
+			},
+		})
 	}
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, errorMessage, navigationCache)
+	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, errorMessage, navigationCache, validationErrs)
 	rend.BuildPage(w, m, template)
 }
 
