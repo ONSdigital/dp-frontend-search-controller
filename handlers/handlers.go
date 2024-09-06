@@ -32,15 +32,11 @@ import (
 // Constants...
 const (
 	homepagePath = "/"
-	DateFrom     = "fromDate"
-	DateFromErr  = DateFrom + "-error"
-	DateTo       = "toDate"
-	DateToErr    = DateTo + "-error"
 	Bearer       = "Bearer "
 )
 
 // list of content types that have /previousreleases
-var knownPreviouReleaseTypes = []string{
+var knownPreviousReleaseTypes = []string{
 	"bulletin",
 	"article",
 	"compendium_landing_page",
@@ -84,14 +80,13 @@ func ReadDataAggregationWithTopics(cfg *config.Config, hc *HandlerClients, cache
 	})
 }
 
-// ReadDataAggregation
 func ReadDataAggregation(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readDataAggregation(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
 	})
 }
 
-// ReadPreviousReleases hadnles previous releases page
+// ReadPreviousReleases handles previous releases page
 func ReadPreviousReleases(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readPreviousReleases(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
@@ -151,7 +146,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		makeSearchAPICalls = true
 	)
 
-	// avoid making unecessary search API calls
+	// avoid making unnecessary search API calls
 	if apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		makeSearchAPICalls = false
 
@@ -212,7 +207,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		go func() {
 			defer wg.Done()
 
-			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+			// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
 			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 			if countErr != nil {
 				log.Error(ctx, "getting categories, types and its counts failed for dataset", countErr)
@@ -230,7 +225,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	}
 
 	if clearTopics {
-		/* By default we set all topics as active,
+		/* By default, we set all topics as active,
 		 * but we don't want the checkboxes to be ticked
 		 * this ensures they're sent to the topic API, but
 		 * hides that from the frontend.
@@ -349,7 +344,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	go func() {
 		defer wg.Done()
 
-		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+		// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
 		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 		if countErr != nil {
 			log.Error(ctx, "getting categories, types and its counts failed for aggregation", countErr)
@@ -399,7 +394,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	if !slices.Contains(knownPreviouReleaseTypes, pageData.Type) {
+	if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
 		err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
 		log.Error(ctx, "page type isn't compatible with /previousreleases", err)
 		w.WriteHeader(http.StatusNotFound)
@@ -497,7 +492,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 
 // Maps template name to underlying go template
 func buildDataAggregationPage(w http.ResponseWriter, m model.SearchPage, rend RenderClient, template string) {
-	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
+	// time-series-tool needs its own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
 	} else {
@@ -618,7 +613,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	go func() {
 		defer wg.Done()
 
-		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+		// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
 		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
 		if countErr != nil {
 			log.Error(ctx, "getting categories, types and its counts failed for aggregation with topics", countErr)
@@ -642,7 +637,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	}
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic, validationErrs)
-	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
+	// time-series-tool needs its own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
 	} else {
@@ -693,7 +688,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		makeSearchAPICalls = true
 	)
 
-	// avoid making unecessary search API calls
+	// avoid making unnecessary search API calls
 	if apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		makeSearchAPICalls = false
 
@@ -752,7 +747,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		go func() {
 			defer wg.Done()
 
-			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+			// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
 			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 			if countErr != nil {
 				log.Error(ctx, "getting categories, types and its counts failed", countErr)
