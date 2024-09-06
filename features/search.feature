@@ -53,6 +53,6 @@ Feature: Search
     And the page should have the following content
     """
         {
-            ".search__summary__generic": "Enter a search term"
+            ".ons-list__link": "the query string is less than the required character length"
         }
     """

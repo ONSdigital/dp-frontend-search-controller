@@ -697,16 +697,6 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		makeSearchAPICalls = true
 	)
 
-	// avoid making unecessary search API calls
-	if apperrors.ErrMapForRenderBeforeAPICalls[err] {
-		makeSearchAPICalls = false
-
-		// reduce counter by the number of concurrent search API calls that would be
-		// run in go routines
-		counter -= 2
-		errorMessage = err.Error()
-	}
-
 	searchQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
 	categoriesCountQuery := getCategoriesCountQuery(searchQuery)
 
