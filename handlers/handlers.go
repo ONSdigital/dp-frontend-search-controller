@@ -676,7 +676,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 
 	validatedQueryParams, validationErrs := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
 	if len(validationErrs) > 0 {
-		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
+		log.Info(ctx, "validation of parameters failed", log.Data{
 			"parameters": validationErrs,
 		})
 		basePage := rend.NewBasePageModel()

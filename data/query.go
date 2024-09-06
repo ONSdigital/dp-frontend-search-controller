@@ -71,13 +71,12 @@ var (
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
 func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (sp SearchURLParams, validationErrs []core.ErrorItem) {
-	var validatedQueryParams SearchURLParams
-	validatedQueryParams.Query = urlQuery.Get("q")
+	sp.Query = urlQuery.Get("q")
 
-	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for aggregation", PaginationErr, validationErrs)
 
-	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultSort)
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultSort)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, contentTypeFilterError, "invalid content type filters set", ContentTypeFilterErr, validationErrs)
@@ -92,11 +91,11 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	validationErrs = handleValidationError(ctx, dimensionsFilterErr, "invalid dimensions set", DimensionsFilterErr, validationErrs)
 
 	queryStringErr := reviewQueryString(ctx, urlQuery)
-	if !hasFilters(validatedQueryParams) {
+	if !hasFilters(sp) {
 		validationErrs = handleValidationError(ctx, queryStringErr, "the query string did not pass review", QueryStringErr, validationErrs)
 	}
 
-	return validatedQueryParams, validationErrs
+	return sp, validationErrs
 }
 
 func handleValidationError(ctx context.Context, err error, description, id string, validationErrs []core.ErrorItem) []core.ErrorItem {
@@ -104,7 +103,7 @@ func handleValidationError(ctx context.Context, err error, description, id strin
 		log.Error(ctx, description, err)
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(err.Error()),
+				Text: err.Error(),
 			},
 			ID: id,
 		})

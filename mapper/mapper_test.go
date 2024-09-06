@@ -72,7 +72,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 			// NOTE: temporary measure until topic filter feature flag is removed
 			cfg.EnableCensusTopicFilterOption = true
 
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{})
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, []coreModel.ErrorItem{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -156,6 +156,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
 
 				So(sp.SearchNoIndexEnabled, ShouldEqual, true)
+				So(sp.Error.ErrorItems, ShouldHaveLength, 0)
 			})
 		})
 	})
