@@ -91,7 +91,7 @@ func ReadDataAggregation(cfg *config.Config, hc *HandlerClients, cacheList cache
 	})
 }
 
-// ReadPreviousReleases hadnles previous releases page
+// ReadPreviousReleases handles previous releases page
 func ReadPreviousReleases(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readPreviousReleases(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
