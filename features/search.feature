@@ -56,3 +56,24 @@ Feature: Search
             ".ons-list__link": "the query string is less than the required character length"
         }
     """
+  Scenario: GET /search with a invalid page number (exceeding total pages)
+      Given there is a Search API that gives a successful response and returns 11 results
+      Given the search controller is running
+      When I navigate to "/search?q=test+query&page=3"
+      And the page should have the following content
+      """
+          {
+              ".ons-list__link": "invalid page value, exceeding the total page value"
+          }
+      """
+  
+  Scenario: GET /search with a invalid page number (exceeding max pages)
+      Given there is a Search API that gives a successful response and returns 11 results
+      Given the search controller is running
+      When I navigate to "/search?q=test+query&page=51"
+      And the page should have the following content
+      """
+          {
+              ".ons-list__link": "invalid page value, exceeding the total page value"
+          }
+      """
