@@ -265,6 +265,7 @@ func TestUnitReadFailure(t *testing.T) {
 
 			Convey("And no calls should be made to downstream services", func() {
 				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 0)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 0)
 			})
 		})
 	})
@@ -351,6 +352,7 @@ func TestUnitReadFailure(t *testing.T) {
 
 			Convey("And two calls should be made to downstream services", func() {
 				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
 			})
 		})
 	})
