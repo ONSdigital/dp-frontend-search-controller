@@ -348,11 +348,11 @@ func TestUnitReadFailure(t *testing.T) {
 				So(w.Code, ShouldEqual, http.StatusOK)
 
 				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
+				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
 			})
 
 			Convey("And two calls should be made to downstream services", func() {
 				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
-				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
 			})
 		})
 	})
