@@ -282,6 +282,7 @@ func TestUnitCreateSearchAPIQuerySuccess(t *testing.T) {
 					"fromDate":         []string{""},
 					"toDate":           []string{""},
 					"nlp_weighting":    []string{"false"},
+					"uri_prefix":       []string{""},
 				})
 			})
 		})
