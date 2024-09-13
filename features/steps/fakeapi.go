@@ -14,6 +14,8 @@ type FakeAPI struct {
 	subTopicRequest              *httpfake.Request
 	subSubTopicRequest           *httpfake.Request
 	navigationRequest            *httpfake.Request
+	zebedeeRequest               *httpfake.Request
+	previousReleasesRequest      *httpfake.Request
 	outboundRequests             []string
 	collectOutboundRequestBodies httpfake.CustomAssertor
 }
@@ -28,4 +30,8 @@ func NewFakeAPI() *FakeAPI {
 // Close closes the fake API
 func (f *FakeAPI) Close() {
 	f.fakeHTTP.Close()
+}
+
+func (f *FakeAPI) setJSONResponseForGetPageData(statusCode int) {
+	f.fakeHTTP.NewHandler().Get("/data?uri=%2Feconomy%2Flatest&lang=en").Reply(statusCode).BodyString(`{"type": "article"}`)
 }

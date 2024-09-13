@@ -66,7 +66,7 @@ Feature: Aggregated Data Pages
     And the search controller is running
     When I navigate to "/alladhocs?sort=relevance"
     Then input element "#sort" has value "relevance"
-  
+
   Scenario: GET /alladhocs and check invalid params - page
     Given there is a Search API that gives a successful response and returns 0 results
     And the search controller is running
@@ -88,7 +88,7 @@ Feature: Aggregated Data Pages
             "h2#error-summary-title": "There is a problem with this page"
         }
     """
-  
+
   Scenario: GET /alladhocs and check invalid params - date
     Given there is a Search API that gives a successful response and returns 0 results
     And the search controller is running

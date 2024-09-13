@@ -57,12 +57,11 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsATopicAndSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic, the "([^"]*)" subtopic and "([^"]*)" thirdlevel subtopic$`, c.thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
-
+	ctx.Step(`^get page data request to zebedee is successful$`, c.getPageDataRequestToZebedeeIsSuccessful)
 }
 
 func (c *Component) theSearchControllerIsRunning() error {
 	ctx := context.Background()
-
 	initFunctions := &mocks.InitialiserMock{
 		DoGetHTTPServerFunc:   c.getHTTPServer,
 		DoGetHealthCheckFunc:  getHealthCheckOK,
@@ -333,5 +332,10 @@ func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequ
 	c.FakeAPIRouter.subTopicRequest.Get(fakeTopicRequestPath)
 	c.FakeAPIRouter.subTopicRequest.Response = topicAPIResponse
 
+	return nil
+}
+
+func (c *Component) getPageDataRequestToZebedeeIsSuccessful() error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(200)
 	return nil
 }

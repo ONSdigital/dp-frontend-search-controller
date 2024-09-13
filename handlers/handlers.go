@@ -385,7 +385,11 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	var err error
 	template := "previous-releases"
 	urlPath := path.Dir(req.URL.Path)
+	//fmt.Printf("The urlPath is: %s", urlPath)
+	//fmt.Println()
 	urlQuery := req.URL.Query()
+	//fmt.Printf("The urlQuery is: %s", urlQuery.Get("q"))
+	//fmt.Println()
 
 	// check page type
 	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, urlPath+"/latest")
