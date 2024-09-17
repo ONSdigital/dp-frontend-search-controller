@@ -12,6 +12,7 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
+	//nolint:typecheck //assets are dynamically created at build time
 	"github.com/ONSdigital/dp-frontend-search-controller/assets"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	cachePrivate "github.com/ONSdigital/dp-frontend-search-controller/cache/private"
@@ -59,6 +60,7 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	svc.routerHealthClient = serviceList.GetHealthClient("api-router", svc.Config.APIRouterURL)
 
 	// Initialise clients
+	//nolint:typecheck //assets are dynamically created at build time
 	clients := routes.Clients{
 		Renderer: render.NewWithDefaultClient(assets.Asset, assets.AssetNames, svc.Config.PatternLibraryAssetsPath, svc.Config.SiteDomain),
 		Search:   searchSDK.NewWithHealthClient(svc.routerHealthClient),
