@@ -132,7 +132,7 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
 
 			Convey("Then return an error", func() {
-				So(err, ShouldResemble, apperrors.ErrTopicNotFound)
+				So(err[0].Description.Text, ShouldResemble, apperrors.ErrTopicNotFound.Error())
 			})
 		})
 	})
@@ -156,7 +156,7 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
 
 			Convey("Then return an error", func() {
-				So(err, ShouldResemble, apperrors.ErrContentTypeNotFound)
+				So(err[0].Description.Text, ShouldResemble, apperrors.ErrContentTypeNotFound.Error())
 			})
 		})
 	})
@@ -202,7 +202,7 @@ func TestUnitReviewQueryFailure(t *testing.T) {
 			_, err := ReviewQuery(ctx, cfg, urlQuery, cache.GetMockCensusTopic())
 
 			Convey("Then return an error", func() {
-				So(err, ShouldResemble, apperrors.ErrInvalidQueryCharLengthString)
+				So(err[0].Description.Text, ShouldResemble, apperrors.ErrInvalidQueryCharLengthString.Error())
 			})
 		})
 	})

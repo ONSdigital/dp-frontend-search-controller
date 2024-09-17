@@ -257,10 +257,13 @@ func TestUnitReadFailure(t *testing.T) {
 		Convey("When read is called", func() {
 			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
 
-			Convey("Then a 400 bad request status should be returned", func() {
-				So(w.Code, ShouldEqual, http.StatusBadRequest)
+			Convey("Then a 200 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusOK)
 
-				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 0)
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
+			})
+
+			Convey("And no calls should be made to downstream services", func() {
 				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 0)
 				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 0)
 			})
@@ -341,12 +344,15 @@ func TestUnitReadFailure(t *testing.T) {
 		Convey("When read is called", func() {
 			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
 
-			Convey("Then a 400 bad request status should be returned", func() {
-				So(w.Code, ShouldEqual, http.StatusBadRequest)
+			Convey("Then a 200 OK status should be returned", func() {
+				So(w.Code, ShouldEqual, http.StatusOK)
 
-				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 0)
-				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
+				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
 				So(mockedZebedeeClient.GetHomepageContentCalls(), ShouldHaveLength, 1)
+			})
+
+			Convey("And two calls should be made to downstream services", func() {
+				So(mockedSearchClient.GetSearchCalls(), ShouldHaveLength, 2)
 			})
 		})
 	})

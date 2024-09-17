@@ -53,6 +53,7 @@ const (
 	TopicFilterErr          = "topic-error"
 	PopulationTypeFilterErr = "population-error"
 	DimensionsFilterErr     = "dimensions-error"
+	QueryStringErr          = "query-string-error"
 )
 
 var (
@@ -62,47 +63,32 @@ var (
 )
 
 // ReviewQuery ensures that all search parameter values given by the user are reviewed
-func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
-	var validatedQueryParams SearchURLParams
-	validatedQueryParams.Query = urlQuery.Get("q")
+func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (sp SearchURLParams, validationErrs []core.ErrorItem) {
+	sp.Query = urlQuery.Get("q")
 
-	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
-	if paginationErr != nil {
-		log.Error(ctx, "unable to review pagination", paginationErr)
-		return validatedQueryParams, paginationErr
-	}
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
+	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for aggregation", PaginationErr, validationErrs)
 
-	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultSort)
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultSort)
 
-	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
-	if contentTypeFilterError != nil {
-		log.Error(ctx, "invalid content type filters set", contentTypeFilterError)
-		return validatedQueryParams, contentTypeFilterError
-	}
-	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
-	if topicFilterErr != nil {
-		log.Error(ctx, "invalid topic filters set", topicFilterErr)
-		return validatedQueryParams, topicFilterErr
-	}
-	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
-	if populationTypeFilterErr != nil {
-		log.Error(ctx, "invalid population types set", populationTypeFilterErr)
-		return validatedQueryParams, populationTypeFilterErr
-	}
-	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
-	if dimensionsFilterErr != nil {
-		log.Error(ctx, "invalid dimensions set", dimensionsFilterErr)
-		return validatedQueryParams, dimensionsFilterErr
-	}
+	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
+	validationErrs = handleValidationError(ctx, contentTypeFilterError, "invalid content type filters set", ContentTypeFilterErr, validationErrs)
+
+	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &sp, censusTopicCache)
+	validationErrs = handleValidationError(ctx, topicFilterErr, "invalid topic filters set", TopicFilterErr, validationErrs)
+
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &sp)
+	validationErrs = handleValidationError(ctx, populationTypeFilterErr, "invalid population types set", PopulationTypeFilterErr, validationErrs)
+
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
+	validationErrs = handleValidationError(ctx, dimensionsFilterErr, "invalid dimensions set", DimensionsFilterErr, validationErrs)
+
 	queryStringErr := reviewQueryString(ctx, urlQuery)
-	if queryStringErr != nil {
-		log.Info(ctx, "the query string did not pass review")
-		if !hasFilters(validatedQueryParams) {
-			return validatedQueryParams, queryStringErr
-		}
+	if !hasFilters(sp) {
+		validationErrs = handleValidationError(ctx, queryStringErr, "the query string did not pass review", QueryStringErr, validationErrs)
 	}
 
-	return validatedQueryParams, nil
+	return sp, validationErrs
 }
 
 func handleValidationError(ctx context.Context, err error, description, id string, validationErrs []core.ErrorItem) []core.ErrorItem {
@@ -110,7 +96,7 @@ func handleValidationError(ctx context.Context, err error, description, id strin
 		log.Error(ctx, description, err)
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
-				Text: CapitalizeFirstLetter(err.Error()),
+				Text: err.Error(),
 			},
 			ID: id,
 		})
