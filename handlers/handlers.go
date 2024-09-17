@@ -46,6 +46,9 @@ var knownPreviouReleaseTypes = []string{
 	"compendium_landing_page",
 }
 
+// list of query params allowed on /previousreleases
+var allowedPreviousReleasesQueryParams = []string{data.Page}
+
 // HandlerClients represents the handlers for search and data-aggregation
 type HandlerClients struct {
 	Renderer      RenderClient
@@ -392,8 +395,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
 
-	allowedParams := []string{data.Page}
-	sanitisedParams := sanitiseQueryParams(allowedParams, urlQuery)
+	sanitisedParams := sanitiseQueryParams(allowedPreviousReleasesQueryParams, urlQuery)
 
 	// check page type
 	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, urlPath+"/latest")
