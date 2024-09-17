@@ -392,7 +392,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
 
-	allowedParams := []string{data.Page, "test"}
+	allowedParams := []string{data.Page}
 	sanitisedParams := sanitiseQueryParams(allowedParams, urlQuery)
 
 	// check page type
