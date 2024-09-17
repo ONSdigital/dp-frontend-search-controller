@@ -110,7 +110,6 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	if urlPath != "" {
 		sp.URIPrefix = urlPath
 	}
-	//fmt.Printf("The uri prefix is: %s", sp.URIPrefix)
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for aggregation", PaginationErr, validationErrs)
 
