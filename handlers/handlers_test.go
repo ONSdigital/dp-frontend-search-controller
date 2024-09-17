@@ -1489,7 +1489,6 @@ func TestSanitiseQueryParams(t *testing.T) {
 			So(len(sanitised), ShouldEqual, 2)
 			So(sanitised.Get("foo"), ShouldEqual, "123")
 			So(sanitised.Get("bar"), ShouldEqual, "456")
-
 		})
 
 		Convey("handles duplicate params", func() {
@@ -1516,6 +1515,5 @@ func TestSanitiseQueryParams(t *testing.T) {
 			So(sanitised.Get("foobar"), ShouldBeEmpty)
 			So(sanitised.Get("barfoo"), ShouldBeEmpty)
 		})
-
 	})
 }
