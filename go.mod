@@ -1,11 +1,11 @@
 module github.com/ONSdigital/dp-frontend-search-controller
 
-go 1.22
+go 1.23
 
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.261.0
 	github.com/ONSdigital/dp-cache v0.3.0
-	github.com/ONSdigital/dp-component-test v0.12.0
+	github.com/ONSdigital/dp-component-test v0.13.0
 	github.com/ONSdigital/dp-cookies v0.5.0
 	github.com/ONSdigital/dp-healthcheck v1.6.3
 	github.com/ONSdigital/dp-net/v2 v2.11.2
