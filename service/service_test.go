@@ -158,7 +158,7 @@ func TestInitSuccess(t *testing.T) {
 							So(len(hcMock.AddCheckCalls()), ShouldEqual, 1)
 							So(hcMock.AddCheckCalls()[0].Name, ShouldResemble, "API router")
 							So(len(initMock.DoGetHTTPServerCalls()), ShouldEqual, 1)
-							So(initMock.DoGetHTTPServerCalls()[0].BindAddr, ShouldEqual, ":25000")
+							So(initMock.DoGetHTTPServerCalls()[0].BindAddr, ShouldEqual, bindAddrAny)
 						})
 					})
 				})
