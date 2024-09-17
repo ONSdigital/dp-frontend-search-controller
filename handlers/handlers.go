@@ -392,6 +392,9 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
 
+	allowedParams := []string{data.Page, "test"}
+	sanitisedParams := sanitiseQueryParams(allowedParams, urlQuery)
+
 	// check page type
 	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, urlPath+"/latest")
 	if err != nil {
@@ -414,7 +417,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		return
 	}
 
-	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery)
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, sanitisedParams)
 	if len(validationErrs) > 0 {
 		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
 			"parameters": validationErrs,
@@ -1021,4 +1024,19 @@ func ValidateTopicHierarchy(ctx context.Context, segments []string, cacheList ca
 	}
 
 	return cacheList.DataTopic.GetTopicFromSubtopic(currentTopic), nil
+}
+
+// sanitiseQueryParams takes a pre define list of allowed query params and remove any from the request URL that don't match
+func sanitiseQueryParams(allowedParams []string, inputParams url.Values) url.Values {
+	sanitisedParams := url.Values{}
+	for paramKey, paramValue := range inputParams {
+		for _, allowedParam := range allowedParams {
+			if paramKey == allowedParam {
+				for _, param := range paramValue {
+					sanitisedParams.Add(paramKey, param)
+				}
+			}
+		}
+	}
+	return sanitisedParams
 }
