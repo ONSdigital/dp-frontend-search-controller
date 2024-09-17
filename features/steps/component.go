@@ -31,7 +31,6 @@ type Component struct {
 	Config         *config.Config
 	ErrorFeature   componentTest.ErrorFeature
 	FakeAPIRouter  *FakeAPI
-	fakeRequest    *httpfake.Request
 	HTTPServer     *http.Server
 	ServiceRunning bool
 	svc            *service.Service
@@ -42,8 +41,15 @@ type Component struct {
 // NewSearchControllerComponent creates a search controller component
 func NewSearchControllerComponent() (c *Component, err error) {
 	c = &Component{
-		HTTPServer: &http.Server{},
-		svcErrors:  make(chan error),
+		HTTPServer: &http.Server{
+			// Configure the HTTP server with timeouts to prevent potential Slowloris attacks and other issues
+			ReadHeaderTimeout: 10 * time.Second,
+			ReadTimeout:       30 * time.Second,
+			IdleTimeout:       120 * time.Second,
+			WriteTimeout:      30 * time.Second,
+			MaxHeaderBytes:    1 << 20, // 1 MB
+		},
+		svcErrors: make(chan error),
 	}
 
 	ctx := context.Background()
@@ -70,7 +76,7 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.searchRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/search")
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
 
-	c.FakeAPIRouter.rootTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get(fmt.Sprintf("/topics"))
+	c.FakeAPIRouter.rootTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics")
 	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.subTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.subSubTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
@@ -117,7 +123,7 @@ func getHealthCheckOK(cfg *config.Config, buildTime, gitCommit, version string) 
 	return &hc, nil
 }
 
-func (c *Component) getHealthClient(name string, url string) *health.Client {
+func (c *Component) getHealthClient(name, url string) *health.Client {
 	return &health.Client{
 		URL:    url,
 		Name:   name,
@@ -161,7 +167,6 @@ func generateSearchResponse(count int) *httpfake.Response {
 }
 
 func generateSearchItem(num int) searchModels.Item {
-
 	title := fmt.Sprintf("Test Bulletin %d", num)
 	uri := fmt.Sprintf("http://localhost://test-bulletin-%d", num)
 	cdid := fmt.Sprintf("AA%d", num)
@@ -177,7 +182,6 @@ func generateSearchItem(num int) searchModels.Item {
 }
 
 func generateRootTopicResponse() *httpfake.Response {
-
 	var (
 		testEconomyRootTopic = topicModels.Topic{
 			ID:          "6734",
