@@ -18,6 +18,8 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+const bindAddrAny = "localhost:0"
+
 var (
 	ctx = context.Background()
 
@@ -134,10 +136,12 @@ func TestInitSuccess(t *testing.T) {
 
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
+			cfg.BindAddr = bindAddrAny
 
 			svc := &service.Service{}
 
 			Convey("When Init is called", func() {
+
 				err := svc.Init(ctx, cfg, mockServiceList)
 
 				Convey("Then service is initialised successfully", func() {
@@ -178,6 +182,7 @@ func TestInitFailure(t *testing.T) {
 
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
+			cfg.BindAddr = bindAddrAny
 
 			svc := &service.Service{}
 
@@ -216,6 +221,7 @@ func TestInitFailure(t *testing.T) {
 
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
+			cfg.BindAddr = bindAddrAny
 
 			svc := &service.Service{}
 
@@ -264,6 +270,7 @@ func TestStart(t *testing.T) {
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
+		cfg.BindAddr = bindAddrAny
 
 		svc := &service.Service{
 			Cache:       cacheList,
@@ -305,6 +312,7 @@ func TestStart(t *testing.T) {
 
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
+			cfg.BindAddr = bindAddrAny
 
 			svc := &service.Service{
 				Cache:       cacheList,
@@ -333,6 +341,7 @@ func TestCloseSuccess(t *testing.T) {
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
+		cfg.BindAddr = bindAddrAny
 
 		hcStopped := false
 
@@ -396,6 +405,7 @@ func TestCloseFailure(t *testing.T) {
 
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
+			cfg.BindAddr = bindAddrAny
 
 			serviceList := service.NewServiceList(nil)
 			serviceList.HealthCheck = true
@@ -451,6 +461,7 @@ func TestCloseFailure(t *testing.T) {
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
+		cfg.BindAddr = bindAddrAny
 		cfg.GracefulShutdownTimeout = 1 * time.Millisecond
 
 		Convey("And given a correctly initialised service", func() {
