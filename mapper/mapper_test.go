@@ -28,7 +28,10 @@ var mockTopicCategories = []data.Topic{
 	},
 }
 
-const englishLang string = "en"
+const (
+	englishLang string = "en"
+	bindAddrAny        = "localhost:0"
+)
 
 func TestUnitCreateSearchPage(t *testing.T) {
 	t.Parallel()
@@ -36,6 +39,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
+		cfg.BindAddr = bindAddrAny
 		req := httptest.NewRequest("", "/search", http.NoBody)
 		mdl := coreModel.Page{}
 
@@ -167,9 +171,10 @@ func TestUnitFindDatasetPage(t *testing.T) {
 
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
+		So(err, ShouldBeNil)
 		cfg.EnableCensusDimensionsFilterOption = true
 		cfg.EnableCensusPopulationTypesFilterOption = true
-		So(err, ShouldBeNil)
+		cfg.BindAddr = bindAddrAny
 		req := httptest.NewRequest("GET", "/census/find-a-dataset", http.NoBody)
 		mdl := coreModel.Page{}
 
@@ -280,8 +285,9 @@ func TestCreateDataAggregationPage(t *testing.T) {
 
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
-		cfg.EnableAggregationPages = true
 		So(err, ShouldBeNil)
+		cfg.EnableAggregationPages = true
+		cfg.BindAddr = bindAddrAny
 		req := httptest.NewRequest("GET", "/alladhocs", http.NoBody)
 		mdl := coreModel.Page{}
 
@@ -624,6 +630,7 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 	Convey("Given validated query and response from search-api", t, func() {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
+		cfg.BindAddr = bindAddrAny
 		req := httptest.NewRequest("", "/foo/bar/previousreleases", http.NoBody)
 		mdl := coreModel.Page{}
 
