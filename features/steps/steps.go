@@ -58,6 +58,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic, the "([^"]*)" subtopic and "([^"]*)" thirdlevel subtopic$`, c.thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
 	ctx.Step(`^get page data request to zebedee is successful$`, c.getPageDataRequestToZebedeeIsSuccessful)
+	ctx.Step(`^get page data request to zebedee finds a wrong page type$`, c.getPageDataRequestToZebedeeFindsAWrongPageType)
 }
 
 func (c *Component) theSearchControllerIsRunning() error {
@@ -336,6 +337,13 @@ func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequ
 }
 
 func (c *Component) getPageDataRequestToZebedeeIsSuccessful() error {
+	// The page type needs to be either an article, a bulletin, or a compendium
 	c.FakeAPIRouter.setJSONResponseForGetPageData(200)
+	return nil
+}
+
+func (c *Component) getPageDataRequestToZebedeeFindsAWrongPageType() error {
+	// The page type needs to be either an article, a bulletin, or a compendium, otherwise a 404 is returned
+	c.FakeAPIRouter.setJSONResponseForGetPageData(404)
 	return nil
 }
