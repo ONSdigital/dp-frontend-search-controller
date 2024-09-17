@@ -13,6 +13,7 @@ Feature: Form submission with date fields
         And I fill in input element "#before-date-month" with value "12"
         And I fill in input element "#before-date-year" with value "2022"
         When I click the "#search-filter > button" element
+        And I wait 1 seconds
         Then element "#error-summary-title" should not be visible
 
     Scenario Outline: Submitting the form with invalid after-date fields
@@ -20,6 +21,7 @@ Feature: Form submission with date fields
         And I fill in input element "#after-date-month" with value "<month>"
         And I fill in input element "#after-date-year" with value "<year>"
         When I click the "#search-filter > button" element
+        And I wait 1 seconds
         Then element "#error-summary-title" should be visible
         And element "#fromDate-error" should be visible
 
@@ -36,6 +38,7 @@ Feature: Form submission with date fields
         And I fill in input element "#before-date-month" with value "<month>"
         And I fill in input element "#before-date-year" with value "<year>"
         When I click the "#search-filter > button" element
+        And I wait 1 seconds
         Then element "#error-summary-title" should be visible
         And element "#toDate-error" should be visible
 
@@ -55,6 +58,7 @@ Feature: Form submission with date fields
         And I fill in input element "#before-date-month" with value "12"
         And I fill in input element "#before-date-year" with value "2021"
         When I click the "#search-filter > button" element
+        And I wait 1 seconds
         Then element "#error-summary-title" should be visible
         And element "#fromDate-error" should not be visible
         And element "#toDate-error" should be visible
