@@ -1474,3 +1474,48 @@ func TestValidateTopicHierarchy(t *testing.T) {
 		})
 	})
 }
+
+func TestSanitiseQueryParams(t *testing.T) {
+	t.Parallel()
+
+	Convey("sanitiseQueryParams", t, func() {
+		Convey("returns only allowed params", func() {
+			allowedParams := []string{"foo", "bar"}
+			u, _ := url.Parse("/search?test=test&test2=test2&foo=123&bar=456&something=else")
+			params := u.Query()
+
+			sanitised := sanitiseQueryParams(allowedParams, params)
+			So(sanitised, ShouldNotBeNil)
+			So(len(sanitised), ShouldEqual, 2)
+			So(sanitised.Get("foo"), ShouldEqual, "123")
+			So(sanitised.Get("bar"), ShouldEqual, "456")
+
+		})
+
+		Convey("handles duplicate params", func() {
+			allowedParams := []string{"foo"}
+			u, _ := url.Parse("/search?test=test&test2=test2&foo=123&foo=6787&foo=bar")
+			params := u.Query()
+
+			sanitised := sanitiseQueryParams(allowedParams, params)
+			So(sanitised, ShouldNotBeNil)
+			So(len(sanitised), ShouldEqual, 1)
+			So(sanitised.Get("foo"), ShouldEqual, "123")
+		})
+
+		Convey("returns only found allowed params", func() {
+			allowedParams := []string{"foo", "bar", "foobar", "barfoo"}
+			u, _ := url.Parse("/search?test=test&test2=test2&foo=123&bar=456&something=else")
+			params := u.Query()
+
+			sanitised := sanitiseQueryParams(allowedParams, params)
+			So(sanitised, ShouldNotBeNil)
+			So(len(sanitised), ShouldEqual, 2)
+			So(sanitised.Get("foo"), ShouldEqual, "123")
+			So(sanitised.Get("bar"), ShouldEqual, "456")
+			So(sanitised.Get("foobar"), ShouldBeEmpty)
+			So(sanitised.Get("barfoo"), ShouldBeEmpty)
+		})
+
+	})
+}
