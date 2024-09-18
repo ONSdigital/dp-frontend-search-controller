@@ -641,7 +641,7 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreatePreviousReleasesPage is called", func() {
-			sp := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil, respZ)
+			sp, _ := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil, respZ)
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)
