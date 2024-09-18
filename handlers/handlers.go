@@ -386,7 +386,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	template := "previous-releases"
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
-
 	// check page type
 	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, urlPath+"/latest")
 	if err != nil {
@@ -400,7 +399,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
 	if err != nil {
@@ -416,7 +414,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		})
 		// Errors are now mapped to the page model to output feedback to the user rather than
 		// a blank 400 error response.
-		m := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{})
+		m, _ := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{})
 		buildDataAggregationPage(w, m, rend, template)
 		return
 	}
@@ -481,12 +479,12 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 				Text: "current page exceeds total pages",
 			},
 		})
-		m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+		m, _ := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
 		rend.BuildPage(w, m, template)
 		return
 	}
 
-	m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+	m, _ := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
 	rend.BuildPage(w, m, template)
 }
 

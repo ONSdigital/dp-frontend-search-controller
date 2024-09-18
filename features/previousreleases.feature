@@ -47,6 +47,19 @@ Feature: Previous Releases
 #    Then the page should have the following content
 #    """
 #        {
-#            "#main h1": "No releases found"
+#            "#main h1": "Page not found"
 #        }
 #    """
+
+#  Scenario: GET /previousreleases and checking for many results
+#    Given there is a Search API that gives a successful response and returns 0 results
+#    And get page data request to zebedee is successful
+#    And the search controller is running
+#    When I navigate to "/economy/previousreleases"
+#    Then the page should have the following content
+#      """
+#      {
+#        "#main h1": "Previous releases for",
+#        ".search__count h2": "0 results"
+#      }
+#      """

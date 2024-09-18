@@ -82,7 +82,6 @@ func (c *Component) theSearchControllerIsRunning() error {
 	c.StartTime = time.Now()
 	c.svc.Run(ctx, svcErrors)
 	c.ServiceRunning = true
-
 	return nil
 }
 
@@ -197,7 +196,6 @@ func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResul
 	defer c.FakeAPIRouter.searchRequest.Unlock()
 
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(count)
-
 	return nil
 }
 
