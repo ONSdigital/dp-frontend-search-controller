@@ -406,7 +406,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		setStatusCode(w, req, err)
 		return
 	}
-
 	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, urlPath)
 	if len(validationErrs) > 0 {
 		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
@@ -421,7 +420,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 2
-
 	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
 
 	var (
@@ -471,7 +469,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	}
 
 	basePage := rend.NewBasePageModel()
-
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
 		validationErrs = append(validationErrs, core.ErrorItem{
@@ -484,7 +481,12 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		return
 	}
 
-	m, _ := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+	m, err := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+	if err != nil {
+		log.Error(ctx, "cannot render previous releases page", err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
 	rend.BuildPage(w, m, template)
 }
 
