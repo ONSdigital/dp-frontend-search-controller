@@ -275,7 +275,6 @@ func TestUnitFindDatasetPage(t *testing.T) {
 }
 
 func TestCreateDataAggregationPage(t *testing.T) {
-	t.Parallel()
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	Convey("Given validated query and response from search-api", t, func() {
