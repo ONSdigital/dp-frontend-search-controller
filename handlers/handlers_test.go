@@ -1474,6 +1474,47 @@ func TestValidateTopicHierarchy(t *testing.T) {
 	})
 }
 
+func TestRemoveQueryParams(t *testing.T) {
+	Convey("Given a search query with parameters", t, func() {
+		searchQuery := url.Values{
+			"param1": []string{"value1"},
+			"param2": []string{"value2"},
+			"param3": []string{"value3"},
+		}
+
+		Convey("When removing a single parameter", func() {
+			result := removeQueryParams(searchQuery, "param1")
+
+			Convey("Then the remaining query should not contain 'param1'", func() {
+				expected := url.Values{
+					"param2": []string{"value2"},
+					"param3": []string{"value3"},
+				}
+				So(result, ShouldResemble, expected)
+			})
+		})
+
+		Convey("When removing multiple parameters", func() {
+			result := removeQueryParams(searchQuery, "param1", "param3")
+
+			Convey("Then the remaining query should only contain 'param2'", func() {
+				expected := url.Values{
+					"param2": []string{"value2"},
+				}
+				So(result, ShouldResemble, expected)
+			})
+		})
+
+		Convey("When trying to remove a parameter that does not exist", func() {
+			result := removeQueryParams(searchQuery, "param4")
+
+			Convey("Then the query should remain unchanged", func() {
+				So(result, ShouldResemble, searchQuery)
+			})
+		})
+	})
+}
+
 func TestSanitiseQueryParams(t *testing.T) {
 	t.Parallel()
 
