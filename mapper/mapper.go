@@ -106,11 +106,11 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 	validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem, zebedeeResp zebedee.PageData,
 ) (model.SearchPage, error) {
-	//fmt.Printf("number of results: %d", respC.Count)
-	//if respC.Count == 0 {
-	//	err := errors.New("no releases were found - there must be at least 1 release for a previous releases page to be created")
-	//	return model.SearchPage{}, err
-	//}
+	// fmt.Printf("number of results: %d", respC.Count)
+	// if respC.Count == 0 {
+	// 	err := errors.New("no releases were found - there must be at least 1 release for a previous releases page to be created")
+	// 	return model.SearchPage{}, err
+	// }
 	page := model.SearchPage{
 		Page: basePage,
 	}
