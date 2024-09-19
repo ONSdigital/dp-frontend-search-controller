@@ -569,7 +569,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	var counter = 3
 
 	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
-	categoriesCountQuery := getCategoriesCountQuery(searchQuery)
+	categoriesCountQuery := getCategoriesTopicsCountQuery(searchQuery)
 
 	var (
 		homepageResp zebedeeCli.HomepageContent
@@ -792,31 +792,29 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 	return nil
 }
 
-// getCategoriesCountQuery clones url (query) values before removing
-// filters to be able to return total counts for different filters
+// getCategoriesCountQuery removes specific params to return the total count for all types.
 func getCategoriesCountQuery(searchQuery url.Values) url.Values {
-	// Clone the searchQuery url values to prevent changing the original copy
-	query := url.Values(http.Header(searchQuery).Clone())
-
-	// Remove filter to get count of all types for the query from the client
-	query.Del("content_type")
-	query.Del("topics")
-	query.Del("population_types")
-	query.Del("dimensions")
-
-	return query
+	return removeQueryParams(searchQuery, "content_type", "topics", "population_types", "dimensions")
 }
 
-// getCategoriesCountQuery clones url (query) values before removing
-// filters to be able to return total counts for different filters
-func getCategoriesDatasetCountQuery(searchQuery url.Values) url.Values {
-	// Clone the searchQuery url values to prevent changing the original copy
-	query := url.Values(http.Header(searchQuery).Clone())
+// getCategoriesTopicsCountQuery removes fewer params, for counts based on topics.
+func getCategoriesTopicsCountQuery(searchQuery url.Values) url.Values {
+	return removeQueryParams(searchQuery, "content_type", "population_types", "dimensions")
+}
 
-	// Remove filter to get count of all types for the query from the client
-	query.Del("topics")
-	query.Del("population_types")
-	query.Del("dimensions")
+// getCategoriesDatasetCountQuery removes a different set of params for dataset counts.
+func getCategoriesDatasetCountQuery(searchQuery url.Values) url.Values {
+	return removeQueryParams(searchQuery, "topics", "population_types", "dimensions")
+}
+
+// removeQueryParams clones the search query and removes specified params.
+func removeQueryParams(searchQuery url.Values, paramsToRemove ...string) url.Values {
+	// Clone the searchQuery to avoid modifying the original copy
+	query := url.Values(http.Header(searchQuery).Clone())
+	// Remove specified params
+	for _, param := range paramsToRemove {
+		query.Del(param)
+	}
 
 	return query
 }
