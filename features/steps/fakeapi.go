@@ -33,6 +33,11 @@ func (f *FakeAPI) Close() {
 }
 
 func (f *FakeAPI) setJSONResponseForGetPageData(statusCode int) {
-	f.fakeHTTP.NewHandler().Get("/data?uri=%2Feconomy%2Flatest&lang=en").Reply(statusCode).BodyString(`{"type": "article",
+	if statusCode == 200 {
+		f.fakeHTTP.NewHandler().Get("/data?uri=%2Feconomy%2Flatest&lang=en").Reply(statusCode).BodyString(`{"type": "article",
 									"description": {"title": "labour market statistics"}}`)
+	} else {
+		f.fakeHTTP.NewHandler().Get("/data?uri=%2Feconomy%2Flatest&lang=en").Reply(statusCode).BodyString(`{"type": "taxonomy_landing_page",
+									"description": {"title": "Economic output and productivity"}}`)
+	}
 }
