@@ -8,7 +8,7 @@ Feature: Previous Releases
     Then the page should have the following content
     """
     {
-      "#main h1": "Previous releases for",
+      "#main h1": "Previous releases for labour market statistics",
       ".search__count h2": "1 result",
       ".ons-pagination__position": "Page 1 of 1"
     }
@@ -22,7 +22,7 @@ Feature: Previous Releases
     Then the page should have the following content
       """
       {
-        "#main h1": "Previous releases for",
+        "#main h1": "Previous releases for labour market statistics",
         ".search__count h2": "3 results",
         ".ons-pagination__position": "Page 1 of 1"
       }

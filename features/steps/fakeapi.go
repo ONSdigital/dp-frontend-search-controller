@@ -33,5 +33,6 @@ func (f *FakeAPI) Close() {
 }
 
 func (f *FakeAPI) setJSONResponseForGetPageData(statusCode int) {
-	f.fakeHTTP.NewHandler().Get("/data?uri=%2Feconomy%2Flatest&lang=en").Reply(statusCode).BodyString(`{"type": "article"}`)
+	f.fakeHTTP.NewHandler().Get("/data?uri=%2Feconomy%2Flatest&lang=en").Reply(statusCode).BodyString(`{"type": "article",
+									"description": {"title": "labour market statistics"}}`)
 }
