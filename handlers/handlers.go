@@ -1026,7 +1026,7 @@ func ValidateTopicHierarchy(ctx context.Context, segments []string, cacheList ca
 	return cacheList.DataTopic.GetTopicFromSubtopic(currentTopic), nil
 }
 
-// sanitiseQueryParams takes a pre define list of allowed query params and remove any from the request URL that don't match
+// sanitiseQueryParams takes a predefined list of allowed query params and removes any from the request URL that don't match
 func sanitiseQueryParams(allowedParams []string, inputParams url.Values) url.Values {
 	sanitisedParams := url.Values{}
 	for paramKey, paramValue := range inputParams {
