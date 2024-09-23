@@ -156,6 +156,19 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	return sp, validationErrs
 }
 
+// ReviewPreviousReleasesQueryWithParams ensures that all search parameter values given by the user are reviewed
+func ReviewPreviousReleasesQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values, urlPath string) (sp SearchURLParams, validationErrs []core.ErrorItem) {
+	sp.Query = urlQuery.Get("q")
+	if urlPath != "" {
+		sp.URIPrefix = urlPath
+	}
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
+	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for previous releases", PaginationErr, validationErrs)
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultPreviousReleasesSort)
+
+	return sp, validationErrs
+}
+
 // ReviewDatasetQuery ensures that all search parameter values given by the user are reviewed
 func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
 	var validatedQueryParams SearchURLParams

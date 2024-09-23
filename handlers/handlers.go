@@ -406,7 +406,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		setStatusCode(w, req, err)
 		return
 	}
-	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery, urlPath)
+	validatedQueryParams, validationErrs := data.ReviewPreviousReleasesQueryWithParams(ctx, cfg, urlQuery, urlPath)
 	if len(validationErrs) > 0 {
 		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
 			"parameters": validationErrs,
