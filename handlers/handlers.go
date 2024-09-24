@@ -46,6 +46,9 @@ var knownPreviouReleaseTypes = []string{
 	"compendium_landing_page",
 }
 
+// list of query params allowed on /previousreleases
+var allowedPreviousReleasesQueryParams = []string{data.Page}
+
 // HandlerClients represents the handlers for search and data-aggregation
 type HandlerClients struct {
 	Renderer      RenderClient
@@ -392,6 +395,8 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
 
+	sanitisedParams := sanitiseQueryParams(allowedPreviousReleasesQueryParams, urlQuery)
+
 	// check page type
 	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, urlPath+"/latest")
 	if err != nil {
@@ -414,7 +419,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		return
 	}
 
-	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery)
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, sanitisedParams)
 	if len(validationErrs) > 0 {
 		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
 			"parameters": validationErrs,
@@ -569,7 +574,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	var counter = 3
 
 	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
-	categoriesCountQuery := getCategoriesCountQuery(searchQuery)
+	categoriesCountQuery := getCategoriesTopicsCountQuery(searchQuery)
 
 	var (
 		homepageResp zebedeeCli.HomepageContent
@@ -792,31 +797,29 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 	return nil
 }
 
-// getCategoriesCountQuery clones url (query) values before removing
-// filters to be able to return total counts for different filters
+// getCategoriesCountQuery removes specific params to return the total count for all types.
 func getCategoriesCountQuery(searchQuery url.Values) url.Values {
-	// Clone the searchQuery url values to prevent changing the original copy
-	query := url.Values(http.Header(searchQuery).Clone())
-
-	// Remove filter to get count of all types for the query from the client
-	query.Del("content_type")
-	query.Del("topics")
-	query.Del("population_types")
-	query.Del("dimensions")
-
-	return query
+	return removeQueryParams(searchQuery, "content_type", "topics", "population_types", "dimensions")
 }
 
-// getCategoriesCountQuery clones url (query) values before removing
-// filters to be able to return total counts for different filters
-func getCategoriesDatasetCountQuery(searchQuery url.Values) url.Values {
-	// Clone the searchQuery url values to prevent changing the original copy
-	query := url.Values(http.Header(searchQuery).Clone())
+// getCategoriesTopicsCountQuery removes fewer params, for counts based on topics.
+func getCategoriesTopicsCountQuery(searchQuery url.Values) url.Values {
+	return removeQueryParams(searchQuery, "content_type", "population_types", "dimensions")
+}
 
-	// Remove filter to get count of all types for the query from the client
-	query.Del("topics")
-	query.Del("population_types")
-	query.Del("dimensions")
+// getCategoriesDatasetCountQuery removes a different set of params for dataset counts.
+func getCategoriesDatasetCountQuery(searchQuery url.Values) url.Values {
+	return removeQueryParams(searchQuery, "topics", "population_types", "dimensions")
+}
+
+// removeQueryParams clones the search query and removes specified params.
+func removeQueryParams(searchQuery url.Values, paramsToRemove ...string) url.Values {
+	// Clone the searchQuery to avoid modifying the original copy
+	query := url.Values(http.Header(searchQuery).Clone())
+	// Remove specified params
+	for _, param := range paramsToRemove {
+		query.Del(param)
+	}
 
 	return query
 }
@@ -1021,4 +1024,19 @@ func ValidateTopicHierarchy(ctx context.Context, segments []string, cacheList ca
 	}
 
 	return cacheList.DataTopic.GetTopicFromSubtopic(currentTopic), nil
+}
+
+// sanitiseQueryParams takes a predefined list of allowed query params and removes any from the request URL that don't match
+func sanitiseQueryParams(allowedParams []string, inputParams url.Values) url.Values {
+	sanitisedParams := url.Values{}
+	for paramKey, paramValue := range inputParams {
+		for _, allowedParam := range allowedParams {
+			if paramKey == allowedParam {
+				for _, param := range paramValue {
+					sanitisedParams.Add(paramKey, param)
+				}
+			}
+		}
+	}
+	return sanitisedParams
 }

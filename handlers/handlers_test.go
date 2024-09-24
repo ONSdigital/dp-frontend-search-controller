@@ -359,7 +359,6 @@ func TestUnitReadFailure(t *testing.T) {
 }
 
 func TestUnitReadDataAggregationSuccess(t *testing.T) {
-	t.Parallel()
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	ctx := context.Background()
@@ -1471,6 +1470,90 @@ func TestValidateTopicHierarchy(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(topic, ShouldNotBeNil)
 			So(topic.ID, ShouldEqual, "1834")
+		})
+	})
+}
+
+func TestRemoveQueryParams(t *testing.T) {
+	Convey("Given a search query with parameters", t, func() {
+		searchQuery := url.Values{
+			"param1": []string{"value1"},
+			"param2": []string{"value2"},
+			"param3": []string{"value3"},
+		}
+
+		Convey("When removing a single parameter", func() {
+			result := removeQueryParams(searchQuery, "param1")
+
+			Convey("Then the remaining query should not contain 'param1'", func() {
+				expected := url.Values{
+					"param2": []string{"value2"},
+					"param3": []string{"value3"},
+				}
+				So(result, ShouldResemble, expected)
+			})
+		})
+
+		Convey("When removing multiple parameters", func() {
+			result := removeQueryParams(searchQuery, "param1", "param3")
+
+			Convey("Then the remaining query should only contain 'param2'", func() {
+				expected := url.Values{
+					"param2": []string{"value2"},
+				}
+				So(result, ShouldResemble, expected)
+			})
+		})
+
+		Convey("When trying to remove a parameter that does not exist", func() {
+			result := removeQueryParams(searchQuery, "param4")
+
+			Convey("Then the query should remain unchanged", func() {
+				So(result, ShouldResemble, searchQuery)
+			})
+		})
+	})
+}
+
+func TestSanitiseQueryParams(t *testing.T) {
+	t.Parallel()
+
+	Convey("sanitiseQueryParams", t, func() {
+		Convey("returns only allowed params", func() {
+			allowedParams := []string{"foo", "bar"}
+			u, _ := url.Parse("/search?test=test&test2=test2&foo=123&bar=456&something=else")
+			params := u.Query()
+
+			sanitised := sanitiseQueryParams(allowedParams, params)
+			So(sanitised, ShouldNotBeNil)
+			So(len(sanitised), ShouldEqual, 2)
+			So(sanitised.Get("foo"), ShouldEqual, "123")
+			So(sanitised.Get("bar"), ShouldEqual, "456")
+		})
+
+		Convey("handles duplicate params", func() {
+			allowedParams := []string{"foo"}
+			u, _ := url.Parse("/search?test=test&test2=test2&foo=123&foo=6787&foo=bar")
+			params := u.Query()
+
+			sanitised := sanitiseQueryParams(allowedParams, params)
+			So(sanitised, ShouldNotBeNil)
+			So(len(sanitised), ShouldEqual, 1)
+			So(sanitised.Get("foo"), ShouldEqual, "123")
+		})
+
+		Convey("returns only found allowed params", func() {
+			allowedParams := []string{"foo", "bar", "foobar", "barfoo"}
+			u, _ := url.Parse("/search?test=test&test2=test2&foo=123&bar=456&something=else")
+			params := u.Query()
+
+			sanitised := sanitiseQueryParams(allowedParams, params)
+			So(sanitised, ShouldNotBeNil)
+			So(len(sanitised), ShouldEqual, 2)
+			So(sanitised.Get("foo"), ShouldEqual, "123")
+			So(sanitised.Get("bar"), ShouldEqual, "456")
+			So(sanitised.Get("foobar"), ShouldBeEmpty)
+			So(sanitised.Get("barfoo"), ShouldBeEmpty)
 		})
 	})
 }
