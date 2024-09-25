@@ -57,8 +57,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsATopicAndSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic, the "([^"]*)" subtopic and "([^"]*)" thirdlevel subtopic$`, c.thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
-	ctx.Step(`^get page data request to zebedee for "([^"]*)" is successful and returns a page of type "([^"]*)"$`, c.getPageDataRequestToZebedeeForIsSuccessfulAndReturnsAPageOfType)
-	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a (\d+)$`, c.getPageDataRequestToZebedeeForReturnsA)
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page of type "([^"]*)" with status (\d+)$`, c.getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus)
 }
 
 func (c *Component) theSearchControllerIsRunning() error {
@@ -334,12 +333,7 @@ func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequ
 	return nil
 }
 
-func (c *Component) getPageDataRequestToZebedeeForIsSuccessfulAndReturnsAPageOfType(url, pageType string) error {
-	c.FakeAPIRouter.setJSONResponseForGetPageData(url, pageType, 200)
-	return nil
-}
-
-func (c *Component) getPageDataRequestToZebedeeForReturnsA(url string, statusCode int) error {
-	c.FakeAPIRouter.setJSONResponseForGetPageData(url, "taxonomy_landing_page", statusCode)
+func (c *Component) getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus(url, pageType string, statusCode int) error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, pageType, statusCode)
 	return nil
 }
