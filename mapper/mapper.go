@@ -104,7 +104,7 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 // CreatePreviousReleasesPage maps type searchC.Response to model.Page
 func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
 	validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
-	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem, zebedeeResp zebedee.PageData,
+	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem, zebedeeResp zebedee.PageData, bc []zebedee.Breadcrumb,
 ) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
@@ -130,6 +130,8 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, []data.Category{})
+
+	mapPreviousReleaseBreadCrumb(&page, bc, zebedeeResp.Description.Title, zebedeeResp.URI)
 
 	return page
 }
@@ -885,4 +887,23 @@ func filterCategoriesByTemplate(template string, categories []data.Category) []d
 		return filteredCategories
 	}
 	return categories
+}
+
+func mapBreadcrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb) {
+	for _, bc := range bcs {
+		page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
+			Title: bc.Description.Title,
+			URI:   bc.URI,
+		})
+	}
+}
+
+func mapPreviousReleaseBreadCrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb, parentPageTitle, parentPageURL string) {
+	mapBreadcrumb(page, bcs)
+	page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
+		Title: parentPageTitle,
+		URI:   parentPageURL,
+	}, coreModel.TaxonomyNode{
+		Title: "Previous releases",
+	})
 }
