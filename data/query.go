@@ -112,7 +112,8 @@ func handleValidationError(ctx context.Context, err error, description, id strin
 }
 
 // ReviewDataAggregationQueryWithParams ensures that all search parameter values given by the user are reviewed
-func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values) (sp SearchURLParams, validationErrs []core.ErrorItem) {
+func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values) (searchParams SearchURLParams, validationErrs []core.ErrorItem) {
+	var sp SearchURLParams
 	sp.Query = urlQuery.Get("q")
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
