@@ -34,6 +34,7 @@ type SearchURLParams struct {
 }
 
 const (
+	Page                    = "page"
 	DayBefore               = "before-day"
 	DayAfter                = "after-day"
 	Before                  = "before"

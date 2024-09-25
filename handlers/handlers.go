@@ -42,6 +42,9 @@ var knownPreviousReleaseTypes = []string{
 	"compendium_landing_page",
 }
 
+// list of query params allowed on /previousreleases
+var allowedPreviousReleasesQueryParams = []string{data.Page}
+
 // HandlerClients represents the handlers for search and data-aggregation
 type HandlerClients struct {
 	Renderer      RenderClient
@@ -386,6 +389,8 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	template := "previous-releases"
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
+
+	sanitisedParams := sanitiseQueryParams(allowedPreviousReleasesQueryParams, urlQuery)
 	// check page type
 	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, urlPath+"/latest")
 	if err != nil {
@@ -406,7 +411,9 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		setStatusCode(w, req, err)
 		return
 	}
-	validatedQueryParams, validationErrs := data.ReviewPreviousReleasesQueryWithParams(ctx, cfg, urlQuery, urlPath)
+
+	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, sanitisedParams, urlPath)
+
 	if len(validationErrs) > 0 {
 		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
 			"parameters": validationErrs,
@@ -1009,4 +1016,19 @@ func ValidateTopicHierarchy(ctx context.Context, segments []string, cacheList ca
 	}
 
 	return cacheList.DataTopic.GetTopicFromSubtopic(currentTopic), nil
+}
+
+// sanitiseQueryParams takes a predefined list of allowed query params and removes any from the request URL that don't match
+func sanitiseQueryParams(allowedParams []string, inputParams url.Values) url.Values {
+	sanitisedParams := url.Values{}
+	for paramKey, paramValue := range inputParams {
+		for _, allowedParam := range allowedParams {
+			if paramKey == allowedParam {
+				for _, param := range paramValue {
+					sanitisedParams.Add(paramKey, param)
+				}
+			}
+		}
+	}
+	return sanitisedParams
 }
