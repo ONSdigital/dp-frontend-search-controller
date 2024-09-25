@@ -413,7 +413,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		})
 		// Errors are now mapped to the page model to output feedback to the user rather than
 		// a blank 400 error response.
-		m, _ := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{})
+		m := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{})
 		buildDataAggregationPage(w, m, rend, template)
 		return
 	}
@@ -476,17 +476,12 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 				Text: "current page exceeds total pages",
 			},
 		})
-		m, _ := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+		m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
 		rend.BuildPage(w, m, template)
 		return
 	}
 
-	m, err := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
-	if err != nil {
-		log.Error(ctx, "cannot render previous releases page", err)
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
+	m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
 	rend.BuildPage(w, m, template)
 }
 

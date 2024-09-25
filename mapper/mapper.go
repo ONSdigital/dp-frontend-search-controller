@@ -1,7 +1,6 @@
 package mapper
 
 import (
-	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -106,12 +105,7 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
 	validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem, zebedeeResp zebedee.PageData,
-) (model.SearchPage, error) {
-	fmt.Printf("number of results: %d", respC.Count)
-	if respC.Count == 0 {
-		err := errors.New("no releases were found - there must be at least 1 release for a previous releases page to be rendered")
-		return model.SearchPage{}, err
-	}
+) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
 	}
@@ -136,7 +130,7 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, []data.Category{})
-	return page, nil
+	return page
 }
 
 func generateRSSLink(rawQuery string) string {
