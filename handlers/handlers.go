@@ -25,7 +25,6 @@ import (
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/feeds"
 	"github.com/gorilla/mux"
 )
@@ -508,7 +507,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		return
 	}
 
-	spew.Dump(bc)
 	m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 	rend.BuildPage(w, m, template)
 }
