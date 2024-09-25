@@ -2,7 +2,7 @@ Feature: Previous Releases
 
   Scenario: GET /previousreleases and checking for one result
     Given there is a Search API that gives a successful response and returns 1 results
-    And get page data request to zebedee is successful
+    And get page data request to zebedee for "/economy/latest" is successful and returns a page of type "article"
     And the search controller is running
     When I navigate to "/economy/previousreleases"
     Then the page should have the following content
@@ -16,7 +16,7 @@ Feature: Previous Releases
 
   Scenario: GET /previousreleases and checking for many results
     Given there is a Search API that gives a successful response and returns 3 results
-    And get page data request to zebedee is successful
+    And get page data request to zebedee for "/economy/latest" is successful and returns a page of type "article"
     And the search controller is running
     When I navigate to "/economy/previousreleases"
     Then the page should have the following content
@@ -29,7 +29,7 @@ Feature: Previous Releases
       """
 
   Scenario: GET /previousreleases and it is the wrong page type
-    Given get page data request to zebedee finds a wrong page type
+    Given get page data request to zebedee for "/economy/latest" returns a 404
     And the search controller is running
     When I navigate to "/economy/previousreleases"
     Then the page should have the following content

@@ -2,6 +2,7 @@ package steps
 
 import (
 	"github.com/maxcnunes/httpfake"
+	"strings"
 )
 
 // FakeAPI contains all the information for a fake component API
@@ -32,12 +33,9 @@ func (f *FakeAPI) Close() {
 	f.fakeHTTP.Close()
 }
 
-func (f *FakeAPI) setJSONResponseForGetPageData(statusCode int) {
-	if statusCode == 200 {
-		f.fakeHTTP.NewHandler().Get("/data?uri=%2Feconomy%2Flatest&lang=en").Reply(statusCode).BodyString(`{"type": "article",
-									"description": {"title": "labour market statistics"}}`)
-	} else {
-		f.fakeHTTP.NewHandler().Get("/data?uri=%2Feconomy%2Flatest&lang=en").Reply(statusCode).BodyString(`{"type": "taxonomy_landing_page",
-									"description": {"title": "Economic output and productivity"}}`)
-	}
+func (f *FakeAPI) setJSONResponseForGetPageData(url string, pageType string, statusCode int) {
+	specialCharUrl := strings.Replace(url, "/", "%2F", -1)
+	path := "/data?uri=" + specialCharUrl + "&lang=en"
+	bodyStr := `{"type": "` + pageType + `", "description": {"title": "labour market statistics"}}`
+	f.fakeHTTP.NewHandler().Get(path).Reply(statusCode).BodyString(bodyStr)
 }

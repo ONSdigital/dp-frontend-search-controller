@@ -57,8 +57,8 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsATopicAndSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic, the "([^"]*)" subtopic and "([^"]*)" thirdlevel subtopic$`, c.thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
-	ctx.Step(`^get page data request to zebedee is successful$`, c.getPageDataRequestToZebedeeIsSuccessful)
-	ctx.Step(`^get page data request to zebedee finds a wrong page type$`, c.getPageDataRequestToZebedeeFindsAWrongPageType)
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" is successful and returns a page of type "([^"]*)"$`, c.getPageDataRequestToZebedeeForIsSuccessfulAndReturnsAPageOfType)
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a (\d+)$`, c.getPageDataRequestToZebedeeForReturnsA)
 }
 
 func (c *Component) theSearchControllerIsRunning() error {
@@ -334,14 +334,12 @@ func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequ
 	return nil
 }
 
-func (c *Component) getPageDataRequestToZebedeeIsSuccessful() error {
-	// The page type needs to be either an article, a bulletin, or a compendium
-	c.FakeAPIRouter.setJSONResponseForGetPageData(200)
+func (c *Component) getPageDataRequestToZebedeeForIsSuccessfulAndReturnsAPageOfType(url, pageType string) error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, pageType, 200)
 	return nil
 }
 
-func (c *Component) getPageDataRequestToZebedeeFindsAWrongPageType() error {
-	// The page type needs to be either an article, a bulletin, or a compendium, otherwise a 404 is returned
-	c.FakeAPIRouter.setJSONResponseForGetPageData(404)
+func (c *Component) getPageDataRequestToZebedeeForReturnsA(url string, statusCode int) error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, "taxonomy_landing_page", statusCode)
 	return nil
 }
