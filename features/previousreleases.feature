@@ -29,7 +29,18 @@ Feature: Previous Releases
       """
 
   Scenario: GET /previousreleases and it is not a page of type article, bulletin, or compendium_landing_page
-    Given get page data request to zebedee for "/economy/latest" returns a page of type "taxonomy_landing_page" with status 404
+    Given get page data request to zebedee for "/economy/latest" returns a page of the wrong type
+    And the search controller is running
+    When I navigate to "/economy/previousreleases"
+    Then the page should have the following content
+    """
+        {
+            "#main h1": "Page not found"
+        }
+    """
+
+  Scenario: GET /previousreleases and the latest release page does not exist
+    Given get page data request to zebedee for "/economy/latest" does not find the page
     And the search controller is running
     When I navigate to "/economy/previousreleases"
     Then the page should have the following content

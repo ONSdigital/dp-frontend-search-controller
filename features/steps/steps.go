@@ -58,6 +58,8 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic, the "([^"]*)" subtopic and "([^"]*)" thirdlevel subtopic$`, c.thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page of type "([^"]*)" with status (\d+)$`, c.getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus)
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page of the wrong type$`, c.getPageDataRequestToZebedeeForReturnsAPageOfTheWrongType)
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" does not find the page$`, c.getPageDataRequestToZebedeeForDoesNotFindThePage)
 }
 
 func (c *Component) theSearchControllerIsRunning() error {
@@ -335,5 +337,15 @@ func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequ
 
 func (c *Component) getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus(url, pageType string, statusCode int) error {
 	c.FakeAPIRouter.setJSONResponseForGetPageData(url, pageType, statusCode)
+	return nil
+}
+
+func (c *Component) getPageDataRequestToZebedeeForReturnsAPageOfTheWrongType(url string) error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, "taxonomy_landing_page", 404)
+	return nil
+}
+
+func (c *Component) getPageDataRequestToZebedeeForDoesNotFindThePage(url string) error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, "", 404)
 	return nil
 }
