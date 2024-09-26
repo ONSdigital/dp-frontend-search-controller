@@ -7,6 +7,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -642,7 +643,7 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreatePreviousReleasesPage is called", func() {
-			sp := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil, respZ)
+			sp := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil, respZ, []zebedee.Breadcrumb{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)

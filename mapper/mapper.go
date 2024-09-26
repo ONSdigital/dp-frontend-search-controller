@@ -891,6 +891,7 @@ func filterCategoriesByTemplate(template string, categories []data.Category) []d
 	return categories
 }
 
+// mapBreadcrumb maps breadcrumb response from Zebedee to page model
 func mapBreadcrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb) {
 	for _, bc := range bcs {
 		page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
@@ -900,6 +901,7 @@ func mapBreadcrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb) {
 	}
 }
 
+// mapPreviousReleaseBreadCrumb appends parent bulletin and "Previous releases" to Zebedee breadcrumb response
 func mapPreviousReleaseBreadCrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb, parentPageTitle, parentPageURL string) {
 	mapBreadcrumb(page, bcs)
 	page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
