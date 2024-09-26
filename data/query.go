@@ -30,31 +30,25 @@ type SearchURLParams struct {
 	CurrentPage          int
 	Offset               int
 	NLPWeightingEnabled  bool
+	URIPrefix            string
 }
 
 const (
-	Limit       = "limit"
-	Page        = "page"
-	Offset      = "offset"
-	SortName    = "sort"
-	DayBefore   = "before-day"
-	DayAfter    = "after-day"
-	Before      = "before"
-	MonthBefore = Before + "-month"
-	After       = "after"
-	MonthAfter  = After + "-month"
-	YearBefore  = "before-year"
-	YearAfter   = "after-year"
-	Keywords    = "keywords"
-	Query       = "query"
-	DateFrom    = "fromDate"
-	DateFromErr = DateFrom + "-error"
-	DateTo      = "toDate"
-	DateToErr   = DateTo + "-error"
-	Type        = "release-type"
-	Census      = "census"
-	Highlight   = "highlight"
-
+	Page                    = "page"
+	DayBefore               = "before-day"
+	DayAfter                = "after-day"
+	Before                  = "before"
+	MonthBefore             = Before + "-month"
+	After                   = "after"
+	MonthAfter              = After + "-month"
+	YearBefore              = "before-year"
+	YearAfter               = "after-year"
+	Query                   = "query"
+	DateFrom                = "fromDate"
+	DateFromErr             = DateFrom + "-error"
+	DateTo                  = "toDate"
+	DateToErr               = DateTo + "-error"
+	Type                    = "release-type"
 	PaginationErr           = "pagination-error"
 	ContentTypeFilterErr    = "filter-error"
 	TopicFilterErr          = "topic-error"
@@ -114,7 +108,6 @@ func handleValidationError(ctx context.Context, err error, description, id strin
 // ReviewDataAggregationQueryWithParams ensures that all search parameter values given by the user are reviewed
 func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values) (sp SearchURLParams, validationErrs []core.ErrorItem) {
 	sp.Query = urlQuery.Get("q")
-
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for aggregation", PaginationErr, validationErrs)
 
@@ -161,7 +154,20 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	return sp, validationErrs
 }
 
-// ReviewQuery ensures that all search parameter values given by the user are reviewed
+// ReviewPreviousReleasesQueryWithParams ensures that all search parameter values given by the user are reviewed
+func ReviewPreviousReleasesQueryWithParams(ctx context.Context, cfg *config.Config, urlQuery url.Values, urlPath string) (sp SearchURLParams, validationErrs []core.ErrorItem) {
+	sp.Query = urlQuery.Get("q")
+	if urlPath != "" {
+		sp.URIPrefix = urlPath
+	}
+	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
+	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for previous releases", PaginationErr, validationErrs)
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultPreviousReleasesSort)
+
+	return sp, validationErrs
+}
+
+// ReviewDatasetQuery ensures that all search parameter values given by the user are reviewed
 func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
 	var validatedQueryParams SearchURLParams
 	validatedQueryParams.Query = urlQuery.Get("q")
@@ -479,6 +485,7 @@ func createSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
 		"offset":           []string{strconv.Itoa(validatedQueryParams.Offset)},
 		"topics":           []string{validatedQueryParams.TopicFilter},
 		"nlp_weighting":    []string{strconv.FormatBool(validatedQueryParams.NLPWeightingEnabled)},
+		"uri_prefix":       []string{validatedQueryParams.URIPrefix},
 	}
 }
 

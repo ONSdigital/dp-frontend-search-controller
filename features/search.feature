@@ -66,7 +66,7 @@ Feature: Search
               ".ons-list__link": "invalid page value, exceeding the total page value"
           }
       """
-  
+
   Scenario: GET /search with a invalid page number (exceeding max pages)
       Given there is a Search API that gives a successful response and returns 11 results
       Given the search controller is running

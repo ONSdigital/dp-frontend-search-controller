@@ -132,7 +132,6 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 	mapResponse(&page, respC, []data.Category{})
 
 	mapPreviousReleaseBreadCrumb(&page, bc, zebedeeResp.Description.Title, zebedeeResp.URI)
-
 	return page
 }
 
