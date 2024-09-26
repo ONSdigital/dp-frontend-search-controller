@@ -29,7 +29,7 @@ Feature: Previous Releases
       """
 
   Scenario: GET /previousreleases and it is not a page of type article, bulletin, or compendium_landing_page
-    Given get page data request to zebedee for "/economy/latest" returns a page of the wrong type
+    Given get page data request to zebedee for "/economy/latest" returns a page of type "taxonomy_landing_page" with status 200
     And the search controller is running
     When I navigate to "/economy/previousreleases"
     Then the page should have the following content
