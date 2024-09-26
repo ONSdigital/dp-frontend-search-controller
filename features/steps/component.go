@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
+	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	componentTest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
+	"github.com/ONSdigital/dp-frontend-search-controller/handlers"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/v2/http"
@@ -36,6 +38,7 @@ type Component struct {
 	svc            *service.Service
 	svcErrors      chan error
 	StartTime      time.Time
+	zebedeeClient  handlers.ZebedeeClient
 }
 
 // NewSearchControllerComponent creates a search controller component
@@ -73,8 +76,10 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.subTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.subSubTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
-
+	c.FakeAPIRouter.previousReleasesRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/economy/previousreleases")
 	c.FakeAPIRouter.navigationRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/data")
+
+	c.zebedeeClient = zebedeeCli.New(c.Config.APIRouterURL)
 
 	// Please use the step to start the service - this is down to
 	// the auto updates against backing services are hard to predict so

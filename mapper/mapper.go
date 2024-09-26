@@ -130,7 +130,6 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, []data.Category{})
-
 	return page
 }
 

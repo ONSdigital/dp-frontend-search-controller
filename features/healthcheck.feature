@@ -1,6 +1,6 @@
 Feature: Healthcheck endpoint should inform the health of service
 
-    Scenario: Returning a OK (200) status when health endpoint called  
+    Scenario: Returning a OK (200) status when health endpoint called
         Given the search controller is running
         And all of the downstream services are healthy
         And I wait 2 seconds for the healthcheck to be available
@@ -29,7 +29,7 @@ Feature: Healthcheck endpoint should inform the health of service
         """
 
     Scenario: Returning a WARNING (429) status when one downstream service is warning
-        Given the search controller is running  
+        Given the search controller is running
         And one of the downstream services is warning
         And I wait 2 seconds for the healthcheck to be available
         When I GET "/health"
@@ -56,7 +56,7 @@ Feature: Healthcheck endpoint should inform the health of service
             }
         """
 
-    Scenario: Returning a WARNING (429) status when one downstream service is critical and critical timeout has not expired  
+    Scenario: Returning a WARNING (429) status when one downstream service is critical and critical timeout has not expired
         Given the search controller is running
         And one of the downstream services is failing
         And I wait 2 seconds for the healthcheck to be available

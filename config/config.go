@@ -22,6 +22,7 @@ type Config struct {
 	DefaultOffset                           int           `envconfig:"DEFAULT_OFFSET"`
 	DefaultPage                             int           `envconfig:"DEFAULT_PAGE"`
 	DefaultAggregationSort                  string        `envconfig:"DEFAULT_AGGREGATION_SORT"`
+	DefaultPreviousReleasesSort             string        `envconfig:"DEFAULT_PREVIOUS_RELEASES_SORT"`
 	DefaultSort                             string        `envconfig:"DEFAULT_SORT"`
 	DefaultDatasetSort                      string        `envconfig:"DEFAULT_DATASET_SORT"`
 	EnableAggregationPages                  bool          `envconfig:"ENABLE_AGGREGATION_PAGES"`
@@ -95,6 +96,7 @@ func get() (*Config, error) {
 		DefaultOffset:                           0,
 		DefaultPage:                             1,
 		DefaultAggregationSort:                  "release_date",
+		DefaultPreviousReleasesSort:             "release_date",
 		DefaultSort:                             "relevance",
 		DefaultDatasetSort:                      "release_date",
 		EnableCensusTopicFilterOption:           false,
