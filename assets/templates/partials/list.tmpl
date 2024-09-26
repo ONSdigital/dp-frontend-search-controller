@@ -43,9 +43,11 @@
                     <span class="ons-u-fw-b">{{ localise "ReleasedOn" $lang 1 }} </span>
                     <time datetime="{{ dateFormatYYYYMMDDHyphenated .Description.ReleaseDate }}">{{ dateFormat .Description.ReleaseDate }}</time>
                 </li>
-                <li class="ons-document-list__item-attribute">
-                    <span class="ons-u-fw-b">Latest release</span>
-                </li>
+                {{ if .IsLatestRelease }}
+                    <li class="ons-document-list__item-attribute">
+                        <span class="ons-u-fw-b">Latest release</span>
+                    </li>
+                {{ end }}
                 </ul>
             </div>
             </div>

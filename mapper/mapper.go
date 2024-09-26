@@ -132,6 +132,8 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 	mapResponse(&page, respC, []data.Category{})
 
 	mapPreviousReleaseBreadCrumb(&page, bc, zebedeeResp.Description.Title, zebedeeResp.URI)
+
+	mapLatestRelease(&page, zebedeeResp.Description.ReleaseDate)
 	return page
 }
 
@@ -905,4 +907,14 @@ func mapPreviousReleaseBreadCrumb(page *model.SearchPage, bcs []zebedee.Breadcru
 	}, coreModel.TaxonomyNode{
 		Title: "Previous releases",
 	})
+}
+
+func mapLatestRelease(page *model.SearchPage, latestReleaseDate string) {
+	if len(page.Data.Response.Items) > 0 {
+		for index := range page.Data.Response.Items {
+			if page.Data.Response.Items[index].Description.ReleaseDate == latestReleaseDate {
+				page.Data.Response.Items[index].IsLatestRelease = true
+			}
+		}
+	}
 }
