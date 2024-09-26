@@ -522,6 +522,7 @@ func mapItemDescription(item *model.ContentItem, itemC *searchModels.Item) {
 		ReleaseDate:     itemC.ReleaseDate,
 		Summary:         itemC.Summary,
 		Title:           itemC.Title,
+		Edition:         itemC.Edition,
 	}
 
 	if len(itemC.Keywords) != 0 {
