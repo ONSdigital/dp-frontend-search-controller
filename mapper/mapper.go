@@ -112,9 +112,7 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 
 	page.Metadata.Title = zebedeeResp.Description.Title
 	page.Metadata.Description = zebedeeResp.Description.MetaDescription
-	page.Type = zebedeeResp.Type
-	page.Title.LocaliseKeyName = "SearchResults"
-	page.Data.TermLocalKey = "Results"
+	page.Type = "previous-releases"
 	page.Count = respC.Count
 	page.Language = lang
 	page.BetaBannerEnabled = true
@@ -124,8 +122,6 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
 
 	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
-
-	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template, topic, validationErrs)
 
 	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
