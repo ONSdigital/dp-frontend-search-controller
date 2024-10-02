@@ -437,7 +437,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 
 		wg sync.WaitGroup
 
-		respErr, countErr error
+		respErr, countErr, bcErr error
 	)
 	wg.Add(counter)
 
@@ -446,7 +446,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		var homeErr error
 		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
 		if homeErr != nil {
-			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
+			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{homeErr}))
 			return
 		}
 	}()
@@ -474,9 +474,10 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	go func() {
 		defer wg.Done()
 
-		bc, err = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
-		if err != nil {
+		bc, bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
+		if bcErr != nil {
 			bc = []zebedeeCli.Breadcrumb{}
+			return
 		}
 	}()
 
