@@ -11,12 +11,7 @@
       </div>
 
     <div class="ons-grid__col ons-col-12@m">
-        <section role="contentinfo" aria-label="{{ localise "SearchResults" $lang  1 }}">
-          <div class="search__filter__mobile-filter-toggle hide">
-              <button id="filter-results" type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
-                <span class="ons-btn__inner">{{ localise "FilterResults" $lang 4 }}</span>
-              </button>
-          </div>
+        <section role="contentinfo">
           <div class="search__results">
             {{ template "partials/list" . }}
           </div>
