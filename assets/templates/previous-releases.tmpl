@@ -1,11 +1,13 @@
 {{ $lang := .Language }}
+{{ $firstResult := index .Data.Response.Items 0}}
+{{ $firstResultTypeLocalKey := $firstResult.Type.LocaliseKeyName }}
 <div class="ons-container search__container">
   <div class="ons-grid">
 
     <div class="ons-grid__col ons-col-12@m">
         <section class="search__summary" role="contentinfo">
             <div class="ons-u-fs-m ons-u-mt-s ons-u-pb-xxs release__document-type">{{ localise "PreviousReleases" $lang 1 }}</div>
-            <h1 class="ons-u-fs-xxxl">{{ .Metadata.Title }} {{ localise "StatisticalBulletin" $lang 4 }}</h1>
+            <h1 class="ons-u-fs-xxxl">{{ .Metadata.Title }}  {{ localise $firstResultTypeLocalKey $lang 4 }}</h1>
             <p> {{ .Metadata.Description }}</p>
         </section>
       </div>
