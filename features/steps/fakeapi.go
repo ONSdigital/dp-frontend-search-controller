@@ -45,7 +45,7 @@ func (f *FakeAPI) setJSONResponseForGetPageData(url string, pageType string, sta
 	f.fakeHTTP.NewHandler().Get(path).Reply(statusCode).BodyString(bodyStr)
 }
 
-func (f *FakeAPI) setJSONResponseForGetBreadcrumb(url string) {
+func (f *FakeAPI) setJSONResponseForGetBreadcrumb(url string, status int) {
 	//specialCharUrl := strings.Replace(url, "/", "%2F", -1)
 	path := "/parents?uri=" + url
 	bodyStr := `[
@@ -53,5 +53,5 @@ func (f *FakeAPI) setJSONResponseForGetBreadcrumb(url string) {
    		{"uri": "/economy", "description": {"title": "Economy"}, "type": "taxonomy_landing_page"},
    		{"uri": "/economy/grossdomesticproductgdp", "description": {"title":"Gross Domestic Product (GDP)"}, "type": "product_page"}
 	]`
-	f.fakeHTTP.NewHandler().Get(path).Reply(200).BodyString(bodyStr)
+	f.fakeHTTP.NewHandler().Get(path).Reply(status).BodyString(bodyStr)
 }

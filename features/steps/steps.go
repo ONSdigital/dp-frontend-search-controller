@@ -60,7 +60,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page of type "([^"]*)" with status (\d+)$`, c.getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus)
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" does not find the page$`, c.getPageDataRequestToZebedeeForDoesNotFindThePage)
 	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" returns breadcrumbs`, c.getBreadcrumbRequestToZebedeeForReturnsAPageOfTypeWithStatus)
-	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" does not find the page$`, c.getBreadcrumbRequestToZebedeeForReturnsAPageOfTypeWithStatus)
+	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" fails`, c.getBreadcrumbRequestToZebedeeFails)
 }
 
 func (c *Component) theSearchControllerIsRunning() error {
@@ -347,11 +347,11 @@ func (c *Component) getPageDataRequestToZebedeeForDoesNotFindThePage(url string)
 }
 
 func (c *Component) getBreadcrumbRequestToZebedeeForReturnsAPageOfTypeWithStatus(url string) error {
-	c.FakeAPIRouter.setJSONResponseForGetBreadcrumb(url)
+	c.FakeAPIRouter.setJSONResponseForGetBreadcrumb(url, 200)
 	return nil
 }
 
-func (c *Component) getBreadcrumbRequestToZebedeeForDoesNotFindThePage(url string) error {
-	c.FakeAPIRouter.setJSONResponseForGetBreadcrumb(url)
+func (c *Component) getBreadcrumbRequestToZebedeeFails(url string) error {
+	c.FakeAPIRouter.setJSONResponseForGetBreadcrumb(url, 500)
 	return nil
 }
