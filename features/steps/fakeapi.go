@@ -46,7 +46,6 @@ func (f *FakeAPI) setJSONResponseForGetPageData(url string, pageType string, sta
 }
 
 func (f *FakeAPI) setJSONResponseForGetBreadcrumb(url string, status int) {
-	//specialCharUrl := strings.Replace(url, "/", "%2F", -1)
 	path := "/parents?uri=" + url
 	bodyStr := `[
    		{"uri": "/", "description": {"title": "Home"}, "type": "home_page"}, 
