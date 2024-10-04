@@ -7,7 +7,6 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -28,6 +27,12 @@ var mockTopicCategories = []data.Topic{
 		Query:              "1234",
 		ShowInWebUI:        true,
 	},
+}
+
+var expectedMappedBreadcrumb = []coreModel.TaxonomyNode{
+	{Title: "Home", URI: "/"},
+	{Title: "Economy", URI: "/economy"},
+	{Title: "Test", URI: "/economy/test"},
 }
 
 const englishLang string = "en"
@@ -643,8 +648,11 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 		respC, err := GetMockSearchResponse()
 		So(err, ShouldBeNil)
 
+		respBc, err := GetMockBreadcrumbResponse()
+		So(err, ShouldBeNil)
+
 		Convey("When CreatePreviousReleasesPage is called", func() {
-			sp := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil, respZ, []zebedee.Breadcrumb{})
+			sp := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil, respZ, respBc)
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)
@@ -670,6 +678,15 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 				So(sp.Data.Response.Items[0].URI, ShouldEqual, "/uri1/housing/articles/uri2/2015-02-17")
 
 				So(sp.ServiceMessage, ShouldEqual, respH.ServiceMessage)
+
+				So(len(sp.Breadcrumb), ShouldEqual, 5)
+				So(sp.Breadcrumb[0], ShouldResemble, expectedMappedBreadcrumb[0])
+				So(sp.Breadcrumb[1], ShouldResemble, expectedMappedBreadcrumb[1])
+				So(sp.Breadcrumb[2], ShouldResemble, expectedMappedBreadcrumb[2])
+				So(sp.Breadcrumb[3].Title, ShouldEqual, "Foo bar bulletin")
+				So(sp.Breadcrumb[3].URI, ShouldEqual, "foo/bar/1/2/3")
+				So(sp.Breadcrumb[4].Title, ShouldEqual, "Previous releases")
+				So(sp.Breadcrumb[4].URI, ShouldBeEmpty)
 
 				So(sp.EmergencyBanner.Type, ShouldEqual, strings.Replace(respH.EmergencyBanner.Type, "_", "-", -1))
 				So(sp.EmergencyBanner.Title, ShouldEqual, respH.EmergencyBanner.Title)

@@ -77,3 +77,19 @@ func GetMockZebedeePageDataResponse() (zebedeeC.PageData, error) {
 
 	return hc, nil
 }
+
+func GetMockBreadcrumbResponse() ([]zebedeeC.Breadcrumb, error) {
+	var bc []zebedeeC.Breadcrumb
+
+	mockContent, err := res.ReadFile("data/mock_breadcrumb_response.json")
+	if err != nil {
+		return []zebedeeC.Breadcrumb{}, err
+	}
+
+	err = json.Unmarshal(mockContent, &bc)
+	if err != nil {
+		return []zebedeeC.Breadcrumb{}, err
+	}
+
+	return bc, nil
+}
