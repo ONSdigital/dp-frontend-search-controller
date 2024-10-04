@@ -496,3 +496,7 @@ one = "Enter a real date"
 [ValidationInvalidDateRange]
 description = "Enter a released before year that is later than (after year value injected by JS)"
 one = "Enter a released before year that is later than"
+
+[LatestRelease]
+description = "Latest release"
+one = "Latest release"
