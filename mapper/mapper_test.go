@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
+	"github.com/ONSdigital/dp-frontend-search-controller/model"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
 	helper "github.com/ONSdigital/dp-renderer/v2/helper"
@@ -662,6 +663,7 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 				So(sp.Data.Response.Items[0].Description.ReleaseDate, ShouldEqual, "2015-02-17T00:00:00.000Z")
 				So(sp.Data.Response.Items[0].Description.Summary, ShouldEqual, "Test Summary")
 				So(sp.Data.Response.Items[0].Description.Title, ShouldEqual, "Title Title")
+				So(sp.Data.Response.Items[0].IsLatestRelease, ShouldBeTrue)
 
 				So(sp.Data.Response.Items[0].Type.Type, ShouldEqual, "article")
 				So(sp.Data.Response.Items[0].Type.LocaliseKeyName, ShouldEqual, "Article")
@@ -674,7 +676,33 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 				So(sp.EmergencyBanner.Description, ShouldEqual, respH.EmergencyBanner.Description)
 				So(sp.EmergencyBanner.URI, ShouldEqual, respH.EmergencyBanner.URI)
 				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
+
 			})
+		})
+	})
+}
+
+func TestMapLatestRelease(t *testing.T) {
+	t.Parallel()
+
+	Convey("When mapLatestRelease is called", t, func() {
+		Convey("with a date that should match one item in response", func() {
+			page := model.SearchPage{}
+			searchResponse, _ := GetMockSearchResponse()
+			mapResponse(&page, searchResponse, []data.Category{})
+			latestReleaseDate := "2015-02-17T00:00:00.000Z"
+
+			mapLatestRelease(&page, latestReleaseDate)
+			So(page.Data.Response.Items[0].IsLatestRelease, ShouldBeTrue)
+		})
+		Convey("with a date that doesn't match one item in response", func() {
+			page := model.SearchPage{}
+			searchResponse, _ := GetMockSearchResponse()
+			mapResponse(&page, searchResponse, []data.Category{})
+			latestReleaseDate := "2022-02-17T00:00:00.000Z"
+
+			mapLatestRelease(&page, latestReleaseDate)
+			So(page.Data.Response.Items[0].IsLatestRelease, ShouldBeFalse)
 		})
 	})
 }
