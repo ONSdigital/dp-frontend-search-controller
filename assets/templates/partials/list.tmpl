@@ -3,7 +3,6 @@
 {{ $itemsPerPage := .Data.Pagination.Limit }}
 {{ $totalSearchPosition := multiply (subtract $currentPage 1) $itemsPerPage }}
 {{ $response := .Data.Response }}
-{{ $datasetFinder := .Data.PopulationTypeFilter }}
 
 <div id="results">
     <div id="results-loading" class="ons-panel ons-panel--info ons-panel--no-title hide">
