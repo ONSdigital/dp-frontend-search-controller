@@ -110,7 +110,8 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 		Page: basePage,
 	}
 
-	page.Metadata.Title = zebedeeResp.Description.Title
+	page.Metadata.Title = "Previous releases for " + zebedeeResp.Description.Title
+	page.Title.Title = zebedeeResp.Description.Title
 	page.Metadata.Description = zebedeeResp.Description.MetaDescription
 	page.Type = "previous-releases"
 	page.Count = respC.Count

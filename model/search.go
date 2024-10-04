@@ -200,5 +200,6 @@ type MatchDetails struct {
 }
 
 type Title struct {
+	Title           string `json:"title"`
 	LocaliseKeyName string `json:"localise_key"`
 }
