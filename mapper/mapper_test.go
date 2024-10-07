@@ -709,7 +709,10 @@ func TestMapLatestRelease(t *testing.T) {
 			latestReleaseDate := "2015-02-17T00:00:00.000Z"
 
 			mapLatestRelease(&page, latestReleaseDate)
-			So(page.Data.Response.Items[0].IsLatestRelease, ShouldBeTrue)
+
+			Convey("then the matching item should be marked as the latest release", func() {
+				So(page.Data.Response.Items[0].IsLatestRelease, ShouldBeTrue)
+			})
 		})
 		Convey("with a date that doesn't match one item in response", func() {
 			page := model.SearchPage{}
@@ -718,7 +721,10 @@ func TestMapLatestRelease(t *testing.T) {
 			latestReleaseDate := "2022-02-17T00:00:00.000Z"
 
 			mapLatestRelease(&page, latestReleaseDate)
-			So(page.Data.Response.Items[0].IsLatestRelease, ShouldBeFalse)
+
+			Convey("then no item should be marked as the latest release", func() {
+				So(page.Data.Response.Items[0].IsLatestRelease, ShouldBeFalse)
+			})
 		})
 	})
 }
