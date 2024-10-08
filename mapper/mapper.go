@@ -178,10 +178,10 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Data.TopicFilterEnabled = true
 		page.Data.EnableTimeSeriesExport = true
 	}
-
+	
 	page.Data.KeywordFilter = coreModel.CompactSearch{
 		ElementId: "keywords",
-		InputName: "q",
+		InputName: "kw-query",
 		Language:  lang,
 		Label: coreModel.Localisation{
 			LocaleKey: "SearchKeywords",

@@ -1,8 +1,5 @@
 {{ $lang := .Language }}
-{{ $query := .Data.Query }}
-{{ $filter := .Data.Filter }}
 
-<input type="hidden" name="q" value="{{ $query }}">
 {{ range $theFilter := .Data.Filter }}
     <input type="hidden" name="filter" value="{{ $theFilter }}">
 {{end}}
