@@ -311,7 +311,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 
 		mockKeywordFilter := coreModel.CompactSearch{
 			ElementId: "keywords",
-			InputName: "q",
+			InputName: "kw-query",
 			Language:  englishLang,
 			Label: coreModel.Localisation{
 				LocaleKey: "SearchKeywords",
