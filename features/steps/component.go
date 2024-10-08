@@ -78,6 +78,7 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.subSubTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.previousReleasesRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/economy/previousreleases")
 	c.FakeAPIRouter.navigationRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/data")
+	c.FakeAPIRouter.breadcrumbRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/parents")
 
 	c.zebedeeClient = zebedeeCli.New(c.Config.APIRouterURL)
 

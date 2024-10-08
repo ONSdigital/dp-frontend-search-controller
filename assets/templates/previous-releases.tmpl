@@ -1,29 +1,21 @@
 {{ $lang := .Language }}
+{{ $firstResult := index .Data.Response.Items 0}}
+{{ $firstResultTypeLocalKey := $firstResult.Type.LocaliseKeyName }}
 <div class="ons-container search__container">
   <div class="ons-grid">
 
     <div class="ons-grid__col ons-col-12@m">
-        <section class="search__summary" role="contentinfo"  aria-label="{{ localise "SearchSummary" $lang 4 }}">
-            <h1 class="ons-u-fs-xxxl">{{ .Metadata.Title }}</h1>
+        <section class="search__summary" role="contentinfo">
+            <div class="ons-u-fs-m ons-u-mt-s ons-u-pb-xxs release__document-type">{{ localise "PreviousReleases" $lang 1 }}</div>
+            <h1 class="ons-u-fs-xxxl">{{ .Title.Title }}  {{ localise $firstResultTypeLocalKey $lang 4 }}</h1>
             <p> {{ .Metadata.Description }}</p>
         </section>
       </div>
 
     <div class="ons-grid__col ons-col-12@m">
-        <section role="contentinfo" aria-label="{{ localise "SearchResults" $lang  1 }}">
-          <div class="search__count">
-            {{ template "partials/count" . }}
-          </div>
-          <div class="search__sort">
-            {{ template "partials/sort" . }}
-          </div>
-          <div class="search__filter__mobile-filter-toggle hide">
-              <button id="filter-results" type="button" class="ons-btn ons-btn--secondary" aria-controls="search-filter">
-                <span class="ons-btn__inner">{{ localise "FilterResults" $lang 4 }}</span>
-              </button>
-          </div>
+        <section>
           <div class="search__results">
-            {{ template "partials/results" . }}
+            {{ template "partials/list" . }}
           </div>
           <div class="search__pagination">
             {{ template "partials/search-pagination" . }}

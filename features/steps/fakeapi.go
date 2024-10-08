@@ -1,8 +1,9 @@
 package steps
 
 import (
-	"github.com/maxcnunes/httpfake"
 	"strings"
+
+	"github.com/maxcnunes/httpfake"
 )
 
 // FakeAPI contains all the information for a fake component API
@@ -17,6 +18,7 @@ type FakeAPI struct {
 	navigationRequest            *httpfake.Request
 	zebedeeRequest               *httpfake.Request
 	previousReleasesRequest      *httpfake.Request
+	breadcrumbRequest            *httpfake.Request
 	outboundRequests             []string
 	collectOutboundRequestBodies httpfake.CustomAssertor
 }
@@ -41,4 +43,14 @@ func (f *FakeAPI) setJSONResponseForGetPageData(url string, pageType string, sta
 		bodyStr = `{"type": "` + pageType + `", "description": {"title": "labour market statistics"}}`
 	}
 	f.fakeHTTP.NewHandler().Get(path).Reply(statusCode).BodyString(bodyStr)
+}
+
+func (f *FakeAPI) setJSONResponseForGetBreadcrumb(url string, status int) {
+	path := "/parents?uri=" + url
+	bodyStr := `[
+   		{"uri": "/", "description": {"title": "Home"}, "type": "home_page"}, 
+   		{"uri": "/economy", "description": {"title": "Economy"}, "type": "taxonomy_landing_page"},
+   		{"uri": "/economy/grossdomesticproductgdp", "description": {"title":"Gross Domestic Product (GDP)"}, "type": "product_page"}
+	]`
+	f.fakeHTTP.NewHandler().Get(path).Reply(status).BodyString(bodyStr)
 }

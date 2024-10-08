@@ -389,10 +389,11 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	template := "previous-releases"
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
+	latestContentURL := urlPath + "/latest"
 
 	sanitisedParams := sanitiseQueryParams(allowedPreviousReleasesQueryParams, urlQuery)
 	// check page type
-	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, urlPath+"/latest")
+	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, latestContentURL)
 	if err != nil {
 		log.Error(ctx, "failed to get content type", err)
 		w.WriteHeader(http.StatusNotFound)
@@ -420,22 +421,23 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		})
 		// Errors are now mapped to the page model to output feedback to the user rather than
 		// a blank 400 error response.
-		m := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{})
+		m := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{}, []zebedeeCli.Breadcrumb{})
 		buildDataAggregationPage(w, m, rend, template)
 		return
 	}
 
 	// counter used to keep track of the number of concurrent API calls
-	var counter = 2
+	var counter = 3
 	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
 
 	var (
 		homepageResp zebedeeCli.HomepageContent
 		searchResp   = &searchModels.SearchResponse{}
+		bc           []zebedeeCli.Breadcrumb
 
 		wg sync.WaitGroup
 
-		respErr, countErr error
+		respErr, countErr, bcErr error
 	)
 	wg.Add(counter)
 
@@ -444,7 +446,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		var homeErr error
 		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
 		if homeErr != nil {
-			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
+			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{homeErr}))
 			return
 		}
 	}()
@@ -469,6 +471,16 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		}
 	}()
 
+	go func() {
+		defer wg.Done()
+
+		bc, bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
+		if bcErr != nil {
+			bc = []zebedeeCli.Breadcrumb{}
+			return
+		}
+	}()
+
 	wg.Wait()
 	if respErr != nil || countErr != nil {
 		setStatusCode(w, req, respErr)
@@ -483,12 +495,12 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 				Text: "current page exceeds total pages",
 			},
 		})
-		m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+		m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 		rend.BuildPage(w, m, template)
 		return
 	}
 
-	m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+	m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 	rend.BuildPage(w, m, template)
 }
 

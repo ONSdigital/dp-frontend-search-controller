@@ -214,6 +214,9 @@ var _ ZebedeeClient = &ZebedeeClientMock{}
 //
 //		// make and configure a mocked ZebedeeClient
 //		mockedZebedeeClient := &ZebedeeClientMock{
+//			GetBreadcrumbFunc: func(ctx context.Context, userAccessToken string, collectionID string, lang string, uri string) ([]zebedeeCli.Breadcrumb, error) {
+//				panic("mock out the GetBreadcrumb method")
+//			},
 //			GetHomepageContentFunc: func(ctx context.Context, userAuthToken string, collectionID string, lang string, path string) (zebedeeCli.HomepageContent, error) {
 //				panic("mock out the GetHomepageContent method")
 //			},
@@ -227,6 +230,9 @@ var _ ZebedeeClient = &ZebedeeClientMock{}
 //
 //	}
 type ZebedeeClientMock struct {
+	// GetBreadcrumbFunc mocks the GetBreadcrumb method.
+	GetBreadcrumbFunc func(ctx context.Context, userAccessToken string, collectionID string, lang string, uri string) ([]zebedeeCli.Breadcrumb, error)
+
 	// GetHomepageContentFunc mocks the GetHomepageContent method.
 	GetHomepageContentFunc func(ctx context.Context, userAuthToken string, collectionID string, lang string, path string) (zebedeeCli.HomepageContent, error)
 
@@ -235,6 +241,19 @@ type ZebedeeClientMock struct {
 
 	// calls tracks calls to the methods.
 	calls struct {
+		// GetBreadcrumb holds details about calls to the GetBreadcrumb method.
+		GetBreadcrumb []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// UserAccessToken is the userAccessToken argument value.
+			UserAccessToken string
+			// CollectionID is the collectionID argument value.
+			CollectionID string
+			// Lang is the lang argument value.
+			Lang string
+			// URI is the uri argument value.
+			URI string
+		}
 		// GetHomepageContent holds details about calls to the GetHomepageContent method.
 		GetHomepageContent []struct {
 			// Ctx is the ctx argument value.
@@ -262,8 +281,57 @@ type ZebedeeClientMock struct {
 			Path string
 		}
 	}
+	lockGetBreadcrumb      sync.RWMutex
 	lockGetHomepageContent sync.RWMutex
 	lockGetPageData        sync.RWMutex
+}
+
+// GetBreadcrumb calls GetBreadcrumbFunc.
+func (mock *ZebedeeClientMock) GetBreadcrumb(ctx context.Context, userAccessToken string, collectionID string, lang string, uri string) ([]zebedeeCli.Breadcrumb, error) {
+	if mock.GetBreadcrumbFunc == nil {
+		panic("ZebedeeClientMock.GetBreadcrumbFunc: method is nil but ZebedeeClient.GetBreadcrumb was just called")
+	}
+	callInfo := struct {
+		Ctx             context.Context
+		UserAccessToken string
+		CollectionID    string
+		Lang            string
+		URI             string
+	}{
+		Ctx:             ctx,
+		UserAccessToken: userAccessToken,
+		CollectionID:    collectionID,
+		Lang:            lang,
+		URI:             uri,
+	}
+	mock.lockGetBreadcrumb.Lock()
+	mock.calls.GetBreadcrumb = append(mock.calls.GetBreadcrumb, callInfo)
+	mock.lockGetBreadcrumb.Unlock()
+	return mock.GetBreadcrumbFunc(ctx, userAccessToken, collectionID, lang, uri)
+}
+
+// GetBreadcrumbCalls gets all the calls that were made to GetBreadcrumb.
+// Check the length with:
+//
+//	len(mockedZebedeeClient.GetBreadcrumbCalls())
+func (mock *ZebedeeClientMock) GetBreadcrumbCalls() []struct {
+	Ctx             context.Context
+	UserAccessToken string
+	CollectionID    string
+	Lang            string
+	URI             string
+} {
+	var calls []struct {
+		Ctx             context.Context
+		UserAccessToken string
+		CollectionID    string
+		Lang            string
+		URI             string
+	}
+	mock.lockGetBreadcrumb.RLock()
+	calls = mock.calls.GetBreadcrumb
+	mock.lockGetBreadcrumb.RUnlock()
+	return calls
 }
 
 // GetHomepageContent calls GetHomepageContentFunc.

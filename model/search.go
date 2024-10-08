@@ -117,11 +117,12 @@ type ContentType struct {
 
 // ContentItem represents each search result
 type ContentItem struct {
-	Type        ContentItemType `json:"type"`
-	Dataset     Dataset         `json:"dataset"`
-	Description Description     `json:"description"`
-	URI         string          `json:"uri"`
-	Matches     *Matches        `json:"matches,omitempty"`
+	Type            ContentItemType `json:"type"`
+	Dataset         Dataset         `json:"dataset"`
+	Description     Description     `json:"description"`
+	URI             string          `json:"uri"`
+	Matches         *Matches        `json:"matches,omitempty"`
+	IsLatestRelease bool            `json:"is_latest_release"`
 }
 
 // ContentItemType represents the type of each search result
@@ -199,5 +200,6 @@ type MatchDetails struct {
 }
 
 type Title struct {
+	Title           string `json:"title"`
 	LocaliseKeyName string `json:"localise_key"`
 }
