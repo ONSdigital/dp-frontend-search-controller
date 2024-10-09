@@ -182,7 +182,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 
 	page.Data.KeywordFilter = coreModel.CompactSearch{
 		ElementId: "keywords",
-		InputName: "kw-query",
+		InputName: "q",
 		Language:  lang,
 		Label: coreModel.Localisation{
 			LocaleKey: "SearchKeywords",
