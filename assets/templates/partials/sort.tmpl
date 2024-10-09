@@ -1,9 +1,5 @@
 {{ $lang := .Language }}
 
-{{ range $theFilter := .Data.Filter }}
-    <input type="hidden" name="filter" value="{{ $theFilter }}">
-{{end}}
-
 <div class="ons-grid ons-grid--flex@m ons-u-pb-s">
   <div class="ons-grid__col ons-u-wa--">
     <div class="ons-field--inline">
