@@ -11,6 +11,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
+	"github.com/davecgh/go-spew/spew"
 
 	core "github.com/ONSdigital/dp-renderer/v2/model"
 )
@@ -163,7 +164,7 @@ func ReviewPreviousReleasesQueryWithParams(ctx context.Context, cfg *config.Conf
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for previous releases", PaginationErr, validationErrs)
 	reviewSort(ctx, urlQuery, &sp, cfg.DefaultPreviousReleasesSort)
-
+	spew.Dump(sp)
 	return sp, validationErrs
 }
 
@@ -499,4 +500,18 @@ func createSearchControllerQuery(validatedQueryParams SearchURLParams) url.Value
 		"limit":            []string{strconv.Itoa(validatedQueryParams.Limit)},
 		"page":             []string{strconv.Itoa(validatedQueryParams.CurrentPage)},
 	}
+}
+
+// SetParentTypeOnSearchAPIQuery sets the parent type (e.g. if this is previous releases for a bulletin) on the search API query
+func SetParentTypeOnSearchAPIQuery(validatedQueryParams SearchURLParams, parentType string) url.Values {
+	apiQuery := createSearchAPIQuery(validatedQueryParams)
+
+	if apiQuery.Get("content_type") == "" {
+		apiQuery.Set("content_type", parentType)
+	} else {
+		updateQueryWithAPIFilters(apiQuery)
+	}
+
+	spew.Dump(apiQuery)
+	return apiQuery
 }

@@ -428,7 +428,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 
 	// counter used to keep track of the number of concurrent API calls
 	var counter = 3
-	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
+	searchQuery := data.SetParentTypeOnSearchAPIQuery(validatedQueryParams, pageData.Type)
 
 	var (
 		homepageResp zebedeeCli.HomepageContent
