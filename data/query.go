@@ -11,7 +11,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
-	"github.com/davecgh/go-spew/spew"
 
 	core "github.com/ONSdigital/dp-renderer/v2/model"
 )
@@ -164,7 +163,6 @@ func ReviewPreviousReleasesQueryWithParams(ctx context.Context, cfg *config.Conf
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for previous releases", PaginationErr, validationErrs)
 	reviewSort(ctx, urlQuery, &sp, cfg.DefaultPreviousReleasesSort)
-	spew.Dump(sp)
 	return sp, validationErrs
 }
 
@@ -512,6 +510,5 @@ func SetParentTypeOnSearchAPIQuery(validatedQueryParams SearchURLParams, parentT
 		updateQueryWithAPIFilters(apiQuery)
 	}
 
-	spew.Dump(apiQuery)
 	return apiQuery
 }
