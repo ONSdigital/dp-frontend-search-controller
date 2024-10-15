@@ -43,6 +43,7 @@ type SearchClient interface {
 type ZebedeeClient interface {
 	GetHomepageContent(ctx context.Context, userAuthToken, collectionID, lang, path string) (m zebedee.HomepageContent, err error)
 	GetPageData(ctx context.Context, userAuthToken, collectionID, lang, path string) (m zebedee.PageData, err error)
+	GetBreadcrumb(ctx context.Context, userAccessToken, collectionID, lang, uri string) (bc []zebedee.Breadcrumb, err error)
 }
 
 // TopicClient is an interface with methods required for a zebedee client

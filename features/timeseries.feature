@@ -42,7 +42,7 @@ Feature: Timeseries Tool
             "h2#error-summary-title": "There is a problem with this page"
         }
     """
-  
+
   Scenario: GET /timeseriestool and check invalid params - date
     Given there is a Search API that gives a successful response and returns 0 results
     And the search controller is running

@@ -1,6 +1,8 @@
 package steps
 
 import (
+	"strings"
+
 	"github.com/maxcnunes/httpfake"
 )
 
@@ -14,6 +16,9 @@ type FakeAPI struct {
 	subTopicRequest              *httpfake.Request
 	subSubTopicRequest           *httpfake.Request
 	navigationRequest            *httpfake.Request
+	zebedeeRequest               *httpfake.Request
+	previousReleasesRequest      *httpfake.Request
+	breadcrumbRequest            *httpfake.Request
 	outboundRequests             []string
 	collectOutboundRequestBodies httpfake.CustomAssertor
 }
@@ -28,4 +33,24 @@ func NewFakeAPI() *FakeAPI {
 // Close closes the fake API
 func (f *FakeAPI) Close() {
 	f.fakeHTTP.Close()
+}
+
+func (f *FakeAPI) setJSONResponseForGetPageData(url string, pageType string, statusCode int) {
+	specialCharUrl := strings.Replace(url, "/", "%2F", -1)
+	path := "/data?uri=" + specialCharUrl + "&lang=en"
+	bodyStr := `{}`
+	if pageType != "" {
+		bodyStr = `{"type": "` + pageType + `", "description": {"title": "labour market statistics"}}`
+	}
+	f.fakeHTTP.NewHandler().Get(path).Reply(statusCode).BodyString(bodyStr)
+}
+
+func (f *FakeAPI) setJSONResponseForGetBreadcrumb(url string, status int) {
+	path := "/parents?uri=" + url
+	bodyStr := `[
+   		{"uri": "/", "description": {"title": "Home"}, "type": "home_page"}, 
+   		{"uri": "/economy", "description": {"title": "Economy"}, "type": "taxonomy_landing_page"},
+   		{"uri": "/economy/grossdomesticproductgdp", "description": {"title":"Gross Domestic Product (GDP)"}, "type": "product_page"}
+	]`
+	f.fakeHTTP.NewHandler().Get(path).Reply(status).BodyString(bodyStr)
 }

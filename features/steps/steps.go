@@ -57,12 +57,14 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsATopicAndSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic, the "([^"]*)" subtopic and "([^"]*)" thirdlevel subtopic$`, c.thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
-
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page of type "([^"]*)" with status (\d+)$`, c.getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus)
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" does not find the page$`, c.getPageDataRequestToZebedeeForDoesNotFindThePage)
+	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" returns breadcrumbs`, c.getBreadcrumbRequestToZebedeeForReturnsAPageOfTypeWithStatus)
+	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" fails`, c.getBreadcrumbRequestToZebedeeFails)
 }
 
 func (c *Component) theSearchControllerIsRunning() error {
 	ctx := context.Background()
-
 	initFunctions := &mocks.InitialiserMock{
 		DoGetHTTPServerFunc:   c.getHTTPServer,
 		DoGetHealthCheckFunc:  getHealthCheckOK,
@@ -82,7 +84,6 @@ func (c *Component) theSearchControllerIsRunning() error {
 	c.StartTime = time.Now()
 	c.svc.Run(ctx, svcErrors)
 	c.ServiceRunning = true
-
 	return nil
 }
 
@@ -197,7 +198,6 @@ func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResul
 	defer c.FakeAPIRouter.searchRequest.Unlock()
 
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(count)
-
 	return nil
 }
 
@@ -333,5 +333,25 @@ func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequ
 	c.FakeAPIRouter.subTopicRequest.Get(fakeTopicRequestPath)
 	c.FakeAPIRouter.subTopicRequest.Response = topicAPIResponse
 
+	return nil
+}
+
+func (c *Component) getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus(url, pageType string, statusCode int) error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, pageType, statusCode)
+	return nil
+}
+
+func (c *Component) getPageDataRequestToZebedeeForDoesNotFindThePage(url string) error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, "", 404)
+	return nil
+}
+
+func (c *Component) getBreadcrumbRequestToZebedeeForReturnsAPageOfTypeWithStatus(url string) error {
+	c.FakeAPIRouter.setJSONResponseForGetBreadcrumb(url, 200)
+	return nil
+}
+
+func (c *Component) getBreadcrumbRequestToZebedeeFails(url string) error {
+	c.FakeAPIRouter.setJSONResponseForGetBreadcrumb(url, 500)
 	return nil
 }

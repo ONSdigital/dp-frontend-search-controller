@@ -104,17 +104,16 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 // CreatePreviousReleasesPage maps type searchC.Response to model.Page
 func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
 	validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
-	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem, zebedeeResp zebedee.PageData,
+	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem, zebedeeResp zebedee.PageData, bc []zebedee.Breadcrumb,
 ) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
 	}
 
 	page.Metadata.Title = "Previous releases for " + zebedeeResp.Description.Title
+	page.Title.Title = zebedeeResp.Description.Title
 	page.Metadata.Description = zebedeeResp.Description.MetaDescription
-	page.Type = zebedeeResp.Type
-	page.Title.LocaliseKeyName = "SearchResults"
-	page.Data.TermLocalKey = "Results"
+	page.Type = "previous-releases"
 	page.Count = respC.Count
 	page.Language = lang
 	page.BetaBannerEnabled = true
@@ -125,12 +124,13 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 
 	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
 
-	mapDataPage(&page, respC, lang, req, cfg, validatedQueryParams, homepageResponse, navigationContent, template, topic, validationErrs)
-
 	mapQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
 
 	mapResponse(&page, respC, []data.Category{})
 
+	mapPreviousReleaseBreadCrumb(&page, bc, zebedeeResp.Description.Title, zebedeeResp.URI)
+
+	mapLatestRelease(&page, zebedeeResp.Description.ReleaseDate)
 	return page
 }
 
@@ -519,6 +519,7 @@ func mapItemDescription(item *model.ContentItem, itemC *searchModels.Item) {
 		ReleaseDate:     itemC.ReleaseDate,
 		Summary:         itemC.Summary,
 		Title:           itemC.Title,
+		Edition:         itemC.Edition,
 	}
 
 	if len(itemC.Keywords) != 0 {
@@ -885,4 +886,35 @@ func filterCategoriesByTemplate(template string, categories []data.Category) []d
 		return filteredCategories
 	}
 	return categories
+}
+
+// mapBreadcrumb maps breadcrumb response from Zebedee to page model
+func mapBreadcrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb) {
+	for _, bc := range bcs {
+		page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
+			Title: bc.Description.Title,
+			URI:   bc.URI,
+		})
+	}
+}
+
+// mapPreviousReleaseBreadCrumb appends parent bulletin and "Previous releases" to Zebedee breadcrumb response
+func mapPreviousReleaseBreadCrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb, parentPageTitle, parentPageURL string) {
+	mapBreadcrumb(page, bcs)
+	page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
+		Title: parentPageTitle,
+		URI:   parentPageURL,
+	}, coreModel.TaxonomyNode{
+		Title: "Previous releases",
+	})
+}
+
+func mapLatestRelease(page *model.SearchPage, latestReleaseDate string) {
+	if len(page.Data.Response.Items) > 0 {
+		for index := range page.Data.Response.Items {
+			if page.Data.Response.Items[index].Description.ReleaseDate == latestReleaseDate {
+				page.Data.Response.Items[index].IsLatestRelease = true
+			}
+		}
+	}
 }
