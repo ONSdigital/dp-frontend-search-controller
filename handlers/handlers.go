@@ -1061,7 +1061,7 @@ func checkAllowedPageTypesAndHandle(ctx context.Context, w http.ResponseWriter, 
 	return pageData
 }
 
-// getNavigationCache returns cachedd navigation data
+// getNavigationCache returns cached navigation data
 func getNavigationCache(ctx context.Context, w http.ResponseWriter, req *http.Request, cacheList cache.List, lang string) *models.Navigation {
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
 	if err != nil {
@@ -1069,4 +1069,35 @@ func getNavigationCache(ctx context.Context, w http.ResponseWriter, req *http.Re
 		setStatusCode(w, req, err)
 	}
 	return navigationCache
+}
+
+// getSearch performs a get request to search API
+func getSearch(ctx context.Context, searchC SearchClient, options searchSDK.Options, cancel func()) *searchModels.SearchResponse {
+	s, err := searchC.GetSearch(ctx, options)
+	if err != nil {
+		log.Error(ctx, "getting search response from client failed", err)
+		cancel()
+		return
+	}
+	return s
+}
+
+// getBreadcrumb performs a get request to zebedee for breadcrumb data
+func getBreadcrumb(ctx context.Context, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string) []zebedeeCli.Breadcrumb {
+	bc, err := zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, pageURL)
+	if err != nil {
+		log.Warn(ctx, "getting breadcrumb response from client failed", log.FormatErrors([]error{err}))
+		bc = []zebedeeCli.Breadcrumb{}
+	}
+	return bc
+}
+
+// getHomepageContent performs a get request to zebedee for breadcrumb data
+func getHomepageContent(ctx context.Context, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string) zebedeeCli.HomepageContent {
+	hp, err := zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+	if err != nil {
+		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
+		hp = zebedeeCli.HomepageContent{}
+	}
+	return hp
 }
