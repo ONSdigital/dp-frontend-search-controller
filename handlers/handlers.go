@@ -24,6 +24,7 @@ import (
 	core "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
+	"github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/feeds"
 	"github.com/gorilla/mux"
@@ -1045,18 +1046,27 @@ func sanitiseQueryParams(allowedParams []string, inputParams url.Values) url.Val
 	return sanitisedParams
 }
 
-func checkAllowedPageTypesAndHandle(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, accessToken, collectionID, lang, pageURI string, allowedPagewTypes []string) zebedeeCli.PageData {
-	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, pageURI)
+// checkAllowedPageTypesAndHandle calls Zebedee for a given URL and checks if it's page type matches against a list of allowed page types
+func checkAllowedPageTypesAndHandle(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string, allowedPagewTypes []string) zebedeeCli.PageData {
+	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, pageURL)
 	if err != nil {
 		log.Error(ctx, "failed to get content type", err)
 		w.WriteHeader(http.StatusNotFound)
-		return
 	}
 	if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
 		err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
 		log.Error(ctx, "page type isn't compatible with /previousreleases", err)
 		w.WriteHeader(http.StatusNotFound)
-		return
 	}
 	return pageData
+}
+
+// getNavigationCache returns cachedd navigation data
+func getNavigationCache(ctx context.Context, w http.ResponseWriter, req *http.Request, cacheList cache.List, lang string) *models.Navigation {
+	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
+	if err != nil {
+		log.Error(ctx, "failed to get navigation cache for aggregation", err)
+		setStatusCode(w, req, err)
+	}
+	return navigationCache
 }
