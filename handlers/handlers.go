@@ -1044,3 +1044,19 @@ func sanitiseQueryParams(allowedParams []string, inputParams url.Values) url.Val
 	}
 	return sanitisedParams
 }
+
+func checkAllowedPageTypesAndHandle(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, accessToken, collectionID, lang, pageURI string, allowedPagewTypes []string) zebedeeCli.PageData {
+	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, pageURI)
+	if err != nil {
+		log.Error(ctx, "failed to get content type", err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
+		err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
+		log.Error(ctx, "page type isn't compatible with /previousreleases", err)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	return pageData
+}
