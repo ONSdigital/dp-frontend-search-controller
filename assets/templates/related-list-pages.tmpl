@@ -7,7 +7,7 @@
     <div class="ons-grid__col ons-col-12@m">
         <section class="search__summary" role="contentinfo">
             {{ template "partials/type-label" . }}
-            <h1 class="ons-u-fs-xxxl">{{ .Title.Title }}  {{ localise $firstResultTypeLocalKey $lang 4 }}</h1>
+            <h1 class="ons-u-fs-xxxl">{{ .Title.Title }} {{ if eq .Type "previous-releases" }}{{ localise $firstResultTypeLocalKey $lang 4 }}{{ end }}</h1>
             <p> {{ .Metadata.Description }}</p>
         </section>
       </div>
