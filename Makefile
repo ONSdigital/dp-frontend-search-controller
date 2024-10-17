@@ -30,8 +30,13 @@ debug-watch:
 	reflex -d none -c ./reflex
 
 .PHONY: lint
-lint: generate-prod
-	golangci-lint run ./...
+lint: ## Used in ci to run linters against Go code
+	cp assets/assets.go assets/assets.go.bak
+	echo 'func Asset(_ string) ([]byte, error) { return nil, nil }' >> assets/assets.go
+	echo 'func AssetNames() []string { return []string{} }' >> assets/assets.go
+	gofmt -w assets/assets.go
+	golangci-lint run ./... || { echo "Linting failed, restoring original assets.go"; mv assets/assets.go.bak assets/assets.go; exit 1; }
+	mv assets/assets.go.bak assets/assets.go
 
 .PHONY: lint-local
 lint-local: ## Use locally to run linters against Go code
