@@ -396,7 +396,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
 	var err error
-	template := "previous-releases"
+	template := "related-list-pages"
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
 	latestContentURL := urlPath + "/latest"
