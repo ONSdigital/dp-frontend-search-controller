@@ -22,8 +22,10 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	core "github.com/ONSdigital/dp-renderer/v2/model"
+	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
+	searchError "github.com/ONSdigital/dp-search-api/sdk/errors"
 	"github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/feeds"
@@ -94,6 +96,13 @@ func ReadDataAggregation(cfg *config.Config, hc *HandlerClients, cacheList cache
 func ReadPreviousReleases(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readPreviousReleases(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
+	})
+}
+
+// ReadRelated data handles related data page
+func ReadRelatedData(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
+	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		readRelatedData(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
 	})
 }
 
@@ -1072,14 +1081,28 @@ func getNavigationCache(ctx context.Context, w http.ResponseWriter, req *http.Re
 }
 
 // getSearch performs a get request to search API
-func getSearch(ctx context.Context, searchC SearchClient, options searchSDK.Options, cancel func()) *searchModels.SearchResponse {
+func getSearch(ctx context.Context, searchC SearchClient, options searchSDK.Options, cancel func()) (*searchModels.SearchResponse, searchError.Error) {
 	s, err := searchC.GetSearch(ctx, options)
 	if err != nil {
 		log.Error(ctx, "getting search response from client failed", err)
 		cancel()
-		return
+		return nil, err
 	}
-	return s
+	return s, nil
+}
+
+// postSearchURIs posts a list of URIs to search API and gets a search response
+func postSearchURIs(ctx context.Context, searchC SearchClient, options searchSDK.Options, cancel func(), URIsRequest searchAPI.URIsRequest) (*searchModels.SearchResponse, searchError.Error) {
+	if len(URIsRequest.URIs) > 0 {
+		s, err := searchC.PostSearchURIs(ctx, options, URIsRequest)
+		if err != nil {
+			log.Error(ctx, "getting search response from client failed", err)
+			cancel()
+			return nil, err
+		}
+		return s, nil
+	}
+	return nil, nil
 }
 
 // getBreadcrumb performs a get request to zebedee for breadcrumb data
@@ -1093,10 +1116,10 @@ func getBreadcrumb(ctx context.Context, zc ZebedeeClient, accessToken, collectio
 }
 
 // getHomepageContent performs a get request to zebedee for breadcrumb data
-func getHomepageContent(ctx context.Context, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string) zebedeeCli.HomepageContent {
+func getHomepageContent(ctx context.Context, zc ZebedeeClient, accessToken, collectionID, lang string) zebedeeCli.HomepageContent {
 	hp, err := zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
 	if err != nil {
-		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
+		log.Warn(ctx, "getting homepage response from client failed", log.FormatErrors([]error{err}))
 		hp = zebedeeCli.HomepageContent{}
 	}
 	return hp
