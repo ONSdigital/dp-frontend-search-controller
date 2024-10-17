@@ -679,14 +679,12 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 
 				So(sp.ServiceMessage, ShouldEqual, respH.ServiceMessage)
 
-				So(len(sp.Breadcrumb), ShouldEqual, 5)
+				So(len(sp.Breadcrumb), ShouldEqual, 4)
 				So(sp.Breadcrumb[0], ShouldResemble, expectedMappedBreadcrumb[0])
 				So(sp.Breadcrumb[1], ShouldResemble, expectedMappedBreadcrumb[1])
 				So(sp.Breadcrumb[2], ShouldResemble, expectedMappedBreadcrumb[2])
 				So(sp.Breadcrumb[3].Title, ShouldEqual, "Foo bar bulletin")
 				So(sp.Breadcrumb[3].URI, ShouldEqual, "foo/bar/1/2/3")
-				So(sp.Breadcrumb[4].Title, ShouldEqual, "Previous releases")
-				So(sp.Breadcrumb[4].URI, ShouldBeEmpty)
 
 				So(sp.EmergencyBanner.Type, ShouldEqual, strings.Replace(respH.EmergencyBanner.Type, "_", "-", -1))
 				So(sp.EmergencyBanner.Title, ShouldEqual, respH.EmergencyBanner.Title)
