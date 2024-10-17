@@ -128,7 +128,7 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 
 	mapResponse(&page, respC, []data.Category{})
 
-	mapPreviousReleaseBreadCrumb(&page, bc, zebedeeResp.Description.Title, zebedeeResp.URI)
+	mapBreadcrumb(&page, bc, zebedeeResp.Description.Title, zebedeeResp.URI)
 
 	mapLatestRelease(&page, zebedeeResp.Description.ReleaseDate)
 	return page
@@ -888,24 +888,17 @@ func filterCategoriesByTemplate(template string, categories []data.Category) []d
 	return categories
 }
 
-// mapBreadcrumb maps breadcrumb response from Zebedee to page model
-func mapBreadcrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb) {
+// mapBreadcrumb appends parent bulletin and "Previous releases" to Zebedee breadcrumb response
+func mapBreadcrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb, parentPageTitle, parentPageURL string) {
 	for _, bc := range bcs {
 		page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
 			Title: bc.Description.Title,
 			URI:   bc.URI,
 		})
 	}
-}
-
-// mapPreviousReleaseBreadCrumb appends parent bulletin and "Previous releases" to Zebedee breadcrumb response
-func mapPreviousReleaseBreadCrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb, parentPageTitle, parentPageURL string) {
-	mapBreadcrumb(page, bcs)
 	page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
 		Title: parentPageTitle,
 		URI:   parentPageURL,
-	}, coreModel.TaxonomyNode{
-		Title: "Previous releases",
 	})
 }
 
