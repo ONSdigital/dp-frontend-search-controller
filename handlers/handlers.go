@@ -1055,19 +1055,19 @@ func sanitiseQueryParams(allowedParams []string, inputParams url.Values) url.Val
 	return sanitisedParams
 }
 
-// checkAllowedPageTypesAndHandle calls Zebedee for a given URL and checks if it's page type matches against a list of allowed page types
-func checkAllowedPageTypesAndHandle(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string, allowedPagewTypes []string) zebedeeCli.PageData {
+// checkAllowedPageTypes calls Zebedee for a given URL and checks if it's page type matches against a list of allowed page types
+func checkAllowedPageTypes(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string, allowedPagewTypes []string) (zebedeeCli.PageData, error) {
 	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, pageURL)
 	if err != nil {
 		log.Error(ctx, "failed to get content type", err)
-		w.WriteHeader(http.StatusNotFound)
+		return zebedeeCli.PageData{}, err
 	}
 	if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
 		err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
 		log.Error(ctx, "page type isn't compatible with /previousreleases", err)
-		w.WriteHeader(http.StatusNotFound)
+		return zebedeeCli.PageData{}, err
 	}
-	return pageData
+	return pageData, nil
 }
 
 // getNavigationCache returns cached navigation data
