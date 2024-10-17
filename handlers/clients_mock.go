@@ -7,6 +7,7 @@ import (
 	"context"
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	core "github.com/ONSdigital/dp-renderer/v2/model"
+	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	searchError "github.com/ONSdigital/dp-search-api/sdk/errors"
@@ -145,6 +146,9 @@ var _ SearchClient = &SearchClientMock{}
 //			GetSearchFunc: func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, searchError.Error) {
 //				panic("mock out the GetSearch method")
 //			},
+//			PostSearchURIsFunc: func(ctx context.Context, options searchSDK.Options, urisRequest searchAPI.URIsRequest) (*searchModels.SearchResponse, searchError.Error) {
+//				panic("mock out the PostSearchURIs method")
+//			},
 //		}
 //
 //		// use mockedSearchClient in code that requires SearchClient
@@ -155,6 +159,9 @@ type SearchClientMock struct {
 	// GetSearchFunc mocks the GetSearch method.
 	GetSearchFunc func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, searchError.Error)
 
+	// PostSearchURIsFunc mocks the PostSearchURIs method.
+	PostSearchURIsFunc func(ctx context.Context, options searchSDK.Options, urisRequest searchAPI.URIsRequest) (*searchModels.SearchResponse, searchError.Error)
+
 	// calls tracks calls to the methods.
 	calls struct {
 		// GetSearch holds details about calls to the GetSearch method.
@@ -164,8 +171,18 @@ type SearchClientMock struct {
 			// Options is the options argument value.
 			Options searchSDK.Options
 		}
+		// PostSearchURIs holds details about calls to the PostSearchURIs method.
+		PostSearchURIs []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Options is the options argument value.
+			Options searchSDK.Options
+			// UrisRequest is the urisRequest argument value.
+			UrisRequest searchAPI.URIsRequest
+		}
 	}
-	lockGetSearch sync.RWMutex
+	lockGetSearch      sync.RWMutex
+	lockPostSearchURIs sync.RWMutex
 }
 
 // GetSearch calls GetSearchFunc.
@@ -201,6 +218,46 @@ func (mock *SearchClientMock) GetSearchCalls() []struct {
 	mock.lockGetSearch.RLock()
 	calls = mock.calls.GetSearch
 	mock.lockGetSearch.RUnlock()
+	return calls
+}
+
+// PostSearchURIs calls PostSearchURIsFunc.
+func (mock *SearchClientMock) PostSearchURIs(ctx context.Context, options searchSDK.Options, urisRequest searchAPI.URIsRequest) (*searchModels.SearchResponse, searchError.Error) {
+	if mock.PostSearchURIsFunc == nil {
+		panic("SearchClientMock.PostSearchURIsFunc: method is nil but SearchClient.PostSearchURIs was just called")
+	}
+	callInfo := struct {
+		Ctx         context.Context
+		Options     searchSDK.Options
+		UrisRequest searchAPI.URIsRequest
+	}{
+		Ctx:         ctx,
+		Options:     options,
+		UrisRequest: urisRequest,
+	}
+	mock.lockPostSearchURIs.Lock()
+	mock.calls.PostSearchURIs = append(mock.calls.PostSearchURIs, callInfo)
+	mock.lockPostSearchURIs.Unlock()
+	return mock.PostSearchURIsFunc(ctx, options, urisRequest)
+}
+
+// PostSearchURIsCalls gets all the calls that were made to PostSearchURIs.
+// Check the length with:
+//
+//	len(mockedSearchClient.PostSearchURIsCalls())
+func (mock *SearchClientMock) PostSearchURIsCalls() []struct {
+	Ctx         context.Context
+	Options     searchSDK.Options
+	UrisRequest searchAPI.URIsRequest
+} {
+	var calls []struct {
+		Ctx         context.Context
+		Options     searchSDK.Options
+		UrisRequest searchAPI.URIsRequest
+	}
+	mock.lockPostSearchURIs.RLock()
+	calls = mock.calls.PostSearchURIs
+	mock.lockPostSearchURIs.RUnlock()
 	return calls
 }
 
