@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"errors"
+	"fmt"
+	"io/fs"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	render "github.com/ONSdigital/dp-renderer/v2"
@@ -60,10 +62,32 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 
 	// Initialise clients
 	clients := routes.Clients{
-		Renderer: render.NewWithDefaultClient(assets.Asset, assets.AssetNames, svc.Config.PatternLibraryAssetsPath, svc.Config.SiteDomain),
-		Search:   searchSDK.NewWithHealthClient(svc.routerHealthClient),
-		Topic:    topic.NewWithHealthClient(svc.routerHealthClient),
-		Zebedee:  zebedee.NewWithHealthClient(svc.routerHealthClient),
+		Renderer: render.NewWithDefaultClient(
+			func(name string) ([]byte, error) { return assets.Assets.ReadFile(name) }, // replaces assets.Asset
+			func() []string {
+				var assetNames []string
+				err := fs.WalkDir(assets.Assets, ".", func(path string, d fs.DirEntry, err error) error {
+					if err != nil {
+						return err // Return error if encountered
+					}
+					fmt.Println(path)
+					if !d.IsDir() {
+						assetNames = append(assetNames, path)
+					}
+					return nil
+				})
+				if err != nil {
+					// Handle the error according to your application's needs, e.g. logging
+					log.Error(ctx, "error walking through embedded assets", err)
+				}
+				return assetNames
+			},
+			svc.Config.PatternLibraryAssetsPath,
+			svc.Config.SiteDomain,
+		),
+		Search:  searchSDK.NewWithHealthClient(svc.routerHealthClient),
+		Topic:   topic.NewWithHealthClient(svc.routerHealthClient),
+		Zebedee: zebedee.NewWithHealthClient(svc.routerHealthClient),
 	}
 
 	// Get healthcheck with checkers

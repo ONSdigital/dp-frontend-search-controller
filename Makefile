@@ -10,7 +10,7 @@ SERVICE_PATH = github.com/ONSdigital/dp-frontend-search-controller/service
 LDFLAGS = -ldflags "-X $(SERVICE_PATH).BuildTime=$(BUILD_TIME) -X $(SERVICE_PATH).GitCommit=$(GIT_COMMIT) -X $(SERVICE_PATH).Version=$(VERSION)"
 
 .PHONY: all
-all: audit test build
+all: audit lint test build
 
 .PHONY: audit
 audit:
@@ -31,12 +31,7 @@ debug-watch:
 
 .PHONY: lint
 lint: ## Used in ci to run linters against Go code
-	cp assets/assets.go assets/assets.go.bak
-	echo 'func Asset(_ string) ([]byte, error) { return nil, nil }' >> assets/assets.go
-	echo 'func AssetNames() []string { return []string{} }' >> assets/assets.go
-	gofmt -w assets/assets.go
-	golangci-lint run ./... || { echo "Linting failed, restoring original assets.go"; mv assets/assets.go.bak assets/assets.go; exit 1; }
-	mv assets/assets.go.bak assets/assets.go
+	golangci-lint run ./...
 
 .PHONY: lint-local
 lint-local: ## Use locally to run linters against Go code
@@ -66,12 +61,8 @@ endif
 
 .PHONY: generate-debug
 generate-debug: fetch-renderer-lib
-	cd assets; go-bindata -prefix $(CORE_ASSETS_PATH)/assets -debug -o data.go -pkg assets locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/...
-	{ printf "//go:build debug\n"; cat assets/data.go; } > assets/debug.go.new
-	mv assets/debug.go.new assets/data.go
+	$(info Embedding assets for debug build... embed package handles assets)
 
 .PHONY: generate-prod
-generate-prod: fetch-renderer-lib 
-	cd assets; go-bindata -prefix $(CORE_ASSETS_PATH)/assets -o data.go -pkg assets locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/...
-	{ printf "//go:build production\n"; cat assets/data.go; } > assets/data.go.new
-	mv assets/data.go.new assets/data.go
+generate-prod: fetch-renderer-lib
+	$(info Embedding assets for production build... embed package handles assets)
