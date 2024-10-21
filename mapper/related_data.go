@@ -25,13 +25,18 @@ func CreateRelatedDataPage(cfg *config.Config, req *http.Request, basePage coreM
 	page.Title.Title = "All data related to " + zebedeeResp.Description.Title + ": " + zebedeeResp.Description.Edition
 	page.Metadata.Description = zebedeeResp.Description.MetaDescription
 	page.Type = "related-data"
-	page.Count = respC.Count
 	page.Language = lang
 	page.BetaBannerEnabled = true
 	page.SearchDisabled = false
 	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
+
+	if respC != nil {
+		page.Count = respC.Count
+	} else {
+		page.Count = 0
+	}
 
 	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
 
@@ -40,6 +45,5 @@ func CreateRelatedDataPage(cfg *config.Config, req *http.Request, basePage coreM
 	mapResponse(&page, respC, []data.Category{})
 
 	mapBreadcrumb(&page, bc, zebedeeResp.Description.Title, zebedeeResp.URI)
-
 	return page
 }

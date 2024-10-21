@@ -1,13 +1,11 @@
 {{ $lang := .Language }}
-{{ $firstResult := index .Data.Response.Items 0}}
-{{ $firstResultTypeLocalKey := $firstResult.Type.LocaliseKeyName }}
 <div class="ons-container search__container">
   <div class="ons-grid">
 
     <div class="ons-grid__col ons-col-12@m">
         <section class="search__summary" role="contentinfo">
             {{ template "partials/type-label" . }}
-            <h1 class="ons-u-fs-xxxl">{{ .Title.Title }} {{ if eq .Type "previous-releases" }}{{ localise $firstResultTypeLocalKey $lang 4 }}{{ end }}</h1>
+            {{ template "partials/related-list-pages-title" . }}
             <p> {{ .Metadata.Description }}</p>
         </section>
       </div>
@@ -15,10 +13,14 @@
     <div class="ons-grid__col ons-col-12@m">
         <section>
           <div class="search__results">
-            {{ template "partials/list" . }}
+            {{ if (gt .Count 0)}}
+              {{ template "partials/list" . }}
+            {{ end }}
           </div>
           <div class="search__pagination">
-            {{ template "partials/search-pagination" . }}
+            {{ if (gt .Count 0)}}
+                {{ template "partials/search-pagination" . }}
+            {{ end }}
           </div>
         </section>
       </div>

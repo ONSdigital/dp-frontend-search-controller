@@ -469,24 +469,28 @@ func mapDatasetSort(page *model.SearchPage, validatedQueryParams data.SearchURLP
 }
 
 func mapPagination(cfg *config.Config, req http.Request, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse) {
-	page.Data.Pagination.Limit = validatedQueryParams.Limit
-	page.Data.Pagination.LimitOptions = data.LimitOptions
+	if respC != nil {
+		page.Data.Pagination.Limit = validatedQueryParams.Limit
+		page.Data.Pagination.LimitOptions = data.LimitOptions
 
-	page.Data.Pagination.CurrentPage = validatedQueryParams.CurrentPage
-	page.Data.Pagination.TotalPages = data.GetTotalPages(cfg, validatedQueryParams.Limit, respC.Count)
-	page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, req, validatedQueryParams, page.Data.Pagination.TotalPages)
-	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(req, validatedQueryParams, page.Data.Pagination.TotalPages)
+		page.Data.Pagination.CurrentPage = validatedQueryParams.CurrentPage
+		page.Data.Pagination.TotalPages = data.GetTotalPages(cfg, validatedQueryParams.Limit, respC.Count)
+		page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, req, validatedQueryParams, page.Data.Pagination.TotalPages)
+		page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(req, validatedQueryParams, page.Data.Pagination.TotalPages)
+	}
 }
 
 func mapResponse(page *model.SearchPage, respC *searchModels.SearchResponse, categories []data.Category) {
-	page.Data.Response.Count = respC.Count
+	if respC != nil {
+		page.Data.Response.Count = respC.Count
 
-	mapResponseCategories(page, categories)
+		mapResponseCategories(page, categories)
 
-	mapResponseItems(page, respC)
+		mapResponseItems(page, respC)
 
-	page.Data.Response.Suggestions = respC.Suggestions
-	page.Data.Response.AdditionalSuggestions = respC.AdditionSuggestions
+		page.Data.Response.Suggestions = respC.Suggestions
+		page.Data.Response.AdditionalSuggestions = respC.AdditionSuggestions
+	}
 }
 
 func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse) {

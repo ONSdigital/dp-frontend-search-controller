@@ -1092,17 +1092,17 @@ func getSearch(ctx context.Context, searchC SearchClient, options searchSDK.Opti
 }
 
 // postSearchURIs posts a list of URIs to search API and gets a search response
-func postSearchURIs(ctx context.Context, searchC SearchClient, options searchSDK.Options, cancel func(), URIsRequest searchAPI.URIsRequest) (*searchModels.SearchResponse, searchError.Error) {
+func postSearchURIs(ctx context.Context, searchC SearchClient, options searchSDK.Options, cancel func(), URIsRequest searchAPI.URIsRequest) (*searchModels.SearchResponse, searchError.Error, int) {
 	if len(URIsRequest.URIs) > 0 {
 		s, err := searchC.PostSearchURIs(ctx, options, URIsRequest)
 		if err != nil {
 			log.Error(ctx, "getting search response from client failed", err)
 			cancel()
-			return nil, err
+			return nil, err, 0
 		}
-		return s, nil
+		return s, nil, s.Count
 	}
-	return nil, nil
+	return nil, nil, 0
 }
 
 // getBreadcrumb performs a get request to zebedee for breadcrumb data

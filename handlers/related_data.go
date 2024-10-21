@@ -72,6 +72,7 @@ func readRelatedData(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		wg sync.WaitGroup
 
 		searchRespErr error
+		searchCount   int
 	)
 	wg.Add(counter)
 
@@ -100,7 +101,7 @@ func readRelatedData(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 
 	go func() {
 		defer wg.Done()
-		searchResp, searchRespErr = postSearchURIs(ctx, searchC, options, cancel, URIsRequest)
+		searchResp, searchRespErr, searchCount = postSearchURIs(ctx, searchC, options, cancel, URIsRequest)
 	}()
 
 	go func() {
@@ -115,7 +116,7 @@ func readRelatedData(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	}
 
 	basePage := rend.NewBasePageModel()
-	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
+	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchCount)
 	if err != nil {
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
