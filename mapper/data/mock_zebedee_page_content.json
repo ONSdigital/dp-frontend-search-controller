@@ -27,6 +27,14 @@
         "unit": "",
         "preUnit": "",
         "source": ""
-    }
+    },
+    "relatedData": [
+        {
+            "uri": "/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/summaryoflabourmarketstatistics"
+        },
+        {
+            "uri": "/employmentandlabourmarket/peopleinwork/employmentandemployeetypes/datasets/nsaemploymentunemploymentandeconomicinactivityforpeopleaged16andoverandagedfrom16to64a02"
+        }
+    ]
 }
 
