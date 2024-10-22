@@ -22,7 +22,7 @@ func CreateRelatedDataPage(cfg *config.Config, req *http.Request, basePage coreM
 	}
 
 	page.Metadata.Title = "Data related to " + zebedeeResp.Description.Title
-	page.Title.Title = "All data related to " + zebedeeResp.Description.Title + ": " + zebedeeResp.Description.Edition
+	page.Title.Title = zebedeeResp.Description.Title + ": " + zebedeeResp.Description.Edition
 	page.Metadata.Description = zebedeeResp.Description.MetaDescription
 	page.Type = "related-data"
 	page.Language = lang
