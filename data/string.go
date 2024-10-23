@@ -50,7 +50,7 @@ func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
 }
 
 func checkForSpecialCharacters(ctx context.Context, str string) error {
-	re := regexp.MustCompile("[[:^ascii:]&&[^–‘’]]")
+	re := regexp.MustCompile("[^[:ascii:]–‘’]")
 
 	match := re.MatchString(str)
 
