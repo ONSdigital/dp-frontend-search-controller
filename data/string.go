@@ -15,6 +15,9 @@ const minQueryLength = 3
 
 var regexString = strings.Repeat(`\S\s*`, minQueryLength)
 
+// contains the special characters that are allowed in query validation
+const AllowedSpecialCharacters = "–‘’"
+
 // reviewQueryString performs basic checks on the string entered by the user
 func reviewQueryString(ctx context.Context, urlQuery url.Values) error {
 	q := urlQuery.Get("q")
@@ -50,7 +53,7 @@ func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
 }
 
 func checkForSpecialCharacters(ctx context.Context, str string) error {
-	re := regexp.MustCompile("[^[:ascii:]–‘’]")
+	re := regexp.MustCompile(fmt.Sprintf("[^[:ascii:]%s]", regexp.QuoteMeta(AllowedSpecialCharacters)))
 
 	match := re.MatchString(str)
 
