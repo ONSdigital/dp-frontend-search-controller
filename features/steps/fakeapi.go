@@ -11,6 +11,7 @@ type FakeAPI struct {
 	fakeHTTP                *httpfake.HTTPFake
 	healthRequest           *httpfake.Request
 	searchRequest           *httpfake.Request
+	searchURIsRequest       *httpfake.Request
 	rootTopicRequest        *httpfake.Request
 	topicRequest            *httpfake.Request
 	subTopicRequest         *httpfake.Request
@@ -37,7 +38,7 @@ func (f *FakeAPI) setJSONResponseForGetPageData(url, pageType string, statusCode
 	path := "/data?uri=" + specialCharURL + "&lang=en"
 	bodyStr := `{}`
 	if pageType != "" {
-		bodyStr = `{"type": "` + pageType + `", "description": {"title": "Labour Market statistics", "edition": "March 2024"}}`
+		bodyStr = `{"type": "` + pageType + `", "description": {"title": "Labour Market statistics", "edition": "March 2024"}, "relatedData": [{ "uri":"/economy/data"}]}`
 	}
 	f.fakeHTTP.NewHandler().Get(path).Reply(statusCode).BodyString(bodyStr)
 }

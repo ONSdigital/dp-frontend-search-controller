@@ -52,6 +52,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^the response header "([^"]*)" should contain "([^"]*)"$`, c.theResponseHeaderShouldContain)
 	ctx.Step(`^the search controller is running$`, c.theSearchControllerIsRunning)
 	ctx.Step(`^there is a Search API that gives a successful response and returns ([1-9]\d*|0) results`, c.thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResults)
+	ctx.Step(`^there is a Search API that gives a successful Search URIs response and returns ([1-9]\d*|0) results`, c.thereIsASearchAPIThatGivesASuccessfulSearchURIsResponseAndReturnsResults)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic$`, c.thereIsATopicAPIThatReturnsATopic)
 	ctx.Step(`^there is a Topic API returns no topics`, c.thereIsATopicAPIThatReturnsNoTopics)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsATopicAndSubtopic)
@@ -191,6 +192,14 @@ func (c *Component) validateHealthCheck(checkResponse, expectedCheck *Check) {
 		assert.True(&c.ErrorFeature, checkResponse.LastFailure.Before(maxExpectedHealthCheckTime))
 		assert.True(&c.ErrorFeature, checkResponse.LastFailure.After(c.StartTime))
 	}
+}
+
+func (c *Component) thereIsASearchAPIThatGivesASuccessfulSearchURIsResponseAndReturnsResults(count int) error {
+	c.FakeAPIRouter.searchURIsRequest.Lock()
+	defer c.FakeAPIRouter.searchURIsRequest.Unlock()
+
+	c.FakeAPIRouter.searchURIsRequest.Response = generateSearchResponse(count)
+	return nil
 }
 
 func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResults(count int) error {
