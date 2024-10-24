@@ -151,6 +151,11 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, dimensionsFilterErr, "invalid dimensions set for aggregation", DimensionsFilterErr, validationErrs)
 
+	queryStringErr := checkForSpecialCharacters(ctx, sp.Query)
+	if !hasFilters(sp) {
+		validationErrs = handleValidationError(ctx, queryStringErr, "the query string did not pass review", QueryStringErr, validationErrs)
+	}
+
 	return sp, validationErrs
 }
 
