@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
-	"github.com/ONSdigital/dp-api-clients-go/v2/renderer"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
@@ -72,17 +71,6 @@ var (
 			URL:    url,
 			Name:   name,
 			Client: service.NewMockHTTPClient(&http.Response{}, nil),
-		}
-	}
-
-	// Renderer Client Mock
-	funcDoGetRendererClientOK = func(rendererURL string) *renderer.Renderer {
-		return &renderer.Renderer{
-			HcCli: &health.Client{
-				URL:    rendererURL,
-				Name:   "renderer",
-				Client: service.NewMockHTTPClient(&http.Response{}, nil),
-			},
 		}
 	}
 

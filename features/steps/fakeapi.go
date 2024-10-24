@@ -8,19 +8,16 @@ import (
 
 // FakeAPI contains all the information for a fake component API
 type FakeAPI struct {
-	fakeHTTP                     *httpfake.HTTPFake
-	healthRequest                *httpfake.Request
-	searchRequest                *httpfake.Request
-	rootTopicRequest             *httpfake.Request
-	topicRequest                 *httpfake.Request
-	subTopicRequest              *httpfake.Request
-	subSubTopicRequest           *httpfake.Request
-	navigationRequest            *httpfake.Request
-	zebedeeRequest               *httpfake.Request
-	previousReleasesRequest      *httpfake.Request
-	breadcrumbRequest            *httpfake.Request
-	outboundRequests             []string
-	collectOutboundRequestBodies httpfake.CustomAssertor
+	fakeHTTP                *httpfake.HTTPFake
+	healthRequest           *httpfake.Request
+	searchRequest           *httpfake.Request
+	rootTopicRequest        *httpfake.Request
+	topicRequest            *httpfake.Request
+	subTopicRequest         *httpfake.Request
+	subSubTopicRequest      *httpfake.Request
+	navigationRequest       *httpfake.Request
+	previousReleasesRequest *httpfake.Request
+	breadcrumbRequest       *httpfake.Request
 }
 
 // NewFakeAPI creates a new fake component API
@@ -35,9 +32,9 @@ func (f *FakeAPI) Close() {
 	f.fakeHTTP.Close()
 }
 
-func (f *FakeAPI) setJSONResponseForGetPageData(url string, pageType string, statusCode int) {
-	specialCharUrl := strings.Replace(url, "/", "%2F", -1)
-	path := "/data?uri=" + specialCharUrl + "&lang=en"
+func (f *FakeAPI) setJSONResponseForGetPageData(url, pageType string, statusCode int) {
+	specialCharURL := strings.Replace(url, "/", "%2F", -1)
+	path := "/data?uri=" + specialCharURL + "&lang=en"
 	bodyStr := `{}`
 	if pageType != "" {
 		bodyStr = `{"type": "` + pageType + `", "description": {"title": "Labour Market statistics", "edition": "March 2024"}}`
