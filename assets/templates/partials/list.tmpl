@@ -14,45 +14,49 @@
             </p>
         </div>
     </div>
-    <ul class="ons-document-list">
-    {{ range $i, $item := $response.Items }}
-        {{ $currentPosition := add $i 1 }}
-        <li class="ons-document-list__item">
-            <div class="ons-document-list__item-content">
-                <div class="ons-document-list__item-header">
-                    <h2 class="ons-document-list__item-title ons-u-fs-m ons-u-mt-no ons-u-mb-xs">
-                        <a href="{{ .URI }}"
-                            data-gtm-search-result-title="{{ .Description.Title }}"
-                            data-gtm-search-result-page="{{ $currentPage }}"
-                            data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
-                            data-gtm-search-result-url="{{ .URI }}"
-                            data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
-                        >
-                        {{ .Description.Title | safeHTML }}
-                        {{ if .Description.Edition }}:{{ end }}
-                        {{ .Description.Edition | safeHTML }}
-                        </a>
-                    </h2>
-                    <ul class="ons-document-list__item-metadata ons-u-mb-xs">
-                        <li class="ons-document-list__item-attribute">
-                            <span class="ons-u-fw-b">{{ localise "ReleasedOn" $lang 1 }} </span>
-                            <time datetime="{{ dateFormatYYYYMMDDHyphenated .Description.ReleaseDate }}">{{ dateFormat .Description.ReleaseDate }}</time>
-                        </li>
-                        {{ if eq $pageType "previous-releases" }}
-                            {{ if .IsLatestRelease }}
+    {{ if (gt .Count 0)}}
+        <ul class="ons-document-list">
+        {{ range $i, $item := $response.Items }}
+            {{ $currentPosition := add $i 1 }}
+            <li class="ons-document-list__item">
+                <div class="ons-document-list__item-content">
+                    <div class="ons-document-list__item-header">
+                        <h2 class="ons-document-list__item-title ons-u-fs-m ons-u-mt-no ons-u-mb-xs">
+                            <a href="{{ .URI }}"
+                                data-gtm-search-result-title="{{ .Description.Title }}"
+                                data-gtm-search-result-page="{{ $currentPage }}"
+                                data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
+                                data-gtm-search-result-url="{{ .URI }}"
+                                data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
+                            >
+                            {{ .Description.Title | safeHTML }}
+                            {{ if .Description.Edition }}:{{ end }}
+                            {{ .Description.Edition | safeHTML }}
+                            </a>
+                        </h2>
+                        <ul class="ons-document-list__item-metadata ons-u-mb-xs">
+                            <li class="ons-document-list__item-attribute">
+                                <span class="ons-u-fw-b">{{ localise "ReleasedOn" $lang 1 }} </span>
+                                <time datetime="{{ dateFormatYYYYMMDDHyphenated .Description.ReleaseDate }}">{{ dateFormat .Description.ReleaseDate }}</time>
+                            </li>
+                            {{ if eq $pageType "previous-releases" }}
+                                {{ if .IsLatestRelease }}
+                                    <li class="ons-document-list__item-attribute">
+                                        <span class="ons-u-fw-b">{{ localise "LatestRelease" $lang 1 }} </span>
+                                    </li>
+                                {{ end }}
+                            {{ else }}
                                 <li class="ons-document-list__item-attribute">
-                                    <span class="ons-u-fw-b">{{ localise "LatestRelease" $lang 1 }} </span>
+                                    <span class="ons-u-fw-b"> {{ localise .Type.LocaliseKeyName $lang 1 }} </span>
                                 </li>
                             {{ end }}
-                        {{ else }}
-                            <li class="ons-document-list__item-attribute">
-                                <span class="ons-u-fw-b"> {{ localise .Type.LocaliseKeyName $lang 1 }} </span>
-                            </li>
-                        {{ end }}
-                    </ul>
+                        </ul>
+                    </div>
                 </div>
-            </div>
-        </li>
-        {{ end }}
-    </ul>
+            </li>
+            {{ end }}
+        </ul>
+    {{ else }}
+        <p>{{ localise "NoResultsHeader" $lang 1 }}</p>
+    {{ end }}
 </div>

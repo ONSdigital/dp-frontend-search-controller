@@ -13,9 +13,7 @@
     <div class="ons-grid__col ons-col-12@m">
         <section>
           <div class="search__results">
-            {{ if (gt .Count 0)}}
-              {{ template "partials/list" . }}
-            {{ end }}
+            {{ template "partials/list" . }}
           </div>
           <div class="search__pagination">
             {{ if (gt .Count 0)}}
