@@ -22,8 +22,11 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	core "github.com/ONSdigital/dp-renderer/v2/model"
+	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
+	searchError "github.com/ONSdigital/dp-search-api/sdk/errors"
+	"github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/feeds"
 	"github.com/gorilla/mux"
@@ -93,6 +96,13 @@ func ReadDataAggregation(cfg *config.Config, hc *HandlerClients, cacheList cache
 func ReadPreviousReleases(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readPreviousReleases(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
+	})
+}
+
+// ReadRelated data handles related data page
+func ReadRelatedData(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
+	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		readRelatedData(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
 	})
 }
 
@@ -386,7 +396,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
 	var err error
-	template := "previous-releases"
+	template := "related-list-pages"
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
 	latestContentURL := urlPath + "/latest"
@@ -1043,4 +1053,63 @@ func sanitiseQueryParams(allowedParams []string, inputParams url.Values) url.Val
 		}
 	}
 	return sanitisedParams
+}
+
+// checkAllowedPageTypes calls Zebedee for a given URL and checks if it's page type matches against a list of allowed page types
+func checkAllowedPageTypes(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string, allowedPagewTypes []string) (zebedeeCli.PageData, error) {
+	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, pageURL)
+	if err != nil {
+		log.Error(ctx, "failed to get content type", err)
+		return zebedeeCli.PageData{}, err
+	}
+	if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
+		err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
+		log.Error(ctx, "page type isn't compatible with /previousreleases", err)
+		return zebedeeCli.PageData{}, err
+	}
+	return pageData, nil
+}
+
+// getNavigationCache returns cached navigation data
+func getNavigationCache(ctx context.Context, w http.ResponseWriter, req *http.Request, cacheList cache.List, lang string) *models.Navigation {
+	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
+	if err != nil {
+		log.Error(ctx, "failed to get navigation cache for aggregation", err)
+		setStatusCode(w, req, err)
+	}
+	return navigationCache
+}
+
+// postSearchURIs posts a list of URIs to search API and gets a search response
+func postSearchURIs(ctx context.Context, searchC SearchClient, options searchSDK.Options, cancel func(), urisRequest searchAPI.URIsRequest) (*searchModels.SearchResponse, searchError.Error, int) {
+	if len(urisRequest.URIs) > 0 {
+		s, err := searchC.PostSearchURIs(ctx, options, urisRequest)
+		if err != nil {
+			log.Error(ctx, "getting search response from client failed", err)
+			cancel()
+			return nil, err, 0
+		}
+		return s, nil, s.Count
+	}
+	return nil, nil, 0
+}
+
+// getBreadcrumb performs a get request to zebedee for breadcrumb data
+func getBreadcrumb(ctx context.Context, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string) []zebedeeCli.Breadcrumb {
+	bc, err := zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, pageURL)
+	if err != nil {
+		log.Warn(ctx, "getting breadcrumb response from client failed", log.FormatErrors([]error{err}))
+		bc = []zebedeeCli.Breadcrumb{}
+	}
+	return bc
+}
+
+// getHomepageContent performs a get request to zebedee for breadcrumb data
+func getHomepageContent(ctx context.Context, zc ZebedeeClient, accessToken, collectionID, lang string) zebedeeCli.HomepageContent {
+	hp, err := zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+	if err != nil {
+		log.Warn(ctx, "getting homepage response from client failed", log.FormatErrors([]error{err}))
+		hp = zebedeeCli.HomepageContent{}
+	}
+	return hp
 }

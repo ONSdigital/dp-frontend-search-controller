@@ -4,6 +4,7 @@ import (
 	"context"
 	"io"
 
+	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	searchError "github.com/ONSdigital/dp-search-api/sdk/errors"
@@ -37,6 +38,7 @@ type RenderClient interface {
 // SearchClient is an interface with methods required for a search client
 type SearchClient interface {
 	GetSearch(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, searchError.Error)
+	PostSearchURIs(ctx context.Context, options searchSDK.Options, urisRequest searchAPI.URIsRequest) (*searchModels.SearchResponse, searchError.Error)
 }
 
 // ZebedeeClient is an interface with methods required for a zebedee client

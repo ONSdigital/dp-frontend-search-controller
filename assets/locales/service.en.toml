@@ -500,3 +500,11 @@ one = "Enter a released before year that is later than"
 [LatestRelease]
 description = "Latest release"
 one = "Latest release"
+
+[RelatedData]
+description = "Related data"
+one = "Related data"
+
+[AllDataRelatedTo]
+description = "All data related to"
+one = "All data related to"

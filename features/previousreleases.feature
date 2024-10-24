@@ -10,9 +10,9 @@ Feature: Previous Releases
     Then the page should have the following content
     """
     {
-      "#main h1": "labour market statistics",
+      "#main h1": "Labour Market statistics",
       ".ons-pagination__position": "Page 1 of 1",
-      ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  labour market statistics  Previous releases"
+      ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  Labour Market statistics"
     }
     """
 
@@ -25,9 +25,9 @@ Feature: Previous Releases
     Then the page should have the following content
       """
       {
-        "#main h1": "labour market statistics",
+        "#main h1": "Labour Market statistics",
         ".ons-pagination__position": "Page 1 of 1",
-        ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  labour market statistics  Previous releases"
+        ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  Labour Market statistics"
       }
       """
 
@@ -40,9 +40,9 @@ Feature: Previous Releases
   Then the page should have the following content
     """
     {
-      "#main h1": "labour market statistics",
+      "#main h1": "Labour Market statistics",
       ".ons-pagination__position": "Page 1 of 1",
-      ".ons-breadcrumb": "labour market statistics  Previous releases"
+      ".ons-breadcrumb": "Labour Market statistics "
     }
     """
 

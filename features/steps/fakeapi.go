@@ -37,7 +37,7 @@ func (f *FakeAPI) setJSONResponseForGetPageData(url, pageType string, statusCode
 	path := "/data?uri=" + specialCharURL + "&lang=en"
 	bodyStr := `{}`
 	if pageType != "" {
-		bodyStr = `{"type": "` + pageType + `", "description": {"title": "labour market statistics"}}`
+		bodyStr = `{"type": "` + pageType + `", "description": {"title": "Labour Market statistics", "edition": "March 2024"}}`
 	}
 	f.fakeHTTP.NewHandler().Get(path).Reply(statusCode).BodyString(bodyStr)
 }

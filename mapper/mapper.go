@@ -128,7 +128,7 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 
 	mapResponse(&page, respC, []data.Category{})
 
-	mapPreviousReleaseBreadCrumb(&page, bc, zebedeeResp.Description.Title, zebedeeResp.URI)
+	mapBreadcrumb(&page, bc, zebedeeResp.Description.Title, zebedeeResp.URI)
 
 	mapLatestRelease(&page, zebedeeResp.Description.ReleaseDate)
 	return page
@@ -469,24 +469,28 @@ func mapDatasetSort(page *model.SearchPage, validatedQueryParams data.SearchURLP
 }
 
 func mapPagination(cfg *config.Config, req http.Request, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse) {
-	page.Data.Pagination.Limit = validatedQueryParams.Limit
-	page.Data.Pagination.LimitOptions = data.LimitOptions
+	if respC != nil {
+		page.Data.Pagination.Limit = validatedQueryParams.Limit
+		page.Data.Pagination.LimitOptions = data.LimitOptions
 
-	page.Data.Pagination.CurrentPage = validatedQueryParams.CurrentPage
-	page.Data.Pagination.TotalPages = data.GetTotalPages(cfg, validatedQueryParams.Limit, respC.Count)
-	page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, req, validatedQueryParams, page.Data.Pagination.TotalPages)
-	page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(req, validatedQueryParams, page.Data.Pagination.TotalPages)
+		page.Data.Pagination.CurrentPage = validatedQueryParams.CurrentPage
+		page.Data.Pagination.TotalPages = data.GetTotalPages(cfg, validatedQueryParams.Limit, respC.Count)
+		page.Data.Pagination.PagesToDisplay = data.GetPagesToDisplay(cfg, req, validatedQueryParams, page.Data.Pagination.TotalPages)
+		page.Data.Pagination.FirstAndLastPages = data.GetFirstAndLastPages(req, validatedQueryParams, page.Data.Pagination.TotalPages)
+	}
 }
 
 func mapResponse(page *model.SearchPage, respC *searchModels.SearchResponse, categories []data.Category) {
-	page.Data.Response.Count = respC.Count
+	if respC != nil {
+		page.Data.Response.Count = respC.Count
 
-	mapResponseCategories(page, categories)
+		mapResponseCategories(page, categories)
 
-	mapResponseItems(page, respC)
+		mapResponseItems(page, respC)
 
-	page.Data.Response.Suggestions = respC.Suggestions
-	page.Data.Response.AdditionalSuggestions = respC.AdditionSuggestions
+		page.Data.Response.Suggestions = respC.Suggestions
+		page.Data.Response.AdditionalSuggestions = respC.AdditionSuggestions
+	}
 }
 
 func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse) {
@@ -888,24 +892,17 @@ func filterCategoriesByTemplate(template string, categories []data.Category) []d
 	return categories
 }
 
-// mapBreadcrumb maps breadcrumb response from Zebedee to page model
-func mapBreadcrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb) {
+// mapBreadcrumb appends parent bulletin and "Previous releases" to Zebedee breadcrumb response
+func mapBreadcrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb, parentPageTitle, parentPageURL string) {
 	for _, bc := range bcs {
 		page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
 			Title: bc.Description.Title,
 			URI:   bc.URI,
 		})
 	}
-}
-
-// mapPreviousReleaseBreadCrumb appends parent bulletin and "Previous releases" to Zebedee breadcrumb response
-func mapPreviousReleaseBreadCrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb, parentPageTitle, parentPageURL string) {
-	mapBreadcrumb(page, bcs)
 	page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
 		Title: parentPageTitle,
 		URI:   parentPageURL,
-	}, coreModel.TaxonomyNode{
-		Title: "Previous releases",
 	})
 }
 

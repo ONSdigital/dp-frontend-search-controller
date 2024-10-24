@@ -1,0 +1,9 @@
+{{ $lang := .Language }}
+<div class="ons-u-fs-m ons-u-mt-s ons-u-pb-xxs release__document-type">
+    {{ if eq .Type "previous-releases" }}
+        {{ localise "PreviousReleases" $lang 1 }}
+    {{ end }}
+    {{ if eq .Type "related-data" }}
+        {{ localise "RelatedData" $lang 1 }}
+    {{ end }}
+</div>
