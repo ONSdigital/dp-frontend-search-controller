@@ -2,8 +2,6 @@ module github.com/ONSdigital/dp-frontend-search-controller
 
 go 1.23
 
-toolchain go1.23.2
-
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.261.0
 	github.com/ONSdigital/dp-cache v0.3.0
