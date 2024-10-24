@@ -1080,21 +1080,10 @@ func getNavigationCache(ctx context.Context, w http.ResponseWriter, req *http.Re
 	return navigationCache
 }
 
-// getSearch performs a get request to search API
-func getSearch(ctx context.Context, searchC SearchClient, options searchSDK.Options, cancel func()) (*searchModels.SearchResponse, searchError.Error) {
-	s, err := searchC.GetSearch(ctx, options)
-	if err != nil {
-		log.Error(ctx, "getting search response from client failed", err)
-		cancel()
-		return nil, err
-	}
-	return s, nil
-}
-
 // postSearchURIs posts a list of URIs to search API and gets a search response
-func postSearchURIs(ctx context.Context, searchC SearchClient, options searchSDK.Options, cancel func(), URIsRequest searchAPI.URIsRequest) (*searchModels.SearchResponse, searchError.Error, int) {
-	if len(URIsRequest.URIs) > 0 {
-		s, err := searchC.PostSearchURIs(ctx, options, URIsRequest)
+func postSearchURIs(ctx context.Context, searchC SearchClient, options searchSDK.Options, cancel func(), urisRequest searchAPI.URIsRequest) (*searchModels.SearchResponse, searchError.Error, int) {
+	if len(urisRequest.URIs) > 0 {
+		s, err := searchC.PostSearchURIs(ctx, options, urisRequest)
 		if err != nil {
 			log.Error(ctx, "getting search response from client failed", err)
 			cancel()

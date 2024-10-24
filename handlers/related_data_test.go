@@ -92,7 +92,6 @@ func TestUnitReadRelatedData(t *testing.T) {
 				So(mockedSearchClient.PostSearchURIsCalls(), ShouldHaveLength, 1)
 				So(mockedZebedeeClient.GetBreadcrumbCalls(), ShouldHaveLength, 1)
 				So(mockedRendererClient.BuildPageCalls(), ShouldHaveLength, 1)
-
 			})
 		})
 	})
