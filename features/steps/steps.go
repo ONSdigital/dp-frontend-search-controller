@@ -60,6 +60,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page of type "([^"]*)" with status (\d+)$`, c.getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus)
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" does not find the page$`, c.getPageDataRequestToZebedeeForDoesNotFindThePage)
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" does not have related data`, c.getPageDataRequestToZebedeeThatDoesntContainRelatedData)
 	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" returns breadcrumbs`, c.getBreadcrumbRequestToZebedeeForReturnsAPageOfTypeWithStatus)
 	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" fails`, c.getBreadcrumbRequestToZebedeeFails)
 }
@@ -340,12 +341,17 @@ func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequ
 }
 
 func (c *Component) getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus(url, pageType string, statusCode int) error {
-	c.FakeAPIRouter.setJSONResponseForGetPageData(url, pageType, statusCode)
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, pageType, statusCode, true)
 	return nil
 }
 
 func (c *Component) getPageDataRequestToZebedeeForDoesNotFindThePage(url string) error {
-	c.FakeAPIRouter.setJSONResponseForGetPageData(url, "", 404)
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, "", 404, false)
+	return nil
+}
+
+func (c *Component) getPageDataRequestToZebedeeThatDoesntContainRelatedData(url string) error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, "bulletin", 200, false)
 	return nil
 }
 

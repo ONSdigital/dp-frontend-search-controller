@@ -33,12 +33,16 @@ func (f *FakeAPI) Close() {
 	f.fakeHTTP.Close()
 }
 
-func (f *FakeAPI) setJSONResponseForGetPageData(url, pageType string, statusCode int) {
+func (f *FakeAPI) setJSONResponseForGetPageData(url, pageType string, statusCode int, includeRelatedData bool) {
 	specialCharURL := strings.Replace(url, "/", "%2F", -1)
 	path := "/data?uri=" + specialCharURL + "&lang=en"
 	bodyStr := `{}`
 	if pageType != "" {
-		bodyStr = `{"type": "` + pageType + `", "description": {"title": "Labour Market statistics", "edition": "March 2024"}, "relatedData": [{ "uri":"/economy/data"}]}`
+		bodyStr = `{"type": "` + pageType + `", "description": {"title": "Labour Market statistics", "edition": "March 2024"}`
+		if includeRelatedData {
+			bodyStr = bodyStr + `, "relatedData": [{ "uri":"/economy/data"}]`
+		}
+		bodyStr = bodyStr + "}"
 	}
 	f.fakeHTTP.NewHandler().Get(path).Reply(statusCode).BodyString(bodyStr)
 }
