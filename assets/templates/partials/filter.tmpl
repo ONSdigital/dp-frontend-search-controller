@@ -12,7 +12,6 @@
 <div id="accordion" class="ons-accordion">
 
     {{ if $topicFilters }}
-    <form id="topicsFilterForm" method="get" class="js-auto-submit__form">
         <input type="hidden" name="q" value="{{ $query }}">
         <input type="hidden" name="sort" value="{{$sort}}">
         <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
@@ -74,133 +73,112 @@
                         </div>
                     {{ end }}
             </fieldset>
-            <noscript>
-                <button type="submit" class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                        <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Filter" $lang 4}}</span></span>
-                </button>
-            </noscript>
         </details>
-    </form>
     {{ end }} 
 
     {{ if $filters }}
-    <form id="filterForm" method="get" class="js-auto-submit__form">
-            <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
-                <summary class="ons-collapsible__heading ons-js-collapsible-heading">
-                    <h2 class="ons-collapsible__title">
-                        <legend class="block">
-                            {{ localise "ContentType" $lang 1 }}
-                        </legend>
-                    </h2>
-                    <span class="ons-collapsible__icon">
-                        {{ template "icons/chevron-right" }}
-                    </span>
-                </summary>
-                <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-                    <legend class="ons-u-vh">{{ localise "SelectContentType" $lang 1 }}</legend>
-                        {{ range $index, $topFilter := $filters}}
-                            <div class="ons-checkboxes__items">
-                                <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                    <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
-                                        <input type="checkbox" id="group-{{ $index }}"
-                                            class="ons-checkbox__input ons-js-checkbox"
+        <input type="hidden" name="q" value="{{ $query }}">
+        <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                <h2 class="ons-collapsible__title">
+                    <legend class="block">
+                        {{ localise "ContentType" $lang 1 }}
+                    </legend>
+                </h2>
+                <span class="ons-collapsible__icon">
+                    {{ template "icons/chevron-right" }}
+                </span>
+            </summary>
+            <fieldset class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                <legend class="ons-u-vh">{{ localise "SelectContentType" $lang 1 }}</legend>
+                    {{ range $index, $topFilter := $filters}}
+                        <div class="ons-checkboxes__items">
+                            <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                                <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
+                                    <input type="checkbox" id="group-{{ $index }}"
+                                        class="ons-checkbox__input ons-js-checkbox"
                                             value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
-                                            data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
-                                            {{ if $topFilter.IsChecked }}
-                                                checked
-                                            {{ end }}
-                                        >
-                                        <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
-                                            {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
-                                        </label>
-                                        <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
-                                            <fieldset class="ons-fieldset ons-js-other-fieldset">
-                                                <legend class="ons-u-vh">{{ localise "Select" $lang 1 }}{{ localise $topFilter.LocaliseKeyName $lang 4 }}</legend>
-                                                    {{ range $index, $childFilter := $topFilter.Types }}
-                                                        {{ $id := index $childFilter.FilterKey 0 }}
-                                                        <div class="ons-checkboxes__items">
-                                                            <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                                                <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                                    <input id="{{ $id }}"
-                                                                        class="ons-checkbox__input ons-js-checkbox"
-                                                                        type="checkbox" name="filter"
-                                                                        {{ if $childFilter.IsChecked }}checked{{ end }}
-                                                                        data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
-                                                                        value="{{ $id }}"
-                                                                    >
-                                                                    <label class="ons-checkbox__label" for="{{ $id }}"
-                                                                        id="{{ $id }}-label">
-                                                                        {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
-                                                                    </label>
-                                                                </span>
+                                        data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
+                                        {{ if $topFilter.IsChecked }}
+                                            checked
+                                        {{ end }}
+                                    >
+                                    <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
+                                        {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
+                                    </label>
+                                    <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
+                                        <fieldset class="ons-fieldset ons-js-other-fieldset">
+                                            <legend class="ons-u-vh">{{ localise "Select" $lang 1 }}{{ localise $topFilter.LocaliseKeyName $lang 4 }}</legend>
+                                                {{ range $index, $childFilter := $topFilter.Types }}
+                                                    {{ $id := index $childFilter.FilterKey 0 }}
+                                                    <div class="ons-checkboxes__items">
+                                                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                                                            <span class="ons-checkbox ons-checkbox--no-border child-filter">
+                                                                <input id="{{ $id }}"
+                                                                    class="ons-checkbox__input ons-js-checkbox"
+                                                                    type="checkbox" name="filter"
+                                                                    {{ if $childFilter.IsChecked }}checked{{ end }}
+                                                                    data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
+                                                                    value="{{ $id }}"
+                                                                >
+                                                                <label class="ons-checkbox__label" for="{{ $id }}"
+                                                                    id="{{ $id }}-label">
+                                                                    {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
+                                                                </label>
                                                             </span>
-                                                        </div>
-                                                    {{ end }}
-                                            </fieldset>
-                                        </span>
+                                                        </span>
+                                                    </div>
+                                                {{ end }}
+                                        </fieldset>
                                     </span>
                                 </span>
-                            </div>
-                        {{ end }}
-                </fieldset>
-                <noscript>
-                    <button type="submit"
-                            class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                            <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Filter" $lang 4}}</span></span>
-                    </button>
-                </noscript>
-            </details>
-    </form>
+                            </span>
+                        </div>
+                    {{ end }}
+            </fieldset>
+        </details>
     {{ end }}
 
     {{ if $censusFilters }}
     {{ $translationKey := "Topic" }}
     {{ $key := "census" }}
     {{ $value := $censusFilters }}
-    <form id="filterForm{{ $translationKey }}" method="get" class="js-auto-submit__form">
-            <details class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
-                <summary class="ons-collapsible__heading ons-js-collapsible-heading">
-                    <h2 class="ons-collapsible__title">
-                        <legend class="block">
-                            {{ localise $translationKey $lang 4 }}
-                        </legend>
-                    </h2>
-                    <span class="ons-collapsible__icon">
-                        {{ template "icons/chevron-right" }}
-                    </span>
-                </summary>
-                <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-                    {{ range $index, $filter := $value }}
-                    {{ $id := $filter.Query }}
+        <details class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                <h2 class="ons-collapsible__title">
+                    <legend class="block">
+                        {{ localise $translationKey $lang 4 }}
+                    </legend>
+                </h2>
+                <span class="ons-collapsible__icon">
+                    {{ template "icons/chevron-right" }}
+                </span>
+            </summary>
+            <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                {{ range $index, $filter := $value }}
+                {{ $id := $filter.Query }}
 
-                    <div class="ons-checkboxes__items">
-                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                            <span class="ons-checkbox ons-checkbox--no-border {{ $key }}">
-                                <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
-                                    class="ons-checkbox__input ons-js-checkbox"
-                                    name="{{ $key }}"
-                                    value="{{ $id }}"
-                                    data-gtm-label="{{ $id }}"
-                                    {{ if $filter.IsChecked }}
-                                        checked
-                                    {{ end }}
-                                >
-                                <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
-                                    {{ $filter.LocaliseKeyName }} ({{ $filter.NumberOfResults }})
-                                </label>
-                            </span>
+                <div class="ons-checkboxes__items">
+                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                        <span class="ons-checkbox ons-checkbox--no-border {{ $key }}">
+                            <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
+                                class="ons-checkbox__input ons-js-checkbox"
+                                name="{{ $key }}"
+                                value="{{ $id }}"
+                                data-gtm-label="{{ $id }}"
+                                {{ if $filter.IsChecked }}
+                                    checked
+                                {{ end }}
+                            >
+                            <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
+                                {{ $filter.LocaliseKeyName }} ({{ $filter.NumberOfResults }})
+                            </label>
                         </span>
-                    </div>         
-                    {{ end }}         
-                </div>
-            </details>
-        <noscript>
-            <button type="submit"
-                    class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                    <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Filter" $lang 4}}</span></span>
-            </button>
-        </noscript>
-    </form>
+                    </span>
+                </div>         
+                {{ end }}         
+            </div>
+        </details>
     {{ end }}
 
 
@@ -208,95 +186,80 @@
     {{ $translationKey := "PopulationTypes" }}
     {{ $key := "population-types" }}
     {{ $value := $population_types }}
-    <form id="filterForm{{ $translationKey }}" method="get" class="js-auto-submit__form">
-            <details class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
-                <summary class="ons-collapsible__heading ons-js-collapsible-heading">
-                    <h2 class="ons-collapsible__title">
-                        <legend class="block">
-                            {{ localise $translationKey $lang 1 }}
-                        </legend>
-                    </h2>
-                    <span class="ons-collapsible__icon">
-                        {{ template "icons/chevron-right" }}
-                    </span>
-                </summary>
-                <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-                    {{ range $index, $filter := $value }}
-                    <div class="ons-checkboxes__items">
-                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                            <span class="ons-checkbox ons-checkbox--no-border {{ $key }}">
-                                <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
-                                    class="ons-checkbox__input ons-js-checkbox"
-                                    name="{{ $key }}"
-                                    value="{{ print $filter.Type }}"
-                                    data-gtm-label="{{ $filter.Type }}"
-                                    {{ if $filter.IsChecked }}
-                                        checked
-                                    {{ end }}
-                                >
-                                <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
-                                    {{ $filter.LocaliseKeyName }} ({{ $filter.Count }})
-                                </label>
-                            </span>
+        <details class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                <h2 class="ons-collapsible__title">
+                    <legend class="block">
+                        {{ localise $translationKey $lang 1 }}
+                    </legend>
+                </h2>
+                <span class="ons-collapsible__icon">
+                    {{ template "icons/chevron-right" }}
+                </span>
+            </summary>
+            <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                {{ range $index, $filter := $value }}
+                <div class="ons-checkboxes__items">
+                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                        <span class="ons-checkbox ons-checkbox--no-border {{ $key }}">
+                            <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
+                                class="ons-checkbox__input ons-js-checkbox"
+                                name="{{ $key }}"
+                                value="{{ print $filter.Type }}"
+                                data-gtm-label="{{ $filter.Type }}"
+                                {{ if $filter.IsChecked }}
+                                    checked
+                                {{ end }}
+                            >
+                            <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
+                                {{ $filter.LocaliseKeyName }} ({{ $filter.Count }})
+                            </label>
                         </span>
-                    </div>
-                    {{ end }}
+                    </span>
                 </div>
-            </details>
-        <noscript>
-            <button type="submit"
-                    class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                    <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Filter" $lang 4}}</span></span>
-            </button>
-        </noscript>
+                {{ end }}
+            </div>
+        </details>
     </form>
     {{ end }}
     {{ if $dimensions }}
     {{ $key := "dimensions" }}
     {{ $translationKey := "Dimensions" }}
     {{ $value := $dimensions }}
-    <form id="filterForm{{ $translationKey }}" method="get" class="js-auto-submit__form">
-            <details class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
-                <summary class="ons-collapsible__heading ons-js-collapsible-heading">
-                    <h2 class="ons-collapsible__title">
-                        <legend class="block">
-                            {{ localise $translationKey $lang 1 }}
-                        </legend>
-                    </h2>
-                    <span class="ons-collapsible__icon">
-                        {{ template "icons/chevron-right" }}
-                    </span>
-                </summary>
-                <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-                    {{ range $index, $filter := $value }}
-                    <div class="ons-checkboxes__items">
-                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                            <span class="ons-checkbox ons-checkbox--no-border {{ $key }}">
-                                <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
-                                    class="ons-checkbox__input ons-js-checkbox"
-                                    name="{{ $key }}"
-                                    value="{{ print $filter.Type }}"
-                                    data-gtm-label="{{ $filter.Type }}"
-                                    {{ if $filter.IsChecked }}
-                                        checked
-                                    {{ end }}
-                                >
-                                <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
-                                    {{ $filter.LocaliseKeyName }} ({{ $filter.Count }})
-                                </label>
-                            </span>
+        <details class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
+            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
+                <h2 class="ons-collapsible__title">
+                    <legend class="block">
+                        {{ localise $translationKey $lang 1 }}
+                    </legend>
+                </h2>
+                <span class="ons-collapsible__icon">
+                    {{ template "icons/chevron-right" }}
+                </span>
+            </summary>
+            <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
+                {{ range $index, $filter := $value }}
+                <div class="ons-checkboxes__items">
+                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                        <span class="ons-checkbox ons-checkbox--no-border {{ $key }}">
+                            <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
+                                class="ons-checkbox__input ons-js-checkbox"
+                                name="{{ $key }}"
+                                value="{{ print $filter.Type }}"
+                                data-gtm-label="{{ $filter.Type }}"
+                                {{ if $filter.IsChecked }}
+                                    checked
+                                {{ end }}
+                            >
+                            <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
+                                {{ $filter.LocaliseKeyName }} ({{ $filter.Count }})
+                            </label>
                         </span>
-                    </div>
-                    {{ end }}
+                    </span>
                 </div>
-                <noscript>
-                    <button type="submit"
-                            class="ons-btn ons-btn--primary margin-top-sm--2 margin-top-md--2 js-submit-button">
-                            <span class="ons-btn__inner"><span class="ons-btn__text">{{ localise "Filter" $lang 4}}</span></span>
-                    </button>
-                </noscript>
-            </details>
-    </form>
+                {{ end }}
+            </div>
+        </details>
     {{ end }}
 </div>
 <div class="search__filter__mobile-filter-toggle margin-bottom--8 hide">
