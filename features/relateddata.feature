@@ -73,4 +73,5 @@ Feature: Related Data
             "#no-results-text": "Sorry, there are no matching results."
         }
     """
+    And element ".pagination" should not be visible
 
