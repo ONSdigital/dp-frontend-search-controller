@@ -18,8 +18,8 @@ import (
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
-// list of content types that have /previousreleases
-var knownRelatedDataTypesTypes = []string{
+// list of content types that have /relateddata
+var knownRelatedDataTypes = []string{
 	"bulletin",
 	"article",
 	"compendium_landing_page",
@@ -38,7 +38,7 @@ func readRelatedData(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	sanitisedParams := sanitiseQueryParams(allowedPreviousReleasesQueryParams, urlQuery)
 
 	// check page type
-	pageData, err := checkAllowedPageTypes(ctx, w, zc, accessToken, collectionID, lang, urlPath, knownRelatedDataTypesTypes)
+	pageData, err := checkAllowedPageTypes(ctx, w, zc, accessToken, collectionID, lang, urlPath, knownRelatedDataTypes)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		return
