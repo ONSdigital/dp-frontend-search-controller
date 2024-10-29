@@ -129,7 +129,6 @@ func TestInitSuccess(t *testing.T) {
 			svc := &service.Service{}
 
 			Convey("When Init is called", func() {
-
 				err := svc.Init(ctx, cfg, mockServiceList)
 
 				Convey("Then service is initialised successfully", func() {

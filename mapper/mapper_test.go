@@ -30,8 +30,8 @@ var mockTopicCategories = []data.Topic{
 }
 
 const (
-	englishLang string = "en"
-	bindAddrAny        = "localhost:0"
+	englishLang = "en"
+	bindAddrAny = "localhost:0"
 )
 
 var expectedMappedBreadcrumb = []coreModel.TaxonomyNode{
