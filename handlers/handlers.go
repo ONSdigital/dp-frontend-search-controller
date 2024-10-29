@@ -32,15 +32,11 @@ import (
 // Constants...
 const (
 	homepagePath = "/"
-	DateFrom     = "fromDate"
-	DateFromErr  = DateFrom + "-error"
-	DateTo       = "toDate"
-	DateToErr    = DateTo + "-error"
 	Bearer       = "Bearer "
 )
 
 // list of content types that have /previousreleases
-var knownPreviouReleaseTypes = []string{
+var knownPreviousReleaseTypes = []string{
 	"bulletin",
 	"article",
 	"compendium_landing_page",
@@ -87,7 +83,6 @@ func ReadDataAggregationWithTopics(cfg *config.Config, hc *HandlerClients, cache
 	})
 }
 
-// ReadDataAggregation
 func ReadDataAggregation(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		readDataAggregation(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
@@ -154,7 +149,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		makeSearchAPICalls = true
 	)
 
-	// avoid making unecessary search API calls
+	// avoid making unnecessary search API calls
 	if apperrors.ErrMapForRenderBeforeAPICalls[err] {
 		makeSearchAPICalls = false
 
@@ -215,7 +210,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		go func() {
 			defer wg.Done()
 
-			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+			// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
 			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 			if countErr != nil {
 				log.Error(ctx, "getting categories, types and its counts failed for dataset", countErr)
@@ -233,7 +228,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	}
 
 	if clearTopics {
-		/* By default we set all topics as active,
+		/* By default, we set all topics as active,
 		 * but we don't want the checkboxes to be ticked
 		 * this ensures they're sent to the topic API, but
 		 * hides that from the frontend.
@@ -352,7 +347,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	go func() {
 		defer wg.Done()
 
-		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+		// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
 		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 		if countErr != nil {
 			log.Error(ctx, "getting categories, types and its counts failed for aggregation", countErr)
@@ -394,23 +389,22 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	template := "previous-releases"
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
+	latestContentURL := urlPath + "/latest"
 
 	sanitisedParams := sanitiseQueryParams(allowedPreviousReleasesQueryParams, urlQuery)
-
 	// check page type
-	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, urlPath+"/latest")
+	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, latestContentURL)
 	if err != nil {
 		log.Error(ctx, "failed to get content type", err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-	if !slices.Contains(knownPreviouReleaseTypes, pageData.Type) {
+	if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
 		err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
 		log.Error(ctx, "page type isn't compatible with /previousreleases", err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
-
 	// get cached navigation data
 	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
 	if err != nil {
@@ -419,30 +413,31 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		return
 	}
 
-	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, sanitisedParams)
+	validatedQueryParams, validationErrs := data.ReviewPreviousReleasesQueryWithParams(ctx, cfg, sanitisedParams, urlPath)
+
 	if len(validationErrs) > 0 {
 		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
 			"parameters": validationErrs,
 		})
 		// Errors are now mapped to the page model to output feedback to the user rather than
 		// a blank 400 error response.
-		m := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{})
+		m := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{}, []zebedeeCli.Breadcrumb{})
 		buildDataAggregationPage(w, m, rend, template)
 		return
 	}
 
 	// counter used to keep track of the number of concurrent API calls
-	var counter = 2
-
-	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
+	var counter = 3
+	searchQuery := data.SetParentTypeOnSearchAPIQuery(validatedQueryParams, pageData.Type)
 
 	var (
 		homepageResp zebedeeCli.HomepageContent
 		searchResp   = &searchModels.SearchResponse{}
+		bc           []zebedeeCli.Breadcrumb
 
 		wg sync.WaitGroup
 
-		respErr, countErr error
+		respErr, countErr, bcErr error
 	)
 	wg.Add(counter)
 
@@ -451,7 +446,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		var homeErr error
 		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
 		if homeErr != nil {
-			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
+			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{homeErr}))
 			return
 		}
 	}()
@@ -476,6 +471,16 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		}
 	}()
 
+	go func() {
+		defer wg.Done()
+
+		bc, bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
+		if bcErr != nil {
+			bc = []zebedeeCli.Breadcrumb{}
+			return
+		}
+	}()
+
 	wg.Wait()
 	if respErr != nil || countErr != nil {
 		setStatusCode(w, req, respErr)
@@ -483,7 +488,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	}
 
 	basePage := rend.NewBasePageModel()
-
 	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
 		validationErrs = append(validationErrs, core.ErrorItem{
@@ -491,18 +495,18 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 				Text: "current page exceeds total pages",
 			},
 		})
-		m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+		m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 		rend.BuildPage(w, m, template)
 		return
 	}
 
-	m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData)
+	m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 	rend.BuildPage(w, m, template)
 }
 
 // Maps template name to underlying go template
 func buildDataAggregationPage(w http.ResponseWriter, m model.SearchPage, rend RenderClient, template string) {
-	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
+	// time-series-tool needs its own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
 	} else {
@@ -623,7 +627,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	go func() {
 		defer wg.Done()
 
-		// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+		// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
 		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
 		if countErr != nil {
 			log.Error(ctx, "getting categories, types and its counts failed for aggregation with topics", countErr)
@@ -647,7 +651,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 	}
 	basePage := rend.NewBasePageModel()
 	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic, validationErrs)
-	// time-series-tool needs it's own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
+	// time-series-tool needs its own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
 	if template != "time-series-tool" {
 		rend.BuildPage(w, m, "data-aggregation-page")
 	} else {
@@ -751,7 +755,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 		go func() {
 			defer wg.Done()
 
-			// TO-DO: Need to make a second request until API can handle aggregration on datatypes (e.g. bulletins, article) to return counts
+			// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
 			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
 			if countErr != nil {
 				log.Error(ctx, "getting categories, types and its counts failed", countErr)

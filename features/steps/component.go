@@ -8,8 +8,10 @@ import (
 	"time"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
+	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	componentTest "github.com/ONSdigital/dp-component-test"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
+	"github.com/ONSdigital/dp-frontend-search-controller/handlers"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/v2/http"
@@ -30,19 +32,21 @@ type Component struct {
 	Config         *config.Config
 	ErrorFeature   componentTest.ErrorFeature
 	FakeAPIRouter  *FakeAPI
-	fakeRequest    *httpfake.Request
 	HTTPServer     *http.Server
 	ServiceRunning bool
 	svc            *service.Service
 	svcErrors      chan error
 	StartTime      time.Time
+	zebedeeClient  handlers.ZebedeeClient
 }
 
 // NewSearchControllerComponent creates a search controller component
 func NewSearchControllerComponent() (c *Component, err error) {
 	c = &Component{
-		HTTPServer: &http.Server{},
-		svcErrors:  make(chan error),
+		HTTPServer: &http.Server{
+			ReadHeaderTimeout: 5 * time.Second,
+		},
+		svcErrors: make(chan error),
 	}
 
 	ctx := context.Background()
@@ -69,12 +73,15 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.searchRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/search")
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
 
-	c.FakeAPIRouter.rootTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get(fmt.Sprintf("/topics"))
+	c.FakeAPIRouter.rootTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics")
 	c.FakeAPIRouter.topicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.subTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.subSubTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
-
+	c.FakeAPIRouter.previousReleasesRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/economy/previousreleases")
 	c.FakeAPIRouter.navigationRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/data")
+	c.FakeAPIRouter.breadcrumbRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/parents")
+
+	c.zebedeeClient = zebedeeCli.New(c.Config.APIRouterURL)
 
 	// Please use the step to start the service - this is down to
 	// the auto updates against backing services are hard to predict so
@@ -116,7 +123,7 @@ func getHealthCheckOK(cfg *config.Config, buildTime, gitCommit, version string) 
 	return &hc, nil
 }
 
-func (c *Component) getHealthClient(name string, url string) *health.Client {
+func (c *Component) getHealthClient(name, url string) *health.Client {
 	return &health.Client{
 		URL:    url,
 		Name:   name,
@@ -160,7 +167,6 @@ func generateSearchResponse(count int) *httpfake.Response {
 }
 
 func generateSearchItem(num int) searchModels.Item {
-
 	title := fmt.Sprintf("Test Bulletin %d", num)
 	uri := fmt.Sprintf("http://localhost://test-bulletin-%d", num)
 	cdid := fmt.Sprintf("AA%d", num)
@@ -176,7 +182,6 @@ func generateSearchItem(num int) searchModels.Item {
 }
 
 func generateRootTopicResponse() *httpfake.Response {
-
 	var (
 		testEconomyRootTopic = topicModels.Topic{
 			ID:          "6734",

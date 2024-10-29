@@ -10,6 +10,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
+	"github.com/ONSdigital/dp-frontend-search-controller/model"
 
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
 	helper "github.com/ONSdigital/dp-renderer/v2/helper"
@@ -32,6 +33,12 @@ const (
 	englishLang string = "en"
 	bindAddrAny        = "localhost:0"
 )
+
+var expectedMappedBreadcrumb = []coreModel.TaxonomyNode{
+	{Title: "Home", URI: "/"},
+	{Title: "Economy", URI: "/economy"},
+	{Title: "Test", URI: "/economy/test"},
+}
 
 func TestUnitCreateSearchPage(t *testing.T) {
 	t.Parallel()
@@ -648,8 +655,11 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 		respC, err := GetMockSearchResponse()
 		So(err, ShouldBeNil)
 
+		respBc, err := GetMockBreadcrumbResponse()
+		So(err, ShouldBeNil)
+
 		Convey("When CreatePreviousReleasesPage is called", func() {
-			sp := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil, respZ)
+			sp := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, nil, respZ, respBc)
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Pagination.CurrentPage, ShouldEqual, 1)
@@ -668,6 +678,7 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 				So(sp.Data.Response.Items[0].Description.ReleaseDate, ShouldEqual, "2015-02-17T00:00:00.000Z")
 				So(sp.Data.Response.Items[0].Description.Summary, ShouldEqual, "Test Summary")
 				So(sp.Data.Response.Items[0].Description.Title, ShouldEqual, "Title Title")
+				So(sp.Data.Response.Items[0].IsLatestRelease, ShouldBeTrue)
 
 				So(sp.Data.Response.Items[0].Type.Type, ShouldEqual, "article")
 				So(sp.Data.Response.Items[0].Type.LocaliseKeyName, ShouldEqual, "Article")
@@ -675,11 +686,51 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 
 				So(sp.ServiceMessage, ShouldEqual, respH.ServiceMessage)
 
+				So(len(sp.Breadcrumb), ShouldEqual, 5)
+				So(sp.Breadcrumb[0], ShouldResemble, expectedMappedBreadcrumb[0])
+				So(sp.Breadcrumb[1], ShouldResemble, expectedMappedBreadcrumb[1])
+				So(sp.Breadcrumb[2], ShouldResemble, expectedMappedBreadcrumb[2])
+				So(sp.Breadcrumb[3].Title, ShouldEqual, "Foo bar bulletin")
+				So(sp.Breadcrumb[3].URI, ShouldEqual, "foo/bar/1/2/3")
+				So(sp.Breadcrumb[4].Title, ShouldEqual, "Previous releases")
+				So(sp.Breadcrumb[4].URI, ShouldBeEmpty)
+
 				So(sp.EmergencyBanner.Type, ShouldEqual, strings.Replace(respH.EmergencyBanner.Type, "_", "-", -1))
 				So(sp.EmergencyBanner.Title, ShouldEqual, respH.EmergencyBanner.Title)
 				So(sp.EmergencyBanner.Description, ShouldEqual, respH.EmergencyBanner.Description)
 				So(sp.EmergencyBanner.URI, ShouldEqual, respH.EmergencyBanner.URI)
 				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
+			})
+		})
+	})
+}
+
+func TestMapLatestRelease(t *testing.T) {
+	t.Parallel()
+
+	Convey("When mapLatestRelease is called", t, func() {
+		Convey("with a date that should match one item in response", func() {
+			page := model.SearchPage{}
+			searchResponse, _ := GetMockSearchResponse()
+			mapResponse(&page, searchResponse, []data.Category{})
+			latestReleaseDate := "2015-02-17T00:00:00.000Z"
+
+			mapLatestRelease(&page, latestReleaseDate)
+
+			Convey("then the matching item should be marked as the latest release", func() {
+				So(page.Data.Response.Items[0].IsLatestRelease, ShouldBeTrue)
+			})
+		})
+		Convey("with a date that doesn't match one item in response", func() {
+			page := model.SearchPage{}
+			searchResponse, _ := GetMockSearchResponse()
+			mapResponse(&page, searchResponse, []data.Category{})
+			latestReleaseDate := "2022-02-17T00:00:00.000Z"
+
+			mapLatestRelease(&page, latestReleaseDate)
+
+			Convey("then no item should be marked as the latest release", func() {
+				So(page.Data.Response.Items[0].IsLatestRelease, ShouldBeFalse)
 			})
 		})
 	})

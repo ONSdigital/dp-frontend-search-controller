@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"strings"
 	"time"
@@ -48,7 +48,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^all of the downstream services are healthy$`, c.allOfTheDownstreamServicesAreHealthy)
 	ctx.Step(`^one of the downstream services is failing`, c.oneOfTheDownstreamServicesIsFailing)
 	ctx.Step(`^one of the downstream services is warning`, c.oneOfTheDownstreamServicesIsWarning)
-	ctx.Step(`^the page should have the following xml content$`, c.thePageShouldHaveTheFollowingXmlContent)
+	ctx.Step(`^the page should have the following xml content$`, c.thePageShouldHaveTheFollowingXMLContent)
 	ctx.Step(`^the response header "([^"]*)" should contain "([^"]*)"$`, c.theResponseHeaderShouldContain)
 	ctx.Step(`^the search controller is running$`, c.theSearchControllerIsRunning)
 	ctx.Step(`^there is a Search API that gives a successful response and returns ([1-9]\d*|0) results`, c.thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResults)
@@ -57,12 +57,14 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic and the "([^"]*)" subtopic$`, c.thereIsATopicAPIThatReturnsATopicAndSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic, the "([^"]*)" subtopic and "([^"]*)" thirdlevel subtopic$`, c.thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
-
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page of type "([^"]*)" with status (\d+)$`, c.getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus)
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" does not find the page$`, c.getPageDataRequestToZebedeeForDoesNotFindThePage)
+	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" returns breadcrumbs`, c.getBreadcrumbRequestToZebedeeForReturnsAPageOfTypeWithStatus)
+	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" fails`, c.getBreadcrumbRequestToZebedeeFails)
 }
 
 func (c *Component) theSearchControllerIsRunning() error {
 	ctx := context.Background()
-
 	initFunctions := &mocks.InitialiserMock{
 		DoGetHTTPServerFunc:   c.getHTTPServer,
 		DoGetHealthCheckFunc:  getHealthCheckOK,
@@ -82,7 +84,6 @@ func (c *Component) theSearchControllerIsRunning() error {
 	c.StartTime = time.Now()
 	c.svc.Run(ctx, svcErrors)
 	c.ServiceRunning = true
-
 	return nil
 }
 
@@ -130,7 +131,7 @@ func healthCheckStatusHandle(status int) httpfake.Responder {
 func (c *Component) iShouldReceiveTheFollowingHealthJSONResponse(expectedResponse *godog.DocString) error {
 	var healthResponse, expectedHealth HealthCheckTest
 
-	responseBody, err := ioutil.ReadAll(c.APIFeature.HTTPResponse.Body)
+	responseBody, err := io.ReadAll(c.APIFeature.HTTPResponse.Body)
 	if err != nil {
 		return fmt.Errorf("failed to read response of search controller component - error: %v", err)
 	}
@@ -150,7 +151,7 @@ func (c *Component) iShouldReceiveTheFollowingHealthJSONResponse(expectedRespons
 	return c.ErrorFeature.StepError()
 }
 
-func (c *Component) validateHealthCheckResponse(healthResponse HealthCheckTest, expectedResponse HealthCheckTest) {
+func (c *Component) validateHealthCheckResponse(healthResponse, expectedResponse HealthCheckTest) {
 	maxExpectedStartTime := c.StartTime.Add((c.Config.HealthCheckInterval + 1) * time.Second)
 
 	assert.Equal(&c.ErrorFeature, expectedResponse.Status, healthResponse.Status)
@@ -165,7 +166,7 @@ func (c *Component) validateHealthCheckResponse(healthResponse HealthCheckTest, 
 	}
 }
 
-func (c *Component) validateHealthVersion(versionResponse healthcheck.VersionInfo, expectedVersion healthcheck.VersionInfo, maxExpectedStartTime time.Time) {
+func (c *Component) validateHealthVersion(versionResponse, expectedVersion healthcheck.VersionInfo, maxExpectedStartTime time.Time) {
 	assert.True(&c.ErrorFeature, versionResponse.BuildTime.Before(maxExpectedStartTime))
 	assert.Equal(&c.ErrorFeature, expectedVersion.GitCommit, versionResponse.GitCommit)
 	assert.Equal(&c.ErrorFeature, expectedVersion.Language, versionResponse.Language)
@@ -197,12 +198,10 @@ func (c *Component) thereIsASearchAPIThatGivesASuccessfulResponseAndReturnsResul
 	defer c.FakeAPIRouter.searchRequest.Unlock()
 
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(count)
-
 	return nil
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsATopic(topic string) error {
-
 	c.FakeAPIRouter.rootTopicRequest.Lock()
 	defer c.FakeAPIRouter.rootTopicRequest.Unlock()
 
@@ -210,7 +209,7 @@ func (c *Component) thereIsATopicAPIThatReturnsATopic(topic string) error {
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
 	rootTopicAPIResponse := generateRootTopicResponse()
-	fakeRootTopicRequestPath := fmt.Sprintf("/topics")
+	fakeRootTopicRequestPath := "/topics"
 	c.FakeAPIRouter.rootTopicRequest.Get(fakeRootTopicRequestPath)
 	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIResponse
 
@@ -222,8 +221,7 @@ func (c *Component) thereIsATopicAPIThatReturnsATopic(topic string) error {
 	return nil
 }
 
-func (c *Component) thereIsATopicAPIThatReturnsATopicAndSubtopic(topic string, subTopic string) error {
-
+func (c *Component) thereIsATopicAPIThatReturnsATopicAndSubtopic(topic, subTopic string) error {
 	c.FakeAPIRouter.rootTopicRequest.Lock()
 	defer c.FakeAPIRouter.rootTopicRequest.Unlock()
 
@@ -231,7 +229,7 @@ func (c *Component) thereIsATopicAPIThatReturnsATopicAndSubtopic(topic string, s
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
 	rootTopicAPIResponse := generateRootTopicResponse()
-	fakeRootTopicRequestPath := fmt.Sprintf("/topics")
+	fakeRootTopicRequestPath := "/topics"
 	c.FakeAPIRouter.rootTopicRequest.Get(fakeRootTopicRequestPath)
 	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIResponse
 
@@ -248,8 +246,7 @@ func (c *Component) thereIsATopicAPIThatReturnsATopicAndSubtopic(topic string, s
 	return nil
 }
 
-func (c *Component) thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic(topic string, subTopic string, subSubTopic string) error {
-
+func (c *Component) thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic(topic, subTopic, subSubTopic string) error {
 	c.FakeAPIRouter.rootTopicRequest.Lock()
 	defer c.FakeAPIRouter.rootTopicRequest.Unlock()
 
@@ -257,7 +254,7 @@ func (c *Component) thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelS
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
 	rootTopicAPIResponse := generateRootTopicResponse()
-	fakeRootTopicRequestPath := fmt.Sprintf("/topics")
+	fakeRootTopicRequestPath := "/topics"
 	c.FakeAPIRouter.rootTopicRequest.Get(fakeRootTopicRequestPath)
 	c.FakeAPIRouter.rootTopicRequest.Response = rootTopicAPIResponse
 
@@ -280,7 +277,6 @@ func (c *Component) thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelS
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsNoTopics() error {
-
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
@@ -290,14 +286,13 @@ func (c *Component) thereIsATopicAPIThatReturnsNoTopics() error {
 	return nil
 }
 
-func (c *Component) thePageShouldHaveTheFollowingXmlContent(body *godog.DocString) error {
-
-	tmpExpected := string(c.FakeAPIRouter.subTopicRequest.Response.BodyBuffer[:])
-	actual := strings.Replace(strings.Replace(strings.TrimSpace(string(tmpExpected[:])), "\n", "", -1), "\t", "", -1)
+func (c *Component) thePageShouldHaveTheFollowingXMLContent(body *godog.DocString) error {
+	tmpExpected := string(c.FakeAPIRouter.subTopicRequest.Response.BodyBuffer)
+	actual := strings.Replace(strings.Replace(strings.TrimSpace(tmpExpected), "\n", "", -1), "\t", "", -1)
 	actual = strings.Join(strings.Fields(strings.TrimSpace(actual)), " ")
 	actual = strings.Replace(actual, "><", "> <", -1)
 
-	expected := strings.Replace(strings.Replace(strings.TrimSpace(string(body.Content[:])), "\n", "", -1), "\t", "", -1)
+	expected := strings.Replace(strings.Replace(strings.TrimSpace(body.Content), "\n", "", -1), "\t", "", -1)
 	expected = strings.Join(strings.Fields(strings.TrimSpace(expected)), " ")
 	expected = strings.Replace(expected, "><", "> <", -1)
 
@@ -321,7 +316,6 @@ func (c *Component) theResponseHeaderShouldContain(key, value string) (err error
 }
 
 func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery(topic, subTopic, query string) error {
-
 	c.FakeAPIRouter.topicRequest.Lock()
 	defer c.FakeAPIRouter.topicRequest.Unlock()
 
@@ -333,5 +327,25 @@ func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequ
 	c.FakeAPIRouter.subTopicRequest.Get(fakeTopicRequestPath)
 	c.FakeAPIRouter.subTopicRequest.Response = topicAPIResponse
 
+	return nil
+}
+
+func (c *Component) getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus(url, pageType string, statusCode int) error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, pageType, statusCode)
+	return nil
+}
+
+func (c *Component) getPageDataRequestToZebedeeForDoesNotFindThePage(url string) error {
+	c.FakeAPIRouter.setJSONResponseForGetPageData(url, "", 404)
+	return nil
+}
+
+func (c *Component) getBreadcrumbRequestToZebedeeForReturnsAPageOfTypeWithStatus(url string) error {
+	c.FakeAPIRouter.setJSONResponseForGetBreadcrumb(url, 200)
+	return nil
+}
+
+func (c *Component) getBreadcrumbRequestToZebedeeFails(url string) error {
+	c.FakeAPIRouter.setJSONResponseForGetBreadcrumb(url, 500)
 	return nil
 }

@@ -30,8 +30,13 @@ debug-watch:
 	reflex -d none -c ./reflex
 
 .PHONY: lint
-lint: generate-prod
-	golangci-lint run ./...
+lint: ## Used in ci to run linters against Go code
+	cp assets/assets.go assets/assets.go.bak
+	echo 'func Asset(_ string) ([]byte, error) { return nil, nil }' >> assets/assets.go
+	echo 'func AssetNames() []string { return []string{} }' >> assets/assets.go
+	gofmt -w assets/assets.go
+	golangci-lint run ./... || { echo "Linting failed, restoring original assets.go"; mv assets/assets.go.bak assets/assets.go; exit 1; }
+	mv assets/assets.go.bak assets/assets.go
 
 .PHONY: lint-local
 lint-local: ## Use locally to run linters against Go code
@@ -61,12 +66,12 @@ endif
 
 .PHONY: generate-debug
 generate-debug: fetch-renderer-lib
-	cd assets; go-bindata -prefix $(CORE_ASSETS_PATH)/assets -debug -o data.go -pkg assets locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/...
+	cd assets; go run github.com/kevinburke/go-bindata/go-bindata -prefix $(CORE_ASSETS_PATH)/assets -debug -o data.go -pkg assets locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/...
 	{ printf "//go:build debug\n"; cat assets/data.go; } > assets/debug.go.new
 	mv assets/debug.go.new assets/data.go
 
 .PHONY: generate-prod
 generate-prod: fetch-renderer-lib 
-	cd assets; go-bindata -prefix $(CORE_ASSETS_PATH)/assets -o data.go -pkg assets locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/...
+	cd assets; go run github.com/kevinburke/go-bindata/go-bindata -prefix $(CORE_ASSETS_PATH)/assets -o data.go -pkg assets locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/...
 	{ printf "//go:build production\n"; cat assets/data.go; } > assets/data.go.new
 	mv assets/data.go.new assets/data.go

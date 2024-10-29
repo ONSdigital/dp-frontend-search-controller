@@ -22,6 +22,7 @@ type Config struct {
 	DefaultOffset                           int           `envconfig:"DEFAULT_OFFSET"`
 	DefaultPage                             int           `envconfig:"DEFAULT_PAGE"`
 	DefaultAggregationSort                  string        `envconfig:"DEFAULT_AGGREGATION_SORT"`
+	DefaultPreviousReleasesSort             string        `envconfig:"DEFAULT_PREVIOUS_RELEASES_SORT"`
 	DefaultSort                             string        `envconfig:"DEFAULT_SORT"`
 	DefaultDatasetSort                      string        `envconfig:"DEFAULT_DATASET_SORT"`
 	EnableAggregationPages                  bool          `envconfig:"ENABLE_AGGREGATION_PAGES"`
@@ -64,9 +65,8 @@ func Get() (*Config, error) {
 	if newCfg.Debug {
 		newCfg.PatternLibraryAssetsPath = "http://localhost:9002/dist/assets"
 	} else {
-		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/09eaa0f"
+		newCfg.PatternLibraryAssetsPath = "//cdn.ons.gov.uk/dp-design-system/7724943"
 	}
-
 	return newCfg, nil
 }
 
@@ -95,6 +95,7 @@ func get() (*Config, error) {
 		DefaultOffset:                           0,
 		DefaultPage:                             1,
 		DefaultAggregationSort:                  "release_date",
+		DefaultPreviousReleasesSort:             "release_date",
 		DefaultSort:                             "relevance",
 		DefaultDatasetSort:                      "release_date",
 		EnableCensusTopicFilterOption:           false,

@@ -75,7 +75,6 @@ func TestMainFunc(t *testing.T) {
 		if status != 0 {
 			t.FailNow()
 		}
-
 	} else {
 		t.Skip("component flag required to run component tests")
 	}

@@ -1,0 +1,23 @@
+[
+    {
+        "uri": "/",
+        "description": {
+            "title": "Home"
+        },
+        "type": "home_page"
+    },
+    {
+        "uri": "/economy",
+        "description": {
+            "title": "Economy"
+        },
+        "type": "taxonomy_landing_page"
+    },
+    {
+        "uri": "/economy/test",
+        "description": {
+            "title": "Test"
+        },
+        "type": "product_page"
+    }
+]
