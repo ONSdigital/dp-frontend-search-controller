@@ -17,6 +17,8 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
+const bindAddrAny = "localhost:0"
+
 var (
 	ctx = context.Background()
 
@@ -122,6 +124,7 @@ func TestInitSuccess(t *testing.T) {
 
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
+			cfg.BindAddr = bindAddrAny
 
 			svc := &service.Service{}
 
@@ -142,7 +145,7 @@ func TestInitSuccess(t *testing.T) {
 							So(len(hcMock.AddCheckCalls()), ShouldEqual, 1)
 							So(hcMock.AddCheckCalls()[0].Name, ShouldResemble, "API router")
 							So(len(initMock.DoGetHTTPServerCalls()), ShouldEqual, 1)
-							So(initMock.DoGetHTTPServerCalls()[0].BindAddr, ShouldEqual, ":25000")
+							So(initMock.DoGetHTTPServerCalls()[0].BindAddr, ShouldEqual, bindAddrAny)
 						})
 					})
 				})
@@ -166,6 +169,7 @@ func TestInitFailure(t *testing.T) {
 
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
+			cfg.BindAddr = bindAddrAny
 
 			svc := &service.Service{}
 
@@ -204,6 +208,7 @@ func TestInitFailure(t *testing.T) {
 
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
+			cfg.BindAddr = bindAddrAny
 
 			svc := &service.Service{}
 
@@ -252,6 +257,7 @@ func TestStart(t *testing.T) {
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
+		cfg.BindAddr = bindAddrAny
 
 		svc := &service.Service{
 			Cache:       cacheList,
@@ -293,6 +299,7 @@ func TestStart(t *testing.T) {
 
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
+			cfg.BindAddr = bindAddrAny
 
 			svc := &service.Service{
 				Cache:       cacheList,
@@ -321,6 +328,7 @@ func TestCloseSuccess(t *testing.T) {
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
+		cfg.BindAddr = bindAddrAny
 
 		hcStopped := false
 
@@ -384,6 +392,7 @@ func TestCloseFailure(t *testing.T) {
 
 			cfg, err := config.Get()
 			So(err, ShouldBeNil)
+			cfg.BindAddr = bindAddrAny
 
 			serviceList := service.NewServiceList(nil)
 			serviceList.HealthCheck = true
@@ -439,6 +448,7 @@ func TestCloseFailure(t *testing.T) {
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
+		cfg.BindAddr = bindAddrAny
 		cfg.GracefulShutdownTimeout = 1 * time.Millisecond
 
 		Convey("And given a correctly initialised service", func() {
