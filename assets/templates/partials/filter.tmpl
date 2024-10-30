@@ -10,10 +10,8 @@
 
 
 <div id="accordion" class="ons-accordion">
-
+    <input type="hidden" name="q" value="{{ $query }}">
     {{ if $topicFilters }}
-        <input type="hidden" name="q" value="{{ $query }}">
-        <input type="hidden" name="sort" value="{{$sort}}">
         <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
             <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                 <h2 class="ons-collapsible__title">
@@ -77,7 +75,6 @@
     {{ end }} 
 
     {{ if $filters }}
-        <input type="hidden" name="q" value="{{ $query }}">
         <details class="ons-collapsible ons-js-collapsible ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
             <summary class="ons-collapsible__heading ons-js-collapsible-heading">
                 <h2 class="ons-collapsible__title">
