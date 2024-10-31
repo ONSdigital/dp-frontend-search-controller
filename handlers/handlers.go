@@ -395,7 +395,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 ) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
-	var err error
 	template := "related-list-pages"
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
@@ -423,45 +422,37 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		return
 	}
 
-	validatedQueryParams, validationErrs := data.ReviewPreviousReleasesQueryWithParams(ctx, cfg, sanitisedParams, urlPath)
+	bc, bcErr := zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
+	if bcErr != nil {
+		log.Warn(ctx, "getting breadcrumb response from client failed", log.FormatErrors([]error{bcErr}))
+		return
+	}
 
+	homepageResp, homeErr := zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+	if homeErr != nil {
+		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{homeErr}))
+		return
+	}
+
+	validatedQueryParams, validationErrs := data.ReviewPreviousReleasesQueryWithParams(ctx, cfg, sanitisedParams, urlPath)
 	if len(validationErrs) > 0 {
 		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
 			"parameters": validationErrs,
 		})
 		// Errors are now mapped to the page model to output feedback to the user rather than
 		// a blank 400 error response.
-		m := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{}, []zebedeeCli.Breadcrumb{})
-		buildDataAggregationPage(w, m, rend, template)
+		m := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
+		rend.BuildPage(w, m, template)
 		return
 	}
 
-	// counter used to keep track of the number of concurrent API calls
-	var counter = 3
 	searchQuery := data.SetParentTypeOnSearchAPIQuery(validatedQueryParams, pageData.Type)
 
 	var (
-		homepageResp zebedeeCli.HomepageContent
-		searchResp   = &searchModels.SearchResponse{}
-		bc           []zebedeeCli.Breadcrumb
+		respErr error
 
-		wg sync.WaitGroup
-
-		respErr, countErr, bcErr error
+		options searchSDK.Options
 	)
-	wg.Add(counter)
-
-	go func() {
-		defer wg.Done()
-		var homeErr error
-		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
-		if homeErr != nil {
-			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{homeErr}))
-			return
-		}
-	}()
-
-	var options searchSDK.Options
 
 	options.Query = searchQuery
 
@@ -470,46 +461,24 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		searchSDK.CollectionID:  {collectionID},
 	}
 
-	go func() {
-		defer wg.Done()
-
-		searchResp, respErr = searchC.GetSearch(ctx, options)
-		if respErr != nil {
-			log.Error(ctx, "getting search response from client failed for aggregation", respErr)
-			cancel()
-			return
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-
-		bc, bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
-		if bcErr != nil {
-			bc = []zebedeeCli.Breadcrumb{}
-			return
-		}
-	}()
-
-	wg.Wait()
-	if respErr != nil || countErr != nil {
-		setStatusCode(w, req, respErr)
+	searchResp, respErr := searchC.GetSearch(ctx, options)
+	if respErr != nil {
+		log.Error(ctx, "getting search response from client failed for aggregation", respErr)
+		cancel()
 		return
+	}
+
+	pErr := validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
+	if pErr != nil {
+		log.Info(ctx, apperrors.ErrPageExceedsTotalPages.Error())
+		validationErrs = append(validationErrs, core.ErrorItem{
+			Description: core.Localisation{
+				Text: apperrors.ErrPageExceedsTotalPages.Error(),
+			},
+		})
 	}
 
 	basePage := rend.NewBasePageModel()
-	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
-	if err != nil {
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: "current page exceeds total pages",
-			},
-		})
-		m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
-		rend.BuildPage(w, m, template)
-		return
-	}
-
 	m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 	rend.BuildPage(w, m, template)
 }
