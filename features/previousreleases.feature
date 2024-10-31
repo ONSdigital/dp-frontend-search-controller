@@ -67,3 +67,16 @@ Feature: Previous Releases
             "#main h1": "Page not found"
         }
     """
+
+   Scenario: GET /previousreleases and check invalid params - page
+    Given there is a Search API that gives a successful response and returns 3 results
+    And get page data request to zebedee for "/economy/latest" returns a page of type "bulletin" with status 200
+    And get breadcrumb request to zebedee for "/economy/latest" returns breadcrumbs
+    And the search controller is running
+    When I navigate to "/economy/previousreleases?page=5000000"
+    Then the page should have the following content
+    """
+        {
+            "h2#error-summary-title": "There is a problem with this page"
+        }
+    """
