@@ -400,39 +400,73 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	urlQuery := req.URL.Query()
 	latestContentURL := urlPath + "/latest"
 
+	// counter used to keep track of the number of concurrent API calls
+	var counter = 4
+	var (
+		pageData        zebedeeCli.PageData
+		navigationCache *models.Navigation
+		bc              []zebedeeCli.Breadcrumb
+		homepageResp    zebedeeCli.HomepageContent
+
+		wg sync.WaitGroup
+
+		pdErr, nErr, bcErr, homeErr error
+	)
+
+	wg.Add(counter)
+
+	go func() {
+		defer wg.Done()
+		// check page type
+		pageData, pdErr = zc.GetPageData(ctx, accessToken, collectionID, lang, latestContentURL)
+		if pdErr != nil {
+			log.Error(ctx, "failed to get content type", pdErr)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+		if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
+			err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
+			log.Error(ctx, "page type isn't compatible with /previousreleases", err)
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		// get cached navigation data
+		navigationCache, nErr = cacheList.Navigation.GetNavigationData(ctx, lang)
+		if nErr != nil {
+			log.Error(ctx, "failed to get navigation cache for aggregation", nErr)
+			setStatusCode(w, req, nErr)
+			return
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		// get breadcrumbs
+		bc, bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
+		if bcErr != nil {
+			log.Warn(ctx, "getting breadcrumb response from client failed", log.FormatErrors([]error{bcErr}))
+			return
+		}
+	}()
+
+	go func() {
+		defer wg.Done()
+		// get homepage content
+		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+		if homeErr != nil {
+			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{homeErr}))
+			return
+		}
+	}()
+
+	wg.Wait()
+	// handle errors
+
 	sanitisedParams := sanitiseQueryParams(allowedPreviousReleasesQueryParams, urlQuery)
-	// check page type
-	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, latestContentURL)
-	if err != nil {
-		log.Error(ctx, "failed to get content type", err)
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
-		err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
-		log.Error(ctx, "page type isn't compatible with /previousreleases", err)
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	// get cached navigation data
-	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
-	if err != nil {
-		log.Error(ctx, "failed to get navigation cache for aggregation", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
-	bc, bcErr := zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
-	if bcErr != nil {
-		log.Warn(ctx, "getting breadcrumb response from client failed", log.FormatErrors([]error{bcErr}))
-		return
-	}
-
-	homepageResp, homeErr := zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
-	if homeErr != nil {
-		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{homeErr}))
-		return
-	}
 
 	validatedQueryParams, validationErrs := data.ReviewPreviousReleasesQueryWithParams(ctx, cfg, sanitisedParams, urlPath)
 	if len(validationErrs) > 0 {
