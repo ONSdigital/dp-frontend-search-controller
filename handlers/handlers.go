@@ -410,7 +410,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 
 		wg sync.WaitGroup
 
-		pdErr, nErr, bcErr, homeErr error
+		pdErr, ptErr, nErr, bcErr, homeErr error
 	)
 
 	wg.Add(counter)
@@ -421,13 +421,13 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		pageData, pdErr = zc.GetPageData(ctx, accessToken, collectionID, lang, latestContentURL)
 		if pdErr != nil {
 			log.Error(ctx, "failed to get content type", pdErr)
-			w.WriteHeader(http.StatusNotFound)
+			cancel()
 			return
 		}
 		if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
-			err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
-			log.Error(ctx, "page type isn't compatible with /previousreleases", err)
-			w.WriteHeader(http.StatusNotFound)
+			ptErr = errors.New("page type doesn't match known list of content types compatible with /previousreleases")
+			log.Error(ctx, "page type isn't compatible with /previousreleases", ptErr)
+			cancel()
 			return
 		}
 	}()
@@ -438,7 +438,6 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		navigationCache, nErr = cacheList.Navigation.GetNavigationData(ctx, lang)
 		if nErr != nil {
 			log.Error(ctx, "failed to get navigation cache for aggregation", nErr)
-			setStatusCode(w, req, nErr)
 			return
 		}
 	}()
@@ -465,6 +464,17 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 
 	wg.Wait()
 	// handle errors
+	// 404 errors
+	if pdErr != nil || ptErr != nil {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	// 500 errors
+	if nErr != nil {
+		setStatusCode(w, req, nErr)
+		return
+	}
 
 	sanitisedParams := sanitiseQueryParams(allowedPreviousReleasesQueryParams, urlQuery)
 
