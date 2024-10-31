@@ -700,6 +700,24 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 				So(sp.EmergencyBanner.LinkText, ShouldEqual, respH.EmergencyBanner.LinkText)
 			})
 		})
+
+		Convey("When CreatePreviousReleasesPage is called with validation errors", func() {
+			validationErrs := []coreModel.ErrorItem{
+				{
+					Description: coreModel.Localisation{
+						Text: "This is a current page error",
+					},
+					ID:  "currentPage-error",
+					URL: "#currentPage-error",
+				},
+			}
+
+			page := CreatePreviousReleasesPage(cfg, req, mdl, validatedQueryParams, respC, englishLang, respH, "", &topicModels.Navigation{}, "", cache.Topic{}, validationErrs, respZ, respBc)
+
+			Convey("Then validation errors are successfully mapped to the page model", func() {
+				So(page.Error.ErrorItems, ShouldResemble, validationErrs)
+			})
+		})
 	})
 }
 

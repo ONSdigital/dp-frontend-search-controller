@@ -122,6 +122,13 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
+	if len(validationErrs) > 0 {
+		page.Error = coreModel.Error{
+			Title:      page.Metadata.Title,
+			ErrorItems: validationErrs,
+			Language:   lang,
+		}
+	}
 
 	MapCookiePreferences(req, &page.Page.CookiesPreferencesSet, &page.Page.CookiesPolicy)
 
