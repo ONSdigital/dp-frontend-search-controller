@@ -118,6 +118,7 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 	page.Language = lang
 	page.BetaBannerEnabled = true
 	page.SearchDisabled = false
+	page.URI = req.URL.RequestURI()
 	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
