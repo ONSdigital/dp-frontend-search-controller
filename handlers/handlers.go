@@ -507,7 +507,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 
 	searchResp, respErr := searchC.GetSearch(ctx, options)
 	if respErr != nil {
-		log.Error(ctx, "getting search response from client failed for aggregation", respErr)
+		log.Error(ctx, "getting search response from client failed for previous releases", respErr)
 		cancel()
 		return
 	}
