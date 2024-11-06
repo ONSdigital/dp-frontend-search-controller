@@ -512,7 +512,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs)
+	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic, validationErrs)
 	buildDataAggregationPage(w, m, rend, template)
 }
 
