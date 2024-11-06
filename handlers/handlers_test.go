@@ -100,13 +100,14 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 
 		mockedTopicClient := &TopicClientMock{}
 
-		mockHandlerClients := NewHandlerClients(mockedRendererClient, mockedSearchClient, mockedZebedeeClient, mockedTopicClient)
-
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
+
+		mockHandlerClient := NewSearchHandler(mockedRendererClient, mockedSearchClient, mockedTopicClient, mockedZebedeeClient, cfg, *mockCacheList)
+
 		So(err, ShouldBeNil)
 
-		Convey("When Read is called", func() {
-			w := doTestRequest("/search", req, Read(cfg, mockHandlerClients, *mockCacheList, "search"), nil)
+		Convey("When Search is called", func() {
+			w := doTestRequest("/search", req, mockHandlerClient.Search(cfg, "search"), nil)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
