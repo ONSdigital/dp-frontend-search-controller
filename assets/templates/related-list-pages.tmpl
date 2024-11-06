@@ -1,11 +1,11 @@
 <div class="ons-container search__container">
   <div class="ons-grid">
     <div class="ons-grid__col ons-col-12@m">
-      {{ if gt (len .Error.ErrorItems) 0 }}
+      {{ if .Error.ErrorItems }}
         <div class="ons-u-mb-l">
           {{ template "partials/error-summary" .Error }}
         </div>
-      {{ else }}
+      {{ end }}
         <section
           class="search__summary"
           role="contentinfo"
@@ -20,12 +20,11 @@
             {{ template "partials/list" . }}
           </div>
           <div class="search__pagination">
-            {{ if gt .Count 0 }}
+            {{ if and (gt .Count 0) (not .Error.ErrorItems) }}
               {{ template "partials/search-pagination" . }}
             {{ end }}
           </div>
         </section>
-      {{ end }}
     </div>
   </div>
 </div>
