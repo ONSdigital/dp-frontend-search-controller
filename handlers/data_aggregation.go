@@ -11,6 +11,6 @@ import (
 // read data aggregation
 func (sh *SearchHandler) DataAggregation(cfg *config.Config, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readDataAggregation(w, req, cfg, sh.ZebedeeClient, sh.Renderer, sh.SearchClient, accessToken, collectionID, lang, sh.CacheList, template)
+		readDataAggregation(w, req, cfg, sh.ZebedeeClient, sh.Renderer, sh.SearchClient, accessToken, collectionID, lang, sh.CacheList, template, false)
 	})
 }

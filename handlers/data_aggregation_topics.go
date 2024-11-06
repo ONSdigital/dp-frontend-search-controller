@@ -10,6 +10,6 @@ import (
 // ReadDataAggregationWithTopics for data aggregation routes with topic/subtopics
 func (sh *SearchHandler) DataAggregationWithTopics(cfg *config.Config, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readDataAggregationWithTopics(w, req, cfg, sh.ZebedeeClient, sh.Renderer, sh.SearchClient, accessToken, collectionID, lang, sh.CacheList, template)
+		readDataAggregation(w, req, cfg, sh.ZebedeeClient, sh.Renderer, sh.SearchClient, accessToken, collectionID, lang, sh.CacheList, template, true)
 	})
 }
