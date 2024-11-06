@@ -12,6 +12,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
+	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	core "github.com/ONSdigital/dp-renderer/v2/model"
 	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
@@ -25,6 +26,13 @@ var knownRelatedDataTypes = []string{
 	"bulletin",
 	"article",
 	"compendium_landing_page",
+}
+
+// ReadRelated data handles related data page
+func (sh *SearchHandler) RelatedData(cfg *config.Config) http.HandlerFunc {
+	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		readRelatedData(w, req, cfg, sh.ZebedeeClient, sh.Renderer, sh.SearchClient, accessToken, collectionID, lang, sh.CacheList)
+	})
 }
 
 func readRelatedData(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,

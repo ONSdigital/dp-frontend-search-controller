@@ -13,14 +13,12 @@ import (
 	"time"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
-	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 	core "github.com/ONSdigital/dp-renderer/v2/model"
 	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
@@ -48,68 +46,28 @@ var knownPreviousReleaseTypes = []string{
 // list of query params allowed on /previousreleases
 var allowedPreviousReleasesQueryParams = []string{data.Page}
 
-// HandlerClients represents the handlers for search and data-aggregation
-type HandlerClients struct {
-	Renderer      RenderClient
-	SearchClient  SearchClient
-	ZebedeeClient ZebedeeClient
-	TopicClient   TopicClient
+// SearchHandler represents the handlers for search functionality
+type SearchHandler struct {
+	Renderer                    RenderClient
+	SearchClient                SearchClient
+	TopicClient                 TopicClient
+	ZebedeeClient               ZebedeeClient
+	EnableAggregationPages      bool
+	EnableTopicAggregationPages bool
+	CacheList                   cache.List
 }
 
-// NewHandlerClients creates a new instance of FilterFlex
-func NewHandlerClients(rc RenderClient, sc SearchClient, zc ZebedeeClient, tc TopicClient) *HandlerClients {
-	return &HandlerClients{
-		Renderer:      rc,
-		SearchClient:  sc,
-		ZebedeeClient: zc,
-		TopicClient:   tc,
+// NewSearchHandler creates a new instance of SearchHandler
+func NewSearchHandler(rc RenderClient, sc SearchClient, tc TopicClient, zc ZebedeeClient, cfg *config.Config, cl cache.List) *SearchHandler {
+	return &SearchHandler{
+		Renderer:                    rc,
+		SearchClient:                sc,
+		TopicClient:                 tc,
+		ZebedeeClient:               zc,
+		EnableAggregationPages:      cfg.EnableAggregationPages,
+		EnableTopicAggregationPages: cfg.EnableTopicAggregationPages,
+		CacheList:                   cl,
 	}
-}
-
-// Read Handler
-func Read(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
-	oldHandler := dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		read(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template, false)
-	})
-
-	newHandler := dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		read(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template, true)
-	})
-
-	return cookies.Handler(cfg.ABTest.Enabled, newHandler, oldHandler, cfg.ABTest.Percentage, cfg.ABTest.AspectID, cfg.SiteDomain, cfg.ABTest.Exit)
-}
-
-// ReadDataAggregationWithTopics for data aggregation routes with topic/subtopics
-func ReadDataAggregationWithTopics(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
-	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readDataAggregationWithTopics(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
-	})
-}
-
-func ReadDataAggregation(cfg *config.Config, hc *HandlerClients, cacheList cache.List, template string) http.HandlerFunc {
-	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readDataAggregation(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList, template)
-	})
-}
-
-// ReadPreviousReleases handles previous releases page
-func ReadPreviousReleases(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
-	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readPreviousReleases(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
-	})
-}
-
-// ReadRelated data handles related data page
-func ReadRelatedData(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
-	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readRelatedData(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
-	})
-}
-
-func ReadFindDataset(cfg *config.Config, hc *HandlerClients, cacheList cache.List) http.HandlerFunc {
-	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		readFindDataset(w, req, cfg, hc.ZebedeeClient, hc.Renderer, hc.SearchClient, accessToken, collectionID, lang, cacheList)
-	})
 }
 
 func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
