@@ -1,9 +1,7 @@
 {{ $lang := .Language }}
 
 {{ if eq .Type "previous-releases" }}
-    {{ $firstResult := index .Data.Response.Items 0}}
-    {{ $firstResultTypeLocalKey := $firstResult.Type.LocaliseKeyName }}
-    <h1 class="ons-u-fs-xxxl">{{ .Title.Title }} {{ localise $firstResultTypeLocalKey $lang 4 }}</h1>
+    <h1 class="ons-u-fs-xxxl">{{ .Title.Title }}</h1>
 {{ end }}
 {{ if eq .Type "related-data" }}
     <h1 class="ons-u-fs-xxxl">{{ localise "AllDataRelatedTo" $lang 1 }} {{ .Title.Title }}</h1>
