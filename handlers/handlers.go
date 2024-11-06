@@ -433,7 +433,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		// get cached navigation data
 		navigationCache, nErr = cacheList.Navigation.GetNavigationData(ctx, lang)
 		if nErr != nil {
-			log.Error(ctx, "failed to get navigation cache for aggregation", nErr)
+			log.Error(ctx, "failed to get navigation cache for previous releases", nErr)
 			return
 		}
 	}()
