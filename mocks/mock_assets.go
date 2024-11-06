@@ -9,6 +9,9 @@ var cyLocale = []string{
 	"one = \"Enter a year\"",
 	"[ValidationInvalidDate]",
 	"one = \"Enter a real date\"",
+	"[StatisticalBulletin]",
+	"one = \"Statistical bulletin\"",
+	"other = \"Statistical bulletins\"",
 }
 
 var enLocale = []string{
@@ -18,6 +21,9 @@ var enLocale = []string{
 	"one = \"Enter a year\"",
 	"[ValidationInvalidDate]",
 	"one = \"Enter a real date\"",
+	"[StatisticalBulletin]",
+	"one = \"Statistical bulletin\"",
+	"other = \"Statistical bulletins\"",
 }
 
 func MockAssetFunction(name string) ([]byte, error) {
