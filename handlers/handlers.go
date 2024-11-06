@@ -400,37 +400,33 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	urlQuery := req.URL.Query()
 	latestContentURL := urlPath + "/latest"
 
+	// check page type
+	pageData, pdErr := zc.GetPageData(ctx, accessToken, collectionID, lang, latestContentURL)
+	if pdErr != nil {
+		log.Error(ctx, "failed to get content type", pdErr)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
+		ptErr := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
+		log.Error(ctx, "page type isn't compatible with /previousreleases", ptErr)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
 	// counter used to keep track of the number of concurrent API calls
-	var counter = 4
+	var counter = 3
 	var (
-		pageData        zebedeeCli.PageData
 		navigationCache *models.Navigation
 		bc              []zebedeeCli.Breadcrumb
 		homepageResp    zebedeeCli.HomepageContent
 
 		wg sync.WaitGroup
 
-		pdErr, ptErr, nErr, bcErr, homeErr error
+		nErr, bcErr, homeErr error
 	)
 
 	wg.Add(counter)
-
-	go func() {
-		defer wg.Done()
-		// check page type
-		pageData, pdErr = zc.GetPageData(ctx, accessToken, collectionID, lang, latestContentURL)
-		if pdErr != nil {
-			log.Error(ctx, "failed to get content type", pdErr)
-			cancel()
-			return
-		}
-		if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
-			ptErr = errors.New("page type doesn't match known list of content types compatible with /previousreleases")
-			log.Error(ctx, "page type isn't compatible with /previousreleases", ptErr)
-			cancel()
-			return
-		}
-	}()
 
 	go func() {
 		defer wg.Done()
@@ -463,14 +459,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	}()
 
 	wg.Wait()
-	// handle errors
-	// 404 errors
-	if pdErr != nil || ptErr != nil {
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	// 500 errors
+	// handle 500 errors
 	if nErr != nil {
 		setStatusCode(w, req, nErr)
 		return
