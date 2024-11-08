@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
+	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -15,6 +16,7 @@ import (
 	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
+	"github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 
@@ -30,7 +32,6 @@ func readRelatedData(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 ) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
-	var err error
 	template := "related-list-pages"
 	urlPath := path.Dir(req.URL.Path)
 	urlQuery := req.URL.Query()
@@ -40,12 +41,42 @@ func readRelatedData(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	// check page type
 	pageData, err := checkAllowedPageTypes(ctx, w, zc, accessToken, collectionID, lang, urlPath, knownRelatedDataTypes)
 	if err != nil {
+		log.Error(ctx, "page type isn't compatible with /relateddata", err)
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
 
-	// get cached navigation data
-	navigationCache := getNavigationCache(ctx, w, req, cacheList, lang)
+	// counter used to keep track of the number of concurrent API calls
+	var counter = 3
+	var (
+		navigationCache *models.Navigation
+		bc              []zebedeeCli.Breadcrumb
+		homepageResp    zebedeeCli.HomepageContent
+
+		wg sync.WaitGroup
+	)
+
+	wg.Add(counter)
+
+	go func() {
+		defer wg.Done()
+		// get cached navigation data
+		navigationCache = getNavigationCache(ctx, w, req, cacheList, lang)
+	}()
+
+	go func() {
+		defer wg.Done()
+		// get breadcrumbs
+		bc = getBreadcrumb(ctx, zc, accessToken, collectionID, lang, urlPath)
+	}()
+
+	go func() {
+		defer wg.Done()
+		// get homepage content
+		homepageResp = getHomepageContent(ctx, zc, accessToken, collectionID, lang)
+	}()
+
+	wg.Wait()
 
 	validatedQueryParams, validationErrs := data.ReviewPreviousReleasesQueryWithParams(ctx, cfg, sanitisedParams, urlPath)
 
@@ -55,31 +86,12 @@ func readRelatedData(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		})
 		// Errors are now mapped to the page model to output feedback to the user rather than
 		// a blank 400 error response.
-		m := mapper.CreateRelatedDataPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, zebedeeCli.PageData{}, []zebedeeCli.Breadcrumb{})
+		m := mapper.CreateRelatedDataPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 		rend.BuildPage(w, m, template)
 		return
 	}
 
-	// counter used to keep track of the number of concurrent API calls
-	var counter = 3
 	searchQuery := data.SetParentTypeOnSearchAPIQuery(validatedQueryParams, pageData.Type)
-
-	var (
-		homepageResp zebedeeCli.HomepageContent
-		searchResp   = &searchModels.SearchResponse{}
-		bc           []zebedeeCli.Breadcrumb
-
-		wg sync.WaitGroup
-
-		searchRespErr error
-		searchCount   int
-	)
-	wg.Add(counter)
-
-	go func() {
-		defer wg.Done()
-		homepageResp = getHomepageContent(ctx, zc, accessToken, collectionID, lang)
-	}()
 
 	var options searchSDK.Options
 	options.Query = searchQuery
@@ -99,35 +111,23 @@ func readRelatedData(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		Offset: validatedQueryParams.Offset,
 	}
 
-	go func() {
-		defer wg.Done()
-		searchResp, searchRespErr, searchCount = postSearchURIs(ctx, searchC, options, cancel, URIsRequest)
-	}()
-
-	go func() {
-		defer wg.Done()
-		bc = getBreadcrumb(ctx, zc, accessToken, collectionID, lang, urlPath)
-	}()
-
-	wg.Wait()
+	searchResp, searchRespErr, searchCount := postSearchURIs(ctx, searchC, options, cancel, URIsRequest)
 	if searchRespErr != nil {
 		setStatusCode(w, req, searchRespErr)
 		return
 	}
 
-	basePage := rend.NewBasePageModel()
-	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchCount)
-	if err != nil {
+	pErr := validateCurrentPage(ctx, cfg, validatedQueryParams, searchCount)
+	if pErr != nil {
+		log.Info(ctx, apperrors.ErrPageExceedsTotalPages.Error())
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
-				Text: "current page exceeds total pages",
+				Text: apperrors.ErrPageExceedsTotalPages.Error(),
 			},
 		})
-		m := mapper.CreateRelatedDataPage(cfg, req, basePage, validatedQueryParams, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
-		rend.BuildPage(w, m, template)
-		return
 	}
 
+	basePage := rend.NewBasePageModel()
 	m := mapper.CreateRelatedDataPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 	rend.BuildPage(w, m, template)
 }
