@@ -32,17 +32,20 @@ func CreateRelatedDataPage(cfg *config.Config, req *http.Request, basePage coreM
 	page.Pagination.CurrentPage = validatedQueryParams.CurrentPage
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
+
+	if respC != nil {
+		page.Count = respC.Count
+	} else {
+		page.Count = 0
+	}
+
 	if len(validationErrs) > 0 {
 		page.Error = coreModel.Error{
 			Title:      page.Metadata.Title,
 			ErrorItems: validationErrs,
 			Language:   lang,
 		}
-	}
-
-	if respC != nil {
-		page.Count = respC.Count
-	} else {
+		// Displays the no results message
 		page.Count = 0
 	}
 
