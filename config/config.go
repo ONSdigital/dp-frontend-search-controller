@@ -27,6 +27,8 @@ type Config struct {
 	DefaultDatasetSort                      string        `envconfig:"DEFAULT_DATASET_SORT"`
 	EnableAggregationPages                  bool          `envconfig:"ENABLE_AGGREGATION_PAGES"`
 	EnableTopicAggregationPages             bool          `envconfig:"ENABLE_TOPIC_AGGREGATION_PAGES"`
+	EnableFeedbackAPI                       bool          `envconfig:"ENABLE_FEEDBACK_API"`
+	FeedbackAPIURL                          string        `envconfig:"FEEDBACK_API_URL"`
 	EnableCensusDimensionsFilterOption      bool          `envconfig:"ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION"`
 	EnableCensusPopulationTypesFilterOption bool          `envconfig:"ENABLE_CENSUS_POPULATION_TYPE_FILTER_OPTION"`
 	EnableCensusTopicFilterOption           bool          `envconfig:"ENABLE_CENSUS_TOPIC_FILTER_OPTION"`
@@ -98,6 +100,8 @@ func get() (*Config, error) {
 		DefaultPreviousReleasesSort:             "release_date",
 		DefaultSort:                             "relevance",
 		DefaultDatasetSort:                      "release_date",
+		EnableFeedbackAPI:                       false,
+		FeedbackAPIURL:                          "http://localhost:23200/v1/feedback",
 		EnableCensusTopicFilterOption:           false,
 		EnableCensusPopulationTypesFilterOption: false,
 		EnableCensusDimensionsFilterOption:      false,

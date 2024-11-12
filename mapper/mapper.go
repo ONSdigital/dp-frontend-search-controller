@@ -45,6 +45,8 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
 	page.SearchNoIndexEnabled = true
 	page.FeatureFlags.IsPublishing = cfg.IsPublishing
+	page.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
+	page.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
@@ -374,6 +376,8 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
 	page.FeatureFlags.IsPublishing = cfg.IsPublishing
+	page.FeatureFlags.EnableFeedbackAPI = cfg.EnableFeedbackAPI
+	page.FeatureFlags.FeedbackAPIURL = cfg.FeedbackAPIURL
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
