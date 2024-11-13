@@ -170,40 +170,29 @@ func ReviewPreviousReleasesQueryWithParams(ctx context.Context, cfg *config.Conf
 }
 
 // ReviewDatasetQuery ensures that all search parameter values given by the user are reviewed
-func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, error) {
+func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, censusTopicCache *cache.Topic) (SearchURLParams, []core.ErrorItem) {
 	var validatedQueryParams SearchURLParams
+	var validationErrs []core.ErrorItem
 	validatedQueryParams.Query = urlQuery.Get("q")
 
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
-	if paginationErr != nil {
-		log.Error(ctx, "unable to review pagination for dataset", paginationErr)
-		return validatedQueryParams, paginationErr
-	}
+	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for aggregation", PaginationErr, validationErrs)
 
 	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultDatasetSort)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
-	if contentTypeFilterError != nil {
-		log.Error(ctx, "invalid content type filters set for dataset", contentTypeFilterError)
-		return validatedQueryParams, contentTypeFilterError
-	}
-	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
-	if topicFilterErr != nil {
-		log.Error(ctx, "invalid topic filters set for dataset", topicFilterErr)
-		return validatedQueryParams, topicFilterErr
-	}
-	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
-	if populationTypeFilterErr != nil {
-		log.Error(ctx, "invalid population types set for dataset", populationTypeFilterErr)
-		return validatedQueryParams, populationTypeFilterErr
-	}
-	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
-	if dimensionsFilterErr != nil {
-		log.Error(ctx, "invalid dimensions set for dataset", dimensionsFilterErr)
-		return validatedQueryParams, dimensionsFilterErr
-	}
+	validationErrs = handleValidationError(ctx, contentTypeFilterError, "invalid content type filters set", ContentTypeFilterErr, validationErrs)
 
-	return validatedQueryParams, nil
+	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
+	validationErrs = handleValidationError(ctx, topicFilterErr, "invalid topic filters set", TopicFilterErr, validationErrs)
+
+	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
+	validationErrs = handleValidationError(ctx, populationTypeFilterErr, "invalid population types set", PopulationTypeFilterErr, validationErrs)
+
+	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
+	validationErrs = handleValidationError(ctx, dimensionsFilterErr, "invalid dimensions set", DimensionsFilterErr, validationErrs)
+
+	return validatedQueryParams, validationErrs
 }
 
 // GetSearchAPIQuery gets the query that needs to be passed to the search-api to get search results
