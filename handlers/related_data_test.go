@@ -82,8 +82,8 @@ func TestUnitReadRelatedData(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readRelatedData is called", func() {
-			readRelatedData(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList)
-
+			relatedDataConfig := NewRelatedDataConfig(*req)
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, relatedDataConfig)
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
 

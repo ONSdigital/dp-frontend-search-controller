@@ -181,7 +181,8 @@ func TestUnitReadSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
+			searchConfig := NewSearchConfig(false)
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, searchConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -195,7 +196,8 @@ func TestUnitReadSuccess(t *testing.T) {
 		})
 
 		Convey("When read is called with NLP switched on", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", true)
+			searchConfig := NewSearchConfig(true)
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, searchConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -256,7 +258,8 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
+			searchConfig := NewSearchConfig(false)
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, searchConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -301,7 +304,8 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
+			searchConfig := NewSearchConfig(false)
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, searchConfig)
 
 			Convey("Then a 500 internal server error status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
@@ -343,7 +347,8 @@ func TestUnitReadFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When read is called", func() {
-			read(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "search", false)
+			searchConfig := NewSearchConfig(false)
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, searchConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -402,9 +407,9 @@ func TestUnitReadDataAggregationSuccess(t *testing.T) {
 
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 		So(err, ShouldBeNil)
-
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "home-publications", false)
+			aggregationConfig := NewAggregationConfig("home-publications")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -474,7 +479,8 @@ func TestUnitReadDataAggregationFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregation is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "home-publications", false)
+			aggregationConfig := NewAggregationConfig("home-publications")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -518,7 +524,8 @@ func TestUnitReadDataAggregationFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregation is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "all-adhocs", false)
+			aggregationConfig := NewAggregationConfig("all-adhocs")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -584,7 +591,8 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications", true)
+			aggregationConfig := NewAggregationWithTopicsConfig("publications")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -649,7 +657,8 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications", true)
+			aggregationConfig := NewAggregationWithTopicsConfig("publications")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -720,7 +729,9 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications", true)
+
+			aggregationConfig := NewAggregationWithTopicsConfig("publications")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -791,7 +802,8 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications", true)
+			aggregationConfig := NewAggregationWithTopicsConfig("publications")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 404 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusNotFound)
@@ -839,7 +851,8 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications", true)
+			aggregationConfig := NewAggregationWithTopicsConfig("publications")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 404 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusNotFound)
@@ -895,7 +908,8 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications", true)
+			aggregationConfig := NewAggregationWithTopicsConfig("publications")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 404 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusNotFound)
@@ -1270,6 +1284,7 @@ func sortSearchCalls(searchCall1 struct {
 func TestUnitReadDataAggregationWithTopicsRSSSuccess(t *testing.T) {
 	t.Parallel()
 
+	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 	ctx := context.Background()
 
 	mockSearchResponse, err := mapper.GetMockSearchResponse()
@@ -1325,7 +1340,8 @@ func TestUnitReadDataAggregationWithTopicsRSSSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications", true)
+			aggregationConfig := NewAggregationWithTopicsConfig("publications")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
@@ -1378,8 +1394,8 @@ func TestUnitReadDataAggregationWithTopicsRSSFailure(t *testing.T) {
 			},
 		}
 
-		mockSearchClient := &SearchClientMock{}
-		mockSearchClient.GetSearchFunc = func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
+		mockedSearchClient := &SearchClientMock{}
+		mockedSearchClient.GetSearchFunc = func(ctx context.Context, options searchSDK.Options) (*searchModels.SearchResponse, apiError.Error) {
 			return nil, apiError.StatusError{Code: 500}
 		}
 
@@ -1393,7 +1409,8 @@ func TestUnitReadDataAggregationWithTopicsRSSFailure(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-			readDataAggregation(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockSearchClient, accessToken, collectionID, englishLang, *mockCacheList, "publications", true)
+			aggregationConfig := NewAggregationWithTopicsConfig("publications")
+			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusInternalServerError)
