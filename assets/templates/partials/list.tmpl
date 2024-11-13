@@ -52,6 +52,9 @@
                             {{ end }}
                         </ul>
                     </div>
+                    {{ if eq $.Type "related-data" }}
+                        <div class="ons-document-list__item-description">{{ .Description.Summary }}</div>
+                    {{ end }}
                 </div>
             </li>
             {{ end }}
