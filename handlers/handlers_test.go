@@ -74,7 +74,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 
 	Convey("Given a valid request", t, func() {
 		req := httptest.NewRequest("GET", "/search?q=housing&filter=bulletin&topics=1234", http.NoBody)
-		req.Header.Set("X-Florence-Token", "testuser")
+		req.Header.Set("Authorization", "testuser")
 
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
@@ -1163,18 +1163,18 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 	})
 }
 
-func TestSetFlorenceTokenHeader(t *testing.T) {
+func TestsetAuthTokenHeader(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given a valid access token without 'Bearer' prefix", t, func() {
 		headers := make(http.Header)
 		accessToken := "accessToken"
 
-		Convey("When setFlorenceTokenHeader is called", func() {
-			setFlorenceTokenHeader(headers, accessToken)
+		Convey("When setAuthTokenHeader is called", func() {
+			setAuthTokenHeader(headers, accessToken)
 
-			Convey("Then the FlorenceToken header should be set with 'Bearer' prefix", func() {
-				So(headers.Get(searchSDK.FlorenceToken), ShouldEqual, "Bearer "+accessToken)
+			Convey("Then the Authorization header should be set with 'Bearer' prefix", func() {
+				So(headers.Get(searchSDK.Authorization), ShouldEqual, "Bearer "+accessToken)
 			})
 		})
 	})
@@ -1183,11 +1183,11 @@ func TestSetFlorenceTokenHeader(t *testing.T) {
 		headers := make(http.Header)
 		accessToken := "Bearer accessToken"
 
-		Convey("When setFlorenceTokenHeader is called", func() {
-			setFlorenceTokenHeader(headers, accessToken)
+		Convey("When setAuthTokenHeader is called", func() {
+			setAuthTokenHeader(headers, accessToken)
 
-			Convey("Then the FlorenceToken header should be set with no additional 'Bearer' prefix", func() {
-				So(headers.Get(searchSDK.FlorenceToken), ShouldEqual, accessToken)
+			Convey("Then the Authorization header should be set with no additional 'Bearer' prefix", func() {
+				So(headers.Get(searchSDK.Authorization), ShouldEqual, accessToken)
 			})
 		})
 	})

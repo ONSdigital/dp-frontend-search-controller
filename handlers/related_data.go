@@ -99,7 +99,7 @@ func readRelatedData(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		searchSDK.CollectionID: {collectionID},
 	}
 
-	setFlorenceTokenHeader(options.Headers, accessToken)
+	setAuthTokenHeader(options.Headers, accessToken)
 
 	URIList := make([]string, 0, len(pageData.RelatedData))
 	for _, related := range pageData.RelatedData {
