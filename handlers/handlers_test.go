@@ -1163,7 +1163,7 @@ func TestUnitSetStatusCodeSuccess(t *testing.T) {
 	})
 }
 
-func TestsetAuthTokenHeader(t *testing.T) {
+func TestSetAuthTokenHeader(t *testing.T) {
 	t.Parallel()
 
 	Convey("Given a valid access token without 'Bearer' prefix", t, func() {
