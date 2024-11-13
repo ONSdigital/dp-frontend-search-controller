@@ -490,9 +490,10 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 	options.Query = searchQuery
 
 	options.Headers = http.Header{
-		searchSDK.FlorenceToken: {Bearer + accessToken},
-		searchSDK.CollectionID:  {collectionID},
+		searchSDK.CollectionID: {collectionID},
 	}
+
+	setFlorenceTokenHeader(options.Headers, accessToken)
 
 	searchResp, respErr := searchC.GetSearch(ctx, options)
 	if respErr != nil {
@@ -924,9 +925,9 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 
 func setFlorenceTokenHeader(headers http.Header, accessToken string) {
 	if strings.HasPrefix(accessToken, Bearer) {
-		headers.Set(searchSDK.FlorenceToken, accessToken)
+		headers.Set(searchSDK.Authorization, accessToken)
 	} else {
-		headers.Set(searchSDK.FlorenceToken, Bearer+accessToken)
+		headers.Set(searchSDK.Authorization, Bearer+accessToken)
 	}
 }
 
