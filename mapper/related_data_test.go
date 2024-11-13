@@ -17,7 +17,6 @@ import (
 )
 
 func TestCreateRelatedDataPage(t *testing.T) {
-	t.Parallel()
 	helper.InitialiseLocalisationsHelper(mocks.MockAssetFunction)
 
 	Convey("Given validated query and response from search-api", t, func() {
