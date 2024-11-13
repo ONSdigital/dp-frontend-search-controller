@@ -6,19 +6,16 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"path"
 	"slices"
 	"strings"
 	"sync"
 	"time"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-
 	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
-	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
 	core "github.com/ONSdigital/dp-renderer/v2/model"
 	searchAPI "github.com/ONSdigital/dp-search-api/api"
@@ -71,9 +68,18 @@ func NewSearchHandler(rc RenderClient, sc SearchClient, tc TopicClient, zc Zebed
 	}
 }
 
-func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
-	accessToken, collectionID, lang string, cacheList cache.List,
-) {
+type AggregationConfig struct {
+	TemplateName                       string
+	URLQueryParams                     url.Values
+	UseTopicsPath                      bool
+	UseURIsRequest                     bool
+	NLPWeightingEnabled                bool
+	ValidateParams                     func(context.Context, *config.Config, url.Values, string, *cache.Topic) (data.SearchURLParams, []core.ErrorItem)
+	CreatePageModel                    func(*config.Config, *http.Request, core.Page, data.SearchURLParams, []data.Category, []data.Topic, *searchModels.SearchResponse, string, zebedeeCli.HomepageContent, string, *models.Navigation, string, cache.Topic, []core.ErrorItem, zebedeeCli.PageData, []zebedeeCli.Breadcrumb) model.SearchPage
+	GetSearchAndCategoriesCountQueries func(data.SearchURLParams, *cache.Topic, string, string) (url.Values, url.Values)
+}
+
+func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, accessToken, collectionID, lang string, cacheList cache.List, aggCfg AggregationConfig) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()
 
@@ -91,103 +97,77 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 	}
 
 	clearTopics := false
-	if urlQuery.Get("topics") == "" {
-		urlQuery.Add("topics", censusTopicCache.Query)
+	if aggCfg.URLQueryParams.Get("topics") == "" && aggCfg.TemplateName == "" {
+		aggCfg.URLQueryParams.Add("topics", selectedTopic.Query)
 		clearTopics = true
 	}
 
-	// get cached navigation data
-	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
-	if err != nil {
-		log.Error(ctx, "failed to get navigation cache for dataset", err)
-		setStatusCode(w, req, err)
+	// Get navigation cache
+	navigationCache := getNavigationCache(ctx, w, req, cacheList, lang)
+
+	validatedQueryParams, validationErrs := aggCfg.ValidateParams(ctx, cfg, aggCfg.URLQueryParams, latestContentURL, &selectedTopic)
+	if len(validationErrs) > 0 {
+		m := aggCfg.CreatePageModel(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, aggCfg.TemplateName, selectedTopic, validationErrs, zebedeeCli.PageData{}, []zebedeeCli.Breadcrumb{})
+		buildDataAggregationPage(w, m, rend, aggCfg.TemplateName)
 		return
 	}
 
-	validatedQueryParams, err := data.ReviewDatasetQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if err != nil && !apperrors.ErrMapForRenderBeforeAPICalls[err] {
-		log.Error(ctx, "unable to review dataset query", err)
-		setStatusCode(w, req, err)
+	if aggCfg.NLPWeightingEnabled {
+		validatedQueryParams.NLPWeightingEnabled = aggCfg.NLPWeightingEnabled
+		log.Info(ctx, "NLP Weighting for query", log.Data{
+			"nlp_weighting": aggCfg.NLPWeightingEnabled,
+		})
+	}
+
+	if _, rssParam := aggCfg.URLQueryParams["rss"]; rssParam {
+		var err error
+		req.Header.Set("Accept", "application/rss+xml")
+		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, aggCfg.TemplateName); err != nil {
+			log.Error(ctx, "failed to create rss feed", err)
+			setStatusCode(w, req, err)
+		}
 		return
 	}
 
-	var (
-		// counter used to keep track of the number of concurrent API calls
-		counter            = 3
-		errorMessage       string
-		makeSearchAPICalls = true
-	)
+	searchQuery, categoriesCountQuery := aggCfg.GetSearchAndCategoriesCountQueries(validatedQueryParams, &selectedTopic, aggCfg.TemplateName, pageData.Type)
 
+	counter := 3
+	wg := sync.WaitGroup{}
+
+	var homepageResp zebedeeCli.HomepageContent
+	var searchResp = &searchModels.SearchResponse{}
+	var categories []data.Category
+	var topicCategories []data.Topic
+	var respErr, countErr error
+
+	var bc []zebedeeCli.Breadcrumb
+	var bcErr error
+
+	var makeSearchAPICalls = true
 	// avoid making unnecessary search API calls
-	if apperrors.ErrMapForRenderBeforeAPICalls[err] {
+	if len(validationErrs) > 0 {
 		makeSearchAPICalls = false
-
 		// reduce counter by the number of concurrent search API calls that would be
 		// run in go routines
 		counter -= 2
-		errorMessage = err.Error()
 	}
-
-	searchQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
-	categoriesCountQuery := getCategoriesDatasetCountQuery(searchQuery)
-
-	var (
-		homepageResp zebedeeCli.HomepageContent
-		searchResp   = &searchModels.SearchResponse{}
-
-		categories      []data.Category
-		topicCategories []data.Topic
-		populationTypes []data.PopulationTypes
-		dimensions      []data.Dimensions
-
-		wg sync.WaitGroup
-
-		respErr, countErr error
-	)
-
+	// this is only used in find dataset "up"
 	wg.Add(counter)
 
-	go func() {
-		defer wg.Done()
-		var homeErr error
-		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
-		if homeErr != nil {
-			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
-			return
-		}
-	}()
+	// Parallel fetching
+	go fetchHomepageContent(ctx, &wg, &homepageResp, zc, accessToken, collectionID, lang)
 	if makeSearchAPICalls {
-		var options searchSDK.Options
-
-		options.Query = searchQuery
-		options.Headers = http.Header{
-			searchSDK.CollectionID: {collectionID},
+		if aggCfg.TemplateName == "related-list-pages" {
+			if aggCfg.UseURIsRequest {
+				go fetchSearchResultsWithURIs(ctx, &wg, searchQuery, validatedQueryParams, searchC, accessToken, collectionID, cancel, pageData, searchAPI.URIsRequest{}, &searchResp, &respErr, &searchResp.Count)
+			} else {
+				go fetchSearchResults(ctx, &wg, searchQuery, searchC, accessToken, collectionID, &searchResp, &respErr, cancel)
+			}
+			go fetchBreadcrumb(ctx, &wg, zc, accessToken, collectionID, lang, latestContentURL, &bc, &bcErr)
+		} else {
+			go fetchSearchResults(ctx, &wg, searchQuery, searchC, accessToken, collectionID, &searchResp, &respErr, cancel)
+			go fetchCategoriesTypesCount(ctx, &wg, categoriesCountQuery, searchC, accessToken, collectionID, &categories, &topicCategories, &selectedTopic, &countErr, cancel)
 		}
-
-		setAuthTokenHeader(options.Headers, accessToken)
-
-		go func() {
-			defer wg.Done()
-
-			searchResp, respErr = searchC.GetSearch(ctx, options)
-			if respErr != nil {
-				log.Error(ctx, "getting search response from client failed for dataset", respErr)
-				cancel()
-				return
-			}
-		}()
-		go func() {
-			defer wg.Done()
-
-			// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
-			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
-			if countErr != nil {
-				log.Error(ctx, "getting categories, types and its counts failed for dataset", countErr)
-				setStatusCode(w, req, countErr)
-				cancel()
-				return
-			}
-		}()
 	}
 
 	wg.Wait()
@@ -205,441 +185,129 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 		validatedQueryParams.TopicFilter = ""
 	}
 
-	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
-	if err != nil {
-		log.Error(ctx, "unable to validate current page for dataset", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
-	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataFinderPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, searchResp, lang, homepageResp, errorMessage, navigationCache)
-	rend.BuildPage(w, m, "search")
-}
-
-func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
-	accessToken, collectionID, lang string, cacheList cache.List,
-) {
-	ctx, cancel := context.WithCancel(req.Context())
-	defer cancel()
-	template := "related-list-pages"
-	urlPath := path.Dir(req.URL.Path)
-	urlQuery := req.URL.Query()
-	latestContentURL := urlPath + "/latest"
-
-	// check page type
-	pageData, pdErr := zc.GetPageData(ctx, accessToken, collectionID, lang, latestContentURL)
-	if pdErr != nil {
-		log.Error(ctx, "failed to get content type", pdErr)
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-	if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
-		ptErr := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
-		log.Error(ctx, "page type isn't compatible with /previousreleases", ptErr)
-		w.WriteHeader(http.StatusNotFound)
-		return
-	}
-
-	// counter used to keep track of the number of concurrent API calls
-	var counter = 3
-	var (
-		navigationCache *models.Navigation
-		bc              []zebedeeCli.Breadcrumb
-		homepageResp    zebedeeCli.HomepageContent
-
-		wg sync.WaitGroup
-
-		nErr, bcErr, homeErr error
-	)
-
-	wg.Add(counter)
-
-	go func() {
-		defer wg.Done()
-		// get cached navigation data
-		navigationCache, nErr = cacheList.Navigation.GetNavigationData(ctx, lang)
-		if nErr != nil {
-			log.Error(ctx, "failed to get navigation cache for previous releases", nErr)
-			return
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		// get breadcrumbs
-		bc, bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
-		if bcErr != nil {
-			log.Warn(ctx, "getting breadcrumb response from client failed", log.FormatErrors([]error{bcErr}))
-			return
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		// get homepage content
-		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
-		if homeErr != nil {
-			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{homeErr}))
-			return
-		}
-	}()
-
-	wg.Wait()
-	// handle 500 errors
-	if nErr != nil {
-		setStatusCode(w, req, nErr)
-		return
-	}
-
-	sanitisedParams := sanitiseQueryParams(allowedPreviousReleasesQueryParams, urlQuery)
-
-	validatedQueryParams, validationErrs := data.ReviewPreviousReleasesQueryWithParams(ctx, cfg, sanitisedParams, urlPath)
-	if len(validationErrs) > 0 {
-		log.Info(ctx, "validation of parameters failed for aggregation", log.Data{
-			"parameters": validationErrs,
-		})
-		// Errors are now mapped to the page model to output feedback to the user rather than
-		// a blank 400 error response.
-		m := mapper.CreatePreviousReleasesPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, &searchModels.SearchResponse{}, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
-		rend.BuildPage(w, m, template)
-		return
-	}
-
-	searchQuery := data.SetParentTypeOnSearchAPIQuery(validatedQueryParams, pageData.Type)
-
-	var (
-		respErr error
-
-		options searchSDK.Options
-	)
-
-	options.Query = searchQuery
-
-	options.Headers = http.Header{
-		searchSDK.CollectionID: {collectionID},
-	}
-
-	setAuthTokenHeader(options.Headers, accessToken)
-
-	searchResp, respErr := searchC.GetSearch(ctx, options)
-	if respErr != nil {
-		log.Error(ctx, "getting search response from client failed for previous releases", respErr)
-		cancel()
-		return
-	}
-
-	pErr := validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
-	if pErr != nil {
-		log.Info(ctx, apperrors.ErrPageExceedsTotalPages.Error())
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: apperrors.ErrPageExceedsTotalPages.Error(),
-			},
-		})
-	}
-
-	basePage := rend.NewBasePageModel()
-	m := mapper.CreatePreviousReleasesPage(cfg, req, basePage, validatedQueryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
-	rend.BuildPage(w, m, template)
-}
-
-// Maps template name to underlying go template
-func buildDataAggregationPage(w http.ResponseWriter, m model.SearchPage, rend RenderClient, template string) {
-	// time-series-tool needs its own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
-	if template != "time-series-tool" {
-		rend.BuildPage(w, m, "data-aggregation-page")
-	} else {
-		rend.BuildPage(w, m, template)
-	}
-}
-
-func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
-	accessToken, collectionID, lang string, cacheList cache.List, template string, hasTopics bool,
-) {
-	ctx, cancel := context.WithCancel(req.Context())
-	defer cancel()
-
-	var selectedTopic cache.Topic
-	if hasTopics {
-		// Capture the path after the prefix
-		vars := mux.Vars(req)
-		topicsPath := vars["topicsPath"]
-
-		// Split the remaining path into segments
-		segments := strings.Split(topicsPath, "/")
-
-		// Validate the topic hierarchy
-		lastSegmentTopic, err := ValidateTopicHierarchy(ctx, segments, cacheList)
-		if err != nil {
-			log.Error(ctx, "invalid topic path", err, log.Data{
-				"topicPath": topicsPath,
-			})
-			setStatusCode(w, req, apperrors.ErrTopicPathNotFound)
-			return
-		}
-
-		selectedTopic = *lastSegmentTopic
-	} else {
-		// get cached census topic and its subtopics
-		censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
-		if err != nil {
-			log.Error(ctx, "failed to get census topic cache for aggregation", err)
-			setStatusCode(w, req, err)
-			return
-		}
-		selectedTopic = *censusTopicCache
-	}
-
-	var err error
-	urlQuery := req.URL.Query()
-
-	if hasTopics {
-		urlQuery.Add("topics", selectedTopic.ID)
-	}
-
-	// get cached navigation data
-	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
-	if err != nil {
-		log.Error(ctx, "failed to get navigation cache", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
-	validatedQueryParams, validationErrs := data.ReviewDataAggregationQueryWithParams(ctx, cfg, urlQuery)
-	if len(validationErrs) > 0 {
-		log.Info(ctx, "validation of parameters failed", log.Data{
-			"parameters": validationErrs,
-		})
-		// Errors are now mapped to the page model to output feedback to the user rather than
-		// a blank 400 error response.
-		m := mapper.CreateDataAggregationPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs)
-		buildDataAggregationPage(w, m, rend, template)
-		return
-	}
-
-	if _, rssParam := urlQuery["rss"]; rssParam {
-		req.Header.Set("Accept", "application/rss+xml")
-		if err = createRSSFeed(ctx, w, req, collectionID, accessToken, searchC, validatedQueryParams, template); err != nil {
-			log.Error(ctx, "failed to create rss feed", err)
-			setStatusCode(w, req, err)
-		}
-		return
-	}
-
-	searchQuery := data.GetDataAggregationQuery(validatedQueryParams, template)
-
-	// counter used to keep track of the number of concurrent API calls
-	var counter = 3
-	var (
-		homepageResp      zebedeeCli.HomepageContent
-		searchResp        = &searchModels.SearchResponse{}
-		categories        []data.Category
-		topicCategories   []data.Topic
-		respErr, countErr error
-	)
-	wg := sync.WaitGroup{}
-	wg.Add(counter)
-
-	go func() {
-		defer wg.Done()
-		homepageResp, err = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
-		if err != nil {
-			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
-			return
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		options := searchSDK.Options{
-			Query: searchQuery,
-			Headers: http.Header{
-				searchSDK.CollectionID: {collectionID},
-			},
-		}
-
-		setFlorenceTokenHeader(options.Headers, accessToken)
-		searchResp, respErr = searchC.GetSearch(ctx, options)
-		if respErr != nil {
-			log.Error(ctx, "getting search response from client failed", respErr)
-			cancel()
-			return
-		}
-	}()
-
-	go func() {
-		defer wg.Done()
-		var categoriesCountQuery url.Values
-		if hasTopics {
-			categoriesCountQuery = getCategoriesTopicsCountQuery(searchQuery)
-		} else {
-			categoriesCountQuery = getCategoriesCountQuery(searchQuery)
-		}
-		// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
-		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
-		if countErr != nil {
-			log.Error(ctx, "getting categories, types and its counts failed", countErr)
-			setStatusCode(w, req, countErr)
-			cancel()
-			return
-		}
-	}()
-
-	wg.Wait()
-	if respErr != nil || countErr != nil {
-		setStatusCode(w, req, respErr)
-		return
-	}
-
-	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
-	if err != nil {
-		log.Error(ctx, "unable to validate current page for aggregation with topics", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
-	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
+	err := validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
 	if err != nil {
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
 				Text: "current page exceeds total pages",
 			},
 		})
-		m := mapper.CreateDataAggregationPage(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, template, cache.Topic{}, validationErrs)
-		buildDataAggregationPage(w, m, rend, template)
+		m := aggCfg.CreatePageModel(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, aggCfg.TemplateName, cache.Topic{}, validationErrs, pageData, bc)
+		buildDataAggregationPage(w, m, rend, aggCfg.TemplateName)
 		return
 	}
 
 	basePage := rend.NewBasePageModel()
-	m := mapper.CreateDataAggregationPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, template, selectedTopic, validationErrs)
-	buildDataAggregationPage(w, m, rend, template)
+	m := aggCfg.CreatePageModel(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, aggCfg.TemplateName, selectedTopic, validationErrs, pageData, bc)
+	buildDataAggregationPage(w, m, rend, aggCfg.TemplateName)
 }
 
-func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient,
-	accessToken, collectionID, lang string, cacheList cache.List, template string, nlpWeightingEnabled bool,
-) {
-	ctx, cancel := context.WithCancel(req.Context())
-	defer cancel()
+func fetchHomepageContent(ctx context.Context, wg *sync.WaitGroup, homepageResp *zebedeeCli.HomepageContent, zc ZebedeeClient, accessToken, collectionID, lang string) {
+	defer wg.Done()
+	var err error
+	*homepageResp, err = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+	if err != nil {
+		log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
+		return
+	}
+}
 
-	urlQuery := req.URL.Query()
+func fetchSearchResults(ctx context.Context, wg *sync.WaitGroup, query url.Values, searchC SearchClient, accessToken, collectionID string, searchResp **searchModels.SearchResponse, respErr *error, cancel context.CancelFunc) {
+	defer wg.Done()
+	var options searchSDK.Options
+	options.Query = query
+	options.Headers = http.Header{
+		searchSDK.CollectionID: {collectionID},
+	}
+	setFlorenceTokenHeader(options.Headers, accessToken)
+	*searchResp, *respErr = searchC.GetSearch(ctx, options)
+	if *respErr != nil {
+		log.Error(ctx, "failed to get search response", *respErr)
+		cancel()
+		return
+	}
+}
 
-	// get cached census topic and its subtopics
+func fetchSearchResultsWithURIs(ctx context.Context, wg *sync.WaitGroup, searchQuery url.Values, validatedQueryParams data.SearchURLParams, searchC SearchClient, accessToken, collectionID string, cancel context.CancelFunc, pageData zebedeeCli.PageData, URIsRequest searchAPI.URIsRequest, searchResp **searchModels.SearchResponse, respErr *error, searchCount *int) {
+	var options searchSDK.Options
+	options.Query = searchQuery
+	options.Headers = http.Header{
+		searchSDK.FlorenceToken: {Bearer + accessToken},
+		searchSDK.CollectionID:  {collectionID},
+	}
+
+	URIList := make([]string, 0, len(pageData.RelatedData))
+	for _, related := range pageData.RelatedData {
+		URIList = append(URIList, related.URI)
+	}
+
+	URIsRequest = searchAPI.URIsRequest{
+		URIs:   URIList,
+		Limit:  validatedQueryParams.Limit,
+		Offset: validatedQueryParams.Offset,
+	}
+
+	defer wg.Done()
+	*searchResp, *respErr, *searchCount = postSearchURIs(ctx, searchC, options, cancel, URIsRequest)
+	(*searchResp).Count = *searchCount
+}
+
+func fetchCategoriesTypesCount(ctx context.Context, wg *sync.WaitGroup, searchQuery url.Values, searchC SearchClient, accessToken, collectionID string, categories *[]data.Category, topicCategories *[]data.Topic, topicCache *cache.Topic, countErr *error, cancel context.CancelFunc) {
+	defer wg.Done()
+	// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
+	*categories, *topicCategories, *countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, searchQuery, searchC, topicCache)
+	if *countErr != nil {
+		log.Error(ctx, "failed to get categories/types counts", *countErr)
+		cancel()
+		return
+	}
+}
+
+func fetchBreadcrumb(ctx context.Context, wg *sync.WaitGroup, zc ZebedeeClient, accessToken, collectionID, lang, latestContentURL string, bc *[]zebedeeCli.Breadcrumb, bcErr *error) {
+	defer wg.Done()
+
+	*bc, *bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
+	if bcErr != nil {
+		*bc = []zebedeeCli.Breadcrumb{}
+		return
+	}
+}
+
+func getSelectedTopic(ctx context.Context, req *http.Request, cacheList cache.List) (cache.Topic, error) {
+	vars := mux.Vars(req)
+	topicsPath := vars["topicsPath"]
+
+	// Split the remaining path into segments
+	segments := strings.Split(topicsPath, "/")
+
+	lastSegmentTopic, err := ValidateTopicHierarchy(ctx, segments, cacheList)
+	if err != nil {
+		log.Error(ctx, "invalid topic path", err, log.Data{
+			"topicPath": topicsPath,
+		})
+		return cache.Topic{}, apperrors.ErrTopicPathNotFound
+	}
+
+	return *lastSegmentTopic, nil
+}
+
+func getDefaultCensusTopic(ctx context.Context, cacheList cache.List) (cache.Topic, error) {
 	censusTopicCache, err := cacheList.CensusTopic.GetCensusData(ctx)
 	if err != nil {
 		log.Error(ctx, "failed to get census topic cache", err)
-		setStatusCode(w, req, err)
-		return
+		return cache.Topic{}, err
 	}
+	return *censusTopicCache, nil
+}
 
-	// get cached navigation data
-	navigationCache, err := cacheList.Navigation.GetNavigationData(ctx, lang)
-	if err != nil {
-		log.Error(ctx, "failed to get navigation cache", err)
-		setStatusCode(w, req, err)
-		return
-	}
-
-	validatedQueryParams, validationErrs := data.ReviewQuery(ctx, cfg, urlQuery, censusTopicCache)
-	if len(validationErrs) > 0 {
-		log.Info(ctx, "validation of parameters failed", log.Data{
-			"parameters": validationErrs,
-		})
-		basePage := rend.NewBasePageModel()
-		m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, validationErrs)
+// Maps template name to underlying go template
+func buildDataAggregationPage(w http.ResponseWriter, m model.SearchPage, rend RenderClient, template string) {
+	// time-series-tool needs its own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
+	if template != "time-series-tool" && template != "search" && template != "related-list-pages" {
+		rend.BuildPage(w, m, "data-aggregation-page")
+	} else {
 		rend.BuildPage(w, m, template)
-		return
 	}
-
-	validatedQueryParams.NLPWeightingEnabled = nlpWeightingEnabled
-	log.Info(ctx, "NLP Weighting for query", log.Data{
-		"nlp_weighting": nlpWeightingEnabled,
-	})
-
-	var (
-		// counter used to keep track of the number of concurrent API calls
-		counter            = 3
-		errorMessage       string
-		makeSearchAPICalls = true
-	)
-
-	searchQuery := data.GetSearchAPIQuery(validatedQueryParams, censusTopicCache)
-	categoriesCountQuery := getCategoriesCountQuery(searchQuery)
-
-	var (
-		homepageResp zebedeeCli.HomepageContent
-		searchResp   = &searchModels.SearchResponse{}
-
-		categories      []data.Category
-		topicCategories []data.Topic
-		wg              sync.WaitGroup
-
-		respErr, countErr error
-	)
-	wg.Add(counter)
-
-	go func() {
-		defer wg.Done()
-		var homeErr error
-		homepageResp, homeErr = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
-		if homeErr != nil {
-			log.Warn(ctx, "unable to get homepage content", log.FormatErrors([]error{err}))
-			return
-		}
-	}()
-
-	if makeSearchAPICalls {
-		var options searchSDK.Options
-
-		options.Query = searchQuery
-
-		options.Headers = http.Header{
-			searchSDK.CollectionID: {collectionID},
-		}
-
-		setAuthTokenHeader(options.Headers, accessToken)
-
-		go func() {
-			defer wg.Done()
-
-			searchResp, respErr = searchC.GetSearch(ctx, options)
-			if respErr != nil {
-				log.Error(ctx, "getting search response from client failed", respErr)
-				cancel()
-				return
-			}
-		}()
-		go func() {
-			defer wg.Done()
-
-			// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
-			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, censusTopicCache)
-			if countErr != nil {
-				log.Error(ctx, "getting categories, types and its counts failed", countErr)
-				setStatusCode(w, req, countErr)
-				cancel()
-				return
-			}
-		}()
-	}
-
-	wg.Wait()
-	if respErr != nil || countErr != nil {
-		setStatusCode(w, req, respErr)
-		return
-	}
-
-	err = validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
-	if err != nil {
-		validationErrs = append(validationErrs, core.ErrorItem{
-			Description: core.Localisation{
-				Text: apperrors.ErrPageExceedsTotalPages.Error(),
-			},
-		})
-	}
-	basePage := rend.NewBasePageModel()
-	m := mapper.CreateSearchPage(cfg, req, basePage, validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, errorMessage, navigationCache, validationErrs)
-	rend.BuildPage(w, m, template)
 }
 
 // validateCurrentPage checks if the current page exceeds the total pages which is a bad request
