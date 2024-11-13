@@ -226,7 +226,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 			cfg.EnableCensusPopulationTypesFilterOption = true
 			cfg.EnableCensusDimensionsFilterOption = true
 
-			sp := CreateDataFinderPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, respC, englishLang, respH, "", &topicModels.Navigation{})
+			sp := CreateDataFinderPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, respC, englishLang, respH, []coreModel.ErrorItem{}, &topicModels.Navigation{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")

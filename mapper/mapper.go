@@ -382,7 +382,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 // CreateSearchPage maps type searchC.Response to model.Page
 func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
 	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
-	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
+	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, validationErrs []coreModel.ErrorItem,
 	navigationContent *topicModel.Navigation,
 ) model.SearchPage {
 	page := model.SearchPage{
@@ -408,7 +408,8 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 	if navigationContent != nil {
 		page.NavigationContent = mapNavigationContent(*navigationContent)
 	}
-	mapDatasetQuery(cfg, &page, validatedQueryParams, respC, *req, errorMessage)
+
+	mapDatasetQuery(cfg, &page, validatedQueryParams, respC, *req, validationErrs)
 
 	mapResponse(&page, respC, categories)
 
@@ -433,12 +434,18 @@ func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams d
 	mapPagination(cfg, req, page, validatedQueryParams, respC)
 }
 
-func mapDatasetQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, req http.Request, errorMessage string) {
+func mapDatasetQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, req http.Request, validationErrs []coreModel.ErrorItem) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
 
-	page.Data.ErrorMessage = errorMessage
+	if len(validationErrs) > 0 {
+		page.Error = coreModel.Error{
+			Title:      page.Metadata.Title,
+			ErrorItems: validationErrs,
+			Language:   page.Language,
+		}
+	}
 
 	mapDatasetSort(page, validatedQueryParams)
 
