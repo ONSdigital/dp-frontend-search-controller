@@ -205,7 +205,7 @@ func readFindDataset(w http.ResponseWriter, req *http.Request, cfg *config.Confi
 			searchSDK.CollectionID: {collectionID},
 		}
 
-		setFlorenceTokenHeader(options.Headers, accessToken)
+		setAuthTokenHeader(options.Headers, accessToken)
 
 		go func() {
 			defer wg.Done()
@@ -341,7 +341,7 @@ func readDataAggregation(w http.ResponseWriter, req *http.Request, cfg *config.C
 		searchSDK.CollectionID: {collectionID},
 	}
 
-	setFlorenceTokenHeader(options.Headers, accessToken)
+	setAuthTokenHeader(options.Headers, accessToken)
 
 	go func() {
 		defer wg.Done()
@@ -493,7 +493,7 @@ func readPreviousReleases(w http.ResponseWriter, req *http.Request, cfg *config.
 		searchSDK.CollectionID: {collectionID},
 	}
 
-	setFlorenceTokenHeader(options.Headers, accessToken)
+	setAuthTokenHeader(options.Headers, accessToken)
 
 	searchResp, respErr := searchC.GetSearch(ctx, options)
 	if respErr != nil {
@@ -624,7 +624,7 @@ func readDataAggregationWithTopics(w http.ResponseWriter, req *http.Request, cfg
 		searchSDK.CollectionID: {collectionID},
 	}
 
-	setFlorenceTokenHeader(options.Headers, accessToken)
+	setAuthTokenHeader(options.Headers, accessToken)
 
 	go func() {
 		defer wg.Done()
@@ -753,7 +753,7 @@ func read(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc Zebed
 			searchSDK.CollectionID: {collectionID},
 		}
 
-		setFlorenceTokenHeader(options.Headers, accessToken)
+		setAuthTokenHeader(options.Headers, accessToken)
 
 		go func() {
 			defer wg.Done()
@@ -850,7 +850,7 @@ func getCategoriesTypesCount(ctx context.Context, accessToken, collectionID stri
 		searchSDK.CollectionID: {collectionID},
 	}
 
-	setFlorenceTokenHeader(options.Headers, accessToken)
+	setAuthTokenHeader(options.Headers, accessToken)
 
 	countResp, err := searchC.GetSearch(ctx, options)
 	if err != nil {
@@ -923,7 +923,7 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 	w.WriteHeader(status)
 }
 
-func setFlorenceTokenHeader(headers http.Header, accessToken string) {
+func setAuthTokenHeader(headers http.Header, accessToken string) {
 	if strings.HasPrefix(accessToken, Bearer) {
 		headers.Set(searchSDK.Authorization, accessToken)
 	} else {
@@ -943,7 +943,7 @@ func createRSSFeed(ctx context.Context, w http.ResponseWriter, r *http.Request, 
 		searchSDK.CollectionID: {collectionID},
 	}
 
-	setFlorenceTokenHeader(options.Headers, accessToken)
+	setAuthTokenHeader(options.Headers, accessToken)
 
 	searchResponse, respErr := api.GetSearch(ctx, options)
 	if respErr != nil {
