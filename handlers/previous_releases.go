@@ -24,7 +24,6 @@ func (sh *SearchHandler) PreviousReleases(cfg *config.Config) http.HandlerFunc {
 		previousReleasesConfig := NewPreviousReleasesConfig(*req)
 
 		handleReadRequest(w, req, cfg, sh.ZebedeeClient, sh.Renderer, sh.SearchClient, accessToken, collectionID, lang, sh.CacheList, previousReleasesConfig)
-
 	})
 }
 

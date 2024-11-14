@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"path"
 	"slices"
 	"strings"
 	"sync"
@@ -96,6 +97,45 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 		return
 	}
 
+	var pageData = zebedeeCli.PageData{}
+	urlPath := path.Dir(req.URL.Path)
+	latestContentURL := path.Dir(req.URL.Path) + "/latest"
+	// Extract topic if required
+	var selectedTopic cache.Topic
+	if aggCfg.TemplateName != "related-list-pages" {
+		if aggCfg.UseTopicsPath {
+			// Use the topic-specific logic, similar to `readDataAggregation`
+			var err error
+			selectedTopic, err = getSelectedTopic(ctx, req, cacheList)
+			aggCfg.URLQueryParams.Add("topics", selectedTopic.ID)
+			if err != nil {
+				setStatusCode(w, req, err)
+				return
+			}
+		} else {
+			// Fetch default cache topic for census data
+			var err error
+			selectedTopic, err = getDefaultCensusTopic(ctx, cacheList)
+			if err != nil {
+				setStatusCode(w, req, err)
+				return
+			}
+		}
+	} else {
+		// Content type validation
+		var err error
+		if !aggCfg.UseURIsRequest {
+			pageData, err = checkAllowedPageTypes(ctx, w, zc, accessToken, collectionID, lang, latestContentURL, knownRelatedDataTypes)
+		} else {
+			pageData, err = checkAllowedPageTypes(ctx, w, zc, accessToken, collectionID, lang, urlPath, knownRelatedDataTypes)
+		}
+		if err != nil {
+			w.WriteHeader(http.StatusNotFound)
+			return
+		}
+	}
+
+	// used in just find dataset
 	clearTopics := false
 	if aggCfg.URLQueryParams.Get("topics") == "" && aggCfg.TemplateName == "" {
 		aggCfg.URLQueryParams.Add("topics", selectedTopic.Query)
@@ -105,7 +145,7 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 	// Get navigation cache
 	navigationCache := getNavigationCache(ctx, w, req, cacheList, lang)
 
-	validatedQueryParams, validationErrs := aggCfg.ValidateParams(ctx, cfg, aggCfg.URLQueryParams, latestContentURL, &selectedTopic)
+	validatedQueryParams, validationErrs := aggCfg.ValidateParams(ctx, cfg, aggCfg.URLQueryParams, urlPath, &selectedTopic)
 	if len(validationErrs) > 0 {
 		m := aggCfg.CreatePageModel(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, aggCfg.TemplateName, selectedTopic, validationErrs, zebedeeCli.PageData{}, []zebedeeCli.Breadcrumb{})
 		buildDataAggregationPage(w, m, rend, aggCfg.TemplateName)
@@ -138,10 +178,9 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 	var searchResp = &searchModels.SearchResponse{}
 	var categories []data.Category
 	var topicCategories []data.Topic
-	var respErr, countErr error
-
+	var respErr, countErr, bcErr error
+	var searchCount int
 	var bc []zebedeeCli.Breadcrumb
-	var bcErr error
 
 	var makeSearchAPICalls = true
 	// avoid making unnecessary search API calls
@@ -159,13 +198,14 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 	if makeSearchAPICalls {
 		if aggCfg.TemplateName == "related-list-pages" {
 			if aggCfg.UseURIsRequest {
-				go fetchSearchResultsWithURIs(ctx, &wg, searchQuery, validatedQueryParams, searchC, accessToken, collectionID, cancel, pageData, searchAPI.URIsRequest{}, &searchResp, &respErr, &searchResp.Count)
+				go fetchSearchResultsWithURIs(ctx, &wg, searchQuery, validatedQueryParams, searchC, accessToken, collectionID, cancel, pageData, &searchResp, &respErr, &searchCount)
+				go fetchBreadcrumb(ctx, &wg, zc, accessToken, collectionID, lang, urlPath, &bc, &bcErr)
 			} else {
-				go fetchSearchResults(ctx, &wg, searchQuery, searchC, accessToken, collectionID, &searchResp, &respErr, cancel)
+				go fetchSearchResults(ctx, &wg, searchQuery, searchC, accessToken, collectionID, &searchResp, &respErr, &searchCount, cancel)
+				go fetchBreadcrumb(ctx, &wg, zc, accessToken, collectionID, lang, latestContentURL, &bc, &bcErr)
 			}
-			go fetchBreadcrumb(ctx, &wg, zc, accessToken, collectionID, lang, latestContentURL, &bc, &bcErr)
 		} else {
-			go fetchSearchResults(ctx, &wg, searchQuery, searchC, accessToken, collectionID, &searchResp, &respErr, cancel)
+			go fetchSearchResults(ctx, &wg, searchQuery, searchC, accessToken, collectionID, &searchResp, &respErr, &searchCount, cancel)
 			go fetchCategoriesTypesCount(ctx, &wg, categoriesCountQuery, searchC, accessToken, collectionID, &categories, &topicCategories, &selectedTopic, &countErr, cancel)
 		}
 	}
@@ -185,11 +225,11 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 		validatedQueryParams.TopicFilter = ""
 	}
 
-	err := validateCurrentPage(ctx, cfg, validatedQueryParams, searchResp.Count)
+	err := validateCurrentPage(ctx, cfg, validatedQueryParams, searchCount)
 	if err != nil {
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
-				Text: "current page exceeds total pages",
+				Text: err.Error(),
 			},
 		})
 		m := aggCfg.CreatePageModel(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, aggCfg.TemplateName, cache.Topic{}, validationErrs, pageData, bc)
@@ -212,7 +252,7 @@ func fetchHomepageContent(ctx context.Context, wg *sync.WaitGroup, homepageResp 
 	}
 }
 
-func fetchSearchResults(ctx context.Context, wg *sync.WaitGroup, query url.Values, searchC SearchClient, accessToken, collectionID string, searchResp **searchModels.SearchResponse, respErr *error, cancel context.CancelFunc) {
+func fetchSearchResults(ctx context.Context, wg *sync.WaitGroup, query url.Values, searchC SearchClient, accessToken, collectionID string, searchResp **searchModels.SearchResponse, respErr *error, searchCount *int, cancel context.CancelFunc) {
 	defer wg.Done()
 	var options searchSDK.Options
 	options.Query = query
@@ -226,9 +266,10 @@ func fetchSearchResults(ctx context.Context, wg *sync.WaitGroup, query url.Value
 		cancel()
 		return
 	}
+	*searchCount = (*searchResp).Count
 }
 
-func fetchSearchResultsWithURIs(ctx context.Context, wg *sync.WaitGroup, searchQuery url.Values, validatedQueryParams data.SearchURLParams, searchC SearchClient, accessToken, collectionID string, cancel context.CancelFunc, pageData zebedeeCli.PageData, URIsRequest searchAPI.URIsRequest, searchResp **searchModels.SearchResponse, respErr *error, searchCount *int) {
+func fetchSearchResultsWithURIs(ctx context.Context, wg *sync.WaitGroup, searchQuery url.Values, validatedQueryParams data.SearchURLParams, searchC SearchClient, accessToken, collectionID string, cancel context.CancelFunc, pageData zebedeeCli.PageData, searchResp **searchModels.SearchResponse, respErr *error, searchCount *int) {
 	var options searchSDK.Options
 	options.Query = searchQuery
 	options.Headers = http.Header{
@@ -241,7 +282,7 @@ func fetchSearchResultsWithURIs(ctx context.Context, wg *sync.WaitGroup, searchQ
 		URIList = append(URIList, related.URI)
 	}
 
-	URIsRequest = searchAPI.URIsRequest{
+	URIsRequest := searchAPI.URIsRequest{
 		URIs:   URIList,
 		Limit:  validatedQueryParams.Limit,
 		Offset: validatedQueryParams.Offset,
@@ -249,7 +290,6 @@ func fetchSearchResultsWithURIs(ctx context.Context, wg *sync.WaitGroup, searchQ
 
 	defer wg.Done()
 	*searchResp, *respErr, *searchCount = postSearchURIs(ctx, searchC, options, cancel, URIsRequest)
-	(*searchResp).Count = *searchCount
 }
 
 func fetchCategoriesTypesCount(ctx context.Context, wg *sync.WaitGroup, searchQuery url.Values, searchC SearchClient, accessToken, collectionID string, categories *[]data.Category, topicCategories *[]data.Topic, topicCache *cache.Topic, countErr *error, cancel context.CancelFunc) {
@@ -263,11 +303,11 @@ func fetchCategoriesTypesCount(ctx context.Context, wg *sync.WaitGroup, searchQu
 	}
 }
 
-func fetchBreadcrumb(ctx context.Context, wg *sync.WaitGroup, zc ZebedeeClient, accessToken, collectionID, lang, latestContentURL string, bc *[]zebedeeCli.Breadcrumb, bcErr *error) {
+func fetchBreadcrumb(ctx context.Context, wg *sync.WaitGroup, zc ZebedeeClient, accessToken, collectionID, lang, urlPath string, bc *[]zebedeeCli.Breadcrumb, bcErr *error) {
 	defer wg.Done()
 
-	*bc, *bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
-	if bcErr != nil {
+	*bc, *bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, urlPath)
+	if *bcErr != nil {
 		*bc = []zebedeeCli.Breadcrumb{}
 		return
 	}
