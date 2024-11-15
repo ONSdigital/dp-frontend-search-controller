@@ -213,7 +213,6 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 			}()
 		}
 	} else {
-		fmt.Println("HERE 4: ")
 		go func() {
 			defer wg.Done()
 
@@ -225,7 +224,6 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 			}
 			searchCount = searchResp.Count
 		}()
-		fmt.Println("HERE 5: ")
 		go func() {
 			defer wg.Done()
 
