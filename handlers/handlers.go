@@ -106,7 +106,7 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 
 	validatedQueryParams, validationErrs := aggCfg.ValidateParams(ctx, cfg, aggCfg.URLQueryParams, urlPath, &selectedTopic)
 	if len(validationErrs) > 0 {
-		m := aggCfg.CreatePageModel(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, aggCfg.TemplateName, selectedTopic, validationErrs, zebedeeCli.PageData{}, []zebedeeCli.Breadcrumb{})
+		m := aggCfg.CreatePageModel(cfg, req, rend.NewBasePageModel(), validatedQueryParams, []data.Category{}, []data.Topic{}, &searchModels.SearchResponse{}, lang, zebedeeCli.HomepageContent{}, "", navigationCache, aggCfg.TemplateName, selectedTopic, validationErrs, pageData, []zebedeeCli.Breadcrumb{})
 		buildDataAggregationPage(w, m, rend, aggCfg.TemplateName)
 		return
 	}
@@ -154,7 +154,7 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 		searchSDK.CollectionID: {collectionID},
 	}
 
-	setFlorenceTokenHeader(options.Headers, accessToken)
+	setAuthTokenHeader(options.Headers, accessToken)
 
 	if aggCfg.TemplateName == "related-list-pages" {
 		if aggCfg.UseURIsRequest {
