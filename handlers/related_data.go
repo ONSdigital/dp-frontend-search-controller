@@ -36,7 +36,6 @@ func (sh *SearchHandler) RelatedData(cfg *config.Config) http.HandlerFunc {
 func NewRelatedDataConfig(req http.Request) AggregationConfig {
 	createPageModel := func(cfg *config.Config, req *http.Request, base core.Page, queryParams data.SearchURLParams, categories []data.Category, topics []data.Topic, searchResp *searchModels.SearchResponse, lang string, homepageResp zebedeeCli.HomepageContent, errorMessage string, navigationCache *models.Navigation,
 		template string, topic cache.Topic, validationErrs []core.ErrorItem, pageData zebedeeCli.PageData, bc []zebedeeCli.Breadcrumb) model.SearchPage {
-
 		return mapper.CreateRelatedDataPage(cfg, req, base, queryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 	}
 	validateParams := func(ctx context.Context, cfg *config.Config, urlQuery url.Values, urlPath string, _ *cache.Topic) (data.SearchURLParams, []core.ErrorItem) {

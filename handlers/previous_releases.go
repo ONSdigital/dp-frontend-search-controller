@@ -6,7 +6,6 @@ import (
 	"net/url"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -28,8 +27,8 @@ func (sh *SearchHandler) PreviousReleases(cfg *config.Config) http.HandlerFunc {
 }
 
 func NewPreviousReleasesConfig(req http.Request) AggregationConfig {
-	createPageModel := func(cfg *config.Config, req *http.Request, base core.Page, queryParams data.SearchURLParams, categories []data.Category, topics []data.Topic, searchResp *searchModels.SearchResponse, lang string, homepageResp zebedeeCli.HomepageContent, errorMessage string, navigationCache *models.Navigation,
-		template string, topic cache.Topic, validationErrs []core.ErrorItem, pageData zebedee.PageData, bc []zebedeeCli.Breadcrumb) model.SearchPage {
+	createPageModel := func(cfg *config.Config, req *http.Request, base core.Page, queryParams data.SearchURLParams, categories []data.Category, topics []data.Topic, searchResp *searchModels.SearchResponse, lang string, homepageResp zebedee.HomepageContent, errorMessage string, navigationCache *models.Navigation,
+		template string, topic cache.Topic, validationErrs []core.ErrorItem, pageData zebedee.PageData, bc []zebedee.Breadcrumb) model.SearchPage {
 		return mapper.CreatePreviousReleasesPage(cfg, req, base, queryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 	}
 	validateParams := func(ctx context.Context, cfg *config.Config, urlQuery url.Values, urlPath string, _ *cache.Topic) (data.SearchURLParams, []core.ErrorItem) {

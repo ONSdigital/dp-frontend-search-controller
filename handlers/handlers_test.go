@@ -729,7 +729,6 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When readDataAggregationWithTopics is called", func() {
-
 			aggregationConfig := NewAggregationWithTopicsConfig("publications")
 			handleReadRequest(w, req, cfg, mockedZebedeeClient, mockedRendererClient, mockedSearchClient, accessToken, collectionID, englishLang, *mockCacheList, aggregationConfig)
 
