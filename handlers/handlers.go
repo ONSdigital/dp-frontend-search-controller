@@ -114,8 +114,6 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 	var searchCount int
 	var bc []zebedeeCli.Breadcrumb
 
-	// avoid making unnecessary search API calls
-	// this is only used in find dataset "up"
 	wg.Add(counter)
 
 	// Parallel fetching

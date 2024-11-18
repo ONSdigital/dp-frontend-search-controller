@@ -45,7 +45,7 @@ func NewAggregationConfig(template string) AggregationConfig {
 	}
 	return AggregationConfig{
 		TemplateName:                       template,
-		UseTopicsPath:                      false, // Uses topics when `hasTopics` is set
+		UseTopicsPath:                      false,
 		ValidateParams:                     validateParams,
 		GetSearchAndCategoriesCountQueries: getSearchAndCategoriesCountQueries,
 		CreatePageModel:                    createPageModel,
