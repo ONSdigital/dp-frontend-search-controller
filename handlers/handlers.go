@@ -31,8 +31,9 @@ import (
 
 // Constants...
 const (
-	homepagePath = "/"
-	Bearer       = "Bearer "
+	homepagePath         = "/"
+	Bearer               = "Bearer "
+	RelatedPagesTemplate = "related-list-pages"
 )
 
 // list of content types that have /previousreleases
@@ -96,13 +97,54 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 	}
 
 	clearTopics := prepareQueryParams(req, &aggCfg, selectedTopic)
-	pageData, err := validatePageType(ctx, w, zc, aggCfg, accessToken, collectionID, lang, req.URL.Path)
+	pageData, err := validatePageType(ctx, w, zc, aggCfg, accessToken, collectionID, lang, urlPath)
 	if err != nil {
 		setStatusCode(w, req, err)
 		return
 	}
-	// Get navigation cache
-	navigationCache := getNavigationCache(ctx, w, req, cacheList, lang)
+	counter := 2
+	wg := sync.WaitGroup{}
+
+	var homepageResp zebedeeCli.HomepageContent
+	var navigationCache *models.Navigation
+	var searchResp = &searchModels.SearchResponse{}
+	var categories []data.Category
+	var topicCategories []data.Topic
+	var respErr, countErr error
+	var searchCount int
+	var bc []zebedeeCli.Breadcrumb
+
+	// avoid making unnecessary search API calls
+	// this is only used in find dataset "up"
+	wg.Add(counter)
+
+	// Parallel fetching
+	go func() {
+		defer wg.Done()
+		// get cached navigation data
+		navigationCache = getNavigationCache(ctx, w, req, cacheList, lang)
+	}()
+	go func() {
+		defer wg.Done()
+		// get homepage content
+		homepageResp = getHomepageContent(ctx, zc, accessToken, collectionID, lang)
+	}()
+
+	if aggCfg.TemplateName == RelatedPagesTemplate {
+		wg.Add(1)
+		if aggCfg.UseURIsRequest {
+			go func() {
+				defer wg.Done()
+				bc = getBreadcrumb(ctx, zc, accessToken, collectionID, lang, urlPath)
+			}()
+		} else {
+			go func() {
+				defer wg.Done()
+				bc = getBreadcrumb(ctx, zc, accessToken, collectionID, lang, latestContentURL)
+			}()
+		}
+	}
+	wg.Wait()
 
 	validatedQueryParams, validationErrs := aggCfg.ValidateParams(ctx, cfg, aggCfg.URLQueryParams, urlPath, &selectedTopic)
 	if len(validationErrs) > 0 {
@@ -130,23 +172,6 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 
 	searchQuery, categoriesCountQuery := aggCfg.GetSearchAndCategoriesCountQueries(validatedQueryParams, &selectedTopic, aggCfg.TemplateName, pageData.Type)
 
-	counter := 3
-	wg := sync.WaitGroup{}
-
-	var homepageResp zebedeeCli.HomepageContent
-	var searchResp = &searchModels.SearchResponse{}
-	var categories []data.Category
-	var topicCategories []data.Topic
-	var respErr, countErr, bcErr error
-	var searchCount int
-	var bc []zebedeeCli.Breadcrumb
-
-	// avoid making unnecessary search API calls
-	// this is only used in find dataset "up"
-	wg.Add(counter)
-
-	// Parallel fetching
-	go fetchHomepageContent(ctx, &wg, &homepageResp, zc, accessToken, collectionID, lang)
 	var options searchSDK.Options
 
 	options.Query = searchQuery
@@ -155,94 +180,48 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 	}
 
 	setAuthTokenHeader(options.Headers, accessToken)
-
-	if aggCfg.TemplateName == "related-list-pages" {
+	if aggCfg.TemplateName == RelatedPagesTemplate {
 		if aggCfg.UseURIsRequest {
-			go func() {
-				defer wg.Done()
-				URIList := make([]string, 0, len(pageData.RelatedData))
-				for _, related := range pageData.RelatedData {
-					URIList = append(URIList, related.URI)
-				}
+			URIList := make([]string, 0, len(pageData.RelatedData))
+			for _, related := range pageData.RelatedData {
+				URIList = append(URIList, related.URI)
+			}
 
-				URIsRequest := searchAPI.URIsRequest{
-					URIs:   URIList,
-					Limit:  validatedQueryParams.Limit,
-					Offset: validatedQueryParams.Offset,
-				}
+			URIsRequest := searchAPI.URIsRequest{
+				URIs:   URIList,
+				Limit:  validatedQueryParams.Limit,
+				Offset: validatedQueryParams.Offset,
+			}
 
-				searchResp, respErr, searchCount = postSearchURIs(ctx, searchC, options, cancel, URIsRequest)
-				if respErr != nil {
-					log.Error(ctx, "getting search response with uris from client failed", respErr)
-					cancel()
-					return
-				}
-			}()
-
-			go func() {
-				defer wg.Done()
-				// get breadcrumbs
-				bc, bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, urlPath)
-				if bcErr != nil {
-					log.Warn(ctx, "getting breadcrumb response from client failed", log.FormatErrors([]error{bcErr}))
-					cancel()
-					return
-				}
-			}()
+			searchResp, respErr, searchCount = postSearchURIs(ctx, searchC, options, cancel, URIsRequest)
+			if respErr != nil {
+				log.Error(ctx, "getting search response with uris from client failed", respErr)
+			}
 		} else {
-			go func() {
-				defer wg.Done()
-
-				searchResp, respErr = searchC.GetSearch(ctx, options)
-				if respErr != nil {
-					log.Error(ctx, "getting search response from client failed for dataset", respErr)
-					cancel()
-					return
-				}
-				searchCount = searchResp.Count
-			}()
-
-			go func() {
-				defer wg.Done()
-				// get breadcrumbs
-				bc, bcErr = zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, latestContentURL)
-				if bcErr != nil {
-					log.Warn(ctx, "getting breadcrumb response from client failed", log.FormatErrors([]error{bcErr}))
-					return
-				}
-			}()
-		}
-	} else {
-		go func() {
-			defer wg.Done()
-
 			searchResp, respErr = searchC.GetSearch(ctx, options)
 			if respErr != nil {
 				log.Error(ctx, "getting search response from client failed for dataset", respErr)
-				cancel()
-				return
 			}
 			searchCount = searchResp.Count
-		}()
-		go func() {
-			defer wg.Done()
+		}
+	} else {
+		searchResp, respErr = searchC.GetSearch(ctx, options)
+		if respErr != nil {
+			log.Error(ctx, "getting search response from client failed for dataset", respErr)
+		}
+		searchCount = searchResp.Count
 
-			// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
-			categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
-			if countErr != nil {
-				log.Error(ctx, "getting categories, types and its counts failed for dataset", countErr)
-				setStatusCode(w, req, countErr)
-				cancel()
-				return
-			}
-		}()
+		// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
+		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
+		if countErr != nil {
+			log.Error(ctx, "getting categories, types and its counts failed for dataset", countErr)
+			setStatusCode(w, req, countErr)
+		}
 	}
-	wg.Wait()
 	if respErr != nil || countErr != nil {
 		setStatusCode(w, req, respErr)
 		return
 	}
-
 	if clearTopics {
 		/* By default, we set all topics as active,
 		 * but we don't want the checkboxes to be ticked
@@ -266,17 +245,6 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 
 	m := aggCfg.CreatePageModel(cfg, req, rend.NewBasePageModel(), validatedQueryParams, categories, topicCategories, searchResp, lang, homepageResp, "", navigationCache, aggCfg.TemplateName, selectedTopic, validationErrs, pageData, bc)
 	buildDataAggregationPage(w, m, rend, aggCfg.TemplateName)
-}
-
-func fetchHomepageContent(ctx context.Context, wg *sync.WaitGroup, homepageResp *zebedeeCli.HomepageContent, zc ZebedeeClient, accessToken, collectionID, lang string) {
-	defer wg.Done()
-	var err error
-	*homepageResp, err = zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
-	if err != nil {
-		log.Warn(ctx, "getting homepage response from client failed", log.FormatErrors([]error{err}))
-		*homepageResp = zebedeeCli.HomepageContent{}
-		return
-	}
 }
 
 func getSelectedTopic(ctx context.Context, req *http.Request, cacheList cache.List) (cache.Topic, error) {
@@ -309,7 +277,7 @@ func getDefaultCensusTopic(ctx context.Context, cacheList cache.List) (cache.Top
 // Maps template name to underlying go template
 func buildDataAggregationPage(w http.ResponseWriter, m model.SearchPage, rend RenderClient, template string) {
 	// time-series-tool needs its own template due to the need of elements to be present for JS to be able to assign onClick events(doesn't work if they're conditionally shown on the page)
-	if template != "time-series-tool" && template != "search" && template != "related-list-pages" {
+	if template != "time-series-tool" && template != "search" && template != RelatedPagesTemplate {
 		rend.BuildPage(w, m, "data-aggregation-page")
 	} else {
 		rend.BuildPage(w, m, template)
@@ -618,7 +586,7 @@ func postSearchURIs(ctx context.Context, searchC SearchClient, options searchSDK
 }
 
 func selectTopic(ctx context.Context, req *http.Request, cacheList cache.List, aggCfg AggregationConfig) (cache.Topic, error) {
-	if aggCfg.TemplateName == "related-list-pages" {
+	if aggCfg.TemplateName == RelatedPagesTemplate {
 		return cache.Topic{}, nil
 	}
 
@@ -647,18 +615,37 @@ func prepareQueryParams(req *http.Request, aggCfg *AggregationConfig, selectedTo
 }
 
 func validatePageType(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, aggCfg AggregationConfig, accessToken, collectionID, lang, urlPath string) (zebedeeCli.PageData, error) {
-	if aggCfg.TemplateName != "related-list-pages" {
+	if aggCfg.TemplateName != RelatedPagesTemplate {
 		return zebedeeCli.PageData{}, nil
 	}
 
-	latestContentURL := path.Dir(urlPath) + "/latest"
-	validatePath := latestContentURL
-	if aggCfg.UseURIsRequest {
-		validatePath = path.Dir(urlPath)
+	validatePath := urlPath
+	if !aggCfg.UseURIsRequest {
+		validatePath = urlPath + "/latest"
 	}
 	pageData, err := checkAllowedPageTypes(ctx, w, zc, accessToken, collectionID, lang, validatePath, knownRelatedDataTypes)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 	}
 	return pageData, err
+}
+
+// getBreadcrumb performs a get request to zebedee for breadcrumb data
+func getBreadcrumb(ctx context.Context, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string) []zebedeeCli.Breadcrumb {
+	bc, err := zc.GetBreadcrumb(ctx, accessToken, collectionID, lang, pageURL)
+	if err != nil {
+		log.Warn(ctx, "getting breadcrumb response from client failed", log.FormatErrors([]error{err}))
+		bc = []zebedeeCli.Breadcrumb{}
+	}
+	return bc
+}
+
+// getHomepageContent performs a get request to zebedee for breadcrumb data
+func getHomepageContent(ctx context.Context, zc ZebedeeClient, accessToken, collectionID, lang string) zebedeeCli.HomepageContent {
+	hp, err := zc.GetHomepageContent(ctx, accessToken, collectionID, lang, homepagePath)
+	if err != nil {
+		log.Warn(ctx, "getting homepage response from client failed", log.FormatErrors([]error{err}))
+		hp = zebedeeCli.HomepageContent{}
+	}
+	return hp
 }
