@@ -18,8 +18,8 @@ import (
 	"github.com/ONSdigital/dp-topic-api/models"
 )
 
-// Read Handler
-func (sh *SearchHandler) Search(cfg *config.Config, template string) http.HandlerFunc {
+// Search handler
+func (sh *SearchHandler) Search(cfg *config.Config) http.HandlerFunc {
 	oldHandler := dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		searchConfig := NewSearchConfig(false)
 		handleReadRequest(w, req, cfg, sh.ZebedeeClient, sh.Renderer, sh.SearchClient, accessToken, collectionID, lang, sh.CacheList, searchConfig)

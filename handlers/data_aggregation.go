@@ -18,7 +18,7 @@ import (
 	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
 )
 
-// read data aggregation
+// DataAggregation handler
 func (sh *SearchHandler) DataAggregation(cfg *config.Config, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		aggregationConfig := NewAggregationConfig(template)

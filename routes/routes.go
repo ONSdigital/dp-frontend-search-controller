@@ -30,7 +30,7 @@ func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, ca
 	sh := handlers.NewSearchHandler(c.Renderer, c.Search, c.Topic, c.Zebedee, cfg, cacheList)
 
 	r.StrictSlash(true).Path("/health").HandlerFunc(c.HealthCheckHandler)
-	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(sh.Search(cfg, "search"))
+	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(sh.Search(cfg))
 
 	if sh.EnableAggregationPages {
 		r.StrictSlash(true).Path("/alladhocs").Methods("GET").HandlerFunc(sh.DataAggregation(cfg, "all-adhocs"))

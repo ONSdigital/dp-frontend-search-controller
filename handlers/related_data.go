@@ -24,7 +24,7 @@ var knownRelatedDataTypes = []string{
 	"compendium_landing_page",
 }
 
-// ReadRelated data handles related data page
+// RelatedData handler
 func (sh *SearchHandler) RelatedData(cfg *config.Config) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		relatedDataConfig := NewRelatedDataConfig(*req)

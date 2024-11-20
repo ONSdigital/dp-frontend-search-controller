@@ -17,7 +17,7 @@ import (
 	"github.com/ONSdigital/dp-topic-api/models"
 )
 
-// ReadDataAggregationWithTopics for data aggregation routes with topic/subtopics
+// DataAggregationWithTopics for data aggregation routes with topic/subtopics
 func (sh *SearchHandler) DataAggregationWithTopics(cfg *config.Config, template string) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		aggregationConfig := NewAggregationWithTopicsConfig(template)

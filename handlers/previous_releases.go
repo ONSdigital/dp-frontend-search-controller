@@ -17,7 +17,7 @@ import (
 	"github.com/ONSdigital/dp-topic-api/models"
 )
 
-// ReadPreviousReleases handles previous releases page
+// PreviousReleases handler
 func (sh *SearchHandler) PreviousReleases(cfg *config.Config) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		previousReleasesConfig := NewPreviousReleasesConfig(*req)

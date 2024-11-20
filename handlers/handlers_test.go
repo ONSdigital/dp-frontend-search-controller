@@ -107,7 +107,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When Search is called", func() {
-			w := doTestRequest("/search", req, mockHandlerClient.Search(cfg, "search"), nil)
+			w := doTestRequest("/search", req, mockHandlerClient.Search(cfg), nil)
 
 			Convey("Then a 200 OK status should be returned", func() {
 				So(w.Code, ShouldEqual, http.StatusOK)
