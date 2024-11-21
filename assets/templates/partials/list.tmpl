@@ -47,7 +47,12 @@
                                 {{ end }}
                             {{ else }}
                                 <li class="ons-document-list__item-attribute">
-                                    <span class="ons-u-fw-b"> {{ localise .Type.LocaliseKeyName $lang 1 }} </span>
+                                    <span class="ons-u-fw-b">{{ localise .Type.LocaliseKeyName $lang 1 }}</span>
+                                </li>
+                            {{ end }}
+                            {{ if .Description.DatasetID }}
+                                <li class="ons-document-list__item-attribute">
+                                    <span class="ons-u-fw-b">{{ localise "DatasetID" $lang 1 }}: </span><span>{{ .Description.DatasetID }}</span>
                                 </li>
                             {{ end }}
                         </ul>
