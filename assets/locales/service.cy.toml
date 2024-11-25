@@ -215,7 +215,7 @@ one = "Nesaf"
 
 [Previous]
 description = "Previous"
-one = "Previous" 
+one = "Blaenorol" 
 
 [DidYouKnow]
 description = "Did you know?"
@@ -328,7 +328,7 @@ one = "Search keywords"
 
 [PreviousReleases]
 description = "Previous releases"
-one = "Previous releases"
+one = "Datganiadau blaenorol"
 
 [ShowAllReleases]
 description = "Show all releases over time (only showing latest one of each by default)"
