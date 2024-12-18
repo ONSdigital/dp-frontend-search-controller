@@ -70,7 +70,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for aggregation", PaginationErr, validationErrs)
 
-	reviewSort(ctx, urlQuery, &sp, cfg.DefaultSort)
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultSort.Default)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, contentTypeFilterError, "invalid content type filters set", ContentTypeFilterErr, validationErrs)
@@ -137,7 +137,7 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	}
 	sp.BeforeDate = toDate
 
-	reviewSort(ctx, urlQuery, &sp, cfg.DefaultAggregationSort)
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultSort.Aggregation)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, contentTypeFilterError, "invalid content type filters set for aggregation", ContentTypeFilterErr, validationErrs)
@@ -165,7 +165,7 @@ func ReviewPreviousReleasesQueryWithParams(ctx context.Context, cfg *config.Conf
 	}
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for previous releases", PaginationErr, validationErrs)
-	reviewSort(ctx, urlQuery, &sp, cfg.DefaultPreviousReleasesSort)
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultSort.PreviousReleases)
 	return sp, validationErrs
 }
 
@@ -178,7 +178,7 @@ func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Va
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &validatedQueryParams)
 	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for aggregation", PaginationErr, validationErrs)
 
-	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultDatasetSort)
+	reviewSort(ctx, urlQuery, &validatedQueryParams, cfg.DefaultSort.Dataset)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &validatedQueryParams)
 	validationErrs = handleValidationError(ctx, contentTypeFilterError, "invalid content type filters set", ContentTypeFilterErr, validationErrs)

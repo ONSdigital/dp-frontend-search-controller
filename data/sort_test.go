@@ -25,11 +25,11 @@ func TestUnitReviewSortSuccess(t *testing.T) {
 		validatedQueryParams := &SearchURLParams{}
 
 		Convey("When reviewSort is called", func() {
-			reviewSort(ctx, urlQuery, validatedQueryParams, cfg.DefaultSort)
+			reviewSort(ctx, urlQuery, validatedQueryParams, cfg.DefaultSort.Default)
 
 			Convey("Then set default sort and localisation key for default to validatedQueryParams", func() {
-				So(validatedQueryParams.Sort.Query, ShouldEqual, cfg.DefaultSort)
-				So(validatedQueryParams.Sort.LocaliseKeyName, ShouldEqual, sortOptions[cfg.DefaultSort].LocaliseKeyName)
+				So(validatedQueryParams.Sort.Query, ShouldEqual, cfg.DefaultSort.Default)
+				So(validatedQueryParams.Sort.LocaliseKeyName, ShouldEqual, sortOptions[cfg.DefaultSort.Default].LocaliseKeyName)
 			})
 		})
 	})
@@ -45,7 +45,7 @@ func TestUnitReviewSortSuccess(t *testing.T) {
 		validatedQueryParams := &SearchURLParams{}
 
 		Convey("When reviewSort is called", func() {
-			reviewSort(ctx, urlQuery, validatedQueryParams, cfg.DefaultSort)
+			reviewSort(ctx, urlQuery, validatedQueryParams, cfg.DefaultSort.Default)
 
 			Convey("Then set sort query and localisation key for sort value to validatedQueryParams", func() {
 				So(validatedQueryParams.Sort.Query, ShouldEqual, "relevance")
@@ -65,11 +65,11 @@ func TestUnitReviewSortSuccess(t *testing.T) {
 		validatedQueryParams := &SearchURLParams{}
 
 		Convey("When reviewSort is called", func() {
-			reviewSort(ctx, urlQuery, validatedQueryParams, cfg.DefaultSort)
+			reviewSort(ctx, urlQuery, validatedQueryParams, cfg.DefaultSort.Default)
 
 			Convey("Then set default sort and localisation key for default to validatedQueryParams", func() {
-				So(validatedQueryParams.Sort.Query, ShouldEqual, cfg.DefaultSort)
-				So(validatedQueryParams.Sort.LocaliseKeyName, ShouldEqual, sortOptions[cfg.DefaultSort].LocaliseKeyName)
+				So(validatedQueryParams.Sort.Query, ShouldEqual, cfg.DefaultSort.Default)
+				So(validatedQueryParams.Sort.LocaliseKeyName, ShouldEqual, sortOptions[cfg.DefaultSort.Default].LocaliseKeyName)
 			})
 		})
 	})

@@ -9,22 +9,19 @@ import (
 // Config represents service configuration for dp-frontend-search-controller
 type Config struct {
 	*ABTest
-	APIRouterURL                            string        `envconfig:"API_ROUTER_URL"`
-	BindAddr                                string        `envconfig:"BIND_ADDR"`
-	CacheCensusTopicUpdateInterval          time.Duration `envconfig:"CACHE_CENSUS_TOPICS_UPDATE_INTERVAL"`
-	CacheDataTopicUpdateInterval            time.Duration `envconfig:"CACHE_DATA_TOPICS_UPDATE_INTERVAL"`
-	CacheNavigationUpdateInterval           time.Duration `envconfig:"CACHE_NAVIGATION_UPDATE_INTERVAL"`
-	CensusTopicID                           string        `envconfig:"CENSUS_TOPIC_ID"`
-	Debug                                   bool          `envconfig:"DEBUG"`
-	DefaultLimit                            int           `envconfig:"DEFAULT_LIMIT"`
-	DefaultMaximumLimit                     int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
-	DefaultMaximumSearchResults             int           `envconfig:"DEFAULT_MAXIMUM_SEARCH_RESULTS"`
-	DefaultOffset                           int           `envconfig:"DEFAULT_OFFSET"`
-	DefaultPage                             int           `envconfig:"DEFAULT_PAGE"`
-	DefaultAggregationSort                  string        `envconfig:"DEFAULT_AGGREGATION_SORT"`
-	DefaultPreviousReleasesSort             string        `envconfig:"DEFAULT_PREVIOUS_RELEASES_SORT"`
-	DefaultSort                             string        `envconfig:"DEFAULT_SORT"`
-	DefaultDatasetSort                      string        `envconfig:"DEFAULT_DATASET_SORT"`
+	APIRouterURL                   string        `envconfig:"API_ROUTER_URL"`
+	BindAddr                       string        `envconfig:"BIND_ADDR"`
+	CacheCensusTopicUpdateInterval time.Duration `envconfig:"CACHE_CENSUS_TOPICS_UPDATE_INTERVAL"`
+	CacheDataTopicUpdateInterval   time.Duration `envconfig:"CACHE_DATA_TOPICS_UPDATE_INTERVAL"`
+	CacheNavigationUpdateInterval  time.Duration `envconfig:"CACHE_NAVIGATION_UPDATE_INTERVAL"`
+	CensusTopicID                  string        `envconfig:"CENSUS_TOPIC_ID"`
+	Debug                          bool          `envconfig:"DEBUG"`
+	DefaultLimit                   int           `envconfig:"DEFAULT_LIMIT"`
+	DefaultMaximumLimit            int           `envconfig:"DEFAULT_MAXIMUM_LIMIT"`
+	DefaultMaximumSearchResults    int           `envconfig:"DEFAULT_MAXIMUM_SEARCH_RESULTS"`
+	DefaultOffset                  int           `envconfig:"DEFAULT_OFFSET"`
+	DefaultPage                    int           `envconfig:"DEFAULT_PAGE"`
+	*DefaultSort
 	EnableAggregationPages                  bool          `envconfig:"ENABLE_AGGREGATION_PAGES"`
 	EnableTopicAggregationPages             bool          `envconfig:"ENABLE_TOPIC_AGGREGATION_PAGES"`
 	EnableFeedbackAPI                       bool          `envconfig:"ENABLE_FEEDBACK_API"`
@@ -52,6 +49,13 @@ type ABTest struct {
 	Enabled    bool   `envconfig:"AB_TEST_ENABLED"`
 	Percentage int    `envconfig:"AB_TEST_PERCENTAGE"`
 	Exit       string `envconfig:"AB_TEST_EXIT"`
+}
+
+type DefaultSort struct {
+	Aggregation      string `envconfig:"DEFAULT_AGGREGATION_SORT"`
+	Dataset          string `envconfig:"DEFAULT_DATASET_SORT"`
+	Default          string `envconfig:"DEFAULT_SORT"`
+	PreviousReleases string `envconfig:"DEFAULT_PREVIOUS_RELEASES_SORT"`
 }
 
 var cfg *Config
@@ -85,21 +89,23 @@ func get() (*Config, error) {
 			Exit:       "search-ab-exit",
 			Percentage: 0,
 		},
-		BindAddr:                                ":25000",
-		CacheCensusTopicUpdateInterval:          30 * time.Minute,
-		CacheDataTopicUpdateInterval:            30 * time.Minute,
-		CacheNavigationUpdateInterval:           30 * time.Minute,
-		CensusTopicID:                           "4445",
-		Debug:                                   false,
-		DefaultLimit:                            10,
-		DefaultMaximumLimit:                     50,
-		DefaultMaximumSearchResults:             500,
-		DefaultOffset:                           0,
-		DefaultPage:                             1,
-		DefaultAggregationSort:                  "release_date",
-		DefaultPreviousReleasesSort:             "release_date",
-		DefaultSort:                             "relevance",
-		DefaultDatasetSort:                      "release_date",
+		BindAddr:                       ":25000",
+		CacheCensusTopicUpdateInterval: 30 * time.Minute,
+		CacheDataTopicUpdateInterval:   30 * time.Minute,
+		CacheNavigationUpdateInterval:  30 * time.Minute,
+		CensusTopicID:                  "4445",
+		Debug:                          false,
+		DefaultLimit:                   10,
+		DefaultMaximumLimit:            50,
+		DefaultMaximumSearchResults:    500,
+		DefaultOffset:                  0,
+		DefaultPage:                    1,
+		DefaultSort: &DefaultSort{
+			Aggregation:      "release_date",
+			Dataset:          "release_date",
+			Default:          "relevance",
+			PreviousReleases: "release_date",
+		},
 		EnableFeedbackAPI:                       false,
 		FeedbackAPIURL:                          "http://localhost:23200/v1/feedback",
 		EnableCensusTopicFilterOption:           false,
