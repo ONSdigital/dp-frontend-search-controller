@@ -56,6 +56,7 @@ type DefaultSort struct {
 	Dataset          string `envconfig:"DEFAULT_DATASET_SORT"`
 	Default          string `envconfig:"DEFAULT_SORT"`
 	PreviousReleases string `envconfig:"DEFAULT_PREVIOUS_RELEASES_SORT"`
+	RelatedData      string `envconfig:"DEFAULT_RELATED_DATA_SORT"`
 }
 
 var cfg *Config
@@ -105,6 +106,7 @@ func get() (*Config, error) {
 			Dataset:          "release_date",
 			Default:          "relevance",
 			PreviousReleases: "release_date",
+			RelatedData:      "title",
 		},
 		EnableFeedbackAPI:                       false,
 		FeedbackAPIURL:                          "http://localhost:23200/v1/feedback",
