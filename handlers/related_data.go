@@ -39,7 +39,7 @@ func NewRelatedDataConfig(req http.Request) AggregationConfig {
 		return mapper.CreateRelatedDataPage(cfg, req, base, queryParams, searchResp, lang, homepageResp, "", navigationCache, template, cache.Topic{}, validationErrs, pageData, bc)
 	}
 	validateParams := func(ctx context.Context, cfg *config.Config, urlQuery url.Values, urlPath string, _ *cache.Topic) (data.SearchURLParams, []core.ErrorItem) {
-		return data.ReviewPreviousReleasesQueryWithParams(ctx, cfg, urlQuery, urlPath)
+		return data.ReviewRelatedDataQueryWithParams(ctx, cfg, urlQuery, urlPath)
 	}
 	getSearchAndCategoriesCountQueries := func(validatedQueryParams data.SearchURLParams, _ *cache.Topic, parentType, _ string) (searchQuery, categoriesCountQuery url.Values) {
 		searchQuery = data.SetParentTypeOnSearchAPIQuery(validatedQueryParams, parentType)
