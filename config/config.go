@@ -54,7 +54,7 @@ type ABTest struct {
 type DefaultSort struct {
 	Aggregation      string `envconfig:"DEFAULT_AGGREGATION_SORT"`
 	Dataset          string `envconfig:"DEFAULT_DATASET_SORT"`
-	Default          string `envconfig:"DEFAULT_SORT"`
+	Other            string `envconfig:"DEFAULT_SORT"`
 	PreviousReleases string `envconfig:"DEFAULT_PREVIOUS_RELEASES_SORT"`
 	RelatedData      string `envconfig:"DEFAULT_RELATED_DATA_SORT"`
 }
@@ -104,7 +104,7 @@ func get() (*Config, error) {
 		DefaultSort: &DefaultSort{
 			Aggregation:      "release_date",
 			Dataset:          "release_date",
-			Default:          "relevance",
+			Other:            "relevance",
 			PreviousReleases: "release_date",
 			RelatedData:      "title",
 		},

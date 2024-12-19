@@ -70,7 +70,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 	paginationErr := reviewPagination(ctx, cfg, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, paginationErr, "unable to review pagination for aggregation", PaginationErr, validationErrs)
 
-	reviewSort(ctx, urlQuery, &sp, cfg.DefaultSort.Default)
+	reviewSort(ctx, urlQuery, &sp, cfg.DefaultSort.Other)
 
 	contentTypeFilterError := reviewFilters(ctx, urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, contentTypeFilterError, "invalid content type filters set", ContentTypeFilterErr, validationErrs)

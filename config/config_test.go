@@ -35,7 +35,7 @@ func TestConfig(t *testing.T) {
 				So(cfg.DefaultPage, ShouldEqual, 1)
 				So(cfg.DefaultSort.Aggregation, ShouldEqual, "release_date")
 				So(cfg.DefaultSort.Dataset, ShouldEqual, "release_date")
-				So(cfg.DefaultSort.Default, ShouldEqual, "relevance")
+				So(cfg.DefaultSort.Other, ShouldEqual, "relevance")
 				So(cfg.DefaultSort.PreviousReleases, ShouldEqual, "release_date")
 				So(cfg.DefaultSort.RelatedData, ShouldEqual, "title")
 				So(cfg.EnableFeedbackAPI, ShouldBeFalse)
