@@ -189,6 +189,7 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 				URIs:   URIList,
 				Limit:  validatedQueryParams.Limit,
 				Offset: validatedQueryParams.Offset,
+				Sort:   validatedQueryParams.Sort.Query,
 			}
 
 			searchResp, respErr, searchCount = postSearchURIs(ctx, searchC, options, cancel, URIsRequest)
