@@ -364,7 +364,9 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	}
 
 	page.Type = "Data Aggregation Page"
-	page.Data.Topic = strings.ToLower(topic.LocaliseKeyName)
+	if !strings.EqualFold(topic.LocaliseKeyName, "census") {
+		page.Data.Topic = strings.ToLower(topic.LocaliseKeyName)
+	}
 	page.Data.TermLocalKey = "Results"
 	page.Count = respC.Count
 	page.Language = lang
