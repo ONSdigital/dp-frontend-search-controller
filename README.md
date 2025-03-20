@@ -7,6 +7,7 @@ An HTTP service for the controlling of search API
 * Run `make debug`
 
 Run new search in the UI:
+
 * run the [web journey](https://github.com/ONSdigital/dp/blob/main/guides/INSTALLING.md#web-journey)
 
 * set `SearchRoutesEnabled` to `true` and `SearchABTestPercentage` to `100` in the config of the [dp-frontend-router](https://github.com/ONSdigital/dp-frontend-router)
@@ -17,7 +18,7 @@ Run new search in the UI:
 * [dp-design-system](https://github.com/ONSdigital/dp-design-system)
 * [dp-search-api](https://github.com/ONSdigital/dp-search-api)
 * [dp-topic-api](https://github.com/ONSdigital/dp-topic-api)
-* Run Elasticsearch (version 7.10 runs on port 11200) via [dp-compose](https://github.com/ONSdigital/dp-compose) 
+* Run Elasticsearch (version 7.10 runs on port 11200) via [dp-compose](https://github.com/ONSdigital/dp-compose)
 
 No further dependencies other than those defined in `go.mod`
 
@@ -25,7 +26,7 @@ No further dependencies other than those defined in `go.mod`
 
 | Environment variable                        | Default                            | Description                                                                                                                                                           |
 |---------------------------------------------|------------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| API_ROUTER_URL                              | http://localhost:23200/v1          | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)                                                                                           |
+| API_ROUTER_URL                              | <http://localhost:23200/v1>          | The URL of the [dp-api-router](https://github.com/ONSdigital/dp-api-router)                                                                                           |
 | AB_TEST_ASPECT_ID                           | dp-frontend-search-controller      | Unique Aspect ID for AB test cookie                                                                                                                                   |
 | AB_TEST_ENABLED                             | true                               | If AB testing is switched on - if false, this will default to the new handler                                                                                         |
 | AB_TEST_PERCENTAGE                          | 0                                  | What percentage of traffic goes to the new handler                                                                                                                    |
@@ -50,14 +51,13 @@ No further dependencies other than those defined in `go.mod`
 | ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION      | false                              | Enable dimensions filter for census dataset finder                                                                                                                    |
 | ENABLE_CENSUS_POPULATION_TYPE_FILTER_OPTION | false                              | Enable populations filter for census dataset finder                                                                                                                   |
 | ENABLE_CENSUS_TOPIC_FILTER_OPTION           | false                              |                                                                                                                                                                       |
-| ENABLE_FEEDBACK_API                         | false                              |                                                                                                                                                                       |
 | ENABLE_NEW_NAV_BAR                          | false                              |                                                                                                                                                                       |
-| FEEDBACK_API_URL                            | http://localhost:23200/v1/feedback |                                                                                                                                                                       |
+| FEEDBACK_API_URL                            | <http://localhost:23200/v1/feedback> |The public `dp-api-router` address for feedback, not the internal one                                                                                                                                                                   |
 | GRACEFUL_SHUTDOWN_TIMEOUT                   | 5s                                 | The graceful shutdown timeout in seconds (`time.Duration` format)                                                                                                     |
 | HEALTHCHECK_CRITICAL_TIMEOUT                | 90s                                | Time to wait until an unhealthy dependent propagates its state to make this app unhealthy (`time.Duration` format)                                                    |
 | HEALTHCHECK_INTERVAL                        | 30s                                | Time between self-healthchecks (`time.Duration` format)                                                                                                               |
 | OTEL_BATCH_TIMEOUT                          | 5s                                 | Interval between pushes to OT Collector                                                                                                                               |
-| OTEL_EXPORTER_OTLP_ENDPOINT                 | http://localhost:4317              | URL for OpenTelemetry endpoint                                                                                                                                        |
+| OTEL_EXPORTER_OTLP_ENDPOINT                 | <http://localhost:4317>              | URL for OpenTelemetry endpoint                                                                                                                                        |
 | OTEL_SERVICE_NAME                           | "dp-frontend-search-controller"    | Service name to report to telemetry tools                                                                                                                             |
 | OTEL_ENABLED                                | false                              | Feature flag to enable OpenTelemetry                                                                                                                                  |
 | IS_PUBLISHING                               | false                              | Mode in which service is running                                                                                                                                      |
@@ -72,6 +72,6 @@ See [CONTRIBUTING](CONTRIBUTING.md) for details.
 
 ## License
 
-Copyright © 2020 - 2022, Office for National Statistics (https://www.ons.gov.uk)
+Copyright © 2020 - 2025, Office for National Statistics (<https://www.ons.gov.uk>)
 
 Released under MIT license, see [LICENSE](LICENSE.md) for details.
