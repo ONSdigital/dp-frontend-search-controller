@@ -38,7 +38,6 @@ type Search struct {
 	Response                       Response               `json:"response"`
 	TermLocalKey                   string                 `json:"term_localise_key_name,omitempty"`
 	Topic                          string                 `json:"topic,omitempty"`
-	EnableFeedbackAPI              bool                   `json:"enable_feedback_api"`
 	FeedbackAPIURL                 string                 `json:"feedback_api_url"`
 }
 
