@@ -5,7 +5,7 @@ image_resource:
   type: docker-image
   source:
     repository: onsdigital/dp-concourse-tools-nancy
-    tag: 1.24.1-nancy-1.0.46
+    tag: latest
 
 inputs:
   - name: dp-frontend-search-controller
