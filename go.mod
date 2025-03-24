@@ -110,4 +110,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
 
+// This is required to remove vulnerability CVE-2024-45339
 tool github.com/golang/glog
