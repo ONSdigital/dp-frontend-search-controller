@@ -170,7 +170,6 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 	case "home-publications":
 		page.Metadata.Title = "Publications"
 		page.Title.LocaliseKeyName = "HomePublications"
-		page.Data.SingleContentTypeFilterEnabled = true
 		page.RSSLink = generateRSSLink(req.URL.RawQuery)
 	case "all-methodologies":
 		page.Metadata.Title = "All methodology"

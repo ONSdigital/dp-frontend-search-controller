@@ -577,11 +577,10 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					exRSSLink:                        "?rss",
 				},
 				{
-					template:                         "home-publications",
-					exTitle:                          "Publications",
-					exLocaliseKeyName:                "HomePublications",
-					exSingleContentTypeFilterEnabled: true,
-					exRSSLink:                        "?rss",
+					template:          "home-publications",
+					exTitle:           "Publications",
+					exLocaliseKeyName: "HomePublications",
+					exRSSLink:         "?rss",
 				},
 				{
 					template:             "all-methodologies",
