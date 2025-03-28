@@ -145,6 +145,11 @@ description = "Compendiums"
 one = "Casgliad"
 other = "Compendiwm"
 
+[StatisticalArticle]
+description = "Statistical article"
+one = "Statistical article"
+other = "Statistical articles"
+
 [TimeSeries]
 description = "Time series"
 one = "Cyfres amser"
