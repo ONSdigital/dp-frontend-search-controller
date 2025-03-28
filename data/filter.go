@@ -45,6 +45,7 @@ var defaultContentTypes = "article," +
 	"static_methodology_download," +
 	"static_page," +
 	"static_qmi," +
+	"statistical_article," +
 	"timeseries," +
 	"timeseries_dataset"
 
@@ -55,7 +56,7 @@ var (
 	// Publication - search information on publication category
 	Publication = Category{
 		LocaliseKeyName: "Publication",
-		ContentTypes:    []ContentType{Bulletin, Article, Compendium},
+		ContentTypes:    []ContentType{Bulletin, Article, Compendium, StatisticalArticle},
 	}
 
 	// Data - search information on data category
@@ -106,6 +107,14 @@ var (
 		LocaliseKeyName: "Compendium",
 		Group:           "compendia",
 		Types:           []string{"compendium_landing_page"},
+		ShowInWebUI:     true,
+	}
+
+	// StatisticalArticle - search information specific for statistical articles
+	StatisticalArticle = ContentType{
+		LocaliseKeyName: "StatisticalArticle",
+		Group:           "statistical_article",
+		Types:           []string{"statistical_article"},
 		ShowInWebUI:     true,
 	}
 
@@ -174,6 +183,7 @@ var (
 		DatasetLandingPage.Group:   DatasetLandingPage,
 		Methodology.Group:          Methodology,
 		ProductPage.Group:          ProductPage,
+		StatisticalArticle.Group:   StatisticalArticle,
 		TimeSeries.Group:           TimeSeries,
 		UserRequestedData.Group:    UserRequestedData,
 	}
