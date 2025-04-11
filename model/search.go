@@ -41,16 +41,17 @@ type Search struct {
 	FeedbackAPIURL                 string                 `json:"feedback_api_url"`
 }
 
-// Filter respresents all filter information needed by templates
+// Filter represents all filter information needed by templates
 type Filter struct {
 	LocaliseKeyName string   `json:"localise_key_name,omitempty"`
 	FilterKey       []string `json:"filter_key,omitempty"`
 	IsChecked       bool     `json:"is_checked,omitempty"`
 	NumberOfResults int      `json:"number_of_results,omitempty"`
 	Types           []Filter `json:"types,omitempty"`
+	HideTypes       bool     `json:"hide_types,omitempty"`
 }
 
-// TopicFilter respresents all the topic filter information needed by templates
+// TopicFilter represents all the topic filter information needed by templates
 type TopicFilter struct {
 	LocaliseKeyName    string        `json:"localise_key_name,omitempty"`
 	DistinctItemsCount int           `json:"distinct_items_count,omitempty"`

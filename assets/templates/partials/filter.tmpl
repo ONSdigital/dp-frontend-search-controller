@@ -91,11 +91,23 @@
                     {{ range $index, $topFilter := $filters}}
                         <div class="ons-checkboxes__items">
                             <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                <span class="ons-checkbox ons-checkbox--no-border content-type-filter">
+                                <span class="ons-checkbox ons-checkbox--no-border 
+                                        {{ if $topFilter.HideTypes}}
+                                            content-type-category-filter
+                                        {{ else }}
+                                            content-type-filter
+                                        {{ end }}">
                                     <input type="checkbox" id="group-{{ $index }}"
                                         class="ons-checkbox__input ons-js-checkbox"
-                                            value="{{ print $topFilter.FilterKey }}" categoryChildren="{{ print $topFilter.FilterKey }}" aria-controls="group-{{ $index }}-other-wrap"
-                                        data-gtm-label="{{ $topFilter.LocaliseKeyName }}"
+                                        categoryChildren="{{ print $topFilter.FilterKey }}" 
+                                        data-gtm-label="{{ $topFilter.LocaliseKeyName }}" 
+                                        {{ if $topFilter.HideTypes}}
+                                            name="filter"
+                                            value="{{ lower (localise $topFilter.LocaliseKeyName $lang 4) }}"
+                                        {{ else }}
+                                            value="{{ print $topFilter.FilterKey }}"
+                                            aria-controls="group-{{ $index }}-other-wrap"
+                                        {{ end }}
                                         {{ if $topFilter.IsChecked }}
                                             checked
                                         {{ end }}
@@ -103,31 +115,33 @@
                                     <label class="ons-checkbox__label" for="group-{{ $index }}" id="group-{{ $index }}-label">
                                         {{ localise $topFilter.LocaliseKeyName $lang 4 }} ({{ $topFilter.NumberOfResults }})
                                     </label>
-                                    <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
-                                        <fieldset class="ons-fieldset ons-js-other-fieldset">
-                                            <legend class="ons-u-vh">{{ localise "Select" $lang 1 }}{{ localise $topFilter.LocaliseKeyName $lang 4 }}</legend>
-                                                {{ range $index, $childFilter := $topFilter.Types }}
-                                                    {{ $id := index $childFilter.FilterKey 0 }}
-                                                    <div class="ons-checkboxes__items">
-                                                        <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                                                            <span class="ons-checkbox ons-checkbox--no-border child-filter">
-                                                                <input id="{{ $id }}"
-                                                                    class="ons-checkbox__input ons-js-checkbox"
-                                                                    type="checkbox" name="filter"
-                                                                    {{ if $childFilter.IsChecked }}checked{{ end }}
-                                                                    data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
-                                                                    value="{{ $id }}"
-                                                                >
-                                                                <label class="ons-checkbox__label" for="{{ $id }}"
-                                                                    id="{{ $id }}-label">
-                                                                    {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
-                                                                </label>
+                                    {{ if not $topFilter.HideTypes}}
+                                        <span class="ons-checkbox__other" id="group-{{ $index }}-other-wrap">
+                                            <fieldset class="ons-fieldset ons-js-other-fieldset">
+                                                <legend class="ons-u-vh">{{ localise "Select" $lang 1 }}{{ localise $topFilter.LocaliseKeyName $lang 4 }}</legend>
+                                                    {{ range $index, $childFilter := $topFilter.Types }}
+                                                        {{ $id := index $childFilter.FilterKey 0 }}
+                                                        <div class="ons-checkboxes__items">
+                                                            <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
+                                                                <span class="ons-checkbox ons-checkbox--no-border child-filter">
+                                                                    <input id="{{ $id }}"
+                                                                        class="ons-checkbox__input ons-js-checkbox"
+                                                                        type="checkbox" name="filter"
+                                                                        {{ if $childFilter.IsChecked }}checked{{ end }}
+                                                                        data-gtm-label="{{ $childFilter.LocaliseKeyName }}"
+                                                                        value="{{ $id }}"
+                                                                    >
+                                                                    <label class="ons-checkbox__label" for="{{ $id }}"
+                                                                        id="{{ $id }}-label">
+                                                                        {{ localise $childFilter.LocaliseKeyName $lang 4 }} ({{ $childFilter.NumberOfResults }})
+                                                                    </label>
+                                                                </span>
                                                             </span>
-                                                        </span>
-                                                    </div>
-                                                {{ end }}
-                                        </fieldset>
-                                    </span>
+                                                        </div>
+                                                    {{ end }}
+                                            </fieldset>
+                                        </span>
+                                    {{ end }}
                                 </span>
                             </span>
                         </div>
