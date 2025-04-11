@@ -17,9 +17,11 @@ type Filter struct {
 
 // Category represents all the search categories in search page
 type Category struct {
-	LocaliseKeyName string        `json:"localise_key"`
-	Count           int           `json:"count"`
-	ContentTypes    []ContentType `json:"content_types"`
+	LocaliseKeyName  string        `json:"localise_key"`
+	Count            int           `json:"count"`
+	ContentTypes     []ContentType `json:"content_types"`
+	HideTypesInWebUI bool          `json:"hide_types_in_web_ui"`
+	ContentTypeKey   string        `json:"content_type_key"`
 }
 
 // ContentType represents the type of the search results and the number of results for each type
@@ -54,8 +56,10 @@ var (
 
 	// Publication - search information on publication category
 	Publication = Category{
-		LocaliseKeyName: "Publication",
-		ContentTypes:    []ContentType{Bulletin, Article, Compendium},
+		LocaliseKeyName:  "Publication",
+		ContentTypes:     []ContentType{Bulletin, Article, Compendium},
+		HideTypesInWebUI: true,
+		ContentTypeKey:   "publications",
 	}
 
 	// Data - search information on data category
@@ -164,6 +168,12 @@ var (
 		ShowInWebUI:     false,
 	}
 
+	PublicationGroup = ContentType{
+		Group:       Publication.ContentTypeKey,
+		Types:       []string{"bulletin", "article", "article_download", "compendium_landing_page"},
+		ShowInWebUI: false,
+	}
+
 	// filterOptions contains all the possible filter available on the search page
 	filterOptions = map[string]ContentType{
 		Article.Group:              Article,
@@ -176,6 +186,7 @@ var (
 		ProductPage.Group:          ProductPage,
 		TimeSeries.Group:           TimeSeries,
 		UserRequestedData.Group:    UserRequestedData,
+		PublicationGroup.Group:     PublicationGroup,
 	}
 )
 
@@ -257,6 +268,10 @@ func GetGroupLocaliseKey(resultType string) string {
 	for _, filterOption := range filterOptions {
 		for _, optionType := range filterOption.Types {
 			if resultType == optionType {
+				if !filterOption.ShowInWebUI {
+					continue
+				}
+
 				return filterOption.LocaliseKeyName
 			}
 		}
