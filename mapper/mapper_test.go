@@ -54,7 +54,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 			Query: "housing",
 
 			Filter: data.Filter{
-				Query:           []string{"article", "filter2"},
+				Query:           []string{"article", "filter2", "publications"},
 				LocaliseKeyName: []string{"Article"},
 			},
 
@@ -70,6 +70,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 		categories := data.GetCategories()
 		categories[0].Count = 1
 		categories[0].ContentTypes[1].Count = 1
+		categories[0].HideTypesInWebUI = true
 
 		topicCategories := mockTopicCategories
 
@@ -87,9 +88,10 @@ func TestUnitCreateSearchPage(t *testing.T) {
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
-				So(sp.Data.Filter, ShouldHaveLength, 2)
+				So(sp.Data.Filter, ShouldHaveLength, 3)
 				So(sp.Data.Filter[0], ShouldEqual, "article")
 				So(sp.Data.Filter[1], ShouldEqual, "filter2")
+				So(sp.Data.Filter[2], ShouldEqual, "publications")
 
 				So(sp.Data.Sort.Query, ShouldEqual, "relevance")
 				So(sp.Data.Sort.LocaliseFilterKeys, ShouldResemble, []string{"Article"})
@@ -101,7 +103,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 				So(sp.Data.Pagination.TotalPages, ShouldEqual, 1)
 				So(sp.Data.Pagination.PagesToDisplay, ShouldHaveLength, 1)
 				So(sp.Data.Pagination.PagesToDisplay[0].PageNumber, ShouldEqual, 1)
-				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/search?q=housing&filter=article&filter=filter2&limit=10&sort=relevance&page=1")
+				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/search?q=housing&filter=article&filter=filter2&filter=publications&limit=10&sort=relevance&page=1")
 				So(sp.Data.Pagination.Limit, ShouldEqual, 10)
 				So(sp.Data.Pagination.LimitOptions, ShouldResemble, []int{10, 25, 50})
 
@@ -132,7 +134,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 				So(sp.Data.Response.Items[0].Type.LocaliseKeyName, ShouldEqual, "Article")
 				So(sp.Data.Response.Items[0].URI, ShouldEqual, "/uri1/housing/articles/uri2/2015-02-17")
 
-				So(len(sp.Data.Filters[0].FilterKey), ShouldEqual, 3)
+				So(len(sp.Data.Filters[0].FilterKey), ShouldEqual, 1)
 				So(sp.Data.Filters[0].LocaliseKeyName, ShouldEqual, "Publication")
 				So(sp.Data.Filters[0].IsChecked, ShouldBeTrue)
 				So(sp.Data.Filters[0].NumberOfResults, ShouldEqual, 1)

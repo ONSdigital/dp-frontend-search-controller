@@ -626,8 +626,13 @@ func mapFilters(page *model.SearchPage, categories []data.Category, queryParams 
 			}
 		}
 
+		filter.HideTypes = categories[i].HideTypesInWebUI
 		filter.Types = subTypes
 		filter.FilterKey = keys
+		if filter.HideTypes {
+			// only category key is needed if subtypes are hidden
+			filter.FilterKey = []string{categories[i].ContentTypeKey}
+		}
 		filter.IsChecked = mapIsChecked(filter.FilterKey, queryParams)
 		filters[i] = filter
 	}
