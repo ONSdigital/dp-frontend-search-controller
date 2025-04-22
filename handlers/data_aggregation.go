@@ -15,7 +15,7 @@ import (
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	"github.com/ONSdigital/dp-topic-api/models"
 
-	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
+	dphandlers "github.com/ONSdigital/dp-net/v3/handlers"
 )
 
 // DataAggregation handler

@@ -8,7 +8,7 @@ require (
 	github.com/ONSdigital/dp-component-test v0.20.0
 	github.com/ONSdigital/dp-cookies v0.5.0
 	github.com/ONSdigital/dp-healthcheck v1.6.4
-	github.com/ONSdigital/dp-net/v2 v2.22.0
+	github.com/ONSdigital/dp-net/v3 v3.2.1
 	github.com/ONSdigital/dp-otel-go v0.0.8
 	github.com/ONSdigital/dp-renderer/v2 v2.19.0
 	github.com/ONSdigital/dp-search-api v1.49.3
@@ -32,7 +32,7 @@ require (
 	github.com/ONSdigital/dp-authorisation v0.5.0 // indirect
 	github.com/ONSdigital/dp-elasticsearch/v3 v3.0.1-alpha.4.0.20230308115225-bb7559a89d0c // indirect
 	github.com/ONSdigital/dp-mongodb-in-memory v1.8.1 // indirect
-	github.com/ONSdigital/dp-net/v3 v3.2.1 // indirect
+	github.com/ONSdigital/dp-net/v2 v2.22.0 // indirect
 	github.com/ONSdigital/dp-search-scrubber-api v0.6.0 // indirect
 	github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect

@@ -11,7 +11,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
-	dphandlers "github.com/ONSdigital/dp-net/v2/handlers"
+	dphandlers "github.com/ONSdigital/dp-net/v3/handlers"
 	core "github.com/ONSdigital/dp-renderer/v2/model"
 
 	searchModels "github.com/ONSdigital/dp-search-api/models"
