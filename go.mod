@@ -8,7 +8,7 @@ require (
 	github.com/ONSdigital/dp-component-test v0.20.0
 	github.com/ONSdigital/dp-cookies v0.5.0
 	github.com/ONSdigital/dp-healthcheck v1.6.4
-	github.com/ONSdigital/dp-net/v3 v3.2.1
+	github.com/ONSdigital/dp-net/v3 v3.3.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
 	github.com/ONSdigital/dp-renderer/v2 v2.19.0
 	github.com/ONSdigital/dp-search-api v1.49.3
