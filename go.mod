@@ -10,7 +10,7 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-net/v3 v3.3.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
-	github.com/ONSdigital/dp-renderer/v2 v2.19.0
+	github.com/ONSdigital/dp-renderer/v2 v2.20.0
 	github.com/ONSdigital/dp-search-api v1.49.3
 	github.com/ONSdigital/dp-topic-api v0.26.0
 	github.com/ONSdigital/log.go/v2 v2.4.5
