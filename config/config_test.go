@@ -42,6 +42,7 @@ func TestConfig(t *testing.T) {
 				So(cfg.EnableAggregationPages, ShouldBeFalse)
 				So(cfg.EnableTopicAggregationPages, ShouldBeFalse)
 				So(cfg.EnableNewNavBar, ShouldBeFalse)
+				So(cfg.EnableNLPSearch, ShouldBeFalse)
 				So(cfg.GracefulShutdownTimeout, ShouldEqual, 5*time.Second)
 				So(cfg.HealthCheckCriticalTimeout, ShouldEqual, 90*time.Second)
 				So(cfg.HealthCheckInterval, ShouldEqual, 30*time.Second)
@@ -49,10 +50,6 @@ func TestConfig(t *testing.T) {
 				So(cfg.PatternLibraryAssetsPath, ShouldEqual, "//cdn.ons.gov.uk/dp-design-system/27f731a")
 				So(cfg.SiteDomain, ShouldEqual, "localhost")
 				So(cfg.SupportedLanguages, ShouldResemble, []string{"en", "cy"})
-				So(cfg.ABTest.AspectID, ShouldEqual, "dp-frontend-search-controller")
-				So(cfg.ABTest.Enabled, ShouldEqual, true)
-				So(cfg.ABTest.Percentage, ShouldEqual, 0)
-				So(cfg.ABTest.Exit, ShouldEqual, "search-ab-exit")
 			})
 
 			Convey("Then a second call to config should return the same config", func() {

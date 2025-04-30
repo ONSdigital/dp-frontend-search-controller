@@ -6,7 +6,6 @@ import (
 	"net/url"
 
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
@@ -20,17 +19,10 @@ import (
 
 // Search handler
 func (sh *SearchHandler) Search(cfg *config.Config) http.HandlerFunc {
-	oldHandler := dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		searchConfig := NewSearchConfig(false)
+	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
+		searchConfig := NewSearchConfig(cfg.EnableNLPSearch)
 		handleReadRequest(w, req, cfg, sh.ZebedeeClient, sh.Renderer, sh.SearchClient, accessToken, collectionID, lang, sh.CacheList, searchConfig)
 	})
-
-	newHandler := dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
-		searchConfig := NewSearchConfig(true)
-		handleReadRequest(w, req, cfg, sh.ZebedeeClient, sh.Renderer, sh.SearchClient, accessToken, collectionID, lang, sh.CacheList, searchConfig)
-	})
-
-	return cookies.Handler(cfg.ABTest.Enabled, newHandler, oldHandler, cfg.ABTest.Percentage, cfg.ABTest.AspectID, cfg.SiteDomain, cfg.ABTest.Exit)
 }
 
 func NewSearchConfig(nlpWeightingEnabled bool) AggregationConfig {

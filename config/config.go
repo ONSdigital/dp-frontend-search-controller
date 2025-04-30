@@ -8,7 +8,6 @@ import (
 
 // Config represents service configuration for dp-frontend-search-controller
 type Config struct {
-	*ABTest
 	APIRouterURL                   string        `envconfig:"API_ROUTER_URL"`
 	BindAddr                       string        `envconfig:"BIND_ADDR"`
 	CacheCensusTopicUpdateInterval time.Duration `envconfig:"CACHE_CENSUS_TOPICS_UPDATE_INTERVAL"`
@@ -23,6 +22,7 @@ type Config struct {
 	DefaultPage                    int           `envconfig:"DEFAULT_PAGE"`
 	*DefaultSort
 	EnableAggregationPages                  bool          `envconfig:"ENABLE_AGGREGATION_PAGES"`
+	EnableNLPSearch                         bool          `envconfig:"ENABLE_NLP_SEARCH"`
 	EnableTopicAggregationPages             bool          `envconfig:"ENABLE_TOPIC_AGGREGATION_PAGES"`
 	FeedbackAPIURL                          string        `envconfig:"FEEDBACK_API_URL"`
 	EnableCensusDimensionsFilterOption      bool          `envconfig:"ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION"`
@@ -41,13 +41,6 @@ type Config struct {
 	ServiceAuthToken                        string        `envconfig:"SERVICE_AUTH_TOKEN"   json:"-"`
 	SiteDomain                              string        `envconfig:"SITE_DOMAIN"`
 	SupportedLanguages                      []string      `envconfig:"SUPPORTED_LANGUAGES"`
-}
-
-type ABTest struct {
-	AspectID   string `envconfig:"AB_TEST_ASPECT_ID"`
-	Enabled    bool   `envconfig:"AB_TEST_ENABLED"`
-	Percentage int    `envconfig:"AB_TEST_PERCENTAGE"`
-	Exit       string `envconfig:"AB_TEST_EXIT"`
 }
 
 type DefaultSort struct {
@@ -82,13 +75,7 @@ func get() (*Config, error) {
 	}
 
 	cfg := &Config{
-		APIRouterURL: "http://localhost:23200/v1",
-		ABTest: &ABTest{
-			AspectID:   "dp-frontend-search-controller",
-			Enabled:    true,
-			Exit:       "search-ab-exit",
-			Percentage: 0,
-		},
+		APIRouterURL:                   "http://localhost:23200/v1",
 		BindAddr:                       ":25000",
 		CacheCensusTopicUpdateInterval: 30 * time.Minute,
 		CacheDataTopicUpdateInterval:   30 * time.Minute,
@@ -114,6 +101,7 @@ func get() (*Config, error) {
 		EnableAggregationPages:                  false,
 		EnableTopicAggregationPages:             false,
 		EnableNewNavBar:                         false,
+		EnableNLPSearch:                         false,
 		GracefulShutdownTimeout:                 5 * time.Second,
 		HealthCheckCriticalTimeout:              90 * time.Second,
 		HealthCheckInterval:                     30 * time.Second,
