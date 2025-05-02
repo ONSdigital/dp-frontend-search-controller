@@ -200,9 +200,6 @@ func generateRootTopicResponse() *httpfake.Response {
 	)
 
 	rootTopicAPIResponse := &topicModels.PublicSubtopics{
-		Count:       2,
-		Offset:      0,
-		Limit:       50,
 		TotalCount:  2,
 		PublicItems: &[]topicModels.Topic{testEconomyRootTopic, testBusinessRootTopic},
 	}

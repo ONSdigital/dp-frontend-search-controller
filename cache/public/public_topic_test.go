@@ -26,9 +26,6 @@ const (
 var (
 	// root topic level (when GetRootTopicsPublic is called)
 	testRootTopics = &models.PublicSubtopics{
-		Count:       2,
-		Offset:      0,
-		Limit:       50,
 		TotalCount:  2,
 		PublicItems: &[]models.Topic{testCensusRootTopic, testEconomyRootTopic},
 	}
@@ -65,9 +62,6 @@ var (
 
 	// census sub topic level (when GetSubTopicsPublic is called with `testCensusTopicID` - testRootCensusTopic)
 	testCensusSubTopics = &models.PublicSubtopics{
-		Count:       3,
-		Offset:      0,
-		Limit:       50,
 		TotalCount:  3,
 		PublicItems: &[]models.Topic{testCensusSubTopic1, testCensusSubTopic2},
 	}
@@ -86,9 +80,6 @@ var (
 
 	// census sub-sub topic level (when GetSubTopicsPublic is called with `testCensusSubTopicID1` - testCensusSubTopic1)
 	testCensusSubTopic1SubTopics = &models.PublicSubtopics{
-		Count:       1,
-		Offset:      0,
-		Limit:       50,
 		TotalCount:  1,
 		PublicItems: &[]models.Topic{testCensusSubTopic1Sub},
 	}
@@ -206,9 +197,6 @@ func TestUpdateCensusTopic(t *testing.T) {
 
 	Convey("Given census root topic does not exist", t, func() {
 		NonCensusRootTopics := &models.PublicSubtopics{
-			Count:       1,
-			Offset:      0,
-			Limit:       50,
 			TotalCount:  1,
 			PublicItems: &[]models.Topic{testEconomyRootTopic},
 		}
@@ -238,9 +226,6 @@ func TestUpdateDataTopicCache(t *testing.T) {
 		mockClient := &mockTopicCli.ClienterMock{
 			GetRootTopicsPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PublicSubtopics, topicCliErr.Error) {
 				return &models.PublicSubtopics{
-					Count:       2,
-					Offset:      0,
-					Limit:       50,
 					TotalCount:  2,
 					PublicItems: &[]models.Topic{testEconomyRootTopic, testBusinessRootTopic},
 				}, nil
@@ -282,9 +267,6 @@ func TestUpdateDataTopicCache(t *testing.T) {
 		Convey("Given root topics exist and have subtopics with duplicate topics", func() {
 			mockClient.GetRootTopicsPublicFunc = func(ctx context.Context, reqHeaders sdk.Headers) (*models.PublicSubtopics, topicCliErr.Error) {
 				return &models.PublicSubtopics{
-					Count:       2,
-					Offset:      0,
-					Limit:       50,
 					TotalCount:  2,
 					PublicItems: &[]models.Topic{testEconomyRootTopic, testBusinessRootTopic, testEconomyRootTopic, testBusinessRootTopic},
 				}, nil
@@ -306,9 +288,6 @@ func TestUpdateDataTopicCache(t *testing.T) {
 		Convey("Given root topics exist and private items that have subtopics that can end up in a recursive loop", func() {
 			mockClient.GetRootTopicsPublicFunc = func(ctx context.Context, reqHeaders sdk.Headers) (*models.PublicSubtopics, topicCliErr.Error) {
 				return &models.PublicSubtopics{
-					Count:       2,
-					Offset:      0,
-					Limit:       50,
 					TotalCount:  2,
 					PublicItems: &[]models.Topic{testEconomyRootTopic, testEconomyRootTopic2, testBusinessRootTopic2},
 				}, nil
@@ -350,9 +329,6 @@ func TestUpdateDataTopicCache(t *testing.T) {
 		mockClient := &mockTopicCli.ClienterMock{
 			GetRootTopicsPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PublicSubtopics, topicCliErr.Error) {
 				return &models.PublicSubtopics{
-					Count:       0,
-					Offset:      0,
-					Limit:       50,
 					TotalCount:  0,
 					PublicItems: nil,
 				}, nil
@@ -375,9 +351,6 @@ func TestUpdateDataTopicCache(t *testing.T) {
 		mockClient := &mockTopicCli.ClienterMock{
 			GetRootTopicsPublicFunc: func(ctx context.Context, reqHeaders sdk.Headers) (*models.PublicSubtopics, topicCliErr.Error) {
 				return &models.PublicSubtopics{
-					Count:       0,
-					Offset:      0,
-					Limit:       50,
 					TotalCount:  0,
 					PublicItems: &[]models.Topic{},
 				}, nil
