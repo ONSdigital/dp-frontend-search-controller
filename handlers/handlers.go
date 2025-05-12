@@ -405,7 +405,11 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 		status = http.StatusNotFound
 	}
 
-	log.Error(req.Context(), "setting-response-status", err)
+	log.Info(req.Context(), "setting-response-status")
+
+	if status >= 500 {
+		log.Error(req.Context(), "serving internal error status", err)
+	}
 
 	w.WriteHeader(status)
 }

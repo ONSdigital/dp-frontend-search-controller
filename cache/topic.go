@@ -116,9 +116,9 @@ func (dc *TopicCache) GetTopic(ctx context.Context, slug, parentSlug string) (*S
 	topicCacheItem, exists := dataTopicCache.List.GetBySlugAndParentSlug(slug, parentSlug)
 	if !exists {
 		err := fmt.Errorf("requested topic with slug %s and parent slug %s does not exist in cache", slug, parentSlug)
-		log.Error(ctx, "failed to get topic from cache", err, log.Data{
-			"topicSlug":  slug,
-			"parentSlug": parentSlug,
+		log.Info(ctx, "topic did not exist in cache", log.Data{
+			"topic_slug":  slug,
+			"parent_slug": parentSlug,
 		})
 		return nil, err
 	}
