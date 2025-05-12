@@ -216,7 +216,7 @@ func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParam
 		if !found {
 			err = errs.ErrContentTypeNotFound
 			logData := log.Data{"requested_filter": filter}
-			log.Error(ctx, "failed to find filter", err, logData)
+			log.Info(ctx, "failed to find filter", logData)
 
 			break
 		}
