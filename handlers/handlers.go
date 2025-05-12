@@ -290,7 +290,10 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 
 		if validatedQueryParams.CurrentPage > totalPages {
 			err := apperrors.ErrPageExceedsTotalPages
-			log.Error(ctx, "current page exceeds total pages", err)
+			log.Info(ctx, "current page exceeds total pages", log.Data{
+				"current_page": validatedQueryParams.CurrentPage,
+				"total_pages":  totalPages,
+			})
 
 			return err
 		}

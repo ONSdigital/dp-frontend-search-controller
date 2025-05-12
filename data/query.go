@@ -94,7 +94,7 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 
 func handleValidationError(ctx context.Context, err error, description, id string, validationErrs []core.ErrorItem) []core.ErrorItem {
 	if err != nil {
-		log.Error(ctx, description, err)
+		log.Info(ctx, description)
 		validationErrs = append(validationErrs, core.ErrorItem{
 			Description: core.Localisation{
 				Text: err.Error(),

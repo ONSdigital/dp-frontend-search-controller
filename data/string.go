@@ -44,7 +44,7 @@ func checkForNonSpaceCharacters(ctx context.Context, queryString string) error {
 	}
 
 	if !match {
-		log.Warn(ctx, fmt.Sprintf("the query string did not match the regex, %v non-space characters required", minQueryLength))
+		log.Info(ctx, fmt.Sprintf("the query string did not match the regex, %v non-space characters required", minQueryLength))
 		errVal := errs.ErrInvalidQueryCharLengthString
 		return errVal
 	}
@@ -58,7 +58,9 @@ func checkForSpecialCharacters(ctx context.Context, str string) error {
 	match := re.MatchString(str)
 
 	if match {
-		log.Warn(ctx, "the query string contains special characters")
+		log.Info(ctx, "the query string contains special characters", log.Data{
+			"query": str,
+		})
 		errVal := errs.ErrInvalidQueryString
 		return errVal
 	}

@@ -34,7 +34,7 @@ func reviewPagination(ctx context.Context, cfg *config.Config, urlQuery url.Valu
 	// Log and error if expected result is too large
 	if (page * limit) > cfg.DefaultMaximumSearchResults {
 		err := errs.ErrPageExceedsTotalPages
-		log.Error(ctx, "Requested page exceeds maximum search results", err, log.Data{
+		log.Info(ctx, "requested page exceeds maximum search results", log.Data{
 			"page":       page,
 			"limit":      limit,
 			"maxResults": cfg.DefaultMaximumSearchResults,
