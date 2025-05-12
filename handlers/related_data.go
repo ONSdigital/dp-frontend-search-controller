@@ -17,13 +17,6 @@ import (
 	"github.com/ONSdigital/dp-topic-api/models"
 )
 
-// list of content types that have /relateddata
-var knownRelatedDataTypes = []string{
-	"bulletin",
-	"article",
-	"compendium_landing_page",
-}
-
 // RelatedData handler
 func (sh *SearchHandler) RelatedData(cfg *config.Config) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {

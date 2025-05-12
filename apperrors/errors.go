@@ -6,6 +6,8 @@ import (
 
 var (
 	ErrContentTypeNotFound          = errors.New("content type not found")
+	ErrPageTypeIncompatible         = errors.New("page type isn't compatible with related list page")
+	ErrZebedeePageDataNotFound      = errors.New("zebedee page data not found")
 	ErrInternalServer               = errors.New("internal server error")
 	ErrInvalidPage                  = errors.New("invalid page value, exceeding the default maximum search results")
 	ErrInvalidQueryString           = errors.New("the query string did not meet requirements")
@@ -23,7 +25,9 @@ var (
 	}
 
 	NotFoundMap = map[error]bool{
-		ErrTopicPathNotFound: true,
+		ErrTopicPathNotFound:       true,
+		ErrPageTypeIncompatible:    true,
+		ErrZebedeePageDataNotFound: true,
 	}
 
 	// ErrMapForRenderBeforeAPICalls is a list of errors which leads to the search page being rendered before making any API calls

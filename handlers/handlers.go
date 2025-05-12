@@ -36,8 +36,8 @@ const (
 	RelatedPagesTemplate = "related-list-pages"
 )
 
-// list of content types that have /previousreleases
-var knownPreviousReleaseTypes = []string{
+// list of content types that have /relateddata and /previousreleases
+var knownRelatedListTypes = []string{
 	"bulletin",
 	"article",
 	"compendium_landing_page",
@@ -405,7 +405,9 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 		status = http.StatusNotFound
 	}
 
-	log.Info(req.Context(), "setting-response-status")
+	log.Info(req.Context(), "setting-response-status", log.Data{
+		"status": status,
+	})
 
 	if status >= 500 {
 		log.Error(req.Context(), "serving internal error status", err)
@@ -553,16 +555,31 @@ func sanitiseQueryParams(allowedParams []string, inputParams url.Values) url.Val
 }
 
 // checkAllowedPageTypes calls Zebedee for a given URL and checks if it's page type matches against a list of allowed page types
-func checkAllowedPageTypes(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string, allowedPagewTypes []string) (zebedeeCli.PageData, error) {
+func checkAllowedPageTypes(ctx context.Context, w http.ResponseWriter, zc ZebedeeClient, accessToken, collectionID, lang, pageURL string, allowedPageTypes []string) (zebedeeCli.PageData, error) {
 	pageData, err := zc.GetPageData(ctx, accessToken, collectionID, lang, pageURL)
 	if err != nil {
-		log.Error(ctx, "failed to get content type", err)
+		var zebedeeErr zebedeeCli.ErrInvalidZebedeeResponse
+		if errors.As(err, &zebedeeErr) {
+			errorCode := zebedeeErr.ActualCode
+			// Zebedee provides a 400 response if you request a /latest for the wrong type
+			// of page. This should be treated as not being able to get the content type.
+			if errorCode == 400 || errorCode == 404 {
+				log.Info(ctx, "client error getting content type", log.Data{
+					"error_code": errorCode,
+				})
+				return zebedeeCli.PageData{}, apperrors.ErrZebedeePageDataNotFound
+			} else {
+				log.Error(ctx, "error getting content type", err)
+			}
+		}
 		return zebedeeCli.PageData{}, err
 	}
-	if !slices.Contains(knownPreviousReleaseTypes, pageData.Type) {
-		err := errors.New("page type doesn't match known list of content types compatible with /previousreleases")
-		log.Error(ctx, "page type isn't compatible with /previousreleases", err)
-		return zebedeeCli.PageData{}, err
+
+	if !slices.Contains(allowedPageTypes, pageData.Type) {
+		log.Info(ctx, "page type isn't compatible with related list page", log.Data{
+			"page_type": pageData.Type,
+		})
+		return zebedeeCli.PageData{}, apperrors.ErrPageTypeIncompatible
 	}
 	return pageData, nil
 }
@@ -629,11 +646,8 @@ func validatePageType(ctx context.Context, w http.ResponseWriter, zc ZebedeeClie
 	if !aggCfg.UseURIsRequest {
 		validatePath = urlPath + "/latest"
 	}
-	pageData, err := checkAllowedPageTypes(ctx, w, zc, accessToken, collectionID, lang, validatePath, knownRelatedDataTypes)
-	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-	}
-	return pageData, err
+
+	return checkAllowedPageTypes(ctx, w, zc, accessToken, collectionID, lang, validatePath, knownRelatedListTypes)
 }
 
 // getBreadcrumb performs a get request to zebedee for breadcrumb data
