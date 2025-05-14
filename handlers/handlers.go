@@ -255,7 +255,7 @@ func getSelectedTopic(ctx context.Context, req *http.Request, cacheList cache.Li
 
 	lastSegmentTopic, err := ValidateTopicHierarchy(ctx, segments, cacheList)
 	if err != nil {
-		log.Error(ctx, "invalid topic path", err, log.Data{
+		log.Info(ctx, "invalid topic path", log.Data{
 			"topicPath": topicsPath,
 		})
 		return cache.Topic{}, apperrors.ErrTopicPathNotFound
