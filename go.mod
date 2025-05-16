@@ -4,7 +4,7 @@ go 1.24
 
 require (
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.266.0
-	github.com/ONSdigital/dp-cache v0.5.0
+	github.com/ONSdigital/dp-cache v0.4.0
 	github.com/ONSdigital/dp-component-test v0.20.0
 	github.com/ONSdigital/dp-cookies v0.6.0
 	github.com/ONSdigital/dp-healthcheck v1.6.4
@@ -35,7 +35,7 @@ require (
 	github.com/ONSdigital/dp-search-scrubber-api v0.6.0 // indirect
 	github.com/c2h5oh/datasize v0.0.0-20231215233829-aa82cc1e6500 // indirect
 	github.com/cenkalti/backoff/v4 v4.3.0 // indirect
-	github.com/chromedp/cdproto v0.0.0-20250414052033-3603534576c0 // indirect
+	github.com/chromedp/cdproto v0.0.0-20250509201441-70372ae9ef75 // indirect
 	github.com/chromedp/chromedp v0.13.6 // indirect
 	github.com/chromedp/sysutil v1.1.0 // indirect
 	github.com/cucumber/gherkin/go/v26 v26.2.0 // indirect
@@ -46,7 +46,7 @@ require (
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/go-jose/go-jose/v4 v4.1.0 // indirect
-	github.com/go-json-experiment/json v0.0.0-20250223041408-d3c622f1b874 // indirect
+	github.com/go-json-experiment/json v0.0.0-20250417205406-170dfdcf87d1 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
@@ -98,7 +98,7 @@ require (
 	go.opentelemetry.io/proto/otlp v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	golang.org/x/crypto v0.38.0 // indirect
-	golang.org/x/net v0.40.0 // indirect
+	golang.org/x/net v0.39.0 // indirect
 	golang.org/x/sync v0.14.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
 	golang.org/x/text v0.25.0 // indirect
