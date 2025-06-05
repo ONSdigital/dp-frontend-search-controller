@@ -24,6 +24,8 @@ github.com/ONSdigital/dp-otel-go v0.0.8 h1:jSX32oDmOUKlHyH3FPCBkBpiBKYmWKELoNo6j
 github.com/ONSdigital/dp-otel-go v0.0.8/go.mod h1:pCDuFqZX8+7CBQX1nMlLMPj52VsMAN3Y8h0uLmzC3cU=
 github.com/ONSdigital/dp-renderer/v2 v2.23.0 h1:oasZ8qDsF8sJfDahGQDKU8Z5hmEEouJJCxYQRyzpIYc=
 github.com/ONSdigital/dp-renderer/v2 v2.23.0/go.mod h1:RnpkYyv2/aB7RO1kvd279aiCRabcHf3lllihBNXPNx8=
+github.com/ONSdigital/dp-renderer/v2 v2.23.2 h1:qoro679LmA8QW9OtzUQRhvrfTg4Mn3csuAinpv3Lcoo=
+github.com/ONSdigital/dp-renderer/v2 v2.23.2/go.mod h1:RnpkYyv2/aB7RO1kvd279aiCRabcHf3lllihBNXPNx8=
 github.com/ONSdigital/dp-search-api v1.50.0 h1:S3SEfLsQN1aoGnNhTXL1R7+Rxv9DeFWuWQcjm53r+RA=
 github.com/ONSdigital/dp-search-api v1.50.0/go.mod h1:64XvTe9tJqIXFrGJzCS1GOqjKH+pdFDmnkK/ZQI4E+o=
 github.com/ONSdigital/dp-search-scrubber-api v0.6.0 h1:Wo5IWBXdw3uFG/1bqKM0lbXLpJI4MbRWSnBY6udC58s=
