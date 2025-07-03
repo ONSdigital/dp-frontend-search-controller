@@ -1,7 +1,7 @@
 github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.266.0 h1:NQbu+x2Q7ZhrjGKvN73qVxG/nqX+TJck7iCzSHHEp98=
-github.com/ONSdigital/dp-api-clients-go/v2 v2.266.0/go.mod h1:bLseTP21r8LCStUEeOdVPyqtrTomOFP/azPjKWW4deA=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.267.0 h1:bqe1qqVXmwMxKUjly8Fzzlcq5p1rz1PUvQhgEBIF+kA=
+github.com/ONSdigital/dp-api-clients-go/v2 v2.267.0/go.mod h1:bLseTP21r8LCStUEeOdVPyqtrTomOFP/azPjKWW4deA=
 github.com/ONSdigital/dp-authorisation v0.5.0 h1:k1ROJ+vgd1hDWyjj+ZdvSZGlZw73PN1k7CFVZhdyILA=
 github.com/ONSdigital/dp-authorisation v0.5.0/go.mod h1:Ep30ANa8vAWO7A5H/VsxoiJZkeCCXndnqa+tVoJuvUY=
 github.com/ONSdigital/dp-cache v0.4.0 h1:Y9uHFlvayzHPHLXmfMR+wwPLXanwYqsLeG6O8ix5mT0=

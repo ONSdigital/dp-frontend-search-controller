@@ -4,6 +4,7 @@ import (
 	"context"
 	"net/http"
 	"net/url"
+	"path"
 
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
@@ -21,6 +22,19 @@ import (
 func (sh *SearchHandler) PreviousReleases(cfg *config.Config) http.HandlerFunc {
 	return dphandlers.ControllerHandler(func(w http.ResponseWriter, req *http.Request, lang, collectionID, accessToken string) {
 		previousReleasesConfig := NewPreviousReleasesConfig(*req)
+		ctx := context.Background()
+		urlPath := path.Dir(req.URL.Path)
+
+		previousRelease, err := validatePageType(ctx, w, sh.ZebedeeClient, previousReleasesConfig, accessToken, collectionID, lang, urlPath)
+		if err != nil {
+			setStatusCode(w, req, err)
+			return
+		}
+
+		if previousRelease.Description.MigrationLink != "" {
+			http.Redirect(w, req, previousRelease.Description.MigrationLink+"/previous-releases", http.StatusPermanentRedirect)
+			return
+		}
 
 		handleReadRequest(w, req, cfg, sh.ZebedeeClient, sh.Renderer, sh.SearchClient, accessToken, collectionID, lang, sh.CacheList, previousReleasesConfig)
 	})
