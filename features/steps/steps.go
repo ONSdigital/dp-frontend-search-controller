@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -59,6 +60,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic, the "([^"]*)" subtopic and "([^"]*)" thirdlevel subtopic$`, c.thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page of type "([^"]*)" with status (\d+)$`, c.getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus)
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page with a migration link$`, c.getPageDataRequestToZebedeeForReturnsAPageWithAMigrationLink)
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" does not find the page$`, c.getPageDataRequestToZebedeeForDoesNotFindThePage)
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" does not have related data`, c.getPageDataRequestToZebedeeThatDoesntContainRelatedData)
 	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" returns breadcrumbs`, c.getBreadcrumbRequestToZebedeeForReturnsAPageOfTypeWithStatus)
@@ -342,6 +344,27 @@ func (c *Component) thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequ
 
 func (c *Component) getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus(url, pageType string, statusCode int) error {
 	c.FakeAPIRouter.setJSONResponseForGetPageData(url, pageType, statusCode, true)
+	return nil
+}
+
+func (c *Component) getPageDataRequestToZebedeeForReturnsAPageWithAMigrationLink(url string) error {
+	c.FakeAPIRouter.previousReleasesRequest.Lock()
+	defer c.FakeAPIRouter.previousReleasesRequest.Unlock()
+
+	mockedPageData := zebedeeCli.PageData{
+		Type: "bulletin",
+		Description: zebedeeCli.Description{
+			Title:         "My test bulletin",
+			Edition:       "March 2024",
+			MigrationLink: "/my-new-bulletin",
+		},
+	}
+
+	specialCharURL := strings.Replace(url, "/", "%2F", -1)
+	path := "/data?uri=" + specialCharURL + "&lang=en"
+
+	c.FakeAPIRouter.fakeHTTP.NewHandler().Get(path).Reply(200).BodyStruct(mockedPageData)
+
 	return nil
 }
 

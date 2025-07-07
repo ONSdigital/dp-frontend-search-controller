@@ -30,6 +30,14 @@ Feature: Previous Releases
         ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  Labour Market statistics"
       }
       """
+  
+  Scenario: GET /previousreleases with a migration link
+    Given there is a Search API that gives a successful response and returns 1 results
+    And get page data request to zebedee for "/economy/latest" returns a page with a migration link
+    And the search controller is running
+    When I GET "/economy/previousreleases"
+    Then the HTTP status code should be "308"
+    And the response header "Location" should be "/my-new-bulletin/previous-releases"
 
   Scenario: GET /previousreleases and breadcrumb request errors
   Given there is a Search API that gives a successful response and returns 3 results
