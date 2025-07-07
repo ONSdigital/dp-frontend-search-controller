@@ -60,7 +60,7 @@ func (c *Component) RegisterSteps(ctx *godog.ScenarioContext) {
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" topic, the "([^"]*)" subtopic and "([^"]*)" thirdlevel subtopic$`, c.thereIsATopicAPIThatReturnsTheTopicTheSubtopicAndThirdlevelSubtopic)
 	ctx.Step(`^there is a Topic API that returns the "([^"]*)" root topic and the "([^"]*)" subtopic for requestQuery "([^"]*)"$`, c.thereIsATopicAPIThatReturnsTheRootTopicAndTheSubtopicForRequestQuery)
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page of type "([^"]*)" with status (\d+)$`, c.getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus)
-	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page with a migration link$`, c.getPageDataRequestToZebedeeForReturnsAPageWithAMigrationLink)
+	ctx.Step(`^get page data request to zebedee for "([^"]*)" returns a page with migration link "([^"]*)"$`, c.getPageDataRequestToZebedeeForReturnsAPageWithMigrationLink)
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" does not find the page$`, c.getPageDataRequestToZebedeeForDoesNotFindThePage)
 	ctx.Step(`^get page data request to zebedee for "([^"]*)" does not have related data`, c.getPageDataRequestToZebedeeThatDoesntContainRelatedData)
 	ctx.Step(`^get breadcrumb request to zebedee for "([^"]*)" returns breadcrumbs`, c.getBreadcrumbRequestToZebedeeForReturnsAPageOfTypeWithStatus)
@@ -347,7 +347,7 @@ func (c *Component) getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus(u
 	return nil
 }
 
-func (c *Component) getPageDataRequestToZebedeeForReturnsAPageWithAMigrationLink(url string) error {
+func (c *Component) getPageDataRequestToZebedeeForReturnsAPageWithMigrationLink(url, migrationLink string) error {
 	c.FakeAPIRouter.previousReleasesRequest.Lock()
 	defer c.FakeAPIRouter.previousReleasesRequest.Unlock()
 
@@ -356,7 +356,7 @@ func (c *Component) getPageDataRequestToZebedeeForReturnsAPageWithAMigrationLink
 		Description: zebedeeCli.Description{
 			Title:         "My test bulletin",
 			Edition:       "March 2024",
-			MigrationLink: "/my-new-bulletin",
+			MigrationLink: migrationLink,
 		},
 	}
 
