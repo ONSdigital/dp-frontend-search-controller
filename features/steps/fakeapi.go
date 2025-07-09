@@ -18,6 +18,7 @@ type FakeAPI struct {
 	subSubTopicRequest      *httpfake.Request
 	navigationRequest       *httpfake.Request
 	previousReleasesRequest *httpfake.Request
+	migrationRequest        *httpfake.Request
 	breadcrumbRequest       *httpfake.Request
 }
 
