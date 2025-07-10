@@ -348,9 +348,6 @@ func (c *Component) getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus(u
 }
 
 func (c *Component) getPageDataRequestToZebedeeForReturnsAPageWithMigrationLink(url, migrationLink string) error {
-	c.FakeAPIRouter.migrationRequest.Lock()
-	defer c.FakeAPIRouter.migrationRequest.Unlock()
-
 	mockedPageData := zebedeeCli.PageData{
 		Type: "bulletin",
 		Description: zebedeeCli.Description{
