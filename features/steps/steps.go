@@ -10,7 +10,6 @@ import (
 	"strings"
 	"time"
 
-	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-frontend-search-controller/service/mocks"
 	"github.com/ONSdigital/log.go/v2/log"
@@ -348,19 +347,14 @@ func (c *Component) getPageDataRequestToZebedeeForReturnsAPageOfTypeWithStatus(u
 }
 
 func (c *Component) getPageDataRequestToZebedeeForReturnsAPageWithMigrationLink(url, migrationLink string) error {
-	mockedPageData := zebedeeCli.PageData{
-		Type: "bulletin",
-		Description: zebedeeCli.Description{
-			Title:         "My test bulletin",
-			Edition:       "March 2024",
-			MigrationLink: migrationLink,
-		},
-	}
+	c.FakeAPIRouter.pageDataRequest.Lock()
+	defer c.FakeAPIRouter.pageDataRequest.Unlock()
 
 	specialCharURL := strings.Replace(url, "/", "%2F", -1)
 	path := "/data?uri=" + specialCharURL + "&lang=en"
 
-	c.FakeAPIRouter.fakeHTTP.NewHandler().Get(path).Reply(200).BodyStruct(mockedPageData)
+	c.FakeAPIRouter.pageDataRequest.Get(path)
+	c.FakeAPIRouter.pageDataRequest.Response = generatePageDataWithMigrationLink(migrationLink)
 
 	return nil
 }
