@@ -25,14 +25,14 @@ func (sh *SearchHandler) PreviousReleases(cfg *config.Config) http.HandlerFunc {
 		ctx := context.Background()
 		urlPath := path.Dir(req.URL.Path)
 
-		previousRelease, err := validatePageType(ctx, w, sh.ZebedeeClient, previousReleasesConfig, accessToken, collectionID, lang, urlPath)
+		pageData, err := validatePageType(ctx, w, sh.ZebedeeClient, previousReleasesConfig, accessToken, collectionID, lang, urlPath)
 		if err != nil {
 			setStatusCode(w, req, err)
 			return
 		}
 
-		if previousRelease.Description.MigrationLink != "" {
-			http.Redirect(w, req, previousRelease.Description.MigrationLink+"/previous-releases", http.StatusPermanentRedirect)
+		if pageData.Description.MigrationLink != "" {
+			http.Redirect(w, req, pageData.Description.MigrationLink+"/previous-releases", http.StatusPermanentRedirect)
 			return
 		}
 

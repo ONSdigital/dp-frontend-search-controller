@@ -96,3 +96,38 @@ func TestUnitReadRelatedData(t *testing.T) {
 		})
 	})
 }
+
+func TestUnitReadRelatedDataWithMigrationLink(t *testing.T) {
+	Convey("Given a search handler and zebedee client with a migration link", t, func() {
+		cfg, err := config.Get()
+		So(err, ShouldBeNil)
+
+		mockedZebedeeClient := &ZebedeeClientMock{
+			GetPageDataFunc: func(ctx context.Context, userAuthToken, collectionID, lang, path string) (zebedeeC.PageData, error) {
+				return zebedeeC.PageData{
+					Type: "bulletin",
+					Description: zebedeeC.Description{
+						Title:         "My test bulletin",
+						Edition:       "March 2024",
+						MigrationLink: "/new-average-earnings",
+					},
+				}, nil
+			},
+		}
+
+		mockSearchHandler := NewSearchHandler(&RenderClientMock{}, &SearchClientMock{}, &TopicClientMock{}, mockedZebedeeClient, cfg, cache.List{})
+
+		Convey("When /relateddata is called", func() {
+			req := httptest.NewRequest("GET", "/foo/latest/relateddata", http.NoBody)
+
+			Convey("Then a 308 redirect should be returned", func() {
+				w := doTestRequest("/{uri:.*}/relateddata", req, mockSearchHandler.RelatedData(cfg), nil)
+				location := w.Header().Get("Location")
+				expectedLocation := "/new-average-earnings/related-data"
+
+				So(w.Code, ShouldEqual, http.StatusPermanentRedirect)
+				So(location, ShouldEqual, expectedLocation)
+			})
+		})
+	})
+}

@@ -81,6 +81,7 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.subTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.subSubTopicRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/topics/*")
 	c.FakeAPIRouter.previousReleasesRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/economy/previousreleases")
+	c.FakeAPIRouter.pageDataRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/economy/relateddata")
 	c.FakeAPIRouter.navigationRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/data")
 	c.FakeAPIRouter.breadcrumbRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/parents")
 
@@ -294,4 +295,21 @@ func generateTopicResponseRSS(topic, subtopic string) *httpfake.Response {
 	fakeAPIResponse.BodyString(topicSubTopicRSSResponse)
 
 	return fakeAPIResponse
+}
+
+func generatePageDataWithMigrationLink(migrationLink string) *httpfake.Response {
+	mockedPageData := zebedeeCli.PageData{
+		Type: "bulletin",
+		Description: zebedeeCli.Description{
+			Title:         "My test bulletin",
+			Edition:       "March 2024",
+			MigrationLink: migrationLink,
+		},
+	}
+
+	fakePageDataResponse := httpfake.NewResponse()
+	fakePageDataResponse.Status(200)
+	fakePageDataResponse.BodyStruct(mockedPageData)
+
+	return fakePageDataResponse
 }
