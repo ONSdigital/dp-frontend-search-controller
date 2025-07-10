@@ -27,14 +27,14 @@ func (sh *SearchHandler) RelatedData(cfg *config.Config) http.HandlerFunc {
 		urlPath := path.Dir(req.URL.Path)
 
 		if strings.HasSuffix(urlPath, "/latest") {
-			previousRelease, err := validatePageType(ctx, w, sh.ZebedeeClient, relatedDataConfig, accessToken, collectionID, lang, urlPath)
+			pageData, err := validatePageType(ctx, w, sh.ZebedeeClient, relatedDataConfig, accessToken, collectionID, lang, urlPath)
 			if err != nil {
 				setStatusCode(w, req, err)
 				return
 			}
 
-			if previousRelease.Description.MigrationLink != "" {
-				http.Redirect(w, req, previousRelease.Description.MigrationLink+"/related-data", http.StatusPermanentRedirect)
+			if pageData.Description.MigrationLink != "" {
+				http.Redirect(w, req, pageData.Description.MigrationLink+"/related-data", http.StatusPermanentRedirect)
 				return
 			}
 		}
