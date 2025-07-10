@@ -34,7 +34,7 @@ Feature: Related Data
       """
 
   Scenario: GET /relateddata with a migration link
-    And get page data request to zebedee for "/employmentandlabourmarket/bulletin1/latest" returns a page with migration link "/new-weekly-earnings"
+    Given get page data request to zebedee for "/employmentandlabourmarket/bulletin1/latest" returns a page with migration link "/new-weekly-earnings"
     And the search controller is running
     When I GET "/employmentandlabourmarket/bulletin1/latest/relateddata"
     Then the HTTP status code should be "308"
