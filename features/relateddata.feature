@@ -34,7 +34,6 @@ Feature: Related Data
       """
 
   Scenario: GET /relateddata with a migration link
-    Given there is a Search API that gives a successful response and returns 1 results
     And get page data request to zebedee for "/employmentandlabourmarket/bulletin1/latest" returns a page with migration link "/new-weekly-earnings"
     And the search controller is running
     When I GET "/employmentandlabourmarket/bulletin1/latest/relateddata"
