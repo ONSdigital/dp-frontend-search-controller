@@ -10,10 +10,10 @@ require (
 	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-net/v3 v3.3.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
-	github.com/ONSdigital/dp-renderer/v2 v2.24.0
-	github.com/ONSdigital/dp-search-api v1.50.0
-	github.com/ONSdigital/dp-topic-api v1.0.0
-	github.com/ONSdigital/log.go/v2 v2.4.5
+	github.com/ONSdigital/dp-renderer/v2 v2.25.0
+	github.com/ONSdigital/dp-search-api v1.52.0
+	github.com/ONSdigital/dp-topic-api v1.2.0
+	github.com/ONSdigital/log.go/v2 v2.4.6
 	github.com/cucumber/godog v0.15.0
 	github.com/gorilla/feeds v1.2.0
 	github.com/gorilla/mux v1.8.1
@@ -82,7 +82,7 @@ require (
 	github.com/xdg-go/scram v1.1.2 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect
 	github.com/youmark/pkcs8 v0.0.0-20240726163527-a2c0da244d78 // indirect
-	go.mongodb.org/mongo-driver v1.17.3 // indirect
+	go.mongodb.org/mongo-driver v1.17.4 // indirect
 	go.opentelemetry.io/auto/sdk v1.1.0 // indirect
 	go.opentelemetry.io/contrib/propagators/autoprop v0.61.0 // indirect
 	go.opentelemetry.io/contrib/propagators/aws v1.36.0 // indirect
@@ -97,11 +97,11 @@ require (
 	go.opentelemetry.io/otel/trace v1.36.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.7.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.39.0 // indirect
+	golang.org/x/crypto v0.40.0 // indirect
 	golang.org/x/net v0.41.0 // indirect
-	golang.org/x/sync v0.15.0 // indirect
-	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.26.0 // indirect
+	golang.org/x/sync v0.16.0 // indirect
+	golang.org/x/sys v0.34.0 // indirect
+	golang.org/x/text v0.27.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250603155806-513f23925822 // indirect
 	google.golang.org/grpc v1.73.0 // indirect
