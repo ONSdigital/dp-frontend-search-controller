@@ -14,6 +14,7 @@ Feature: Timeseries Tool
     """
     And element "#before-date" should be visible
     And element "#after-date" should be visible
+    And the page should be accessible
 
   Scenario: GET /timeseriestool and checking for one result
     Given there is a Search API that gives a successful response and returns 1 results
@@ -28,6 +29,7 @@ Feature: Timeseries Tool
             ".ons-document-list__item-attribute:nth-child(3)": "Dataset ID: DD0"
         }
     """
+    And the page should be accessible
 
   Scenario: GET /timeseriestool and check invalid params - page
     Given there is a Search API that gives a successful response and returns 0 results
@@ -39,6 +41,7 @@ Feature: Timeseries Tool
             "h2#error-summary-title": "There is a problem with this page"
         }
     """
+    And the page should be accessible
 
   Scenario: GET /timeseriestool and check invalid params - date
     Given there is a Search API that gives a successful response and returns 0 results
@@ -50,3 +53,4 @@ Feature: Timeseries Tool
             "h2#error-summary-title": "There is a problem with this page"
         }
     """
+    And the page should be accessible

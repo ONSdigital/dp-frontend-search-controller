@@ -14,6 +14,7 @@ Feature: Aggregated Data Pages
       """
     And element "#before-date" should be visible
     And element "#after-date" should be visible
+    And the page should be accessible
 
   Scenario: GET /alladhocs and checking for one result
     Given there is a Search API that gives a successful response and returns 1 results
@@ -27,6 +28,8 @@ Feature: Aggregated Data Pages
         ".ons-pagination__position": "Page 1 of 1"
       }
       """
+    And the page should be accessible
+
   Scenario: GET /alladhocs and checking for 10 results
     Given there is a Search API that gives a successful response and returns 10 results
     And the search controller is running
@@ -39,6 +42,8 @@ Feature: Aggregated Data Pages
         ".ons-pagination__position": "Page 1 of 1"
       }
       """
+    And the page should be accessible
+
   Scenario: GET /alladhocs and checking for 11 results
     Given there is a Search API that gives a successful response and returns 11 results
     And the search controller is running
@@ -51,6 +56,8 @@ Feature: Aggregated Data Pages
         ".ons-pagination__position": "Page 1 of 2"
       }
       """
+    And the page should be accessible
+
   Scenario: GET /alladhocs and check default sort
     Given there is a Search API that gives a successful response and returns 10 results
     And the search controller is running
@@ -73,6 +80,7 @@ Feature: Aggregated Data Pages
             "h2#error-summary-title": "There is a problem with this page"
         }
     """
+    And the page should be accessible
 
   Scenario: GET /alladhocs and check invalid params - page
     Given there is a Search API that gives a successful response and returns 500 results
@@ -84,6 +92,7 @@ Feature: Aggregated Data Pages
             "h2#error-summary-title": "There is a problem with this page"
         }
     """
+    And the page should be accessible
 
   Scenario: GET /alladhocs and check invalid params - date
     Given there is a Search API that gives a successful response and returns 0 results
@@ -95,6 +104,7 @@ Feature: Aggregated Data Pages
             "h2#error-summary-title": "There is a problem with this page"
         }
     """
+    And the page should be accessible
 
   @TopicAggregatedData
   Scenario: GET topic pre-filtered page with matching topic
@@ -109,6 +119,7 @@ Feature: Aggregated Data Pages
             ".search__count h2": "10 results"
         }
     """
+    And the page should be accessible
 
   @TopicAggregatedData
   Scenario: GET topic pre-filtered page with non-matching topic
@@ -122,6 +133,7 @@ Feature: Aggregated Data Pages
             "#main h1": "Page not found"
         }
     """
+    And the page should be accessible
 
   @TopicAggregatedData
   Scenario: GET subtopic pre-filtered page with matching topic
@@ -136,6 +148,7 @@ Feature: Aggregated Data Pages
             ".search__count h2": "10 results"
         }
     """
+    And the page should be accessible
 
   @TopicAggregatedData
   Scenario: GET subtopic pre-filtered page with non-matching topic
@@ -149,6 +162,7 @@ Feature: Aggregated Data Pages
             "#main h1": "Page not found"
         }
     """
+    And the page should be accessible
 
   @TopicAggregatedData
   Scenario: GET subtopic pre-filtered page with wrong topic hierarchy
@@ -162,6 +176,7 @@ Feature: Aggregated Data Pages
             "#main h1": "Page not found"
         }
     """
+    And the page should be accessible
 
   @TopicAggregatedData
   Scenario: GET 3rd level subtopic pre-filtered page with matching topic and subtopic
@@ -176,6 +191,7 @@ Feature: Aggregated Data Pages
             ".search__count h2": "10 results"
         }
     """
+    And the page should be accessible
 
   @TopicAggregatedData
   Scenario: GET 3rd level subtopic pre-filtered page with non-matching topic
@@ -189,6 +205,7 @@ Feature: Aggregated Data Pages
             "#main h1": "Page not found"
         }
     """
+    And the page should be accessible
 
   @TopicAggregatedData
   Scenario: GET 3rd level subtopic pre-filtered page with wrong topic hierarchy
@@ -202,6 +219,7 @@ Feature: Aggregated Data Pages
             "#main h1": "Page not found"
         }
     """
+    And the page should be accessible
 
   @AggregatedDataRSS
   @TopicAggregatedData

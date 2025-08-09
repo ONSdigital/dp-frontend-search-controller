@@ -23,6 +23,7 @@ Feature: Form submission with date fields
     When I click the "#search-filter > button" element
     Then element "#error-summary-title" should be visible
     And element "#after-date-error" should be visible
+    And the page should be accessible
 
     Examples:
       | day | month | year |
@@ -39,6 +40,7 @@ Feature: Form submission with date fields
     When I click the "#search-filter > button" element
     Then element "#error-summary-title" should be visible
     And element "#before-date-error" should be visible
+    And the page should be accessible
 
     Examples:
       | day | month | year |
@@ -59,3 +61,4 @@ Feature: Form submission with date fields
     Then element "#error-summary-title" should be visible
     And element "#after-date-error" should not be visible
     And element "#before-date-error" should be visible
+    And the page should be accessible

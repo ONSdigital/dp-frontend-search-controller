@@ -13,6 +13,7 @@ Feature: Content type filter checkboxes on /search
     Then element "#article" should not be visible
     Then element "#compendiums" should not be visible
     Then element "#statistical_article" should not be visible
+    And the page should be accessible
 
   Scenario: Data filter checkbox is visible and subtypes are visible
     Then element "#group-1" should be visible

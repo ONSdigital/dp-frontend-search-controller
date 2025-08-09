@@ -19,16 +19,16 @@
         <h3>{{ localise "NoResultsHeader" $lang 1 }}</h3>
         <p>{{ localise "NoResultsSelectAnother" $lang 1 }} {{ localise "Or" $lang 1 }} <a href="?{{ if .Data.Query }}q={{ .Data.Query}}{{end}}" id="clear-search-zero">{{ localise "ClearAllFilters" $lang 1 }}</a>.</p>
     </div>
-    <ul class="flush--padding">
-        {{if $enabledTimeSeriesExport }}
-            {{if gt .Data.Response.Count 0}}
-                <span class="ons-checkbox ons-checkbox--no-border">
-                    <input type="checkbox" id="select-all-time-series" class="ons-checkbox__input ons-js-checkbox"
-                        aria-label="{{ localise "SelectAll" $lang 1 }}">
-                    <label class="ons-checkbox__label" for="select-all-time-series">{{ localise "SelectAll" $lang 1 }}</label>
-                </span>
-            {{end}}
+    {{if $enabledTimeSeriesExport }}
+        {{if gt .Data.Response.Count 0}}
+            <span class="ons-checkbox ons-checkbox--no-border">
+                <input type="checkbox" id="select-all-time-series" class="ons-checkbox__input ons-js-checkbox"
+                    aria-label="{{ localise "SelectAll" $lang 1 }}">
+                <label class="ons-checkbox__label" for="select-all-time-series">{{ localise "SelectAll" $lang 1 }}</label>
+            </span>
         {{end}}
+    {{end}}
+    <ul class="flush--padding">
         {{ range $i, $item := $response.Items }}
             {{ $currentPosition := add $i 1 }}
             <li class="{{if $enabledTimeSeriesExport }} border-bottom {{end}} search__results__item{{if eq $item.Type.Type `product_page`}} search__results__item--product-page{{end}}">

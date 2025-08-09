@@ -16,6 +16,7 @@ Feature: Related Data
       ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  Labour Market statistics"
     }
     """
+    And the page should be accessible
 
   Scenario: GET /relateddata and checking for many results
     Given there is a Search API that gives a successful response and returns 3 results
@@ -32,6 +33,8 @@ Feature: Related Data
         ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  Labour Market statistics"
       }
       """
+    And the page should be accessible
+
 
   Scenario: GET /relateddata with a migration link
     Given get page data request to zebedee for "/employmentandlabourmarket/bulletin1/latest" returns a page with migration link "/new-weekly-earnings"
@@ -40,7 +43,7 @@ Feature: Related Data
     Then the HTTP status code should be "308"
     And the response header "Location" should be "/new-weekly-earnings/related-data"
 
-  Scenario: GET /relateddata  and breadcrumb request errors
+  Scenario: GET /relateddata and breadcrumb request errors
     Given there is a Search API that gives a successful response and returns 3 results
     And get page data request to zebedee for "/employmentandlabourmarket/peopleinwork/bulletin1" returns a page of type "bulletin" with status 200
     And get breadcrumb request to zebedee for "/employmentandlabourmarket/peopleinwork/bulletin1" fails
@@ -55,17 +58,19 @@ Feature: Related Data
       ".ons-breadcrumb": "Labour Market statistics "
     }
     """
+    And the page should be accessible
 
   Scenario: GET /relateddata and it is not a page of type article, bulletin, or compendium_landing_page
     Given get page data request to zebedee for "/economy/latest" returns a page of type "taxonomy_landing_page" with status 200
     And the search controller is running
-    When I navigate to "/economy/relateddata"
+    When I navigate to "/economy/latest/relateddata"
     Then the page should have the following content
     """
         {
             "#main h1": "Page not found"
         }
     """
+    And the page should be accessible
 
   Scenario: GET /relateddata and has no related data
     Given there is a Search API that gives a successful response and returns 0 results
@@ -81,6 +86,7 @@ Feature: Related Data
         }
     """
     And element ".pagination" should not be visible
+    And the page should be accessible
 
   Scenario: GET /relateddata and check invalid params - page
     Given there is a Search API that gives a successful response and returns 3 results
@@ -94,4 +100,4 @@ Feature: Related Data
         "h2#error-summary-title": "There is a problem with this page"
       }
       """
-
+    And the page should be accessible
