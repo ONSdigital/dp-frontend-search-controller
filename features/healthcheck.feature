@@ -1,3 +1,4 @@
+@Healthcheck
 Feature: Healthcheck endpoint should inform the health of service
 
     Scenario: Returning a OK (200) status when health endpoint called

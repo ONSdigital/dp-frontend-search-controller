@@ -1,4 +1,4 @@
-@previousReleases
+@PreviousReleases
 Feature: Previous Releases
 
   Scenario: GET /previousreleases and checking for one result

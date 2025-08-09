@@ -1,3 +1,4 @@
+@AggregatedData
 Feature: Aggregated Data Pages
 
   Scenario: GET /alladhocs and checking for zero results
@@ -11,13 +12,8 @@ Feature: Aggregated Data Pages
         ".search__count h2": "0 results"
       }
       """
-
-  Scenario: GET /alladhocs and date fieldsets are displayed
-    Given there is a Search API that gives a successful response and returns 0 results
-    And the search controller is running
-    When I navigate to "/alladhocs"
-    Then element "#before-date" should be visible
-    Then element "#after-date" should be visible
+    And element "#before-date" should be visible
+    And element "#after-date" should be visible
 
   Scenario: GET /alladhocs and checking for one result
     Given there is a Search API that gives a successful response and returns 1 results
@@ -100,7 +96,7 @@ Feature: Aggregated Data Pages
         }
     """
 
-  @topicPages
+  @TopicAggregatedData
   Scenario: GET topic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic
@@ -114,7 +110,7 @@ Feature: Aggregated Data Pages
         }
     """
 
-  @topicPages
+  @TopicAggregatedData
   Scenario: GET topic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic
@@ -127,7 +123,7 @@ Feature: Aggregated Data Pages
         }
     """
 
-  @topicPages
+  @TopicAggregatedData
   Scenario: GET subtopic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic and the "environmentalaccounts" subtopic
@@ -141,7 +137,7 @@ Feature: Aggregated Data Pages
         }
     """
 
-  @topicPages
+  @TopicAggregatedData
   Scenario: GET subtopic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic and the "environmentalaccounts" subtopic
@@ -154,7 +150,7 @@ Feature: Aggregated Data Pages
         }
     """
 
-  @topicPages
+  @TopicAggregatedData
   Scenario: GET subtopic pre-filtered page with wrong topic hierarchy
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "business" topic and the "environmentalaccounts" subtopic
@@ -167,7 +163,7 @@ Feature: Aggregated Data Pages
         }
     """
 
-  @topicPages
+  @TopicAggregatedData
   Scenario: GET 3rd level subtopic pre-filtered page with matching topic and subtopic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic, the "governmentpublicsectorandtaxes" subtopic and "publicsectorfinance" thirdlevel subtopic
@@ -181,7 +177,7 @@ Feature: Aggregated Data Pages
         }
     """
 
-  @topicPages
+  @TopicAggregatedData
   Scenario: GET 3rd level subtopic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" topic, the "governmentpublicsectorandtaxes" subtopic and "publicsectorfinance" thirdlevel subtopic
@@ -194,7 +190,7 @@ Feature: Aggregated Data Pages
         }
     """
 
-  @topicPages
+  @TopicAggregatedData
   Scenario: GET 3rd level subtopic pre-filtered page with wrong topic hierarchy
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "business" topic, the "governmentpublicsectorandtaxes" subtopic and "publicsectorfinance" thirdlevel subtopic
@@ -207,8 +203,8 @@ Feature: Aggregated Data Pages
         }
     """
 
-  @agg_rss
-  @topicPages
+  @AggregatedDataRSS
+  @TopicAggregatedData
   Scenario: GET rss for subtopic pre-filtered page with matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic for requestQuery "rss"
@@ -229,8 +225,8 @@ Feature: Aggregated Data Pages
     """
     And the response header "Content-Type" should contain "application/rss+xml; charset=ISO-8859-1"
 
-  @agg_rss
-  @topicPages
+  @AggregatedDataRSS
+  @TopicAggregatedData
   Scenario: GET RSS subtopic pre-filtered page with non-matching topic
     Given there is a Search API that gives a successful response and returns 10 results
     And there is a Topic API that returns the "economy" root topic and the "environmental" subtopic for requestQuery "rss"

@@ -1,3 +1,4 @@
+@AggregatedData
 Feature: Form submission with date fields
 
   Background:

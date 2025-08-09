@@ -1,3 +1,4 @@
+@Search
 Feature: Search
   Scenario: GET /search and checking for zero results
     Given there is a Search API that gives a successful response and returns 0 results

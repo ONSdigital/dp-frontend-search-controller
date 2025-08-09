@@ -1,3 +1,4 @@
+@Search
 Feature: Content type filter checkboxes on /search
 
   Background:
