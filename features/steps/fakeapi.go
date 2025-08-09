@@ -18,6 +18,7 @@ type FakeAPI struct {
 	subSubTopicRequest *httpfake.Request
 	pageDataRequest    *httpfake.Request
 	breadcrumbRequest  *httpfake.Request
+	homepageRequest    *httpfake.Request
 }
 
 // NewFakeAPI creates a new fake component API

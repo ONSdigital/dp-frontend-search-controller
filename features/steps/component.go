@@ -70,6 +70,10 @@ func NewSearchControllerComponent() (c *Component, err error) {
 	c.FakeAPIRouter.healthRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/health")
 	c.FakeAPIRouter.healthRequest.CustomHandle = healthCheckStatusHandle(200)
 
+	// Every page tries to get the service message from the homepage.
+	c.FakeAPIRouter.homepageRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/data?uri=%2F&lang=en")
+	c.FakeAPIRouter.homepageRequest.Response = generateEmptyHomepageResponse()
+
 	c.FakeAPIRouter.searchRequest = c.FakeAPIRouter.fakeHTTP.NewHandler().Get("/search")
 	c.FakeAPIRouter.searchRequest.Response = generateSearchResponse(1)
 
@@ -310,4 +314,11 @@ func generatePageDataWithMigrationLink(migrationLink string) *httpfake.Response 
 	fakePageDataResponse.BodyStruct(mockedPageData)
 
 	return fakePageDataResponse
+}
+
+func generateEmptyHomepageResponse() *httpfake.Response {
+	fakeAPIResponse := httpfake.NewResponse()
+	fakeAPIResponse.Status(200)
+	fakeAPIResponse.BodyString("{}")
+	return fakeAPIResponse
 }
