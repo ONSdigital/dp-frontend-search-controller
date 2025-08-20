@@ -38,7 +38,7 @@ func TestUnitReadPreviousReleasesWithMigrationLink(t *testing.T) {
 			Convey("Then a 308 redirect should be returned", func() {
 				w := doTestRequest("/{uri:.*}/previousreleases", req, mockSearchHandler.PreviousReleases(cfg), nil)
 				location := w.Header().Get("Location")
-				expectedLocation := "/my-new-bulletin/previous-releases"
+				expectedLocation := "/my-new-bulletin/editions"
 
 				So(w.Code, ShouldEqual, http.StatusPermanentRedirect)
 				So(location, ShouldEqual, expectedLocation)

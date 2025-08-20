@@ -32,7 +32,8 @@ func (sh *SearchHandler) PreviousReleases(cfg *config.Config) http.HandlerFunc {
 		}
 
 		if pageData.Description.MigrationLink != "" {
-			http.Redirect(w, req, pageData.Description.MigrationLink+"/previous-releases", http.StatusPermanentRedirect)
+			migrationLinkURI := pageData.Description.MigrationLink + "/editions"
+			http.Redirect(w, req, migrationLinkURI, http.StatusPermanentRedirect)
 			return
 		}
 
