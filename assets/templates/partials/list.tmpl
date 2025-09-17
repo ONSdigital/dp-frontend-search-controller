@@ -30,7 +30,7 @@
                                 data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
                             >
                             {{ .Description.Title | safeHTML }}
-                            {{ if .Description.Edition }}:{{ end }}
+                            {{- if .Description.Edition }}:{{ end }}
                             {{ .Description.Edition | safeHTML }}
                             </a>
                         </h2>
