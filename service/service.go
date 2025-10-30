@@ -143,11 +143,11 @@ func (svc *Service) Run(ctx context.Context, svcErrors chan error) {
 	svc.HealthCheck.Start(ctx)
 
 	// Start caching
-	go svc.Cache.CensusTopic.StartUpdates(ctx, svcErrors)
+	go svc.Cache.CensusTopic.StartAndManageUpdates(ctx, svcErrors)
 	if svc.Config.EnableTopicAggregationPages {
-		go svc.Cache.DataTopic.StartUpdates(ctx, svcErrors)
+		go svc.Cache.DataTopic.StartAndManageUpdates(ctx, svcErrors)
 	}
-	go svc.Cache.Navigation.StartUpdates(ctx, svcErrors)
+	go svc.Cache.Navigation.StartAndManageUpdates(ctx, svcErrors)
 
 	// Start HTTP server
 	log.Info(ctx, "Starting server")
