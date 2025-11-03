@@ -1,5 +1,7 @@
 github.com/BurntSushi/toml v1.5.0 h1:W5quZX/G/csjUnuI8SUYlsHs9M38FC7znL0lIO+DvMg=
 github.com/BurntSushi/toml v1.5.0/go.mod h1:ukJfTF/6rtPPRCnwkur4qwRxa8vTRFBF0uk2lLoLwho=
+github.com/ONSdigital/dis-design-system-go v1.1.1 h1:VSJzVDviKpnvLhnXWgGSTNjVFASJRnvhvb/+h55lnOA=
+github.com/ONSdigital/dis-design-system-go v1.1.1/go.mod h1:r6bXYLXydqNMpYDKcz6CKaVH2Kbq3XIxMyGlbicE0Xc=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.269.0 h1:13QGPBu/NmIwmPhSP0yTlPEp/U1u22dEdyi8lN5guhA=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.269.0/go.mod h1:bLseTP21r8LCStUEeOdVPyqtrTomOFP/azPjKWW4deA=
 github.com/ONSdigital/dp-authorisation v0.5.0 h1:k1ROJ+vgd1hDWyjj+ZdvSZGlZw73PN1k7CFVZhdyILA=
@@ -22,8 +24,6 @@ github.com/ONSdigital/dp-net/v3 v3.5.0 h1:1C4n8BoqMXL55Yj3zfuD8gn/DC0uetsKeDV+GN
 github.com/ONSdigital/dp-net/v3 v3.5.0/go.mod h1:ur4LLCvd2xW2jpa785pElE6HB2bPvszZxdAjqv0XFGg=
 github.com/ONSdigital/dp-otel-go v0.0.8 h1:jSX32oDmOUKlHyH3FPCBkBpiBKYmWKELoNo6jontKRM=
 github.com/ONSdigital/dp-otel-go v0.0.8/go.mod h1:pCDuFqZX8+7CBQX1nMlLMPj52VsMAN3Y8h0uLmzC3cU=
-github.com/ONSdigital/dp-renderer/v2 v2.26.0 h1:uETRwEA6QSTKYz9kzPJLH3tmITu8g+ZG6R0/GmWrl+E=
-github.com/ONSdigital/dp-renderer/v2 v2.26.0/go.mod h1:gRYTm4sQLcCW4stAjagDttfmEsI1dV6IBhuYnnfnqeA=
 github.com/ONSdigital/dp-search-api v1.54.2 h1:7WROr467yKfqrYToBrchgFyO/7cWbC3EP9WBg0iDEU0=
 github.com/ONSdigital/dp-search-api v1.54.2/go.mod h1:YyF2CvBM4OGc8T2zyELitjleYiBD4NpAjknJB29ppHs=
 github.com/ONSdigital/dp-search-scrubber-api v0.8.0 h1:tIjag+CUbCV9LxnGGUbch0aI49iJWgnVMlAuB16b+6k=
