@@ -3,11 +3,12 @@ BINPATH ?= build
 BUILD_TIME=$(shell date +%s)
 GIT_COMMIT=$(shell git rev-parse HEAD)
 VERSION ?= $(shell git tag --points-at HEAD | grep ^v | head -n 1)
-LOCAL_DP_RENDERER_IN_USE = $(shell grep -c "github.com/ONSdigital/dp-renderer/v2 =" go.mod)
+LOCAL_RENDERER_IN_USE = $(shell grep -c "github.com/ONSdigital/dis-design-system-go =" go.mod)
 
 SERVICE_PATH = github.com/ONSdigital/dp-frontend-search-controller/service
 
-LDFLAGS = -ldflags "-X $(SERVICE_PATH).BuildTime=$(BUILD_TIME) -X $(SERVICE_PATH).GitCommit=$(GIT_COMMIT) -X $(SERVICE_PATH).Version=$(VERSION)"
+LDFLAGS_DEBUG = -ldflags "-X $(SERVICE_PATH).BuildTime=$(BUILD_TIME) -X $(SERVICE_PATH).GitCommit=$(GIT_COMMIT) -X $(SERVICE_PATH).Version=$(VERSION)"
+LDFLAGS_BUILD = -ldflags "-X $(SERVICE_PATH).BuildTime=$(BUILD_TIME) -X $(SERVICE_PATH).GitCommit=$(GIT_COMMIT) -X $(SERVICE_PATH).Version=$(VERSION) -X github.com/ONSdigital/dp-frontend-search-controller/config.RendererVersion=$(APP_RENDERER_VERSION)"
 
 .PHONY: all
 all: audit test build
@@ -18,11 +19,11 @@ audit: generate-prod
 
 .PHONY: build
 build: generate-prod
-	go build -tags 'production' $(LDFLAGS) -o $(BINPATH)/dp-frontend-search-controller
+	go build -tags 'production' $(LDFLAGS_BUILD) -o $(BINPATH)/dp-frontend-search-controller
 
 .PHONY: debug
 debug: generate-debug
-	go build -tags 'debug' $(LDFLAGS) -o $(BINPATH)/dp-frontend-search-controller
+	go build -tags 'debug' $(LDFLAGS_DEBUG) -o $(BINPATH)/dp-frontend-search-controller
 	HUMAN_LOG=1 DEBUG=1 $(BINPATH)/dp-frontend-search-controller
 
 .PHONY: debug-watch
@@ -54,24 +55,24 @@ test-component: generate-prod
 convey:
 	goconvey ./...
 
-.PHONY: fetch-renderer-lib
+.PHONY: fetch-renderer
 fetch-renderer-lib:
-ifeq ($(LOCAL_DP_RENDERER_IN_USE), 1)
+ifeq ($(LOCAL_RENDERER_IN_USE), 1)
  $(info local renderer in use)
- $(eval CORE_ASSETS_PATH = $(shell grep -w "github.com/ONSdigital/dp-renderer/v2 =>" go.mod | awk -F '=> ' '{print $$2}' | tr -d '"'))
+ $(eval CORE_ASSETS_PATH = $(shell grep -w "github.com/ONSdigital/dis-design-system-go =>" go.mod | awk -F '=> ' '{print $$2}' | tr -d '"'))
 else
- $(eval APP_RENDERER_VERSION=$(shell grep "github.com/ONSdigital/dp-renderer/v2" go.mod | cut -d ' ' -f2 ))
- $(eval CORE_ASSETS_PATH = $(shell go get github.com/ONSdigital/dp-renderer/v2@$(APP_RENDERER_VERSION) && go list -f '{{.Dir}}' -m github.com/ONSdigital/dp-renderer/v2))
+ $(eval APP_RENDERER_VERSION=$(shell grep "github.com/ONSdigital/dis-design-system-go" go.mod | cut -d ' ' -f2 ))
+ $(eval CORE_ASSETS_PATH = $(shell go get github.com/ONSdigital/dis-design-system-go@$(APP_RENDERER_VERSION) && go list -f '{{.Dir}}' -m github.com/ONSdigital/dis-design-system-go))
 endif
 
 .PHONY: generate-debug
-generate-debug: fetch-renderer-lib
+generate-debug: fetch-renderer
 	cd assets; go run github.com/kevinburke/go-bindata/go-bindata -prefix $(CORE_ASSETS_PATH)/assets -debug -o data.go -pkg assets locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/...
 	{ printf "//go:build debug\n"; cat assets/data.go; } > assets/debug.go.new
 	mv assets/debug.go.new assets/data.go
 
 .PHONY: generate-prod
-generate-prod: fetch-renderer-lib 
+generate-prod: fetch-renderer
 	cd assets; go run github.com/kevinburke/go-bindata/go-bindata -prefix $(CORE_ASSETS_PATH)/assets -o data.go -pkg assets locales/... templates/... $(CORE_ASSETS_PATH)/assets/locales/... $(CORE_ASSETS_PATH)/assets/templates/...
 	{ printf "//go:build production\n"; cat assets/data.go; } > assets/data.go.new
 	mv assets/data.go.new assets/data.go
