@@ -8,13 +8,13 @@ A UI for rendering results from the [search API](https://github.com/ONSdigital/d
 
 See our [Docker Compose Search Stack](https://github.com/ONSdigital/dp-compose/tree/main/v2/stacks/search) to run all services end to end.
 
-Alternatively, you can run this service locally alongside [our design system](https://github.com/ONSdigital/dp-design-system) and port forward the API router address to our sandbox environment to use data from there.
+Alternatively, you can run this service locally alongside [our design system](https://github.com/ONSdigital/dis-design-system-go) and port forward the API router address to our sandbox environment to use data from there.
 
 You can also run all [the other dependent services](#dependencies) as detailed below.
 
 ## Dependencies
 
-* [dp-design-system](https://github.com/ONSdigital/dp-design-system)
+* [dis-design-system-go](https://github.com/ONSdigital/dis-design-system-go)
 * [dp-search-api](https://github.com/ONSdigital/dp-search-api)
 * [dp-topic-api](https://github.com/ONSdigital/dp-topic-api)
 * Run Elasticsearch (version 7.10 runs on port 11200) via [dp-compose](https://github.com/ONSdigital/dp-compose)
