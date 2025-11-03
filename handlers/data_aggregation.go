@@ -5,13 +5,13 @@ import (
 	"net/http"
 	"net/url"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
-	core "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	"github.com/ONSdigital/dp-topic-api/models"
 

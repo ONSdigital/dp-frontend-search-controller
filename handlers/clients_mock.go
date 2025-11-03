@@ -5,8 +5,11 @@ package handlers
 
 import (
 	"context"
+	"io"
+	"sync"
+
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	core "github.com/ONSdigital/dp-renderer/v2/model"
 	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
@@ -14,8 +17,6 @@ import (
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"
 	topicError "github.com/ONSdigital/dp-topic-api/sdk/errors"
-	"io"
-	"sync"
 )
 
 // Ensure, that RenderClientMock does implement RenderClient.

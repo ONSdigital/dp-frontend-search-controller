@@ -7,13 +7,13 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
@@ -55,8 +55,8 @@ func TestUnitReadRelatedData(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 

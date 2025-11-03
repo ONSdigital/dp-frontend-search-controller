@@ -12,9 +12,9 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
 
+	helper "github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
-	helper "github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -34,7 +34,7 @@ const (
 	bindAddrAny = "localhost:0"
 )
 
-var expectedMappedBreadcrumb = []coreModel.TaxonomyNode{
+var expectedMappedBreadcrumb = []core.TaxonomyNode{
 	{Title: "Home", URI: "/"},
 	{Title: "Economy", URI: "/economy"},
 	{Title: "Test", URI: "/economy/test"},
@@ -48,7 +48,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 		So(err, ShouldBeNil)
 		cfg.BindAddr = bindAddrAny
 		req := httptest.NewRequest("", "/search", http.NoBody)
-		mdl := coreModel.Page{}
+		mdl := core.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
 			Query: "housing",
@@ -84,7 +84,7 @@ func TestUnitCreateSearchPage(t *testing.T) {
 			// NOTE: temporary measure until topic filter feature flag is removed
 			cfg.EnableCensusTopicFilterOption = true
 
-			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, []coreModel.ErrorItem{})
+			sp := CreateSearchPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, respC, englishLang, respH, "", &topicModels.Navigation{}, []core.ErrorItem{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -189,7 +189,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 		cfg.EnableCensusPopulationTypesFilterOption = true
 		cfg.BindAddr = bindAddrAny
 		req := httptest.NewRequest("GET", "/census/find-a-dataset", http.NoBody)
-		mdl := coreModel.Page{}
+		mdl := core.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
 			Query: "housing",
@@ -232,7 +232,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 			cfg.EnableCensusPopulationTypesFilterOption = true
 			cfg.EnableCensusDimensionsFilterOption = true
 
-			sp := CreateDataFinderPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, respC, englishLang, respH, []coreModel.ErrorItem{}, &topicModels.Navigation{})
+			sp := CreateDataFinderPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, respC, englishLang, respH, []core.ErrorItem{}, &topicModels.Navigation{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -309,7 +309,7 @@ func TestCreateDataAggregationPage(t *testing.T) {
 		cfg.EnableAggregationPages = true
 		cfg.BindAddr = bindAddrAny
 		req := httptest.NewRequest("GET", "/alladhocs", http.NoBody)
-		mdl := coreModel.Page{}
+		mdl := core.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
 			Query: "housing",
@@ -336,11 +336,11 @@ func TestCreateDataAggregationPage(t *testing.T) {
 		respH, err := GetMockHomepageContent()
 		So(err, ShouldBeNil)
 
-		mockKeywordFilter := coreModel.CompactSearch{
+		mockKeywordFilter := core.CompactSearch{
 			ElementId: "keywords",
 			InputName: "q",
 			Language:  englishLang,
-			Label: coreModel.Localisation{
+			Label: core.Localisation{
 				LocaleKey: "SearchKeywords",
 				Plural:    1,
 			},
@@ -348,11 +348,11 @@ func TestCreateDataAggregationPage(t *testing.T) {
 		}
 
 		lang := "en"
-		mockAfterDate := coreModel.DateFieldset{
+		mockAfterDate := core.DateFieldset{
 			Language:                 lang,
 			ValidationErrDescription: nil,
 			ErrorID:                  validatedQueryParams.AfterDate.GetFieldsetErrID(),
-			Input: coreModel.InputDate{
+			Input: core.InputDate{
 				Language:              lang,
 				Id:                    "after-date",
 				InputNameDay:          "after-day",
@@ -364,61 +364,61 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				HasDayValidationErr:   validatedQueryParams.AfterDate.HasDayValidationErr(),
 				HasMonthValidationErr: validatedQueryParams.AfterDate.HasMonthValidationErr(),
 				HasYearValidationErr:  validatedQueryParams.AfterDate.HasYearValidationErr(),
-				DataAttributes: []coreModel.DataAttribute{
+				DataAttributes: []core.DataAttribute{
 					{
 						Key: "invalid-date",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							LocaleKey: "ValidationInvalidDate",
 							Plural:    1,
 						},
 					},
 				},
-				DayDataAttributes: []coreModel.DataAttribute{
+				DayDataAttributes: []core.DataAttribute{
 					{
 						Key: "pattern-mismatch",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "day"),
 						},
 					},
 				},
-				MonthDataAttributes: []coreModel.DataAttribute{
+				MonthDataAttributes: []core.DataAttribute{
 					{
 						Key: "pattern-mismatch",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "month"),
 						},
 					},
 				},
-				YearDataAttributes: []coreModel.DataAttribute{
+				YearDataAttributes: []core.DataAttribute{
 					{
 						Key: "value-missing",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							Text: helper.Localise("ValidationYearMissing", lang, 1, "after"),
 						},
 					},
 					{
 						Key: "pattern-mismatch",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "year"),
 						},
 					},
 				},
-				Title: coreModel.Localisation{
+				Title: core.Localisation{
 					LocaleKey: "ReleasedAfter",
 					Plural:    1,
 				},
-				Description: coreModel.Localisation{
+				Description: core.Localisation{
 					LocaleKey: "ReleasedAfterDescription",
 					Plural:    1,
 				},
 			},
 		}
 
-		mockBeforeDate := coreModel.DateFieldset{
+		mockBeforeDate := core.DateFieldset{
 			Language:                 lang,
 			ValidationErrDescription: nil,
 			ErrorID:                  validatedQueryParams.BeforeDate.GetFieldsetErrID(),
-			Input: coreModel.InputDate{
+			Input: core.InputDate{
 				Language:              lang,
 				Id:                    "before-date",
 				InputNameDay:          "before-day",
@@ -430,57 +430,57 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				HasDayValidationErr:   validatedQueryParams.BeforeDate.HasDayValidationErr(),
 				HasMonthValidationErr: validatedQueryParams.BeforeDate.HasMonthValidationErr(),
 				HasYearValidationErr:  validatedQueryParams.BeforeDate.HasYearValidationErr(),
-				DataAttributes: []coreModel.DataAttribute{
+				DataAttributes: []core.DataAttribute{
 					{
 						Key: "invalid-range",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							LocaleKey: "ValidationInvalidDateRange",
 							Plural:    1,
 						},
 					},
 					{
 						Key: "invalid-date",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							LocaleKey: "ValidationInvalidDate",
 							Plural:    1,
 						},
 					},
 				},
-				DayDataAttributes: []coreModel.DataAttribute{
+				DayDataAttributes: []core.DataAttribute{
 					{
 						Key: "pattern-mismatch",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "day"),
 						},
 					},
 				},
-				MonthDataAttributes: []coreModel.DataAttribute{
+				MonthDataAttributes: []core.DataAttribute{
 					{
 						Key: "pattern-mismatch",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "month"),
 						},
 					},
 				},
-				YearDataAttributes: []coreModel.DataAttribute{
+				YearDataAttributes: []core.DataAttribute{
 					{
 						Key: "value-missing",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							Text: helper.Localise("ValidationYearMissing", lang, 1, "before"),
 						},
 					},
 					{
 						Key: "pattern-mismatch",
-						Value: coreModel.Localisation{
+						Value: core.Localisation{
 							Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "year"),
 						},
 					},
 				},
-				Title: coreModel.Localisation{
+				Title: core.Localisation{
 					LocaleKey: "ReleasedBefore",
 					Plural:    1,
 				},
-				Description: coreModel.Localisation{
+				Description: core.Localisation{
 					LocaleKey: "ReleasedBeforeDescription",
 					Plural:    1,
 				},
@@ -508,30 +508,30 @@ func TestCreateDataAggregationPage(t *testing.T) {
 				validatedQueryParams.AfterDate = data.MustSetFieldsetErrID("fromDate-error")
 				validatedQueryParams.BeforeDate = data.MustSetFieldsetErrID("toDate-error")
 
-				validationErrs := []coreModel.ErrorItem{
+				validationErrs := []core.ErrorItem{
 					{
-						Description: coreModel.Localisation{
+						Description: core.Localisation{
 							Text: "This is a released AFTER error",
 						},
 						ID:  "fromDate-error",
 						URL: "#fromDate-error",
 					},
 					{
-						Description: coreModel.Localisation{
+						Description: core.Localisation{
 							Text: "This is a released BEFORE error",
 						},
 						ID:  "toDate-error",
 						URL: "#toDate-error",
 					},
 					{
-						Description: coreModel.Localisation{
+						Description: core.Localisation{
 							Text: "This is another released BEFORE error",
 						},
 						ID:  "toDate-error",
 						URL: "#toDate-error",
 					},
 					{
-						Description: coreModel.Localisation{
+						Description: core.Localisation{
 							Text: "This is a non-date page error",
 						},
 						ID:  "input-error",
@@ -539,16 +539,16 @@ func TestCreateDataAggregationPage(t *testing.T) {
 					},
 				}
 
-				expectedAfterErr := coreModel.DateFieldset{
-					ValidationErrDescription: []coreModel.Localisation{
+				expectedAfterErr := core.DateFieldset{
+					ValidationErrDescription: []core.Localisation{
 						{
 							Text: validationErrs[0].Description.Text,
 						},
 					},
 				}
 
-				expectedBeforeErr := coreModel.DateFieldset{
-					ValidationErrDescription: []coreModel.Localisation{
+				expectedBeforeErr := core.DateFieldset{
+					ValidationErrDescription: []core.Localisation{
 						{
 							Text: validationErrs[1].Description.Text,
 						},
@@ -651,7 +651,7 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 		So(err, ShouldBeNil)
 		cfg.BindAddr = bindAddrAny
 		req := httptest.NewRequest("", "/foo/bar/previousreleases", http.NoBody)
-		mdl := coreModel.Page{}
+		mdl := core.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
 			Limit:       10,
@@ -714,9 +714,9 @@ func TestCreatePreviousReleasesPage(t *testing.T) {
 		})
 
 		Convey("When CreatePreviousReleasesPage is called with validation errors", func() {
-			validationErrs := []coreModel.ErrorItem{
+			validationErrs := []core.ErrorItem{
 				{
-					Description: coreModel.Localisation{
+					Description: core.Localisation{
 						Text: "This is a current page error",
 					},
 					ID:  "currentPage-error",

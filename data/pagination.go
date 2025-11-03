@@ -8,9 +8,9 @@ import (
 	"net/url"
 	"strconv"
 
+	"github.com/ONSdigital/dis-design-system-go/model"
 	errs "github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
-	"github.com/ONSdigital/dp-renderer/v2/model"
 	"github.com/ONSdigital/log.go/v2/log"
 )
 

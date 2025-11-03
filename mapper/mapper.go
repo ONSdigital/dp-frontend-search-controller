@@ -6,23 +6,23 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-cookies/cookies"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
 )
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+func CreateSearchPage(cfg *config.Config, req *http.Request, basePage core.Page,
 	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
-	navigationContent *topicModel.Navigation, validationErrs []coreModel.ErrorItem,
+	navigationContent *topicModel.Navigation, validationErrs []core.ErrorItem,
 ) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
@@ -56,7 +56,7 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 		page.ABTest.GTMKey = "search"
 	}
 	if len(validationErrs) > 0 {
-		page.Error = coreModel.Error{
+		page.Error = core.Error{
 			Title:      page.Metadata.Title,
 			ErrorItems: validationErrs,
 			Language:   lang,
@@ -75,11 +75,11 @@ func CreateSearchPage(cfg *config.Config, req *http.Request, basePage coreModel.
 }
 
 // CreateDataAggregationPage maps type searchC.Response to model.Page
-func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage core.Page,
 	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
 	navigationContent *topicModel.Navigation,
-	template string, topic cache.Topic, validationErrs []coreModel.ErrorItem,
+	template string, topic cache.Topic, validationErrs []core.ErrorItem,
 ) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
@@ -103,9 +103,9 @@ func CreateDataAggregationPage(cfg *config.Config, req *http.Request, basePage c
 }
 
 // CreatePreviousReleasesPage maps type searchC.Response to model.Page
-func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage core.Page,
 	validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
-	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem, zebedeeResp zebedee.PageData, bc []zebedee.Breadcrumb,
+	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []core.ErrorItem, zebedeeResp zebedee.PageData, bc []zebedee.Breadcrumb,
 ) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
@@ -129,7 +129,7 @@ func CreatePreviousReleasesPage(cfg *config.Config, req *http.Request, basePage 
 	page.ServiceMessage = homepageResponse.ServiceMessage
 	page.EmergencyBanner = mapEmergencyBanner(homepageResponse)
 	if len(validationErrs) > 0 {
-		page.Error = coreModel.Error{
+		page.Error = core.Error{
 			Title:      page.Metadata.Title,
 			ErrorItems: validationErrs,
 			Language:   lang,
@@ -155,7 +155,7 @@ func generateRSSLink(rawQuery string) string {
 	return "?rss"
 }
 
-func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem) {
+func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lang string, req *http.Request, cfg *config.Config, validatedQueryParams data.SearchURLParams, homepageResponse zebedee.HomepageContent, navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []core.ErrorItem) {
 	switch template {
 	case "all-adhocs":
 		page.Metadata.Title = "User requested data"
@@ -193,20 +193,20 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		page.Data.EnableTimeSeriesExport = true
 	}
 
-	page.Data.KeywordFilter = coreModel.CompactSearch{
+	page.Data.KeywordFilter = core.CompactSearch{
 		ElementId: "keywords",
 		InputName: "q",
 		Language:  lang,
-		Label: coreModel.Localisation{
+		Label: core.Localisation{
 			LocaleKey: "SearchKeywords",
 			Plural:    1,
 		},
 		SearchTerm: validatedQueryParams.Query,
 	}
 
-	var fdErrDescription, tdErrDescription []coreModel.Localisation
+	var fdErrDescription, tdErrDescription []core.Localisation
 	if len(validationErrs) > 0 {
-		page.Error = coreModel.Error{
+		page.Error = core.Error{
 			Title:      page.Metadata.Title,
 			ErrorItems: validationErrs,
 			Language:   lang,
@@ -222,11 +222,11 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 		}
 	}
 
-	page.Data.AfterDate = coreModel.DateFieldset{
+	page.Data.AfterDate = core.DateFieldset{
 		Language:                 lang,
 		ValidationErrDescription: fdErrDescription,
 		ErrorID:                  validatedQueryParams.AfterDate.GetFieldsetErrID(),
-		Input: coreModel.InputDate{
+		Input: core.InputDate{
 			Language:              lang,
 			Id:                    "after-date",
 			InputNameDay:          "after-day",
@@ -238,61 +238,61 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 			HasDayValidationErr:   validatedQueryParams.AfterDate.HasDayValidationErr(),
 			HasMonthValidationErr: validatedQueryParams.AfterDate.HasMonthValidationErr(),
 			HasYearValidationErr:  validatedQueryParams.AfterDate.HasYearValidationErr(),
-			DataAttributes: []coreModel.DataAttribute{
+			DataAttributes: []core.DataAttribute{
 				{
 					Key: "invalid-date",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						LocaleKey: "ValidationInvalidDate",
 						Plural:    1,
 					},
 				},
 			},
-			DayDataAttributes: []coreModel.DataAttribute{
+			DayDataAttributes: []core.DataAttribute{
 				{
 					Key: "pattern-mismatch",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "day"),
 					},
 				},
 			},
-			MonthDataAttributes: []coreModel.DataAttribute{
+			MonthDataAttributes: []core.DataAttribute{
 				{
 					Key: "pattern-mismatch",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "month"),
 					},
 				},
 			},
-			YearDataAttributes: []coreModel.DataAttribute{
+			YearDataAttributes: []core.DataAttribute{
 				{
 					Key: "value-missing",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						Text: helper.Localise("ValidationYearMissing", lang, 1, "after"),
 					},
 				},
 				{
 					Key: "pattern-mismatch",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "after", "year"),
 					},
 				},
 			},
-			Title: coreModel.Localisation{
+			Title: core.Localisation{
 				LocaleKey: "ReleasedAfter",
 				Plural:    1,
 			},
-			Description: coreModel.Localisation{
+			Description: core.Localisation{
 				LocaleKey: "ReleasedAfterDescription",
 				Plural:    1,
 			},
 		},
 	}
 
-	page.Data.BeforeDate = coreModel.DateFieldset{
+	page.Data.BeforeDate = core.DateFieldset{
 		Language:                 lang,
 		ValidationErrDescription: tdErrDescription,
 		ErrorID:                  validatedQueryParams.BeforeDate.GetFieldsetErrID(),
-		Input: coreModel.InputDate{
+		Input: core.InputDate{
 			Language:              lang,
 			Id:                    "before-date",
 			InputNameDay:          "before-day",
@@ -304,57 +304,57 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 			HasDayValidationErr:   validatedQueryParams.BeforeDate.HasDayValidationErr(),
 			HasMonthValidationErr: validatedQueryParams.BeforeDate.HasMonthValidationErr(),
 			HasYearValidationErr:  validatedQueryParams.BeforeDate.HasYearValidationErr(),
-			DataAttributes: []coreModel.DataAttribute{
+			DataAttributes: []core.DataAttribute{
 				{
 					Key: "invalid-range",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						LocaleKey: "ValidationInvalidDateRange",
 						Plural:    1,
 					},
 				},
 				{
 					Key: "invalid-date",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						LocaleKey: "ValidationInvalidDate",
 						Plural:    1,
 					},
 				},
 			},
-			DayDataAttributes: []coreModel.DataAttribute{
+			DayDataAttributes: []core.DataAttribute{
 				{
 					Key: "pattern-mismatch",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "day"),
 					},
 				},
 			},
-			MonthDataAttributes: []coreModel.DataAttribute{
+			MonthDataAttributes: []core.DataAttribute{
 				{
 					Key: "pattern-mismatch",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "month"),
 					},
 				},
 			},
-			YearDataAttributes: []coreModel.DataAttribute{
+			YearDataAttributes: []core.DataAttribute{
 				{
 					Key: "value-missing",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						Text: helper.Localise("ValidationYearMissing", lang, 1, "before"),
 					},
 				},
 				{
 					Key: "pattern-mismatch",
-					Value: coreModel.Localisation{
+					Value: core.Localisation{
 						Text: helper.Localise("ValidationPatternMismatch", lang, 1, "before", "year"),
 					},
 				},
 			},
-			Title: coreModel.Localisation{
+			Title: core.Localisation{
 				LocaleKey: "ReleasedBefore",
 				Plural:    1,
 			},
-			Description: coreModel.Localisation{
+			Description: core.Localisation{
 				LocaleKey: "ReleasedBeforeDescription",
 				Plural:    1,
 			},
@@ -383,9 +383,9 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 }
 
 // CreateSearchPage maps type searchC.Response to model.Page
-func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage core.Page,
 	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
-	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, validationErrs []coreModel.ErrorItem,
+	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, validationErrs []core.ErrorItem,
 	navigationContent *topicModel.Navigation,
 ) model.SearchPage {
 	page := model.SearchPage{
@@ -401,7 +401,7 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage coreMo
 	page.Count = respC.Count
 	page.Language = lang
 	page.BetaBannerEnabled = true
-	page.Page.Breadcrumb = []coreModel.TaxonomyNode{{Title: "Home", URI: "/"}, {Title: "Census", URI: "/census"}, {Title: "Find census data"}}
+	page.Page.Breadcrumb = []core.TaxonomyNode{{Title: "Home", URI: "/"}, {Title: "Census", URI: "/census"}, {Title: "Find census data"}}
 	page.SearchDisabled = false
 	page.URI = req.URL.RequestURI()
 	page.PatternLibraryAssetsPath = cfg.PatternLibraryAssetsPath
@@ -437,13 +437,13 @@ func mapQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams d
 	mapPagination(cfg, req, page, validatedQueryParams, respC)
 }
 
-func mapDatasetQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, req http.Request, validationErrs []coreModel.ErrorItem) {
+func mapDatasetQuery(cfg *config.Config, page *model.SearchPage, validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, req http.Request, validationErrs []core.ErrorItem) {
 	page.Data.Query = validatedQueryParams.Query
 
 	page.Data.Filter = validatedQueryParams.Filter.Query
 
 	if len(validationErrs) > 0 {
-		page.Error = coreModel.Error{
+		page.Error = core.Error{
 			Title:      page.Metadata.Title,
 			ErrorItems: validationErrs,
 			Language:   page.Language,
@@ -852,11 +852,11 @@ func mapIsChecked(contentTypes []string, queryParams data.SearchURLParams) bool 
 }
 
 // MapCookiePreferences reads cookie policy and preferences cookies and then maps the values to the page model
-func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *coreModel.CookiesPolicy) {
+func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *core.CookiesPolicy) {
 	preferencesCookie := cookies.GetONSCookiePreferences(req)
 	*preferencesIsSet = preferencesCookie.IsPreferenceSet
 
-	*policy = coreModel.CookiesPolicy{
+	*policy = core.CookiesPolicy{
 		Communications: preferencesCookie.Policy.Campaigns,
 		Essential:      preferencesCookie.Policy.Essential,
 		Settings:       preferencesCookie.Policy.Settings,
@@ -864,8 +864,8 @@ func MapCookiePreferences(req *http.Request, preferencesIsSet *bool, policy *cor
 	}
 }
 
-func mapEmergencyBanner(hpc zebedee.HomepageContent) coreModel.EmergencyBanner {
-	var mappedEmergencyBanner coreModel.EmergencyBanner
+func mapEmergencyBanner(hpc zebedee.HomepageContent) core.EmergencyBanner {
+	var mappedEmergencyBanner core.EmergencyBanner
 	emptyBannerObj := zebedee.EmergencyBanner{}
 	bannerData := hpc.EmergencyBanner
 
@@ -881,23 +881,23 @@ func mapEmergencyBanner(hpc zebedee.HomepageContent) coreModel.EmergencyBanner {
 }
 
 // mapNavigationContent takes navigationContent as returned from the client and returns information needed for the navigation bar
-func mapNavigationContent(navigationContent topicModel.Navigation) []coreModel.NavigationItem {
-	var mappedNavigationContent []coreModel.NavigationItem
+func mapNavigationContent(navigationContent topicModel.Navigation) []core.NavigationItem {
+	var mappedNavigationContent []core.NavigationItem
 
 	if navigationContent.Items != nil {
 		for _, rootContent := range *navigationContent.Items {
-			var subItems []coreModel.NavigationItem
+			var subItems []core.NavigationItem
 
 			if rootContent.SubtopicItems != nil {
 				for _, subtopicContent := range *rootContent.SubtopicItems {
-					subItems = append(subItems, coreModel.NavigationItem{
+					subItems = append(subItems, core.NavigationItem{
 						Uri:   subtopicContent.URI,
 						Label: subtopicContent.Label,
 					})
 				}
 			}
 
-			mappedNavigationContent = append(mappedNavigationContent, coreModel.NavigationItem{
+			mappedNavigationContent = append(mappedNavigationContent, core.NavigationItem{
 				Uri:      rootContent.URI,
 				Label:    rootContent.Label,
 				SubItems: subItems,
@@ -925,12 +925,12 @@ func filterCategoriesByTemplate(template string, categories []data.Category) []d
 // mapBreadcrumb maps breadcrumb response from Zebedee to page model
 func mapBreadcrumb(page *model.SearchPage, bcs []zebedee.Breadcrumb, parentPageTitle, parentPageURL string) {
 	for _, bc := range bcs {
-		page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
+		page.Page.Breadcrumb = append(page.Page.Breadcrumb, core.TaxonomyNode{
 			Title: bc.Description.Title,
 			URI:   bc.URI,
 		})
 	}
-	page.Page.Breadcrumb = append(page.Page.Breadcrumb, coreModel.TaxonomyNode{
+	page.Page.Breadcrumb = append(page.Page.Breadcrumb, core.TaxonomyNode{
 		Title: parentPageTitle,
 		URI:   parentPageURL,
 	})

@@ -4,11 +4,11 @@ import (
 	"context"
 	"net/http"
 
+	rend "github.com/ONSdigital/dis-design-system-go"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/handlers"
-	rend "github.com/ONSdigital/dp-renderer/v2"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	topic "github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"

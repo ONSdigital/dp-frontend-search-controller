@@ -6,12 +6,12 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -23,7 +23,7 @@ func TestCreateRelatedDataPage(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 		req := httptest.NewRequest("", "/foo/bar/relateddata", http.NoBody)
-		mdl := coreModel.Page{}
+		mdl := core.Page{}
 
 		validatedQueryParams := data.SearchURLParams{
 			Limit:       10,
@@ -85,9 +85,9 @@ func TestCreateRelatedDataPage(t *testing.T) {
 		})
 
 		Convey("When CreateRelatedDataPage is called with validation errors", func() {
-			validationErrs := []coreModel.ErrorItem{
+			validationErrs := []core.ErrorItem{
 				{
-					Description: coreModel.Localisation{
+					Description: core.Localisation{
 						Text: "This is a current page error",
 					},
 					ID:  "currentPage-error",

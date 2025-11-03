@@ -10,6 +10,8 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/ONSdigital/dis-design-system-go/helper"
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/apperrors"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
@@ -17,8 +19,6 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
-	"github.com/ONSdigital/dp-renderer/v2/helper"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	apiError "github.com/ONSdigital/dp-search-api/sdk/errors"
@@ -81,8 +81,8 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -160,8 +160,8 @@ func TestUnitReadSuccess(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -237,8 +237,8 @@ func TestUnitReadFailure(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -283,8 +283,8 @@ func TestUnitReadFailure(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -326,8 +326,8 @@ func TestUnitReadFailure(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -388,8 +388,8 @@ func TestUnitReadDataAggregationSuccess(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -458,8 +458,8 @@ func TestUnitReadDataAggregationFailure(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -503,8 +503,8 @@ func TestUnitReadDataAggregationFailure(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -570,8 +570,8 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -636,8 +636,8 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -708,8 +708,8 @@ func TestUnitReadDataAggregationWithTopicsSuccess(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -780,8 +780,8 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -830,8 +830,8 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -887,8 +887,8 @@ func TestUnitReadDataAggregationWithTopicsFailure(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -1318,8 +1318,8 @@ func TestUnitReadDataAggregationWithTopicsRSSSuccess(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 
@@ -1388,8 +1388,8 @@ func TestUnitReadDataAggregationWithTopicsRSSFailure(t *testing.T) {
 
 		mockedRendererClient := &RenderClientMock{
 			BuildPageFunc: func(w io.Writer, pageModel interface{}, templateName string) {},
-			NewBasePageModelFunc: func() coreModel.Page {
-				return coreModel.Page{}
+			NewBasePageModelFunc: func() core.Page {
+				return core.Page{}
 			},
 		}
 

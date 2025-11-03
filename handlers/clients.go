@@ -13,8 +13,8 @@ import (
 	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"
 	topicError "github.com/ONSdigital/dp-topic-api/sdk/errors"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 )
 
 //go:generate moq -out clients_mock.go -pkg handlers . RenderClient SearchClient ZebedeeClient TopicClient
@@ -32,7 +32,7 @@ type SearchClientError interface {
 // RenderClient is an interface with methods for require for rendering a template
 type RenderClient interface {
 	BuildPage(w io.Writer, pageModel interface{}, templateName string)
-	NewBasePageModel() coreModel.Page
+	NewBasePageModel() core.Page
 }
 
 // SearchClient is an interface with methods required for a search client

@@ -3,19 +3,19 @@ package mapper
 import (
 	"net/http"
 
+	core "github.com/ONSdigital/dis-design-system-go/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
-	coreModel "github.com/ONSdigital/dp-renderer/v2/model"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
 	topicModel "github.com/ONSdigital/dp-topic-api/models"
 )
 
-func CreateRelatedDataPage(cfg *config.Config, req *http.Request, basePage coreModel.Page,
+func CreateRelatedDataPage(cfg *config.Config, req *http.Request, basePage core.Page,
 	validatedQueryParams data.SearchURLParams, respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, errorMessage string,
-	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []coreModel.ErrorItem, zebedeeResp zebedee.PageData, bc []zebedee.Breadcrumb,
+	navigationContent *topicModel.Navigation, template string, topic cache.Topic, validationErrs []core.ErrorItem, zebedeeResp zebedee.PageData, bc []zebedee.Breadcrumb,
 ) model.SearchPage {
 	page := model.SearchPage{
 		Page: basePage,
@@ -40,7 +40,7 @@ func CreateRelatedDataPage(cfg *config.Config, req *http.Request, basePage coreM
 	}
 
 	if len(validationErrs) > 0 {
-		page.Error = coreModel.Error{
+		page.Error = core.Error{
 			Title:      page.Metadata.Title,
 			ErrorItems: validationErrs,
 			Language:   lang,

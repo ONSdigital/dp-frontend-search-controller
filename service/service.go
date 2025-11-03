@@ -4,9 +4,9 @@ import (
 	"context"
 	"errors"
 
+	render "github.com/ONSdigital/dis-design-system-go"
+	"github.com/ONSdigital/dis-design-system-go/middleware/renderror"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
-	render "github.com/ONSdigital/dp-renderer/v2"
-	"github.com/ONSdigital/dp-renderer/v2/middleware/renderror"
 	"github.com/justinas/alice"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
