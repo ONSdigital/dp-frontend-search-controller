@@ -49,7 +49,7 @@ test: generate-prod
 
 .PHONY:	test-component
 test-component: generate-prod
-	go test -race -cover -tags 'production' -coverprofile="coverage.txt" -coverpkg=github.com/ONSdigital/dp-frontend-search-controller/... -component
+	go test -race -cover -tags 'production' -coverprofile="coverage.txt" -coverpkg=github.com/ONSdigital/dp-frontend-search-controller/... -component -ldflags "-X github.com/ONSdigital/dp-frontend-search-controller/config.RendererVersion=$(APP_RENDERER_VERSION)"
 
 .PHONY: convey
 convey:
