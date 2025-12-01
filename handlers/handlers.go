@@ -527,6 +527,7 @@ func ValidateTopicHierarchy(ctx context.Context, segments []string, cacheList ca
 		return nil, fmt.Errorf("invalid topic hierarchy at segment: %s", segments[0])
 	}
 
+	//nolint:gosec // Potential indexes out of range are handled above
 	// Traverse through segments
 	for i := 1; i < len(segments); i++ {
 		nextTopic, err := cacheList.DataTopic.GetTopic(ctx, segments[i], currentTopic.Slug)
