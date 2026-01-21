@@ -1,7 +1,7 @@
 package model
 
 import (
-	"github.com/ONSdigital/dis-design-system-go/model"
+	"github.com/ONSdigital/dis-design-system-go/v2/model"
 )
 
 // Search is the model struct for the cookies preferences form

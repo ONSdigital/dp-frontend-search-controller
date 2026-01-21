@@ -3,7 +3,7 @@ package mapper
 import (
 	"net/http"
 
-	core "github.com/ONSdigital/dis-design-system-go/model"
+	core "github.com/ONSdigital/dis-design-system-go/v2/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"

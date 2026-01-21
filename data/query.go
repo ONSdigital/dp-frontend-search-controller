@@ -12,7 +12,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/log.go/v2/log"
 
-	core "github.com/ONSdigital/dis-design-system-go/model"
+	core "github.com/ONSdigital/dis-design-system-go/v2/model"
 )
 
 // SearchURLParams is a struct which contains all information of search url parameters and values

@@ -8,7 +8,7 @@ import (
 	"io"
 	"sync"
 
-	core "github.com/ONSdigital/dis-design-system-go/model"
+	core "github.com/ONSdigital/dis-design-system-go/v2/model"
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"

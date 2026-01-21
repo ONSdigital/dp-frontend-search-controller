@@ -12,8 +12,8 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
 
-	helper "github.com/ONSdigital/dis-design-system-go/helper"
-	core "github.com/ONSdigital/dis-design-system-go/model"
+	helper "github.com/ONSdigital/dis-design-system-go/v2/helper"
+	core "github.com/ONSdigital/dis-design-system-go/v2/model"
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	. "github.com/smartystreets/goconvey/convey"

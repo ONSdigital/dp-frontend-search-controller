@@ -4,7 +4,7 @@ import (
 	"context"
 	"net/http"
 
-	rend "github.com/ONSdigital/dis-design-system-go"
+	rend "github.com/ONSdigital/dis-design-system-go/v2"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
