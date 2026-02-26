@@ -230,8 +230,8 @@ func reviewFilters(ctx context.Context, urlQuery url.Values, validatedQueryParam
 
 // GetCategories returns all the categories and its content types where all the count is set to zero
 func GetCategories() []Category {
-	var categories []Category
-	categories = append(categories, Categories...)
+	categories := make([]Category, len(Categories))
+	copy(categories, Categories)
 
 	// To get a different reference of ContentType - deep copy
 	for i, category := range categories {
@@ -263,6 +263,9 @@ func updateQueryWithAPIFilters(apiQuery url.Values) {
 
 // getSubFilters gets all available sub filters which is related to the search filter given by the user
 func getSubFilters(filters []string) []string {
+	//nolint:prealloc // The length of subFilters is not unknown in advance, but you'd
+	// need to loop through all filters to get the total number of subfilters, so preallocating it
+	// would not be possible without looping through the filters twice.
 	subFilters := make([]string, 0)
 
 	for _, filter := range filters {

@@ -517,7 +517,7 @@ func mapResponse(page *model.SearchPage, respC *searchModels.SearchResponse, cat
 }
 
 func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse) {
-	itemPage := []model.ContentItem{}
+	itemPage := make([]model.ContentItem, len(respC.Items))
 	for i := range respC.Items {
 		item := model.ContentItem{}
 
@@ -531,7 +531,7 @@ func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse
 		item.URI = respC.Items[i].URI
 		item.Dataset.PopulationType = respC.Items[i].PopulationType
 
-		itemPage = append(itemPage, item)
+		itemPage[i] = item
 	}
 
 	page.Data.Response.Items = itemPage
@@ -573,25 +573,25 @@ func mapItemHighlight(item *model.ContentItem, itemC *searchModels.Item) {
 }
 
 func mapResponseCategories(page *model.SearchPage, categories []data.Category) {
-	pageCategories := []model.Category{}
+	pageCategories := make([]model.Category, len(categories))
 
-	for _, category := range categories {
-		pageContentType := []model.ContentType{}
+	for i, category := range categories {
+		pageContentType := make([]model.ContentType, len(category.ContentTypes))
 
-		for _, contentType := range category.ContentTypes {
-			pageContentType = append(pageContentType, model.ContentType{
+		for j, contentType := range category.ContentTypes {
+			pageContentType[j] = model.ContentType{
 				Group:           contentType.Group,
 				Count:           contentType.Count,
 				LocaliseKeyName: contentType.LocaliseKeyName,
 				Types:           contentType.Types,
-			})
+			}
 		}
 
-		pageCategories = append(pageCategories, model.Category{
+		pageCategories[i] = model.Category{
 			Count:           category.Count,
 			LocaliseKeyName: category.LocaliseKeyName,
 			ContentTypes:    pageContentType,
-		})
+		}
 	}
 
 	page.Data.Response.Categories = pageCategories
