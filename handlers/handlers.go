@@ -199,21 +199,21 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 		} else {
 			searchResp, respErr = searchC.GetSearch(ctx, options)
 			if respErr != nil {
-				log.Error(ctx, "getting search response from client failed for dataset", respErr)
+				log.Error(ctx, "getting search response from client failed", respErr)
 			}
 			searchCount = searchResp.Count
 		}
 	} else {
 		searchResp, respErr = searchC.GetSearch(ctx, options)
 		if respErr != nil {
-			log.Error(ctx, "getting search response from client failed for dataset", respErr)
+			log.Error(ctx, "getting search response from client failed", respErr)
 		}
 		searchCount = searchResp.Count
 
 		// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
 		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
 		if countErr != nil {
-			log.Error(ctx, "getting categories, types and its counts failed for dataset", countErr)
+			log.Error(ctx, "getting categories, types and its counts failed", countErr)
 			setStatusCode(w, req, countErr)
 		}
 	}
