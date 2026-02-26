@@ -81,6 +81,7 @@ type AggregationConfig struct {
 	GetSearchAndCategoriesCountQueries func(data.SearchURLParams, *cache.Topic, string, string) (url.Values, url.Values)
 }
 
+//nolint:gocyclo // TODO: refactor to reduce cyclomatic complexity
 func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Config, zc ZebedeeClient, rend RenderClient, searchC SearchClient, accessToken, collectionID, lang string, cacheList cache.List, aggCfg AggregationConfig) {
 	ctx, cancel := context.WithCancel(req.Context())
 	defer cancel()

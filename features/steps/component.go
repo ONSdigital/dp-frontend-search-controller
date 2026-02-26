@@ -143,6 +143,7 @@ func (f *FakeAPI) getMockAPIHTTPClient() *dphttp.ClienterMock {
 		SetPathsWithNoRetriesFunc: func(paths []string) {},
 		GetPathsWithNoRetriesFunc: func() []string { return []string{} },
 		DoFunc: func(ctx context.Context, req *http.Request) (*http.Response, error) {
+			//nolint:gosec // This is a mock client used for testing, so we can ignore the warning about not using the default HTTP client.
 			return f.fakeHTTP.Server.Client().Do(req)
 		},
 	}
