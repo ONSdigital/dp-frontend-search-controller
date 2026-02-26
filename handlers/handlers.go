@@ -217,7 +217,6 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
 		if countErr != nil {
 			log.Error(ctx, "getting categories, types and its counts failed", countErr)
-			setStatusCode(w, req, countErr)
 		}
 	}
 	if respErr != nil || countErr != nil {
