@@ -387,14 +387,14 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 
 	// Zebedee returns a ClientError interface
 	if err, ok := err.(ClientError); ok {
-		if err.Code() == http.StatusNotFound {
+		if err.Code() < http.StatusInternalServerError && err.Code() >= http.StatusBadRequest {
 			status = err.Code()
 		}
 	}
 
 	// Search API returns a SearchClientError interface
 	if err, ok := err.(SearchClientError); ok {
-		if err.Status() == http.StatusBadRequest {
+		if err.Status() < http.StatusInternalServerError && err.Status() >= http.StatusBadRequest {
 			status = err.Status()
 		}
 	}
