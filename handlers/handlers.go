@@ -208,7 +208,10 @@ func handleReadRequest(w http.ResponseWriter, req *http.Request, cfg *config.Con
 		if respErr != nil {
 			log.Error(ctx, "getting search response from client failed", respErr)
 		}
-		searchCount = searchResp.Count
+
+		if searchResp != nil {
+			searchCount = searchResp.Count
+		}
 
 		// TO-DO: Need to make a second request until API can handle aggregation on datatypes (e.g. bulletins, article) to return counts
 		categories, topicCategories, countErr = getCategoriesTypesCount(ctx, accessToken, collectionID, categoriesCountQuery, searchC, &selectedTopic)
