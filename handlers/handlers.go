@@ -388,6 +388,7 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 
 	// Zebedee returns a ClientError interface
 	if err, ok := err.(ClientError); ok {
+		// Capture client errors (e.g. 4XX) to return to the user, but default to 500 for any unrecognised errors
 		if err.Code() < http.StatusInternalServerError && err.Code() >= http.StatusBadRequest {
 			status = err.Code()
 		}
@@ -395,6 +396,7 @@ func setStatusCode(w http.ResponseWriter, req *http.Request, err error) {
 
 	// Search API returns a SearchClientError interface
 	if err, ok := err.(SearchClientError); ok {
+		// Capture client errors (e.g. 4XX) to return to the user, but default to 500 for any unrecognised errors
 		if err.Status() < http.StatusInternalServerError && err.Status() >= http.StatusBadRequest {
 			status = err.Status()
 		}
