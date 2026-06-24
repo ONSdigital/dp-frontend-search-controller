@@ -37,7 +37,7 @@
                         <ul class="ons-document-list__item-metadata ons-u-mb-xs">
                             <li class="ons-document-list__item-attribute">
                                 <span class="ons-u-fw-b">{{ localise "ReleasedOn" $lang 1 }} </span>
-                                <time datetime="{{ dateFormatYYYYMMDDHyphenated .Description.ReleaseDate }}">{{ dateFormat .Description.ReleaseDate }}</time>
+                                <time datetime="{{ dateFormatYYYYMMDDHyphenated .Description.ReleaseDate }}">{{ onsDateFormat .Description.ReleaseDate }}</time>
                             </li>
                             {{ if eq $pageType "previous-releases" }}
                                 {{ if .IsLatestRelease }}

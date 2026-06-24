@@ -3,7 +3,7 @@ module github.com/ONSdigital/dp-frontend-search-controller
 go 1.26.0
 
 require (
-	github.com/ONSdigital/dis-design-system-go/v2 v2.1.0
+	github.com/ONSdigital/dis-design-system-go/v2 v2.1.4
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.279.0
 	github.com/ONSdigital/dp-cache v0.6.1
 	github.com/ONSdigital/dp-component-test v1.4.4-alpha
