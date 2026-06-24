@@ -15,7 +15,7 @@ Feature: Previous Releases
         ".ons-breadcrumb__item:nth-child(1) .ons-breadcrumb__link": "Home",
         ".ons-breadcrumb__item:nth-child(2) .ons-breadcrumb__link": "Economy",
         ".ons-breadcrumb__item:nth-child(3) .ons-breadcrumb__link": "Gross Domestic Product (GDP)",
-        ".ons-breadcrumb__item:nth-child(4) .ons-breadcrumb__link": "Labour Market statistics"
+        ".ons-breadcrumb__item:nth-child(4)": "Labour Market statistics "
       }
       """
     And the page should be accessible
@@ -34,7 +34,7 @@ Feature: Previous Releases
         ".ons-breadcrumb__item:nth-child(1) .ons-breadcrumb__link": "Home",
         ".ons-breadcrumb__item:nth-child(2) .ons-breadcrumb__link": "Economy",
         ".ons-breadcrumb__item:nth-child(3) .ons-breadcrumb__link": "Gross Domestic Product (GDP)",
-        ".ons-breadcrumb__item:nth-child(4) .ons-breadcrumb__link": "Labour Market statistics"
+        ".ons-breadcrumb__item:nth-child(4)": "Labour Market statistics "
       }
       """
     And the page should be accessible
