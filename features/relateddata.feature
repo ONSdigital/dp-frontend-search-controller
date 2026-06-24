@@ -13,7 +13,10 @@ Feature: Related Data
       "#main h1": "All data related to Labour Market statistics: March 2024",
       ".ons-pagination__position": "Page 1 of 1",
       ".ons-document-list h2": "Test Bulletin 0",
-      ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  Labour Market statistics"
+      ".ons-breadcrumb__item:nth-child(1) .ons-breadcrumb__link": "Home",
+      ".ons-breadcrumb__item:nth-child(2) .ons-breadcrumb__link": "Economy",
+      ".ons-breadcrumb__item:nth-child(3) .ons-breadcrumb__link": "Gross Domestic Product (GDP)",
+      ".ons-breadcrumb__item:nth-child(4) .ons-breadcrumb__link": "Labour Market statistics"
     }
     """
     And the page should be accessible
@@ -30,7 +33,10 @@ Feature: Related Data
         "#main h1": "All data related to Labour Market statistics: March 2024",
         ".ons-pagination__position": "Page 1 of 1",
         ".ons-document-list h2": "Test Bulletin 0",
-        ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  Labour Market statistics"
+        ".ons-breadcrumb__item:nth-child(1) .ons-breadcrumb__link": "Home",
+        ".ons-breadcrumb__item:nth-child(2) .ons-breadcrumb__link": "Economy",
+        ".ons-breadcrumb__item:nth-child(3) .ons-breadcrumb__link": "Gross Domestic Product (GDP)",
+        ".ons-breadcrumb__item:nth-child(4) .ons-breadcrumb__link": "Labour Market statistics"
       }
       """
     And the page should be accessible
