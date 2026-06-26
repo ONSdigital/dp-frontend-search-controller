@@ -12,7 +12,10 @@ Feature: Previous Releases
       {
         "#main h1": "Labour Market statistics Articles",
         ".ons-pagination__position": "Page 1 of 1",
-        ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  Labour Market statistics"
+        ".ons-breadcrumb__item:nth-child(1) .ons-breadcrumb__link": "Home",
+        ".ons-breadcrumb__item:nth-child(2) .ons-breadcrumb__link": "Economy",
+        ".ons-breadcrumb__item:nth-child(3) .ons-breadcrumb__link": "Gross Domestic Product (GDP)",
+        ".ons-breadcrumb__item:nth-child(4)": "Labour Market statistics"
       }
       """
     And the page should be accessible
@@ -28,7 +31,10 @@ Feature: Previous Releases
       {
         "#main h1": "Labour Market statistics Statistical bulletins",
         ".ons-pagination__position": "Page 1 of 1",
-        ".ons-breadcrumb": "Home  Economy  Gross Domestic Product (GDP)  Labour Market statistics"
+        ".ons-breadcrumb__item:nth-child(1) .ons-breadcrumb__link": "Home",
+        ".ons-breadcrumb__item:nth-child(2) .ons-breadcrumb__link": "Economy",
+        ".ons-breadcrumb__item:nth-child(3) .ons-breadcrumb__link": "Gross Domestic Product (GDP)",
+        ".ons-breadcrumb__item:nth-child(4)": "Labour Market statistics"
       }
       """
     And the page should be accessible

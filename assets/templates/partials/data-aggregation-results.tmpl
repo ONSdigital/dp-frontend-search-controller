@@ -69,7 +69,7 @@
                 <ul class="ons-document-list__item-metadata">
                     <li class="ons-document-list__item-attribute">
                         <span class="ons-u-fw-b">{{ localise "ReleasedOn" $lang 1 }}:</span>
-                        <span> {{ dateFormat .Description.ReleaseDate }}</span>
+                        <span> {{ onsDateFormat .Description.ReleaseDate }}</span>
                     </li>
                     {{/* Don't show type on timeseries page as they're all timeseries */}}
                     {{ if not $enabledTimeSeriesExport }} 
