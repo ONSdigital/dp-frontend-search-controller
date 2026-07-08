@@ -65,22 +65,6 @@
                     {{ end }}
                 </dl>
             {{ end }}
-            {{if eq $item.Type.Type `product_page`}}
-                <p class="search__results__summary--product-page font-size--16">
-                    View all <a href="{{ .URI }}#datasets">datasets</a> or <a href="{{ .URI }}#publications">publications</a> related to 
-                    <a href="{{ .URI }}"
-                        data-gtm-search-result-title="{{ .Description.Title }}"
-                        data-gtm-search-result-page="{{ $currentPage }}"
-                        data-gtm-search-result-position="{{ add $totalSearchPosition $currentPosition }}"
-                        data-gtm-search-result-url="{{ .URI }}"
-                        data-gtm-search-result-release-date="{{ dateFormatYYYYMMDDNoSlashes .Description.ReleaseDate }}"
-                    >
-                        {{ .Description.Title | safeHTML }}
-                        {{ if .Description.Edition }}:{{ end }}
-                        {{ .Description.Edition | safeHTML }}
-                    </a>
-                </p>
-            {{end}}
         </li>
     {{end}}
     </ul>
