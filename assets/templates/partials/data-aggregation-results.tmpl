@@ -31,7 +31,7 @@
     <ul class="flush--padding">
         {{ range $i, $item := $response.Items }}
             {{ $currentPosition := add $i 1 }}
-            <li class="{{if $enabledTimeSeriesExport }} border-bottom {{end}} search__results__item{{if eq $item.Type.Type `product_page`}} search__results__item--product-page{{end}}">
+            <li class="{{if $enabledTimeSeriesExport }} border-bottom {{end}} search__results__item">
                 <h3>
                     {{if $enabledTimeSeriesExport }}
                         <span class="ons-checkbox ons-checkbox--no-border">
