@@ -271,10 +271,6 @@ one = "Nid oes unrhyw ganlyniadau cyfatebol"
 description = "Select another topic"
 one = "Dewis pwnc arall"
 
-[NoResultsBody]
-description = "Not all census content has been released. Check for upcoming releases in the <a href=\"/releasecalendar\">release calendar</a>. Alternatively, you can create a <a href=\"/datasets/create\">custom dataset</a>."
-one = "Nid yw holl gynnwys y cyfrifia wedi'i ryddhau. Edrychwch am ddatganiadau sydd i ddod ar y <a href=\"/releasecalendar\">calendr datganiadau</a>. Fel arall, gallwch <a href=\"/datasets/create\">greu set ddata eich fun</a>."
-
 [FindCensusData]
 description = "Find Census Data"
 one = "Cael setiau data’r cyfrifiad"

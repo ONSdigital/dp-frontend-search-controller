@@ -272,10 +272,6 @@ one = "Sorry, there are no matching results."
 description = "Select another topic"
 one = "Select another topic"
 
-[NoResultsBody]
-description = "Not all census content has been released. Check for upcoming releases in the <a href=\"/releasecalendar\">release calendar</a>. Alternatively, you can create a <a href=\"/datasets/create\">custom dataset</a>."
-one = "Not all census content has been released. Check for upcoming releases in the <a href=\"/releasecalendar\">release calendar</a>. Alternatively, you can create a <a href=\"/datasets/create\">custom dataset</a>."
-
 [FindCensusData]
 description = "Find Census Data"
 one = "Find Census Data"
