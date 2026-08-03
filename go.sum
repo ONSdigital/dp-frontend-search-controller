@@ -12,6 +12,8 @@ github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERo
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
 github.com/ONSdigital/dis-design-system-go/v2 v2.4.1 h1:OcZqj3O+lda55AGUojQut8YLvxGL2SVIRoS1hianGxg=
 github.com/ONSdigital/dis-design-system-go/v2 v2.4.1/go.mod h1:5Y97DlDueN2y/BVymNeIKqkb2L6VcAxbooCfPBSh8R4=
+github.com/ONSdigital/dis-design-system-go/v2 v2.4.3 h1:8hENpcTuewVC3VcF1w63ESHGNAzWds7x5gqrKXik9MQ=
+github.com/ONSdigital/dis-design-system-go/v2 v2.4.3/go.mod h1:5Y97DlDueN2y/BVymNeIKqkb2L6VcAxbooCfPBSh8R4=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.279.0 h1:BQ+8GiomGO33ANQ9XVUVRiXW5zUtf19XLUN4b+httJI=
 github.com/ONSdigital/dp-api-clients-go/v2 v2.279.0/go.mod h1:dTOrseSPzH9WRV/qgNy/zu5BeZWbea02Qz4Z6lvHhFQ=
 github.com/ONSdigital/dp-authorisation v0.5.0 h1:k1ROJ+vgd1hDWyjj+ZdvSZGlZw73PN1k7CFVZhdyILA=
