@@ -115,7 +115,7 @@ func TestUnitReadRelatedDataWithMigrationLink(t *testing.T) {
 			},
 		}
 
-		mockSearchHandler := NewSearchHandler(&RenderClientMock{}, &SearchClientMock{}, &TopicClientMock{}, mockedZebedeeClient, cfg, cache.List{})
+		mockSearchHandler := NewSearchHandler(&RenderClientMock{}, &SearchClientMock{}, &TopicClientMock{}, mockedZebedeeClient, nil, cfg, cache.List{})
 
 		Convey("When /relateddata is called", func() {
 			req := httptest.NewRequest("GET", "/foo/latest/relateddata", http.NoBody)

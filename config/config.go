@@ -24,6 +24,7 @@ type Config struct {
 	*DefaultSort
 	EnableAggregationPages                  bool          `envconfig:"ENABLE_AGGREGATION_PAGES"`
 	EnableNLPSearch                         bool          `envconfig:"ENABLE_NLP_SEARCH"`
+	EnableRedirectAPI                       bool          `envconfig:"ENABLE_REDIRECT_API"`
 	EnableTopicAggregationPages             bool          `envconfig:"ENABLE_TOPIC_AGGREGATION_PAGES"`
 	FeedbackAPIURL                          string        `envconfig:"FEEDBACK_API_URL"`
 	EnableCensusDimensionsFilterOption      bool          `envconfig:"ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION"`
@@ -39,6 +40,7 @@ type Config struct {
 	OtelEnabled                             bool          `envconfig:"OTEL_ENABLED"`
 	IsPublishing                            bool          `envconfig:"IS_PUBLISHING"`
 	PatternLibraryAssetsPath                string        `envconfig:"PATTERN_LIBRARY_ASSETS_PATH"`
+	RedirectAPIURL                          string        `envconfig:"REDIRECT_API_URL"`
 	ServiceAuthToken                        string        `envconfig:"SERVICE_AUTH_TOKEN"   json:"-"`
 	SiteDomain                              string        `envconfig:"SITE_DOMAIN"`
 	SupportedLanguages                      []string      `envconfig:"SUPPORTED_LANGUAGES"`
@@ -105,6 +107,7 @@ func get() (*Config, error) {
 		EnableTopicAggregationPages:             false,
 		EnableNewNavBar:                         false,
 		EnableNLPSearch:                         false,
+		EnableRedirectAPI:                       false,
 		GracefulShutdownTimeout:                 5 * time.Second,
 		HealthCheckCriticalTimeout:              90 * time.Second,
 		HealthCheckInterval:                     30 * time.Second,
@@ -113,6 +116,7 @@ func get() (*Config, error) {
 		OTServiceName:                           "dp-frontend-search-controller",
 		OtelEnabled:                             false,
 		IsPublishing:                            false,
+		RedirectAPIURL:                          "http://localhost:29900",
 		ServiceAuthToken:                        "",
 		SiteDomain:                              "localhost",
 		SupportedLanguages:                      []string{"en", "cy"},

@@ -30,7 +30,7 @@ func TestUnitReadPreviousReleasesWithMigrationLink(t *testing.T) {
 			},
 		}
 
-		mockSearchHandler := NewSearchHandler(&RenderClientMock{}, &SearchClientMock{}, &TopicClientMock{}, mockedZebedeeClient, cfg, cache.List{})
+		mockSearchHandler := NewSearchHandler(&RenderClientMock{}, &SearchClientMock{}, &TopicClientMock{}, mockedZebedeeClient, nil, cfg, cache.List{})
 
 		Convey("When /previousreleases is called", func() {
 			req := httptest.NewRequest("GET", "/foo/bar/previousreleases", http.NoBody)

@@ -13,11 +13,15 @@ import (
 	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"
 	topicError "github.com/ONSdigital/dp-topic-api/sdk/errors"
 
+	redirectModels "github.com/ONSdigital/dis-redirect-api/models"
+	redirectAPI "github.com/ONSdigital/dis-redirect-api/sdk/go"
+	redirectError "github.com/ONSdigital/dis-redirect-api/sdk/go/errors"
+
 	core "github.com/ONSdigital/dis-design-system-go/v2/model"
 	"github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 )
 
-//go:generate moq -out clients_mock.go -pkg handlers . RenderClient SearchClient ZebedeeClient TopicClient
+//go:generate moq -out clients_mock.go -pkg handlers . RenderClient SearchClient ZebedeeClient TopicClient RedirectAPIClient
 
 // ClientError is an interface that can be used to retrieve the status code if a client has errored
 type ClientError interface {
@@ -57,4 +61,9 @@ type TopicClient interface {
 	GetSubtopicsPublic(ctx context.Context, reqHeaders topicSDK.Headers, id string) (*topicModels.PublicSubtopics, topicError.Error)
 	GetTopicPrivate(ctx context.Context, reqHeaders topicSDK.Headers, id string) (*topicModels.TopicResponse, topicError.Error)
 	GetTopicPublic(ctx context.Context, reqHeaders topicSDK.Headers, id string) (*topicModels.Topic, topicError.Error)
+}
+
+// RedirectAPIClient is an interface with methods required for a redirect API client
+type RedirectAPIClient interface {
+	GetRedirect(ctx context.Context, options redirectAPI.Options, key string) (*redirectModels.Redirect, redirectError.Error)
 }

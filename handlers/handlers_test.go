@@ -102,7 +102,7 @@ func TestUnitReadHandlerSuccess(t *testing.T) {
 
 		mockCacheList, err := cache.GetMockCacheList(ctx, englishLang)
 
-		mockHandlerClient := NewSearchHandler(mockedRendererClient, mockedSearchClient, mockedTopicClient, mockedZebedeeClient, cfg, *mockCacheList)
+		mockHandlerClient := NewSearchHandler(mockedRendererClient, mockedSearchClient, mockedTopicClient, mockedZebedeeClient, nil, cfg, *mockCacheList)
 
 		So(err, ShouldBeNil)
 

@@ -22,12 +22,13 @@ type Clients struct {
 	Search             *searchSDK.Client
 	Topic              *topic.Client
 	Zebedee            *zebedee.Client
+	RedirectAPI        handlers.RedirectAPIClient
 }
 
 // Setup registers routes for the service
 func Setup(ctx context.Context, r *mux.Router, cfg *config.Config, c Clients, cacheList cache.List) {
 	log.Info(ctx, "adding routes")
-	sh := handlers.NewSearchHandler(c.Renderer, c.Search, c.Topic, c.Zebedee, cfg, cacheList)
+	sh := handlers.NewSearchHandler(c.Renderer, c.Search, c.Topic, c.Zebedee, c.RedirectAPI, cfg, cacheList)
 
 	r.StrictSlash(true).Path("/health").HandlerFunc(c.HealthCheckHandler)
 	r.StrictSlash(true).Path("/search").Methods("GET").HandlerFunc(sh.Search(cfg))

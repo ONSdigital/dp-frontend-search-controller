@@ -54,11 +54,13 @@ type SearchHandler struct {
 	ZebedeeClient               ZebedeeClient
 	EnableAggregationPages      bool
 	EnableTopicAggregationPages bool
+	EnableRedirectAPI           bool
 	CacheList                   cache.List
+	RedirectAPI                 RedirectAPIClient
 }
 
 // NewSearchHandler creates a new instance of SearchHandler
-func NewSearchHandler(rc RenderClient, sc SearchClient, tc TopicClient, zc ZebedeeClient, cfg *config.Config, cl cache.List) *SearchHandler {
+func NewSearchHandler(rc RenderClient, sc SearchClient, tc TopicClient, zc ZebedeeClient, redirectClient RedirectAPIClient, cfg *config.Config, cl cache.List) *SearchHandler {
 	return &SearchHandler{
 		Renderer:                    rc,
 		SearchClient:                sc,
@@ -66,7 +68,9 @@ func NewSearchHandler(rc RenderClient, sc SearchClient, tc TopicClient, zc Zebed
 		ZebedeeClient:               zc,
 		EnableAggregationPages:      cfg.EnableAggregationPages,
 		EnableTopicAggregationPages: cfg.EnableTopicAggregationPages,
+		EnableRedirectAPI:           cfg.EnableRedirectAPI,
 		CacheList:                   cl,
+		RedirectAPI:                 redirectClient,
 	}
 }
 

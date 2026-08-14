@@ -11,12 +11,14 @@ import (
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gorilla/mux/otelmux"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 
+	redirectAPI "github.com/ONSdigital/dis-redirect-api/sdk/go"
 	"github.com/ONSdigital/dp-api-clients-go/v2/health"
 	"github.com/ONSdigital/dp-frontend-search-controller/assets"
 	"github.com/ONSdigital/dp-frontend-search-controller/cache"
 	cachePrivate "github.com/ONSdigital/dp-frontend-search-controller/cache/private"
 	cachePublic "github.com/ONSdigital/dp-frontend-search-controller/cache/public"
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
+	"github.com/ONSdigital/dp-frontend-search-controller/handlers"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
 	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
 	topic "github.com/ONSdigital/dp-topic-api/sdk"
@@ -59,11 +61,17 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	svc.routerHealthClient = serviceList.GetHealthClient("api-router", svc.Config.APIRouterURL)
 
 	// Initialise clients
+	var redirectClient handlers.RedirectAPIClient
+	if svc.Config.EnableRedirectAPI {
+		redirectClient = redirectAPI.NewClient(svc.Config.RedirectAPIURL)
+	}
+
 	clients := routes.Clients{
-		Renderer: render.NewWithDefaultClient(assets.Asset, assets.AssetNames, svc.Config.PatternLibraryAssetsPath, svc.Config.SiteDomain),
-		Search:   searchSDK.NewWithHealthClient(svc.routerHealthClient),
-		Topic:    topic.NewWithHealthClient(svc.routerHealthClient),
-		Zebedee:  zebedee.NewWithHealthClient(svc.routerHealthClient),
+		Renderer:    render.NewWithDefaultClient(assets.Asset, assets.AssetNames, svc.Config.PatternLibraryAssetsPath, svc.Config.SiteDomain),
+		Search:      searchSDK.NewWithHealthClient(svc.routerHealthClient),
+		Topic:       topic.NewWithHealthClient(svc.routerHealthClient),
+		Zebedee:     zebedee.NewWithHealthClient(svc.routerHealthClient),
+		RedirectAPI: redirectClient,
 	}
 
 	// Get healthcheck with checkers

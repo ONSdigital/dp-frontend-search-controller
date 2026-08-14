@@ -5,10 +5,10 @@ package handlers
 
 import (
 	"context"
-	"io"
-	"sync"
-
 	core "github.com/ONSdigital/dis-design-system-go/v2/model"
+	redirectModels "github.com/ONSdigital/dis-redirect-api/models"
+	redirectAPI "github.com/ONSdigital/dis-redirect-api/sdk/go"
+	redirectError "github.com/ONSdigital/dis-redirect-api/sdk/go/errors"
 	zebedeeCli "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 	searchAPI "github.com/ONSdigital/dp-search-api/api"
 	searchModels "github.com/ONSdigital/dp-search-api/models"
@@ -17,6 +17,8 @@ import (
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"
 	topicError "github.com/ONSdigital/dp-topic-api/sdk/errors"
+	"io"
+	"sync"
 )
 
 // Ensure, that RenderClientMock does implement RenderClient.
@@ -887,5 +889,83 @@ func (mock *TopicClientMock) GetTopicPublicCalls() []struct {
 	mock.lockGetTopicPublic.RLock()
 	calls = mock.calls.GetTopicPublic
 	mock.lockGetTopicPublic.RUnlock()
+	return calls
+}
+
+// Ensure, that RedirectAPIClientMock does implement RedirectAPIClient.
+// If this is not the case, regenerate this file with moq.
+var _ RedirectAPIClient = &RedirectAPIClientMock{}
+
+// RedirectAPIClientMock is a mock implementation of RedirectAPIClient.
+//
+//	func TestSomethingThatUsesRedirectAPIClient(t *testing.T) {
+//
+//		// make and configure a mocked RedirectAPIClient
+//		mockedRedirectAPIClient := &RedirectAPIClientMock{
+//			GetRedirectFunc: func(ctx context.Context, options redirectAPI.Options, key string) (*redirectModels.Redirect, redirectError.Error) {
+//				panic("mock out the GetRedirect method")
+//			},
+//		}
+//
+//		// use mockedRedirectAPIClient in code that requires RedirectAPIClient
+//		// and then make assertions.
+//
+//	}
+type RedirectAPIClientMock struct {
+	// GetRedirectFunc mocks the GetRedirect method.
+	GetRedirectFunc func(ctx context.Context, options redirectAPI.Options, key string) (*redirectModels.Redirect, redirectError.Error)
+
+	// calls tracks calls to the methods.
+	calls struct {
+		// GetRedirect holds details about calls to the GetRedirect method.
+		GetRedirect []struct {
+			// Ctx is the ctx argument value.
+			Ctx context.Context
+			// Options is the options argument value.
+			Options redirectAPI.Options
+			// Key is the key argument value.
+			Key string
+		}
+	}
+	lockGetRedirect sync.RWMutex
+}
+
+// GetRedirect calls GetRedirectFunc.
+func (mock *RedirectAPIClientMock) GetRedirect(ctx context.Context, options redirectAPI.Options, key string) (*redirectModels.Redirect, redirectError.Error) {
+	if mock.GetRedirectFunc == nil {
+		panic("RedirectAPIClientMock.GetRedirectFunc: method is nil but RedirectAPIClient.GetRedirect was just called")
+	}
+	callInfo := struct {
+		Ctx     context.Context
+		Options redirectAPI.Options
+		Key     string
+	}{
+		Ctx:     ctx,
+		Options: options,
+		Key:     key,
+	}
+	mock.lockGetRedirect.Lock()
+	mock.calls.GetRedirect = append(mock.calls.GetRedirect, callInfo)
+	mock.lockGetRedirect.Unlock()
+	return mock.GetRedirectFunc(ctx, options, key)
+}
+
+// GetRedirectCalls gets all the calls that were made to GetRedirect.
+// Check the length with:
+//
+//	len(mockedRedirectAPIClient.GetRedirectCalls())
+func (mock *RedirectAPIClientMock) GetRedirectCalls() []struct {
+	Ctx     context.Context
+	Options redirectAPI.Options
+	Key     string
+} {
+	var calls []struct {
+		Ctx     context.Context
+		Options redirectAPI.Options
+		Key     string
+	}
+	mock.lockGetRedirect.RLock()
+	calls = mock.calls.GetRedirect
+	mock.lockGetRedirect.RUnlock()
 	return calls
 }
