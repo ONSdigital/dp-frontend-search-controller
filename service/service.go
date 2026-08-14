@@ -61,17 +61,17 @@ func (svc *Service) Init(ctx context.Context, cfg *config.Config, serviceList *E
 	svc.routerHealthClient = serviceList.GetHealthClient("api-router", svc.Config.APIRouterURL)
 
 	// Initialise clients
-	var redirectClient handlers.RedirectAPIClient
+	var redirectAPIClient handlers.RedirectAPIClient
 	if svc.Config.EnableRedirectAPI {
-		redirectClient = redirectAPI.NewClient(svc.Config.RedirectAPIURL)
+		redirectAPIClient = redirectAPI.NewClient(svc.Config.RedirectAPIURL)
 	}
 
 	clients := routes.Clients{
-		Renderer:    render.NewWithDefaultClient(assets.Asset, assets.AssetNames, svc.Config.PatternLibraryAssetsPath, svc.Config.SiteDomain),
-		Search:      searchSDK.NewWithHealthClient(svc.routerHealthClient),
-		Topic:       topic.NewWithHealthClient(svc.routerHealthClient),
-		Zebedee:     zebedee.NewWithHealthClient(svc.routerHealthClient),
-		RedirectAPI: redirectClient,
+		Renderer:          render.NewWithDefaultClient(assets.Asset, assets.AssetNames, svc.Config.PatternLibraryAssetsPath, svc.Config.SiteDomain),
+		Search:            searchSDK.NewWithHealthClient(svc.routerHealthClient),
+		Topic:             topic.NewWithHealthClient(svc.routerHealthClient),
+		Zebedee:           zebedee.NewWithHealthClient(svc.routerHealthClient),
+		RedirectAPIClient: redirectAPIClient,
 	}
 
 	// Get healthcheck with checkers
