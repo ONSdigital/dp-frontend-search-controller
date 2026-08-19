@@ -17,44 +17,42 @@ import (
 
 // SearchURLParams is a struct which contains all information of search url parameters and values
 type SearchURLParams struct {
-	Query                string
-	PopulationTypeFilter string
-	DimensionsFilter     string
-	Filter               Filter
-	AfterDate            Date
-	BeforeDate           Date
-	TopicFilter          string
-	LatestRelease        bool
-	Sort                 Sort
-	Limit                int
-	CurrentPage          int
-	Offset               int
-	NLPWeightingEnabled  bool
-	URIPrefix            string
+	Query               string
+	DimensionsFilter    string
+	Filter              Filter
+	AfterDate           Date
+	BeforeDate          Date
+	TopicFilter         string
+	LatestRelease       bool
+	Sort                Sort
+	Limit               int
+	CurrentPage         int
+	Offset              int
+	NLPWeightingEnabled bool
+	URIPrefix           string
 }
 
 const (
-	Page                    = "page"
-	DayBefore               = "before-day"
-	DayAfter                = "after-day"
-	Before                  = "before"
-	MonthBefore             = Before + "-month"
-	After                   = "after"
-	MonthAfter              = After + "-month"
-	YearBefore              = "before-year"
-	YearAfter               = "after-year"
-	Query                   = "query"
-	DateFrom                = "after-date"
-	DateFromErr             = DateFrom + "-error"
-	DateTo                  = "before-date"
-	DateToErr               = DateTo + "-error"
-	Type                    = "release-type"
-	PaginationErr           = "pagination-error"
-	ContentTypeFilterErr    = "filter-error"
-	TopicFilterErr          = "topic-error"
-	PopulationTypeFilterErr = "population-error"
-	DimensionsFilterErr     = "dimensions-error"
-	QueryStringErr          = "query-string-error"
+	Page                 = "page"
+	DayBefore            = "before-day"
+	DayAfter             = "after-day"
+	Before               = "before"
+	MonthBefore          = Before + "-month"
+	After                = "after"
+	MonthAfter           = After + "-month"
+	YearBefore           = "before-year"
+	YearAfter            = "after-year"
+	Query                = "query"
+	DateFrom             = "after-date"
+	DateFromErr          = DateFrom + "-error"
+	DateTo               = "before-date"
+	DateToErr            = DateTo + "-error"
+	Type                 = "release-type"
+	PaginationErr        = "pagination-error"
+	ContentTypeFilterErr = "filter-error"
+	TopicFilterErr       = "topic-error"
+	DimensionsFilterErr  = "dimensions-error"
+	QueryStringErr       = "query-string-error"
 )
 
 var (
@@ -77,9 +75,6 @@ func ReviewQuery(ctx context.Context, cfg *config.Config, urlQuery url.Values, c
 
 	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &sp, censusTopicCache)
 	validationErrs = handleValidationError(ctx, topicFilterErr, "invalid topic filters set", TopicFilterErr, validationErrs)
-
-	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &sp)
-	validationErrs = handleValidationError(ctx, populationTypeFilterErr, "invalid population types set", PopulationTypeFilterErr, validationErrs)
 
 	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, dimensionsFilterErr, "invalid dimensions set", DimensionsFilterErr, validationErrs)
@@ -145,9 +140,6 @@ func ReviewDataAggregationQueryWithParams(ctx context.Context, cfg *config.Confi
 	topicFilterErr := reviewTopicFiltersForDataAggregation(urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, topicFilterErr, "invalid topic filters set for aggregation", TopicFilterErr, validationErrs)
 
-	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &sp)
-	validationErrs = handleValidationError(ctx, populationTypeFilterErr, "invalid population types set for aggregation", PopulationTypeFilterErr, validationErrs)
-
 	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &sp)
 	validationErrs = handleValidationError(ctx, dimensionsFilterErr, "invalid dimensions set for aggregation", DimensionsFilterErr, validationErrs)
 
@@ -197,9 +189,6 @@ func ReviewDatasetQuery(ctx context.Context, cfg *config.Config, urlQuery url.Va
 
 	topicFilterErr := reviewTopicFilters(ctx, urlQuery, &validatedQueryParams, censusTopicCache)
 	validationErrs = handleValidationError(ctx, topicFilterErr, "invalid topic filters set", TopicFilterErr, validationErrs)
-
-	populationTypeFilterErr := reviewPopulationTypeFilters(urlQuery, &validatedQueryParams)
-	validationErrs = handleValidationError(ctx, populationTypeFilterErr, "invalid population types set", PopulationTypeFilterErr, validationErrs)
 
 	dimensionsFilterErr := reviewDimensionsFilters(urlQuery, &validatedQueryParams)
 	validationErrs = handleValidationError(ctx, dimensionsFilterErr, "invalid dimensions set", DimensionsFilterErr, validationErrs)
@@ -477,30 +466,28 @@ func CapitalizeFirstLetter(input string) string {
 
 func createSearchAPIQuery(validatedQueryParams SearchURLParams) url.Values {
 	return url.Values{
-		"q":                []string{validatedQueryParams.Query},
-		"population_types": []string{validatedQueryParams.PopulationTypeFilter},
-		"dimensions":       []string{validatedQueryParams.DimensionsFilter},
-		"content_type":     validatedQueryParams.Filter.Query,
-		"fromDate":         []string{validatedQueryParams.AfterDate.String()},
-		"toDate":           []string{validatedQueryParams.BeforeDate.String()},
-		"sort":             []string{validatedQueryParams.Sort.Query},
-		"limit":            []string{strconv.Itoa(validatedQueryParams.Limit)},
-		"offset":           []string{strconv.Itoa(validatedQueryParams.Offset)},
-		"topics":           []string{validatedQueryParams.TopicFilter},
-		"nlp_weighting":    []string{strconv.FormatBool(validatedQueryParams.NLPWeightingEnabled)},
-		"uri_prefix":       []string{validatedQueryParams.URIPrefix},
+		"q":             []string{validatedQueryParams.Query},
+		"dimensions":    []string{validatedQueryParams.DimensionsFilter},
+		"content_type":  validatedQueryParams.Filter.Query,
+		"fromDate":      []string{validatedQueryParams.AfterDate.String()},
+		"toDate":        []string{validatedQueryParams.BeforeDate.String()},
+		"sort":          []string{validatedQueryParams.Sort.Query},
+		"limit":         []string{strconv.Itoa(validatedQueryParams.Limit)},
+		"offset":        []string{strconv.Itoa(validatedQueryParams.Offset)},
+		"topics":        []string{validatedQueryParams.TopicFilter},
+		"nlp_weighting": []string{strconv.FormatBool(validatedQueryParams.NLPWeightingEnabled)},
+		"uri_prefix":    []string{validatedQueryParams.URIPrefix},
 	}
 }
 
 func createSearchControllerQuery(validatedQueryParams SearchURLParams) url.Values {
 	return url.Values{
-		"q":                []string{validatedQueryParams.Query},
-		"population_types": []string{validatedQueryParams.PopulationTypeFilter},
-		"dimensions":       []string{validatedQueryParams.DimensionsFilter},
-		"filter":           validatedQueryParams.Filter.Query,
-		"sort":             []string{validatedQueryParams.Sort.Query},
-		"limit":            []string{strconv.Itoa(validatedQueryParams.Limit)},
-		"page":             []string{strconv.Itoa(validatedQueryParams.CurrentPage)},
+		"q":          []string{validatedQueryParams.Query},
+		"dimensions": []string{validatedQueryParams.DimensionsFilter},
+		"filter":     validatedQueryParams.Filter.Query,
+		"sort":       []string{validatedQueryParams.Sort.Query},
+		"limit":      []string{strconv.Itoa(validatedQueryParams.Limit)},
+		"page":       []string{strconv.Itoa(validatedQueryParams.CurrentPage)},
 	}
 }
 

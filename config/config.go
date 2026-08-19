@@ -22,28 +22,27 @@ type Config struct {
 	DefaultOffset                  int           `envconfig:"DEFAULT_OFFSET"`
 	DefaultPage                    int           `envconfig:"DEFAULT_PAGE"`
 	*DefaultSort
-	EnableAggregationPages                  bool          `envconfig:"ENABLE_AGGREGATION_PAGES"`
-	EnableNLPSearch                         bool          `envconfig:"ENABLE_NLP_SEARCH"`
-	EnableRedirectAPI                       bool          `envconfig:"ENABLE_REDIRECT_API"`
-	EnableTopicAggregationPages             bool          `envconfig:"ENABLE_TOPIC_AGGREGATION_PAGES"`
-	FeedbackAPIURL                          string        `envconfig:"FEEDBACK_API_URL"`
-	EnableCensusDimensionsFilterOption      bool          `envconfig:"ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION"`
-	EnableCensusPopulationTypesFilterOption bool          `envconfig:"ENABLE_CENSUS_POPULATION_TYPE_FILTER_OPTION"`
-	EnableCensusTopicFilterOption           bool          `envconfig:"ENABLE_CENSUS_TOPIC_FILTER_OPTION"`
-	EnableNewNavBar                         bool          `envconfig:"ENABLE_NEW_NAV_BAR"`
-	GracefulShutdownTimeout                 time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
-	HealthCheckCriticalTimeout              time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
-	HealthCheckInterval                     time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
-	OTBatchTimeout                          time.Duration `encconfig:"OTEL_BATCH_TIMEOUT"`
-	OTExporterOTLPEndpoint                  string        `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
-	OTServiceName                           string        `envconfig:"OTEL_SERVICE_NAME"`
-	OtelEnabled                             bool          `envconfig:"OTEL_ENABLED"`
-	IsPublishing                            bool          `envconfig:"IS_PUBLISHING"`
-	PatternLibraryAssetsPath                string        `envconfig:"PATTERN_LIBRARY_ASSETS_PATH"`
-	RedirectAPIURL                          string        `envconfig:"REDIRECT_API_URL"`
-	ServiceAuthToken                        string        `envconfig:"SERVICE_AUTH_TOKEN"   json:"-"`
-	SiteDomain                              string        `envconfig:"SITE_DOMAIN"`
-	SupportedLanguages                      []string      `envconfig:"SUPPORTED_LANGUAGES"`
+	EnableAggregationPages             bool          `envconfig:"ENABLE_AGGREGATION_PAGES"`
+	EnableNLPSearch                    bool          `envconfig:"ENABLE_NLP_SEARCH"`
+	EnableRedirectAPI                  bool          `envconfig:"ENABLE_REDIRECT_API"`
+	EnableTopicAggregationPages        bool          `envconfig:"ENABLE_TOPIC_AGGREGATION_PAGES"`
+	FeedbackAPIURL                     string        `envconfig:"FEEDBACK_API_URL"`
+	EnableCensusDimensionsFilterOption bool          `envconfig:"ENABLE_CENSUS_DIMENSIONS_FILTER_OPTION"`
+	EnableCensusTopicFilterOption      bool          `envconfig:"ENABLE_CENSUS_TOPIC_FILTER_OPTION"`
+	EnableNewNavBar                    bool          `envconfig:"ENABLE_NEW_NAV_BAR"`
+	GracefulShutdownTimeout            time.Duration `envconfig:"GRACEFUL_SHUTDOWN_TIMEOUT"`
+	HealthCheckCriticalTimeout         time.Duration `envconfig:"HEALTHCHECK_CRITICAL_TIMEOUT"`
+	HealthCheckInterval                time.Duration `envconfig:"HEALTHCHECK_INTERVAL"`
+	OTBatchTimeout                     time.Duration `encconfig:"OTEL_BATCH_TIMEOUT"`
+	OTExporterOTLPEndpoint             string        `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
+	OTServiceName                      string        `envconfig:"OTEL_SERVICE_NAME"`
+	OtelEnabled                        bool          `envconfig:"OTEL_ENABLED"`
+	IsPublishing                       bool          `envconfig:"IS_PUBLISHING"`
+	PatternLibraryAssetsPath           string        `envconfig:"PATTERN_LIBRARY_ASSETS_PATH"`
+	RedirectAPIURL                     string        `envconfig:"REDIRECT_API_URL"`
+	ServiceAuthToken                   string        `envconfig:"SERVICE_AUTH_TOKEN"   json:"-"`
+	SiteDomain                         string        `envconfig:"SITE_DOMAIN"`
+	SupportedLanguages                 []string      `envconfig:"SUPPORTED_LANGUAGES"`
 }
 
 type DefaultSort struct {
@@ -99,27 +98,26 @@ func get() (*Config, error) {
 			PreviousReleases: "release_date",
 			RelatedData:      "title",
 		},
-		FeedbackAPIURL:                          "http://localhost:23200/v1/feedback",
-		EnableCensusTopicFilterOption:           false,
-		EnableCensusPopulationTypesFilterOption: false,
-		EnableCensusDimensionsFilterOption:      false,
-		EnableAggregationPages:                  false,
-		EnableTopicAggregationPages:             false,
-		EnableNewNavBar:                         false,
-		EnableNLPSearch:                         false,
-		EnableRedirectAPI:                       false,
-		GracefulShutdownTimeout:                 5 * time.Second,
-		HealthCheckCriticalTimeout:              90 * time.Second,
-		HealthCheckInterval:                     30 * time.Second,
-		OTBatchTimeout:                          5 * time.Second,
-		OTExporterOTLPEndpoint:                  "localhost:4317",
-		OTServiceName:                           "dp-frontend-search-controller",
-		OtelEnabled:                             false,
-		IsPublishing:                            false,
-		RedirectAPIURL:                          "http://localhost:29900",
-		ServiceAuthToken:                        "",
-		SiteDomain:                              "localhost",
-		SupportedLanguages:                      []string{"en", "cy"},
+		FeedbackAPIURL:                     "http://localhost:23200/v1/feedback",
+		EnableCensusTopicFilterOption:      false,
+		EnableCensusDimensionsFilterOption: false,
+		EnableAggregationPages:             false,
+		EnableTopicAggregationPages:        false,
+		EnableNewNavBar:                    false,
+		EnableNLPSearch:                    false,
+		EnableRedirectAPI:                  false,
+		GracefulShutdownTimeout:            5 * time.Second,
+		HealthCheckCriticalTimeout:         90 * time.Second,
+		HealthCheckInterval:                30 * time.Second,
+		OTBatchTimeout:                     5 * time.Second,
+		OTExporterOTLPEndpoint:             "localhost:4317",
+		OTServiceName:                      "dp-frontend-search-controller",
+		OtelEnabled:                        false,
+		IsPublishing:                       false,
+		RedirectAPIURL:                     "http://localhost:29900",
+		ServiceAuthToken:                   "",
+		SiteDomain:                         "localhost",
+		SupportedLanguages:                 []string{"en", "cy"},
 	}
 
 	return cfg, envconfig.Process("", cfg)

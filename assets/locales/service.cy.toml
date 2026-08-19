@@ -36,11 +36,6 @@ description = "Select content type"
 one = "Select content type"
 other = "Select content types"
 
-[PopulationTypes]
-description = "Population type"
-one = "Population type"
-other = "Population type"
-
 [Dimensions]
 description = "Keywords"
 one = "Keywords"

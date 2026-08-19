@@ -78,14 +78,6 @@ func TestUnitGetMockFindADatasetResponse(t *testing.T) {
 				},
 			}
 
-			mockPopulationTypes := []searchModels.FilterCount{
-				{
-					Type:  "UR",
-					Label: "Usual Residents",
-					Count: 1,
-				},
-			}
-
 			mockDimensions := []searchModels.FilterCount{
 				{
 					Type:  "ethnicity",
@@ -117,9 +109,8 @@ func TestUnitGetMockFindADatasetResponse(t *testing.T) {
 						Title:    "Title Title",
 						Keywords: []*string{&testString1, &testString2, &testString3, &testString4}, // "regional house prices", "property prices", "area with cheapest houses", "area with most expensive houses"},
 					},
-					DataType:       "dataset_landing_page",
-					URI:            "/uri1/housing/articles/uri2/2015-02-17",
-					PopulationType: "Usual Residents",
+					DataType: "dataset_landing_page",
+					URI:      "/uri1/housing/articles/uri2/2015-02-17",
 					Dimensions: []searchModels.ESDimensions{
 						{
 							RawLabel: "Ethnicity",
@@ -131,13 +122,12 @@ func TestUnitGetMockFindADatasetResponse(t *testing.T) {
 			}
 
 			So(mockSearchResponse, ShouldResemble, &searchModels.SearchResponse{
-				Count:          1,
-				Took:           96,
-				PopulationType: mockPopulationTypes,
-				Dimensions:     mockDimensions,
-				ContentTypes:   mockSearchContentTypes,
-				Topics:         mockSearchTopics,
-				Items:          mockSearchItems,
+				Count:        1,
+				Took:         96,
+				Dimensions:   mockDimensions,
+				ContentTypes: mockSearchContentTypes,
+				Topics:       mockSearchTopics,
+				Items:        mockSearchItems,
 			})
 		})
 

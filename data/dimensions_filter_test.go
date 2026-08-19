@@ -25,16 +25,12 @@ func TestUnitGetDimensions(t *testing.T) {
 						RawLabel: "Ethnicity",
 					},
 				},
-				PopulationType: "Usual Residents",
 			},
 		},
 		Suggestions:         []string{},
 		AdditionSuggestions: []string{},
 		Dimensions: []searchModels.FilterCount{
 			{Type: "ethnicity", Label: "Ethnicity", Count: 1},
-		},
-		PopulationType: []searchModels.FilterCount{
-			{Type: "UR", Label: "Usual Residents", Count: 1},
 		},
 	}
 	dimensions := GetDimensions(searchResponseMock)

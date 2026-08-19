@@ -8,11 +8,6 @@
             "count": 1
         }
     ],
-    "population_type": [{
-        "type": "UR",
-        "label": "Usual Residents",
-        "count": 1
-      }],
       "dimensions": [{
         "type": "ethnicity",
         "label": "Ethnicity",
@@ -27,7 +22,6 @@
     ],
     "items": [
         {
-            "population_type": "Usual Residents",
             "dimensions": [ {
               "label": "ethnicity",
               "raw_label": "Ethnicity",

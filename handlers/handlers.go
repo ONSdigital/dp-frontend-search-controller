@@ -310,17 +310,17 @@ func validateCurrentPage(ctx context.Context, cfg *config.Config, validatedQuery
 
 // getCategoriesCountQuery removes specific params to return the total count for all types.
 func getCategoriesCountQuery(searchQuery url.Values) url.Values {
-	return removeQueryParams(searchQuery, "content_type", "topics", "population_types", "dimensions")
+	return removeQueryParams(searchQuery, "content_type", "topics", "dimensions")
 }
 
 // getCategoriesTopicsCountQuery removes fewer params, for counts based on topics.
 func getCategoriesTopicsCountQuery(searchQuery url.Values) url.Values {
-	return removeQueryParams(searchQuery, "content_type", "population_types", "dimensions")
+	return removeQueryParams(searchQuery, "content_type", "dimensions")
 }
 
 // getCategoriesDatasetCountQuery removes a different set of params for dataset counts.
 func getCategoriesDatasetCountQuery(searchQuery url.Values) url.Values {
-	return removeQueryParams(searchQuery, "topics", "population_types", "dimensions")
+	return removeQueryParams(searchQuery, "topics", "dimensions")
 }
 
 // removeQueryParams clones the search query and removes specified params.

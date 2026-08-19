@@ -5,7 +5,6 @@
 {{ $sort := .Data.Sort.Query }}
 {{ $lang := .Language }}
 {{ $censusFilters := .Data.CensusFilters }}
-{{ $population_types := .Data.PopulationTypeFilter}}
 {{ $dimensions := .Data.DimensionsFilter}}
 
 
@@ -193,46 +192,6 @@
     {{ end }}
 
 
-    {{ if $population_types }}
-    {{ $translationKey := "PopulationTypes" }}
-    {{ $key := "population-types" }}
-    {{ $value := $population_types }}
-        <details class="ons-collapsible ons-js-details ons-collapsible--accordion" data-group="accordion" data-btn-close="Hide this" data-open="true">
-            <summary class="ons-collapsible__heading ons-js-collapsible-heading">
-                <h2 class="ons-collapsible__title">
-                    <legend class="block">
-                        {{ localise $translationKey $lang 1 }}
-                    </legend>
-                </h2>
-                <span class="ons-collapsible__icon">
-                    {{ template "icons/chevron-right" }}
-                </span>
-            </summary>
-            <div class="ons-collapsible__content ons-js-details-content ons-u-mb-s">
-                {{ range $index, $filter := $value }}
-                <div class="ons-checkboxes__items">
-                    <span class="ons-checkboxes__item ons-checkboxes__item--no-border">
-                        <span class="ons-checkbox ons-checkbox--no-border {{ $key }}">
-                            <input type="checkbox" id="{{ $key }}-group-{{ $index }}"
-                                class="ons-checkbox__input ons-js-checkbox"
-                                name="{{ $key }}"
-                                value="{{ print $filter.Type }}"
-                                data-gtm-label="{{ $filter.Type }}"
-                                {{ if $filter.IsChecked }}
-                                    checked
-                                {{ end }}
-                            >
-                            <label class="ons-checkbox__label" for="{{ $key }}-group-{{ $index }}" id="{{ $key }}-group-{{ $index }}-label">
-                                {{ $filter.LocaliseKeyName }} ({{ $filter.Count }})
-                            </label>
-                        </span>
-                    </span>
-                </div>
-                {{ end }}
-            </div>
-        </details>
-    </form>
-    {{ end }}
     {{ if $dimensions }}
     {{ $key := "dimensions" }}
     {{ $translationKey := "Dimensions" }}

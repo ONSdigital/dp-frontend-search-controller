@@ -155,9 +155,8 @@ func GetPagesToDisplay(cfg *config.Config, req http.Request, validatedQueryParam
 
 	controllerQuery := createSearchControllerQuery(validatedQueryParams)
 	query := controllerQuery.Get("q")
-	populationTypes := controllerQuery.Get("population_types")
 	dimensions := controllerQuery.Get("dimensions")
-	queryString := buildQueryString(query, populationTypes, dimensions)
+	queryString := buildQueryString(query, dimensions)
 
 	for i := startPage; i <= endPage; i++ {
 		pagesToDisplay = append(pagesToDisplay, model.PageToDisplay{
@@ -175,9 +174,8 @@ func GetFirstAndLastPages(req http.Request, validatedQueryParams SearchURLParams
 
 	controllerQuery := createSearchControllerQuery(validatedQueryParams)
 	query := controllerQuery.Get("q")
-	populationTypes := controllerQuery.Get("population_types")
 	dimensions := controllerQuery.Get("dimensions")
-	queryString := buildQueryString(query, populationTypes, dimensions)
+	queryString := buildQueryString(query, dimensions)
 
 	// add first and last
 	firstAndLastPages[0] = model.PageToDisplay{
@@ -223,7 +221,6 @@ func getEndPage(startPage, totalPages int) int {
 func getPageURL(queryString string, req http.Request, page int, controllerQuery url.Values) (pageQueryString string) {
 	controllerQuery.Del("q")
 	controllerQuery.Del("page")
-	controllerQuery.Del("population_types")
 	controllerQuery.Del("dimensions")
 
 	pageParam := "&page=" + strconv.Itoa(page)
@@ -240,13 +237,10 @@ func getPageURL(queryString string, req http.Request, page int, controllerQuery 
 	return pageQueryString
 }
 
-func buildQueryString(query, populationTypes, dimensions string) string {
+func buildQueryString(query, dimensions string) string {
 	var u url.URL
 	q := u.Query()
 	q.Set("q", query)
-	if populationTypes != "" {
-		q.Set("population_types", populationTypes)
-	}
 	if dimensions != "" {
 		q.Set("dimensions", dimensions)
 	}

@@ -186,7 +186,6 @@ func TestUnitFindDatasetPage(t *testing.T) {
 		cfg, err := config.Get()
 		So(err, ShouldBeNil)
 		cfg.EnableCensusDimensionsFilterOption = true
-		cfg.EnableCensusPopulationTypesFilterOption = true
 		cfg.BindAddr = bindAddrAny
 		req := httptest.NewRequest("GET", "/census/find-a-dataset", http.NoBody)
 		mdl := core.Page{}
@@ -198,8 +197,6 @@ func TestUnitFindDatasetPage(t *testing.T) {
 				Query:           []string{"dataset_landing_page"},
 				LocaliseKeyName: []string{"Dataset"},
 			},
-
-			PopulationTypeFilter: "UR",
 
 			DimensionsFilter: "ethnicity",
 
@@ -218,7 +215,6 @@ func TestUnitFindDatasetPage(t *testing.T) {
 		categories[0].ContentTypes[1].Count = 1
 
 		topicCategories := mockTopicCategories
-		populationTypes := []data.PopulationTypes{}
 		dimensions := []data.Dimensions{}
 
 		respC, err := GetFindADatasetResponse()
@@ -228,11 +224,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 		So(err, ShouldBeNil)
 
 		Convey("When CreateDataFinderPage is called", func() {
-			// NOTE: temporary measure until topic filter feature flag is removed
-			cfg.EnableCensusPopulationTypesFilterOption = true
-			cfg.EnableCensusDimensionsFilterOption = true
-
-			sp := CreateDataFinderPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, populationTypes, dimensions, respC, englishLang, respH, []core.ErrorItem{}, &topicModels.Navigation{})
+			sp := CreateDataFinderPage(cfg, req, mdl, validatedQueryParams, categories, topicCategories, dimensions, respC, englishLang, respH, []core.ErrorItem{}, &topicModels.Navigation{})
 
 			Convey("Then successfully map search response from search-query client to page model", func() {
 				So(sp.Data.Query, ShouldEqual, "housing")
@@ -249,7 +241,7 @@ func TestUnitFindDatasetPage(t *testing.T) {
 				So(sp.Data.Pagination.TotalPages, ShouldEqual, 1)
 				So(sp.Data.Pagination.PagesToDisplay, ShouldHaveLength, 1)
 				So(sp.Data.Pagination.PagesToDisplay[0].PageNumber, ShouldEqual, 1)
-				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/census/find-a-dataset?dimensions=ethnicity&population_types=UR&q=housing&filter=dataset_landing_page&limit=10&sort=release_date&page=1")
+				So(sp.Data.Pagination.PagesToDisplay[0].URL, ShouldEqual, "/census/find-a-dataset?dimensions=ethnicity&q=housing&filter=dataset_landing_page&limit=10&sort=release_date&page=1")
 				So(sp.Data.Pagination.Limit, ShouldEqual, 10)
 				So(sp.Data.Pagination.LimitOptions, ShouldResemble, []int{10, 25, 50})
 

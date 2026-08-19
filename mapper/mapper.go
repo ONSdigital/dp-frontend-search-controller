@@ -384,7 +384,7 @@ func mapDataPage(page *model.SearchPage, respC *searchModels.SearchResponse, lan
 
 // CreateSearchPage maps type searchC.Response to model.Page
 func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage core.Page,
-	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, populationTypes []data.PopulationTypes, dimensions []data.Dimensions,
+	validatedQueryParams data.SearchURLParams, categories []data.Category, topicCategories []data.Topic, dimensions []data.Dimensions,
 	respC *searchModels.SearchResponse, lang string, homepageResponse zebedee.HomepageContent, validationErrs []core.ErrorItem,
 	navigationContent *topicModel.Navigation,
 ) model.SearchPage {
@@ -417,8 +417,6 @@ func CreateDataFinderPage(cfg *config.Config, req *http.Request, basePage core.P
 	mapResponse(&page, respC, categories)
 
 	mapCensusTopicFilters(cfg, &page, topicCategories, validatedQueryParams)
-
-	mapPopulationTypesFilters(cfg, &page, populationTypes, validatedQueryParams)
 
 	mapDimensionsFilters(cfg, &page, dimensions, validatedQueryParams)
 
@@ -529,7 +527,6 @@ func mapResponseItems(page *model.SearchPage, respC *searchModels.SearchResponse
 		item.Type.LocaliseKeyName = data.GetGroupLocaliseKey(respC.Items[i].DataType)
 
 		item.URI = respC.Items[i].URI
-		item.Dataset.PopulationType = respC.Items[i].PopulationType
 
 		itemPage[i] = item
 	}
@@ -752,56 +749,13 @@ func mapCensusTopicFilters(cfg *config.Config, page *model.SearchPage, topicCate
 	page.Data.CensusFilters = topicFilters[0].Types
 }
 
-func mapPopulationTypesFilters(cfg *config.Config, page *model.SearchPage, populationTypes []data.PopulationTypes, queryParams data.SearchURLParams) {
-	if !cfg.EnableCensusPopulationTypesFilterOption {
-		return
-	}
-
-	var popultationTypesQueryParam []string
-	if queryParams.PopulationTypeFilter != "" {
-		popultationTypesQueryParam = strings.Split(queryParams.PopulationTypeFilter, ",")
-	}
-
-	mapPopultationTypesQueryParams := make(map[string]bool)
-	for i := range popultationTypesQueryParam {
-		mapPopultationTypesQueryParams[popultationTypesQueryParam[i]] = true
-	}
-
-	populationTypeFilters := make([]model.PopulationTypeFilter, len(populationTypes))
-
-	for i := range populationTypes {
-		if !populationTypes[i].ShowInWebUI {
-			continue
-		}
-
-		var populationTypesFilter model.PopulationTypeFilter
-
-		populationTypesFilter.LocaliseKeyName = populationTypes[i].LocaliseKeyName
-		populationTypesFilter.NumberOfResults = populationTypes[i].Count
-		populationTypesFilter.Query = queryParams.Query
-		populationTypesFilter.Count = populationTypes[i].Count
-		populationTypesFilter.Type = populationTypes[i].Type
-
-		if len(popultationTypesQueryParam) > 0 {
-			for _, v := range popultationTypesQueryParam {
-				if v == populationTypesFilter.LocaliseKeyName {
-					populationTypesFilter.IsChecked = true
-				}
-			}
-		}
-
-		populationTypeFilters[i] = populationTypesFilter
-	}
-	page.Data.PopulationTypeFilter = populationTypeFilters
-}
-
 func mapDimensionsFilters(cfg *config.Config, page *model.SearchPage, dimensions []data.Dimensions, queryParams data.SearchURLParams) {
 	if !cfg.EnableCensusDimensionsFilterOption {
 		return
 	}
 
 	var dimensionsQueryParam []string
-	if queryParams.PopulationTypeFilter != "" {
+	if queryParams.DimensionsFilter != "" {
 		dimensionsQueryParam = strings.Split(queryParams.DimensionsFilter, ",")
 	}
 

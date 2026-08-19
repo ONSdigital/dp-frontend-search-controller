@@ -13,7 +13,7 @@ import (
 	. "github.com/smartystreets/goconvey/convey"
 )
 
-var housingQuery = buildQueryString("housing", "", "")
+var housingQuery = buildQueryString("housing", "")
 
 func TestUnitReviewPaginationSuccess(t *testing.T) {
 	t.Parallel()
