@@ -7,12 +7,12 @@ require (
 	github.com/ONSdigital/dis-redirect-api v1.1.0
 	github.com/ONSdigital/dp-api-clients-go/v2 v2.279.0
 	github.com/ONSdigital/dp-cache v0.6.1
-	github.com/ONSdigital/dp-component-test v1.4.4-alpha
+	github.com/ONSdigital/dp-component-test v1.4.7
 	github.com/ONSdigital/dp-cookies v0.7.1
 	github.com/ONSdigital/dp-healthcheck v1.6.4
 	github.com/ONSdigital/dp-net/v3 v3.11.0
 	github.com/ONSdigital/dp-otel-go v0.0.8
-	github.com/ONSdigital/dp-search-api v1.56.0
+	github.com/ONSdigital/dp-search-api v1.59.1-0.20260820161433-89452454630f
 	github.com/ONSdigital/dp-topic-api v1.3.1
 	github.com/ONSdigital/log.go/v2 v2.5.2
 	github.com/cucumber/godog v0.15.1
@@ -173,11 +173,11 @@ require (
 	go.opentelemetry.io/otel/trace v1.44.0 // indirect
 	go.opentelemetry.io/proto/otlp v1.9.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/crypto v0.51.0 // indirect
+	golang.org/x/crypto v0.53.0 // indirect
 	golang.org/x/mod v0.37.0 // indirect
 	golang.org/x/net v0.55.0 // indirect
 	golang.org/x/sync v0.21.0 // indirect
-	golang.org/x/sys v0.45.0 // indirect
+	golang.org/x/sys v0.46.0 // indirect
 	golang.org/x/text v0.39.0 // indirect
 	google.golang.org/genproto/googleapis/api v0.0.0-20260526163538-3dc84a4a5aaa // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20260526163538-3dc84a4a5aaa // indirect
