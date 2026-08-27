@@ -15,7 +15,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/service"
 	"github.com/ONSdigital/dp-healthcheck/healthcheck"
 	dphttp "github.com/ONSdigital/dp-net/v3/http"
-	searchModels "github.com/ONSdigital/dp-search-api/models"
+	searchModels "github.com/ONSdigital/dp-search-api/v2/models"
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/maxcnunes/httpfake"

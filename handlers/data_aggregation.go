@@ -12,7 +12,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/data"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-search-controller/model"
-	searchModels "github.com/ONSdigital/dp-search-api/models"
+	searchModels "github.com/ONSdigital/dp-search-api/v2/models"
 	"github.com/ONSdigital/dp-topic-api/models"
 
 	dphandlers "github.com/ONSdigital/dp-net/v3/handlers"

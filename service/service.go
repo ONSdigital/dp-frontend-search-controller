@@ -20,7 +20,7 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/handlers"
 	"github.com/ONSdigital/dp-frontend-search-controller/routes"
-	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
+	searchSDK "github.com/ONSdigital/dp-search-api/v2/sdk"
 	topic "github.com/ONSdigital/dp-topic-api/sdk"
 	"github.com/ONSdigital/log.go/v2/log"
 	"github.com/gorilla/mux"

@@ -4,10 +4,10 @@ import (
 	"context"
 	"io"
 
-	searchAPI "github.com/ONSdigital/dp-search-api/api"
-	searchModels "github.com/ONSdigital/dp-search-api/models"
-	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
-	searchError "github.com/ONSdigital/dp-search-api/sdk/errors"
+	searchAPI "github.com/ONSdigital/dp-search-api/v2/api"
+	searchModels "github.com/ONSdigital/dp-search-api/v2/models"
+	searchSDK "github.com/ONSdigital/dp-search-api/v2/sdk"
+	searchError "github.com/ONSdigital/dp-search-api/v2/sdk/errors"
 
 	topicModels "github.com/ONSdigital/dp-topic-api/models"
 	topicSDK "github.com/ONSdigital/dp-topic-api/sdk"

@@ -14,10 +14,10 @@ import (
 	"github.com/ONSdigital/dp-frontend-search-controller/config"
 	"github.com/ONSdigital/dp-frontend-search-controller/mapper"
 	"github.com/ONSdigital/dp-frontend-search-controller/mocks"
-	searchAPI "github.com/ONSdigital/dp-search-api/api"
-	searchModels "github.com/ONSdigital/dp-search-api/models"
-	searchSDK "github.com/ONSdigital/dp-search-api/sdk"
-	searchError "github.com/ONSdigital/dp-search-api/sdk/errors"
+	searchAPI "github.com/ONSdigital/dp-search-api/v2/api"
+	searchModels "github.com/ONSdigital/dp-search-api/v2/models"
+	searchSDK "github.com/ONSdigital/dp-search-api/v2/sdk"
+	searchError "github.com/ONSdigital/dp-search-api/v2/sdk/errors"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

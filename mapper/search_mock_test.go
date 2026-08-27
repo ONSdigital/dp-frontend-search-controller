@@ -3,7 +3,7 @@ package mapper
 import (
 	"testing"
 
-	searchModels "github.com/ONSdigital/dp-search-api/models"
+	searchModels "github.com/ONSdigital/dp-search-api/v2/models"
 	. "github.com/smartystreets/goconvey/convey"
 )
 

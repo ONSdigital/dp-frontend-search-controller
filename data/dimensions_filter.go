@@ -5,7 +5,7 @@ import (
 	"sort"
 	"strings"
 
-	searchModels "github.com/ONSdigital/dp-search-api/models"
+	searchModels "github.com/ONSdigital/dp-search-api/v2/models"
 )
 
 type Dimensions struct {

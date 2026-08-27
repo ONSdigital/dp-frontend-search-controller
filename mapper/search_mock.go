@@ -4,7 +4,7 @@ import (
 	"embed"
 	"encoding/json"
 
-	searchModels "github.com/ONSdigital/dp-search-api/models"
+	searchModels "github.com/ONSdigital/dp-search-api/v2/models"
 
 	zebedeeC "github.com/ONSdigital/dp-api-clients-go/v2/zebedee"
 )
